@@ -1,0 +1,12 @@
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.out
+*.toc
+*.bak*
+svg-inkscape
+_minted*
+*.listing
+.$*

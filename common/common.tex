@@ -1,0 +1,98 @@
+%=======================PACKAGES FOR NEWCOMMAND CREATION========================
+\usepackage{xparse}
+%===============================================================================
+
+%=========================PACKAGES FOR USE IN DOCUMENT==========================
+\usepackage{graphicx, amssymb, amsfonts, amsmath, xcolor, listings, multirow, hyperref, mathtools, svg, tikz, enumitem, minted, xfrac}
+\usepackage[most]{tcolorbox}
+\usepackage[super]{nth}
+
+% for including chapters
+\newcommand{\addchapter}[1]{\include{#1/#1}}
+%===============================================================================
+
+%==============================UNFINISHED SECTION===============================
+\newcommand{\unfinished}{\begin{huge} \textcolor{red}{\textbf{UNFINISHED!!!}} \end{huge}}
+%===============================================================================
+
+%==============================PAGE SPLIT LAYOUTS===============================
+\NewDocumentCommand{\twosplit}{O{0.48} O{#1} m m}{
+    \begin{minipage}[t]{#1\textwidth}
+		#3
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{#2\textwidth}
+		#4
+	\end{minipage}
+}
+%===============================================================================
+
+%============================SPECIAL COLOURED BOXES=============================
+
+% For term definitions
+% \begin{definitionbox}{term}
+%	... the term's definition ...
+% \end{definitionbox}
+\newtcolorbox[auto counter,number within=section]{definitionbox}[2][]{%
+colback=blue!5!white,colframe=blue!75!black,arc=0mm,sharp corners=all,fonttitle=\bfseries,%
+title=#2 \hfill Definition \thetcbcounter #1}
+
+% For term definitions
+% \begin{sidenotebox}{cool title}
+%	... cool unsassessed/not required info ...
+% \end{sidenotebox}
+\newtcolorbox[auto counter,number within=section]{sidenotebox}[2][]{%
+colback=black!5!white,colframe=black!75!black,arc=0mm,sharp corners=all,fonttitle=\bfseries,%
+title=#2 \hfill \textit{Extra Fun!} \thetcbcounter #1}
+
+% For example questions:
+% \begin{examplebox}{question name}
+%   ... the question ...
+%	\tcblower
+%   ... the worked answer ...
+% \end{examplebox}
+\newtcolorbox[auto counter,number within=section]{examplebox}[2][]{%
+colback=orange!5!white,colframe=orange!75!black,arc=0mm,sharp corners=all,fonttitle=\bfseries,%
+title=#2 \hfill Example Question \thetcbcounter #1}
+
+% For exam questions (no answers):
+% \begin{exambox}{1c}{2018}
+%   ... the question ...
+% \end{exambox}
+\newtcolorbox[auto counter,number within=section]{exambox}[3][]{%
+colback=purple!5!white,colframe=purple!75!black,arc=0mm,sharp corners=all,fonttitle=\bfseries,
+title=Q#2 - #3 \hfill Exam Question \thetcbcounter #1}
+
+% For positives/pros 
+% \begin{prosbox}
+%	... the term's definition ...
+% \end{prosbox}
+\newtcolorbox[]{prosbox}[1][]{%
+colback=green!5!white,colframe=green!75!black,leftrule=3mm,arc=0mm,sharp corners=all, #1}
+
+% For negatives/cons 
+% \begin{prosbox}
+%	... the term's definition ...
+% \end{prosbox}
+\newtcolorbox[]{consbox}[1][]{%
+colback=red!5!white,colframe=red!75!black,leftrule=3mm,arc=0mm,sharp corners=all, #1}
+
+
+% \begin{linuxbox}
+%   ... the question ...
+% \end{linuxbox}
+\newtcolorbox{linuxbox}{enhanced,arc=0mm,sharp corners=all,colback=gray!5,colframe=gray,leftrule=12mm,%
+overlay={\node[anchor=north west,outer sep=2pt] at (frame.north west) {\includegraphics[width=8mm]{common/images/tux.png}}; }}
+
+% \begin{windowsbox}
+%   ... the question ...
+% \end{windowsbox}
+\newtcolorbox{windowsbox}{enhanced,arc=0mm,sharp corners=all,colback=gray!5,colframe=gray,leftrule=12mm,%
+overlay={\node[anchor=north west,outer sep=2pt] at (frame.north west) {\includegraphics[width=8mm]{common/images/windows.png}}; }}
+
+% \begin{pintosbox}
+%   ... the question ...
+% \end{pintosbox}
+\newtcolorbox{pintosbox}{enhanced,arc=0mm,sharp corners=all,colback=gray!5,colframe=gray,leftrule=12mm,%
+overlay={\node[anchor=north west,outer sep=2pt] at (frame.north west) {\includegraphics[width=8mm]{common/images/pintos.png}}; }}
+%===============================================================================
