@@ -97,4 +97,13 @@ echo "
 \newpage
 
 \end{document}
-" > "$code - $module.tex"
+" > "$code - $module.tex" &&
+echo "
+# $code - $module
+## Module Description
+
+## Lecturers
+
+## Resources
+" > README.md
+
