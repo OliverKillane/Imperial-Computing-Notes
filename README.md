@@ -64,6 +64,8 @@ sudo apt install texlive-extra-utils
 ## I've found a mistake!
 Simply [add a new issue](https://github.com/OliverKillane/Imperial-Computing-Year-3-Notes/issues/new/choose) and attach the relevant labels.
 
+![Screenshot 2022-10-09 015053](https://user-images.githubusercontent.com/44177991/194732526-54cca108-9fa7-4b0e-a4af-b0baad625af9.png)
+
 ## I want to contribute!
 Fork the repository and create a [pull request](https://github.com/OliverKillane/Imperial-Computing-Year-3-Notes/pulls).
 - I will review as soon as I can
