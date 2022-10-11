@@ -1,4 +1,88 @@
 \chapter{Concurrency In C++}
-% RAII
 
-\section{Locks and Threads}
+\section{Threads}
+To interact with threads the \mintinline{Cpp}{thread} header must be included.
+\begin{itemize}
+    \item It provides a standard, implementation independent, interface for handling threads.
+    \item Provides the \mintinline{Cpp}{std::thread} class
+\end{itemize}
+\begin{minted}{Cpp}
+#include <thread>
+
+namespace std {
+  class thread {
+  public:
+    // types
+    class id;
+    using native_handle_type = /* implementation-defined */;
+ 
+    // construct/copy/destroy
+    thread() noexcept;
+
+    // Constructor takes a function to start from, and its arguments (all type checked)
+    template<class F, class... Args> explicit thread(F&& f, Args&&... args);
+
+    // Destructor (terminates current thread if the thread has not been joined)
+    ~thread();
+
+    // Attempting to copy a thread is not allowed. Hence delete ensures no compile.
+    thread(const thread&) = delete;
+
+    // Can create thread from a thread r-value (copy)
+    thread(thread&&) noexcept;
+
+    // Attempting to copy a thread (via an immutable reference). 
+    // This is not allowed, so if this operator is used it will not compile.
+    thread& operator=(const thread&) = delete;
+    
+    // Assign a thread from an (r value - e.g expression, literal) reference
+    thread& operator=(thread&&) noexcept;
+ 
+    // members
+    void swap(thread&) noexcept;
+    bool joinable() const noexcept;
+
+    // Wait for this thread to terminate.
+    void join();
+
+    // Allow the thread to continue executing after the thread handler (this) 
+    // is destroyed
+    void detach();
+
+    // Get the unique id of the thread
+    id get_id() const noexcept;
+
+    native_handle_type native_handle();
+ 
+    // static members
+    static unsigned int hardware_concurrency() noexcept;
+  };
+}
+\end{minted}
+\begin{definitionbox}{Lambda}
+    A lambda is a small function that can be defined in an expression, capture values in its scope (and above), and be passed as a value.
+    \begin{minted}{Cpp}
+// [captures] (arguments) {body}
+
+// a basic lambda with no captures
+auto my_lambda = [] (int a, int b) -> int {return a + b;}
+
+// using the lambda
+int c = my_lambda(1, 2);
+
+auto another_lambda = [c&] (int d) {return c + d;}
+    \end{minted} 
+\end{definitionbox}
+We can construct using \mintinline{Cpp}{std::thread}'s constructors.
+\begin{minted}{Cpp}
+
+// idiomatic constructor
+std::thread my_thread(StartFunction, arg1, arg2, ...)
+
+// call constructor and assign
+std::thread my_thread = std::thread(StartFunction, arg1, arg2, ...)
+auto my_thread = std::thread(StartFunction, arg1, arg2, ...)
+
+// pass lambda as function
+std::thread my_thread(StartFunction, arg1, arg2, ...)
+\end{minted} 
