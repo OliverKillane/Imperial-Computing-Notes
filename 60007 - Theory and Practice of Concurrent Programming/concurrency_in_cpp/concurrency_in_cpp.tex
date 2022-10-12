@@ -15,7 +15,7 @@ namespace std {
     // types
     class id;
     using native_handle_type = /* implementation-defined */;
- 
+
     // construct/copy/destroy
     thread() noexcept;
 
@@ -37,7 +37,7 @@ namespace std {
     
     // Assign a thread from an (r value - e.g expression, literal) reference
     thread& operator=(thread&&) noexcept;
- 
+
     // members
     void swap(thread&) noexcept;
     bool joinable() const noexcept;
@@ -53,7 +53,7 @@ namespace std {
     id get_id() const noexcept;
 
     native_handle_type native_handle();
- 
+
     // static members
     static unsigned int hardware_concurrency() noexcept;
   };
@@ -86,3 +86,306 @@ auto my_thread = std::thread(StartFunction, arg1, arg2, ...)
 // pass lambda as function
 std::thread my_thread(StartFunction, arg1, arg2, ...)
 \end{minted} 
+
+When passing arguments to the thread, if these are by reference, a \mintinline{Cpp}{std::ref} or \mintinline{Cpp}{std::cref} must be used.
+
+\begin{examplebox}{Reference this!}
+  Given some function \mintinline{Cpp}{static void some_func(const int& a)} create a thread to take a reference to the number $42$.
+  \tcblower
+  \begin{minted}{Cpp}
+int a = 42;
+std::thread my_thread(some_func, std::cref(42));
+my_thread.join();  
+  \end{minted}
+\end{examplebox}
+
+\subsection{Vectors of Threads}
+When adding an object to a container (e.g a vector) we want to avoid allocating the object, and then moving it into the container.
+\begin{itemize}
+  \item Some objects may not be movable/copyable.
+  \item The object should be allocated within the container.
+\end{itemize}
+For this we can use emplacement.
+\begin{minted}{Cpp}
+template< class... Args >
+void emplace_back( Args&&... args );
+\end{minted}
+
+\begin{examplebox}{Emplace}
+  Given some function \mintinline{Cpp}{static void some_func()} create 10 threads and append to the vector using \mintinline{Cpp}{std::vector::push_back} and another 10 with \mintinline{Cpp}{std::vector::emplace}.
+  \tcblower
+  \begin{minted}{Cpp}
+std::vector<std::thread> threads;
+
+for (int i; i < 10; i++) {
+  threads.push_back(std::thread(some_func));
+}
+
+for (int i; i < 10; i++) {
+  threads.emplace_back(some_func);
+}
+
+for (auto& t : threads) {
+  t.join();
+}    
+  \end{minted}
+\end{examplebox}
+
+\subsection{This Thread}
+The threads header also provides functionality for interacting with the current thread.
+\begin{minted}{Cpp}
+#include <compare>
+
+namespace std {
+  class thread;
+  
+  void swap(thread& x, thread& y) noexcept;
+  
+  // class jthread
+  class jthread;
+  
+  // methods for interacting with the current thread
+  namespace this_thread {
+    thread::id get_id() noexcept;
+
+    // indicates another thread should be scheduled (e.g long wait expected)
+    void yield() noexcept;
+
+    // Sleeping, generic for  
+    template<class Clock, class Duration>
+    void sleep_until(const chrono::time_point<Clock, Duration>& abs_time);
+
+    //
+    template<class Rep, class Period>
+    void sleep_for(const chrono::duration<Rep, Period>& rel_time);
+  }
+}
+\end{minted}
+\begin{examplebox}{Clock watching}
+  Create program that prints the thread id, and sleeps.
+  \tcblower
+  \begin{minted}{C}
+#include <thread>
+#include <iostream>
+#include <chrono>
+
+int main() {
+  using namespace std::chrono_literals; // to use the ms syntax
+
+  std::cout << std::this_thread::get_id() << " will sleep now!" << std::endl;
+  std::this_thread::sleep_for(200ms);
+
+  std::cout << std::this_thread::get_id() << " has awoken!" << std::endl;
+}
+  \end{minted}
+\end{examplebox}
+
+\section{Locks}
+\begin{definitionbox}{RAII}
+  \textit{Resource Acquisition Is Initialization} (also called Scope-Bound Resource Management and Constructor Acquires, Destructor Release) is where a resource's allocation and release is bound to the lifetime of an object.
+  \begin{itemize}
+    \item a resource may be the memory allocated to an object, or resources such as os provided file handlers.
+    \item When the object goes out of scope (e.g the variable owning the object is destroyed) the resource is released.
+    \item In C++, when a variable goes out of scope, the destructor of the contained object is called, so the destructor must release the resources.
+    \item This concept is heavily embedded in Rust. Lifetimes are a major part of the type system, and ownership rules are enforced by the compiler.
+    \item RAII is used for smart pointers such as \mintinline{Rust}{Rc} in rust or \mintinline{Cpp}{std::shared_ptr}.
+  \end{itemize}
+  \begin{minted}{Cpp}
+static void my_scope() {
+    MyClass my_object;  // initialised, default constructor called
+
+    // ... do some stuff ...
+
+    return; // destructor my_object.~MyClass() called. 
+}
+  \end{minted}
+\end{definitionbox}
+The \mintinline{Cpp}{mutex} header contains locks for synchronisation.
+\begin{minted}{Cpp}
+namespace std {
+  class mutex;                  // A regular lock
+  class recursive_mutex;        // reentrant/recursive lock 
+  class timed_mutex;            // A mutex with timeout
+  class recursive_timed_mutex;  // A recursive mutex with timeout
+  
+  /* used to set the locking strategy when using lock guards
+   * e.g create guard (that releases lock on destruction) assuming 
+   * lock is held.
+   */
+  struct defer_lock_t { explicit defer_lock_t() = default; };   // do not acquire ownership
+  struct try_to_lock_t { explicit try_to_lock_t() = default; }; // try to acquire ownership (no block)
+  struct adopt_lock_t { explicit adopt_lock_t() = default; };   // assume calling thread has ownership
+  
+  inline constexpr defer_lock_t  defer_lock { };
+  inline constexpr try_to_lock_t try_to_lock { };
+  inline constexpr adopt_lock_t  adopt_lock { };
+  
+  // A RAII like mechanism that releases the lock it guards when destroyed.
+  template<class Mutex> class lock_guard;
+
+  // A RAII style lock guard, when taking ownership of multiple locks it attempts 
+  // deadlock avoidance.
+  template<class... MutexTypes> class scoped_lock;
+
+  // A movable lock guard.
+  template<class Mutex> class unique_lock;
+  
+  template<class Mutex>
+    void swap(unique_lock<Mutex>& x, unique_lock<Mutex>& y) noexcept;
+  
+  // attempts to acquire locks from references provided, returns index (in args) of lock 
+  // that could not be acquired.
+  template<class L1, class L2, class... L3> int try_lock(L1&, L2&, L3&...);
+  
+  // Acquire one or more locks (blocking) and use deadlock avoidance.
+  template<class L1, class L2, class... L3> void lock(L1&, L2&, L3&...);
+  
+  struct once_flag;
+  
+  template<class Callable, class... Args>
+    void call_once(once_flag& flag, Callable&& func, Args&&... args);
+}
+\end{minted}
+\subsection{Using Mutexes}
+\begin{minted}{Cpp}
+namespace std {
+  class mutex {
+    public:
+
+      // Constructor initialises mutex as unlocked. It is a constexpr 
+      // as can determine all fields at compile time.
+      constexpr mutex() noexcept;
+      
+      // Destructor, undefined behaviour if the mutex is held by a thread.
+      ~mutex();
+
+      // Cannot create mutex from another, or use assignment to move a mutex.
+      mutex(const mutex&) = delete;
+      mutex& operator=(const mutex&) = delete;
+    
+      void lock();
+      bool try_lock();
+      void unlock();
+    
+      using native_handle_type = /* implementation-defined */;
+      native_handle_type native_handle();
+  };
+}
+\end{minted}
+
+\begin{examplebox}{Locked Out}
+  Create a mutex to protect a counter, and use 100 threads to increment the counter 10 times each. Add a wait of 1ms between each increment and only lock for each increment.
+  \tcblower
+  \begin{minted}{Cpp}
+#include <thread>
+#include <iostream>
+#include <mutex>
+#include <vector>
+#include <chrono>
+
+int cnt;
+std::mutex cnt_lock;
+
+static void increment_cnt() {
+  for (int i = 0; i < 10; i++) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));    
+    cnt_lock.lock();
+    cnt++;
+    cnt_lock.unlock();
+  }
+}
+
+int main() {
+  std::vector<std::thread> threads;
+
+  for (int i = 0; i < 100; i++) {
+    threads.emplace_back(increment_cnt);
+  }
+
+  for (auto& t : threads) {
+    t.join();
+  }
+
+  std::cout << "The counter is: " << cnt << std::endl;
+}
+  \end{minted} 
+\end{examplebox}
+
+\subsection*{Scoped Locks}
+We can use \mintinline{Cpp}{scoped_lock}, \mintinline{Cpp}{unique_lock} or \mintinline{Cpp}{lock_guard} to link the time the lock is held to the lifetime of the lock guard object.
+\begin{itemize}
+  \item Each has slight differences, separate implementations are provided rather than using complex template magic.
+  \item Deadlock avoidance is used to ensure all threads acquire and release locks in the same order.
+\end{itemize}
+
+\begin{minted}{Cpp}
+namespace std {
+  template<class... MutexTypes>
+  class scoped_lock {
+  public:
+    using mutex_type = Mutex;   // If MutexTypes... consists of the single type Mutex
+  
+    explicit scoped_lock(MutexTypes&... m);
+    explicit scoped_lock(adopt_lock_t, MutexTypes&... m);
+    ~scoped_lock();
+  
+    scoped_lock(const scoped_lock&) = delete;
+    scoped_lock& operator=(const scoped_lock&) = delete;
+  
+  private:
+    tuple<MutexTypes&...> pm;   // exposition only
+  };
+}
+\end{minted}
+
+\begin{examplebox}{Scoped out}
+  Create a basic implementation of defer that can be used for a scoped lock.
+  \tcblower
+  \begin{minted}{Cpp}
+#include <mutex>
+#include <iostream>
+#include <functional>
+
+class Defer {
+  private:
+    std::function<void(void)> function_;
+
+  public:
+    Defer(std::function<void(void)> fun) : function_(fun) {}
+    ~Defer() {
+      function_();
+    }
+};
+
+
+int main() {
+  std::mutex m;
+
+  Defer lock([&m] () {
+    m.unlock();
+    std::cout << "Unlocking" << std::endl;}
+  );
+
+  std::cout << "lets do some racey stuff here" << std::endl;
+}
+  \end{minted}
+  We could also implement this pattern in rust. As mutexes already work this way in rust, we create a dummy mutex struct to use.
+  \begin{minted}{Rust}
+#![feature(fn_traits)]
+struct Defer<F: FnMut()>(F);
+
+impl<F: FnMut()> Drop for Defer<F> {
+    fn drop(&mut self) {
+        self.0()
+    }
+}
+
+fn main() {
+    let mut m = Mutex();
+    m.lock();
+    let _d = Defer(|| m.unlock());
+    println!("lets do some racey stuff here")
+}
+  \end{minted}
+\end{examplebox}
+
