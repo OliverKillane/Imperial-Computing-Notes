@@ -45,25 +45,24 @@
 
 \section{Preface for Concurrency}
 \subsection{Moore's Law}
-\begin{tcbraster}[raster columns=2,raster equal height]
-    \begin{definitionbox}{Moore's Law}
-        An empirical (supported by observation) law that states the density of transistors in an integrated circuit
-        will double approximately every two years.
-        \begin{itemize}
-            \item The observation is named after Gordon Moore (co-founder and later CEO of Intel).
-            \item This law no longer holds, and sequential performance improvements have declined.
-        \end{itemize}
-    \end{definitionbox}
-    \begin{definitionbox}{Dennard/MOSFET Scaling}
-        \[\text{Power} \propto \text{Transistor Size}\]
-        A scaling law stating that as transistor density increases, the power requirements stay constant. 
-        \begin{itemize}
-            \setlength\itemsep{0em}
-            \item Increasing transistor density results in power staying constant (less power per transistor) and lower circuit delay. 
-            \item This allows for higher switching frequency $\Rightarrow$ higher clocks frequencies $\Rightarrow$ better sequential performance).
-        \end{itemize}
-    \end{definitionbox}
-\end{tcbraster}
+\begin{definitionbox}{Moore's Law}
+    An empirical (supported by observation) law that states the density of transistors in an integrated circuit
+    will double approximately every two years.
+    \begin{itemize}
+        \item The observation is named after Gordon Moore (co-founder and later CEO of Intel).
+        \item This law no longer holds, and sequential performance improvements have declined.
+    \end{itemize}
+\end{definitionbox}
+
+\begin{definitionbox}{Dennard/MOSFET Scaling}
+    \[\text{Power} \propto \text{Transistor Size}\]
+    A scaling law stating that as transistor density increases, the power requirements stay constant. 
+    \begin{itemize}
+        \setlength\itemsep{0em}
+        \item Increasing transistor density results in power staying constant (less power per transistor) and lower circuit delay. 
+        \item This allows for higher switching frequency $\Rightarrow$ higher clocks frequencies $\Rightarrow$ better sequential performance).
+    \end{itemize}
+\end{definitionbox}
 
 \begin{center}
     \includegraphics[width=.9\textwidth]{introduction/images/moores_law_graph.png}

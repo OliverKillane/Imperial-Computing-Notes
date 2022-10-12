@@ -311,7 +311,7 @@ int main() {
   \end{minted} 
 \end{examplebox}
 
-\subsection*{Scoped Locks}
+\subsection{Scoped Locks}
 We can use \mintinline{Cpp}{scoped_lock}, \mintinline{Cpp}{unique_lock} or \mintinline{Cpp}{lock_guard} to link the time the lock is held to the lifetime of the lock guard object.
 \begin{itemize}
   \item Each has slight differences, separate implementations are provided rather than using complex template magic.
