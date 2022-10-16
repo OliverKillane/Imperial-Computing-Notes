@@ -1,0 +1,129 @@
+% Haskell Logo package
+%
+% Logo design (2008) by Jeff Wheeler, inspired by Darrin Thompson
+%
+% LaTeX sty file (2009) by Philip Hölzenspies
+%
+%
+\ProvidesPackage{haskelllogo}
+
+\RequirePackage{tikz}
+\RequirePackage{pgfkeys}
+
+%%%%
+%
+% STYLES
+%
+%%%%
+%
+% The Commodore style was recommended (or discovered) by Sander Evers
+% 
+\definecolor{hasklogo@commodoreblue}{HTML}{549DC5}
+\definecolor{hasklogo@commodorered}{HTML}{00548F}
+
+\pgfkeys{/hasklogo/commodore/.style={
+	lambdabehind,
+	logo   color=hasklogo@commodoreblue,
+	lambda color=hasklogo@commodorered,
+	lower color=hasklogo@commodoreblue,
+}}
+%
+% The grayscale style likes the lambda in front and is, well, gray.
+%
+\pgfkeys{/hasklogo/grayscale/.style={
+	lambdainfront,
+	logo   color=black!40,
+	lambda color=black!60
+}}
+%
+% The seventies style likes the lambda behind and comes in seventies brown/orange combinations :)
+%
+\pgfkeys{/hasklogo/seventies/.style={
+	lambdabehind,
+	logo   color=orange,
+	lambda color=brown!80!black
+}}
+
+\pgfkeys{/hasklogo/original/.style={
+	lambdabehind,
+	logo   color=purple,
+	lambda color=purple,
+	lower color=purple,
+}}
+
+\pgfkeys{/hasklogo/orangelamb/.style={
+	lambdabehind,
+	logo   color=orange,
+	lambda color=orange,
+	lower color=orange,
+}}
+
+\pgfkeys{/hasklogo/bluelamb/.style={
+	lambdabehind,
+	logo   color=hasklogo@commodoreblue,
+	lambda color=hasklogo@commodoreblue,
+	lower color=hasklogo@commodoreblue,
+}}
+
+\newif\ifhasklogo@lambdasplit@\hasklogo@lambdasplit@false
+\pgfkeys{/hasklogo/first  rangle color/.store in=\hasklogo@first@rangle@color}
+\pgfkeys{/hasklogo/second rangle color/.store in=\hasklogo@second@rangle@color}
+\pgfkeys{/hasklogo/lambda        color/.store in=\hasklogo@lambda@color}
+\pgfkeys{/hasklogo/lower  equals color/.store in=\hasklogo@lower@equals@color}
+\pgfkeys{/hasklogo/upper  equals color/.store in=\hasklogo@upper@equals@color}
+\pgfkeys{/hasklogo/xunit/.style={/tikz/x=#1}}
+\pgfkeys{/hasklogo/yunit/.style={/tikz/y=#1}}
+\pgfkeys{/hasklogo/unit/.style={/tikz/x=#1,/tikz/y=#1}}
+\pgfkeys{/hasklogo/outlines/.style={fill=none,draw}}
+\pgfkeys{/hasklogo/logo color/.style={
+	first  rangle color=#1,
+	second rangle color=#1,
+	lambda        color=#1,
+	lower  equals color=#1,
+	upper  equals color=#1
+}}
+\pgfkeys{/hasklogo/lambdabehind/.code={\global\hasklogo@lambdasplit@true}}
+\pgfkeys{/hasklogo/lambdainfront/.code={\global\hasklogo@lambdasplit@false}}
+\pgfkeys{/hasklogo/.unknown/.code={%
+	\let\searchname=\pgfkeyscurrentname
+	\pgfkeysalso{\searchname/.try=#1,/tikz/\searchname/.retry=#1,/pgf/\searchname/.retry=#1}%
+}}
+
+\newcommand\haskelllogo[1][]{%
+	\begin{tikzpicture}[x=1ex,y=1ex]
+		\coordinate(hasklogoref);
+		\haskelltikzlogo[#1]
+	\end{tikzpicture}%
+}
+
+\newcommand\haskelltikzlogo[1][]{{%
+	\tikzstyle{every path} = [fill,/hasklogo/.cd,lambdainfront,grayscale,#1];
+	\path[color=\hasklogo@first@rangle@color] (hasklogoref)
+			-- ++(4,6) -- ++(-4,6) -- ++(3,0) -- ++(4,-6) -- ++(-4,-6) -- cycle;
+	\ifhasklogo@lambdasplit@
+		\path[color=\hasklogo@lambda@color] (hasklogoref) ++(11,6)
+			-- ++(4,-6) -- ++(-3,0) -- ++(-2.5,3.75) -- cycle;
+		\path[color=\hasklogo@second@rangle@color] (hasklogoref) ++(4,0)
+			-- ++(4,6) -- ++(-4,6) -- ++(3,0) -- ++(4,-6) -- ++(-4,-6) -- cycle;
+	\else
+		\path[color=\hasklogo@lambda@color] (hasklogoref) ++(8,6)
+			-- ++(-4,6) -- ++(3,0) -- ++(8,-12) -- ++(-3,0) -- ++(-2.5,3.75) -- ++(-2.5,-3.75) -- ++(-3,0) -- cycle;
+	\fi
+	\path[fill=none,draw=none] (hasklogoref) -- coordinate[pos=1](c0) ++(8,12) -- coordinate[pos=1](c1) ++(8,-12);
+	\foreach \miny/\maxy/\part in {3.5/5.5/lower,6.5/8.5/upper} {
+		\path[fill=none,draw=none]
+			(hasklogoref) -- coordinate[pos=1](hsleq0) ++(17,\miny)
+			(hasklogoref) -- coordinate[pos=1](hsleq1) ++(17,\maxy);
+		\coordinate(s0) at (intersection cs:
+			first line={(hsleq0)--(hsleq0 -| c0)},
+			second line={(c0)--(c1)}
+		 );
+		\coordinate(s1) at (intersection cs:
+			first line={(hsleq1)--(hsleq1 -| c0)},
+			second line={(c0)--(c1)}
+		 );
+		\path[color=\csname hasklogo@\part @equals@color\endcsname] (s0) -- (s1) -| (hsleq0) -- cycle;
+	}
+}}
+
+

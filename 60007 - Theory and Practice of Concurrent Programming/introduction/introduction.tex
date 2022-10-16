@@ -92,6 +92,11 @@ Writing correct, concurrent code is difficult.
         \item Where multiple threads access data (non-atomically) and at least one writes.
         \item Where a lack of enforced ordering on some events causes differing results (e.g output to user)
     \end{itemize}
+    Race conditions can be intentional, where the result of the program is intended to be based off some non-deterministic input.
+    \begin{itemize}
+        \item Which thread gets to write first?
+        \item Which process is allowed to write to a file?
+    \end{itemize}
 \end{definitionbox}
 \begin{itemize}
     \item A process can have multiple threads executing in parallel.

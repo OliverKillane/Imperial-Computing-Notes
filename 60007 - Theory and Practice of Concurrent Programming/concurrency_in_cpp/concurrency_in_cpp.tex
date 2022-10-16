@@ -1,3 +1,7 @@
+\definecolor{threadBlue}{RGB}{204, 229, 255}
+\definecolor{threadYellow}{RGB}{255, 255, 136}
+\definecolor{threadGrey}{RGB}{238, 238, 238}
+
 \chapter{Concurrency In C++}
 
 \section{Threads}
@@ -311,35 +315,126 @@ int main() {
   \end{minted} 
 \end{examplebox}
 
-\subsection{Scoped Locks}
+\subsection{Lock Guards}
 We can use \mintinline{Cpp}{scoped_lock}, \mintinline{Cpp}{unique_lock} or \mintinline{Cpp}{lock_guard} to link the time the lock is held to the lifetime of the lock guard object.
 \begin{itemize}
   \item Each has slight differences, separate implementations are provided rather than using complex template magic.
   \item Deadlock avoidance is used to ensure all threads acquire and release locks in the same order.
 \end{itemize}
 
+\subsubsection{Scoped Lock}
 \begin{minted}{Cpp}
-namespace std {
-  template<class... MutexTypes>
-  class scoped_lock {
-  public:
-    using mutex_type = Mutex;   // If MutexTypes... consists of the single type Mutex
-  
-    explicit scoped_lock(MutexTypes&... m);
-    explicit scoped_lock(adopt_lock_t, MutexTypes&... m);
-    ~scoped_lock();
-  
-    scoped_lock(const scoped_lock&) = delete;
-    scoped_lock& operator=(const scoped_lock&) = delete;
-  
-  private:
-    tuple<MutexTypes&...> pm;   // exposition only
-  };
+  namespace std {
+    template<class... MutexTypes>
+    class scoped_lock {
+    public:
+      using mutex_type = Mutex;   // If MutexTypes... consists of the single type Mutex
+    
+      explicit scoped_lock(MutexTypes&... m);
+      explicit scoped_lock(adopt_lock_t, MutexTypes&... m);
+      ~scoped_lock();
+    
+      scoped_lock(const scoped_lock&) = delete;
+      scoped_lock& operator=(const scoped_lock&) = delete;
+    
+    private:
+      tuple<MutexTypes&...> pm;   // exposition only
+    };
+  }
+\end{minted}
+\begin{itemize}
+  \item Constructed from one or more mutexes.
+  \item Locks all mutexes on construction.
+  \item Unlocks all mutexes on destruction.
+\end{itemize}
+\begin{consbox}
+  Does not support deferred locking, early unlocking or ownership transfer (with \mintinline{Cpp}{std::move}).
+\end{consbox}
+
+\begin{minted}{Cpp}
+#include <mutex>
+#include <iostream>
+
+std::mutex m1, m2;
+
+static void some_fun() {
+    std::scoped_lock lock(m1, m2); // acquire lock on m1 and m2 (or any number of locks)
+    std::cout << "Critical region here" << std::endl;
 }
 \end{minted}
 
+\subsubsection{Unique Lock}
+\begin{minted}{Cpp}
+namespace std {
+  template<class Mutex>
+  class unique_lock {
+  public:
+    using mutex_type = Mutex;
+  
+    // construct/copy/destroy
+    unique_lock() noexcept;
+    explicit unique_lock(mutex_type& m);
+
+    // locking strategies
+    unique_lock(mutex_type& m, defer_lock_t) noexcept;
+    unique_lock(mutex_type& m, try_to_lock_t);
+    unique_lock(mutex_type& m, adopt_lock_t);
+
+    //
+    template<class Clock, class Duration>
+      unique_lock(mutex_type& m, const chrono::time_point<Clock, Duration>& abs_time);
+    template<class Rep, class Period>
+      unique_lock(mutex_type& m, const chrono::duration<Rep, Period>& rel_time);
+    ~unique_lock();
+  
+    unique_lock(const unique_lock&) = delete;
+    unique_lock& operator=(const unique_lock&) = delete;
+  
+    unique_lock(unique_lock&& u) noexcept;
+    unique_lock& operator=(unique_lock&& u);
+  
+    // locking
+    void lock();
+    bool try_lock();
+  
+    template<class Rep, class Period>
+      bool try_lock_for(const chrono::duration<Rep, Period>& rel_time);
+    template<class Clock, class Duration>
+      bool try_lock_until(const chrono::time_point<Clock, Duration>& abs_time);
+  
+    void unlock();
+  
+    // modifiers
+    void swap(unique_lock& u) noexcept;
+    mutex_type* release() noexcept;
+  
+    // observers
+    bool owns_lock() const noexcept;
+    explicit operator bool () const noexcept;
+    mutex_type* mutex() const noexcept;
+  
+  private:
+    mutex_type* pm;             // exposition only
+    bool owns;                  // exposition only
+  };
+  
+  template<class Mutex>
+    void swap(unique_lock<Mutex>& x, unique_lock<Mutex>& y) noexcept;
+}
+\end{minted}
+\begin{itemize}
+  \item Constructed from one mutex.
+  \item Locks mutex on construction by default, but can have locking deferred.
+  \item Allows for unlocking and relocking.
+  \item If mutex held on destruction, unlocks.
+  \item Can transfer lock ownership with \mintinline{Cpp}{std::move}.
+\end{itemize}
+\begin{consbox}
+  Only works for a single mutex.
+\end{consbox}
+
 \begin{examplebox}{Scoped out}
-  Create a basic implementation of defer that can be used for a scoped lock.
+  Create a basic implementation of defer that could be used for a scoped lock.
   \tcblower
   \begin{minted}{Cpp}
 #include <mutex>
@@ -389,3 +484,462 @@ fn main() {
   \end{minted}
 \end{examplebox}
 
+\section{Race Conditions in C++}
+\begin{definitionbox}{Data Race}
+    A data race is a race condition on the value of some data shared between threads.
+    \begin{itemize}
+      \item Distinct threads access a memory location.
+      \item At least one thread modifies the location.
+      \item At least of of the accesses is non-atomic (allows for operations of other threads to be interleaved)
+      \item Accesses are not ordered by synchronisation (e.g for mutual exclusion)
+    \end{itemize}
+    Data races are value-obilvious, meaning a data race is present even if value of some shared data is not affected.
+    \begin{itemize}
+      \item e.g Two threads write the same value to the same place.
+      \item e.g one thread stores the same value, another thread reads. 
+    \end{itemize}
+    Always a bug, considered an unintentional race condition.
+\end{definitionbox}
+\begin{definitionbox}{Undefined Behaviour}
+  \begin{quote}
+    \textit{"Anything at all can happen; the Standard imposes no requirements. The program 
+    may fail to compile, or it may execute incorrectly (either crashing or silently 
+    generating incorrect results), or it may fortuitously do exactly what the programmer 
+    intended."} - \href{https://c-faq.com/ansi/undef.html}{C FAQ}
+  \end{quote}
+  \begin{itemize}
+    \item Programmer must avoid relying on undefined behaviour.
+    \item Different compilers implementing the specification can do anything with undefined behaviour.
+    \item Allows compilers to do more optimisation (fewer guarantees to satisfy).
+    \item Among the most cited language design issues with C++.
+  \end{itemize}
+  The behaviour of a C++ program on some input is undefined if a data race can occur. This means
+  specification is saying a program with a data race can do \textit{anything}, there are no guarantees (even that the result depends on the outcome of the race).
+\end{definitionbox}
+
+Compilers typically optimise on the assumption there is no undefined behaviour. 
+\begin{itemize}
+  \item If there is no undefined behaviour, then assuming none is fine.
+  \item If there is undefined behaviour, the language specification says \textit{anything goes} and hence any output is valid.
+\end{itemize}
+
+\begin{minted}{Cpp}
+#include <thread>
+
+static void set_x(int& x) {
+  x = 1;
+}
+
+static void wait_x(int& x) {
+  while (x == 0);
+}
+
+int main() {
+  int x = 0;
+  std::thread t1(set_x, std::ref(x));
+  std::thread t2(wait_x, std::ref(x));
+  t1.join();
+  t2.join();
+}
+\end{minted}
+Here the loop in \mintinline{Cpp}{wait_x} can be optimised.
+\\\begin{minipage}{.5\textwidth}
+  \begin{minted}{Cpp}
+static void wait_x(int& x) {
+  int temp_register = r; 
+  while (temp == 0);
+}
+  \end{minted}
+\end{minipage}
+\hfill
+\begin{minipage}{.48\textwidth}
+  \begin{enumerate}
+    \item x is a non-atomic variable
+    \item if another thread modified x, then there would be a data race.
+    \item A data race is undefined behaviour
+  \end{enumerate}
+  Place copy of x into a register and compare using this.
+\end{minipage}
+\\\begin{minipage}{.5\textwidth}
+  \begin{minted}{Cpp}
+static void wait_x(int& x) {
+  // terminate thread
+}
+  \end{minted}
+\end{minipage}
+\hfill
+\begin{minipage}{.48\textwidth}
+  \begin{enumerate}
+    \item An infinite loop with no side effects is undefined behaviour.
+    \item Can assume it is \textit{dead code} and remove.
+  \end{enumerate}
+  Dead code can be removed.
+\end{minipage}
+
+\subsection{Thread Sanitiser}
+A sanitiser to automatically detect data races.
+\begin{itemize}
+  \item Available in clang++ and g++ compilers.
+  \item Enabled with \mintinline{Bash}{-fsanitize=thread} and add debug symbols with \mintinline{Bash}{-g}.
+\end{itemize}
+
+\section{Condition Variables}
+\begin{definitionbox}{Condition Variable}
+  A condition that can be waited on, and notified.
+  \begin{itemize}
+    \item Threads can wait on the condition to be signalled.
+    \item Can be used to construct a monitor.
+    \item In languages without a monitor construct, an explicit lock is required.
+  \end{itemize}
+  \begin{minted}{Cpp}
+#include <semaphore>
+#include <mutex>
+#include <deque>
+#include <cassert> 
+
+class condition_variable {
+  public:
+    // delete copy constructors
+    condition_variable(const condition_variable&) = delete;
+    condition_variable& operator=(const condition_variable&) = delete;
+
+    void notify_all(std::unique_lock<std::mutex> monitor_lock&) {
+      assert(monitor_lock.owns_lock())
+      for (auto& sema : wait_semas_) {
+        sema.release();
+      }
+      wait_semas_.clear();
+    }
+
+    void notify_one(std::unique_lock<std::mutex> monitor_lock&) {
+      assert(monitor_lock.owns_lock())
+      wait_semas_.pop_front().release();
+    }
+
+    void wait(std::unique_lock<std::mutex> monitor_lock&) {
+      assert(monitor_lock.owns_lock())
+      std::counting_semaphore wait_sema(0);
+      wait_semas_.push_back(std::ref(wait_sema));
+      monitor_lock.release();
+      wait_sema.acquire();
+      monitor_lock.aquire();
+    }
+  
+  private:
+    std::deque<std::ref<std::counting_semaphore>> wait_semas_;
+};
+
+}
+  \end{minted}
+\end{definitionbox}
+
+\begin{minted}{Cpp}
+#include <condition_variable>
+
+namespace std {
+  class condition_variable;
+  class condition_variable_any;
+  
+  void notify_all_at_thread_exit(condition_variable& cond, unique_lock<mutex> lk);
+  
+  enum class cv_status { no_timeout, timeout };
+}
+\end{minted}
+
+\subsection{Using Condition Variables}
+The \mintinline{Cpp}{std::condition_variable} class is as follows:
+\begin{minted}{Cpp}
+namespace std {
+  class condition_variable {
+  public:
+    condition_variable();
+    ~condition_variable();
+  
+    // delete copy constructors
+    condition_variable(const condition_variable&) = delete;
+    condition_variable& operator=(const condition_variable&) = delete;
+
+    // signal a condition variable
+    void notify_one() noexcept;
+    void notify_all() noexcept;
+
+    // The current thread waits on the condition variable (until signalled), 
+    // using the (acquired) lock to synchronise
+    void wait(unique_lock<mutex>& lock);
+
+    // Wait on a predict using the provided mutex using the (acquired) lock 
+    // to synchronise
+    template<class Pred>
+      void wait(unique_lock<mutex>& lock, Pred pred);
+    
+    // wait until time
+    template<class Clock, class Duration>
+      cv_status wait_until(unique_lock<mutex>& lock,
+                           const chrono::time_point<Clock, Duration>& abs_time);
+    template<class Clock, class Duration, class Pred>
+      bool wait_until(unique_lock<mutex>& lock,
+                      const chrono::time_point<Clock, Duration>& abs_time, Pred pred);
+    
+    // wait for time
+    template<class Rep, class Period>
+      cv_status wait_for(unique_lock<mutex>& lock,
+                         const chrono::duration<Rep, Period>& rel_time);
+    template<class Rep, class Period, class Pred>
+      bool wait_for(unique_lock<mutex>& lock,
+                    const chrono::duration<Rep, Period>& rel_time, Pred pred);
+ 
+    using native_handle_type = /* implementation-defined */;
+    native_handle_type native_handle();
+  };
+}
+\end{minted}
+\begin{minipage}{.48\textwidth}
+  \subsubsection{Wait on Signal}
+  \begin{enumerate}
+    \item Associated a \mintinline{Cpp}{std::mutex} with the condition variable.
+    \item Acquire a lock on the mutex with a unique lock.
+    \item Call wait with the lock.
+  \end{enumerate}
+  The thread will block until the condition variable is signalled.
+  \begin{minted}{Cpp}
+#include <mutex>
+#include <condition_variable>
+
+std::mutex m;
+std::condition_variable cond;
+
+static void some_func() {
+    std::unique_lock<std::mutex> lock(m);
+    cond.wait(lock);
+}
+  \end{minted}
+\end{minipage}
+\hfill
+\vline
+\hfill
+\begin{minipage}{.48\textwidth}
+  \subsubsection{Wait on predicate}
+  \begin{enumerate}
+    \item Associated a \mintinline{Cpp}{std::mutex} with the condition variable.
+    \item Acquire a lock on the mutex with a unique lock.
+    \item Call wait with a predicate.
+  \end{enumerate}
+  Immediately returns if the predicate is true. Otherwise blocks, when the condition variable is 
+  signalled, the predicate will be checked, if true the thread returns, otherwise the thread 
+  is blocked again.
+  \begin{minted}{Cpp}
+#include <mutex>
+#include <condition_variable>
+
+std::mutex m;
+std::condition_variable cond;
+
+static void some_func() {
+    std::unique_lock<std::mutex> lock(m);
+    cond.wait(lock, [...]() -> bool {...});
+}
+  \end{minted} 
+\end{minipage}
+
+
+\section{Atomics}
+Defined in the \mintinline{Cpp}{atomic} header. Allow for the construction of atomic variables for integral and arbitrary types (that are TriviallyCopyable, CopyConstructible and CopyAssignable).
+\begin{itemize}
+  \item For integral types atomic operations offer lower overhead alternatives for protecting small amounts of data than using a mutex.
+  \item Atomic declarations prevent data races. This can be useful in declaring an intentional race condition (to prevent undefined behaviour)
+\end{itemize}
+\subsection{Atomic Template Class}
+\begin{minted}{Cpp}
+namespace std {
+  template<class T> struct atomic {
+    using value_type = T;
+  
+    static constexpr bool is_always_lock_free = /* implementation-defined */;
+    bool is_lock_free() const volatile noexcept;
+    bool is_lock_free() const noexcept;
+  
+    // operations on atomic types
+    constexpr atomic() noexcept(is_nothrow_default_constructible_v<T>);
+    constexpr atomic(T) noexcept;
+    atomic(const atomic&) = delete;
+    atomic& operator=(const atomic&) = delete;
+    atomic& operator=(const atomic&) volatile = delete;
+  
+    // load the value (make a non-atomic copy of the current value)
+    T load(memory_order = memory_order::seq_cst) const volatile noexcept;
+    T load(memory_order = memory_order::seq_cst) const noexcept;
+
+    // implicit conversion from an instance of this class (std::atomic<T>) to T (used by static_cast)
+    operator T() const volatile noexcept;
+    operator T() const noexcept;
+
+    // Store (overwrite) the the atomic
+    void store(T, memory_order = memory_order::seq_cst) volatile noexcept;
+    void store(T, memory_order = memory_order::seq_cst) noexcept;
+
+    // Assignment 
+    T operator=(T) volatile noexcept;
+    T operator=(T) noexcept;
+    
+    // Store desired and return the old value atomically
+    T exchange(T desired, memory_order = memory_order::seq_cst) volatile noexcept;
+    T exchange(T desired, memory_order = memory_order::seq_cst) noexcept;
+
+    // if the old value is expected, then replace with desired and return true.
+    // if the old value is not expected, then return false
+    bool compare_exchange_strong(T& expected, T desired, memory_order, memory_order) volatile noexcept;
+    bool compare_exchange_strong(T& expected, T desired, memory_order, memory_order) noexcept;
+    bool compare_exchange_strong(T& expected, T desired,
+                                  memory_order = memory_order::seq_cst) volatile noexcept;
+    bool compare_exchange_strong(T& expected, T desired, memory_order = memory_order::seq_cst) noexcept;
+
+    // Same as compare_exchange_strong on x86, but different on ARM. Can fail spuriously.
+    bool compare_exchange_weak(T& expected, T desired, memory_order, memory_order) volatile noexcept;
+    bool compare_exchange_weak(T& expected, T desired, memory_order, memory_order) noexcept;
+    bool compare_exchange_weak(T& expected, T desired,
+                                memory_order = memory_order::seq_cst) volatile noexcept;
+    bool compare_exchange_weak(T& expected, T desired, memory_order = memory_order::seq_cst) noexcept;
+  
+    // check value of this against old, if equal => blocks until notify called.
+    void wait(T old, memory_order = memory_order::seq_cst) const volatile noexcept;
+    void wait(T old, memory_order = memory_order::seq_cst) const noexcept;
+
+    void notify_one() volatile noexcept;
+    void notify_one() noexcept;
+    void notify_all() volatile noexcept;
+    void notify_all() noexcept;
+  };
+}
+\end{minted}
+Hence we can use it to make access to complex objects atomic. Large types (i.e not integral types) use locks for this.
+\begin{minted}{Cpp}
+#include <atomic>
+
+// an atomically accessed struct
+typedef struct {
+  int a;
+  bool c;
+} MyStruct;
+
+std::atomic<MyStruct> p({.a=1, .c=true});
+\end{minted}
+
+\subsection{Atomic Integral Types}
+For integral types, fast assembly supported instructions for atomic integers, booleans and floats can be used.
+\begin{itemize}
+  \item 
+\end{itemize}
+\begin{minted}{Cpp}
+  namespace std {
+    template<> struct atomic</* integral */> {
+      // ... normal operations from std::atomic<T>
+
+      // Atomic operations
+      /* integral */ fetch_add(/* integral */, memory_order = memory_order::seq_cst) volatile noexcept;
+      /* integral */ fetch_add(/* integral */, memory_order = memory_order::seq_cst) noexcept;
+      /* integral */ fetch_sub(/* integral */, memory_order = memory_order::seq_cst) volatile noexcept;
+      /* integral */ fetch_sub(/* integral */, memory_order = memory_order::seq_cst) noexcept;
+      /* integral */ fetch_and(/* integral */, memory_order = memory_order::seq_cst) volatile noexcept;
+      /* integral */ fetch_and(/* integral */, memory_order = memory_order::seq_cst) noexcept;
+      /* integral */ fetch_or(/* integral */, memory_order = memory_order::seq_cst) volatile noexcept;
+      /* integral */ fetch_or(/* integral */, memory_order = memory_order::seq_cst) noexcept;
+      /* integral */ fetch_xor(/* integral */, memory_order = memory_order::seq_cst) volatile noexcept;
+      /* integral */ fetch_xor(/* integral */, memory_order = memory_order::seq_cst) noexcept;
+
+      // Operator Overloads
+      /* integral */ operator++(int) volatile noexcept;
+      /* integral */ operator++(int) noexcept;
+      /* integral */ operator--(int) volatile noexcept;
+      /* integral */ operator--(int) noexcept;
+      /* integral */ operator++() volatile noexcept;
+      /* integral */ operator++() noexcept;
+      /* integral */ operator--() volatile noexcept;
+      /* integral */ operator--() noexcept;
+      /* integral */ operator+=(/* integral */) volatile noexcept;
+      /* integral */ operator+=(/* integral */) noexcept;
+      /* integral */ operator-=(/* integral */) volatile noexcept;
+      /* integral */ operator-=(/* integral */) noexcept;
+      /* integral */ operator&=(/* integral */) volatile noexcept;
+      /* integral */ operator&=(/* integral */) noexcept;
+      /* integral */ operator|=(/* integral */) volatile noexcept;
+      /* integral */ operator|=(/* integral */) noexcept;
+      /* integral */ operator^=(/* integral */) volatile noexcept;
+      /* integral */ operator^=(/* integral */) noexcept;
+
+      // ... normal operations from std::atomic<T>
+    };
+  }
+\end{minted}
+For example we can see a single add is used for the \mintinline{Cpp}{fetch_add} here.
+\\ \begin{minipage}{.49\textwidth}
+  \begin{minted}[bgcolor=threadYellow]{Cpp}
+#include <atomic>
+
+int main() {
+    std::atomic<int> x(1);
+    x += 3;
+}
+  \end{minted}
+\end{minipage}
+\hfill
+\begin{minipage}{.49\textwidth}
+  \begin{minted}[bgcolor=threadBlue]{NASM}
+main:
+  mov       DWORD PTR [rsp-4], 1
+  lock add  DWORD PTR [rsp-4], 3
+  xor       eax, eax
+  ret
+
+  \end{minted}
+\end{minipage}
+
+Operator overloading is available for the integral types, however it can be difficult to determine which operations are atomic.
+\begin{minted}{Cpp}
+  x = 42;        /* equivalent to */  x.store(42);
+  y = x;         /* equivalent to */  y = x.load();
+  x++;           /* equivalent to */  x.fetch_add(1);
+  y = ++x;       /* equivalent to */  y = x.fetch_add(1) + 1;
+  x += 42;       /* equivalent to */  x.fetch_add(42);
+  y = (x += 42); /* equivalent to */  y = x.fetch_add(42) + 42;
+\end{minted}
+
+\section{Memory Order}
+The \mintinline{Cpp}{atomic} header provides several memory orderings:
+\begin{minted}{Cpp}
+namespace std {
+  // ...
+
+  enum class memory_order : /* unspecified */ {
+    relaxed, consume, acquire, release, acq_rel, seq_cst
+  };
+  inline constexpr memory_order memory_order_relaxed = memory_order::relaxed;
+  inline constexpr memory_order memory_order_consume = memory_order::consume;
+  inline constexpr memory_order memory_order_acquire = memory_order::acquire;
+  inline constexpr memory_order memory_order_release = memory_order::release;
+  inline constexpr memory_order memory_order_acq_rel = memory_order::acq_rel;
+  inline constexpr memory_order memory_order_seq_cst = memory_order::seq_cst;
+
+  //...
+}
+\end{minted}
+
+\begin{definitionbox}{Sequential Consistency}
+  The order of operations are executed as in the order of the program text.
+  \begin{itemize}
+    \item The default memory ordering for atomics (\mintinline{Cpp}{std::atomics::memory_order_seq_cst})
+    \item 
+  \end{itemize}
+  \begin{tabbox}{prosbox}
+    \textbf{Simple} & Easy to reason about the interleaving of threads. \\
+  \end{tabbox}
+  \begin{tabbox}{consbox}
+    \textbf{Expensive} & Compiler uses memory barriers which restrict how instructions can eb reordered and optimised. \\
+  \end{tabbox}
+\end{definitionbox}
+
+\begin{definitionbox}{Relaxed Memory Order}
+  Guarantees only sequential consistency per location.
+\end{definitionbox}
+
+\section{Message Passing}
+\unfinished

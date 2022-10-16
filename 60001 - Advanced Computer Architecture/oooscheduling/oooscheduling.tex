@@ -1,0 +1,135 @@
+\chapter{Dynamic Scheduling}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=6695c7b3-1344-47a4-9430-af2a010f3304}{Chapter 2 - Part 1: Tomasulo}
+\section{Bypassing Stalls}
+The basic concept behind out of order scheduling is that instructions behind a stall can be allowed to continue provided data dependence/hazards allow.
+\begin{itemize}
+    \item When an instruction stalls (e.g cache miss or forwarding not possible) save the state of that instruction.
+    \item Instructions are issued in order, have dependencies analysed and can then be executed out of order.
+    \item When operands are available allow execution pof the stalled instruction to continue.
+\end{itemize}
+\begin{definitionbox}{Read After Write / True Dependence}
+    \begin{minted}{text}
+add $3, $2, $1  # $3 = $2 + $1  (Write $3)
+sub $4, $3, $6  # $4 = $3 - $6  (Read  $3) (needs previous instruction's value)
+    \end{minted}
+    The output of one instruction is required as the input to another.
+\end{definitionbox}
+
+\begin{definitionbox}{Write After Read / Anti Dependence}
+    \begin{minted}{text}
+sub $4, $3, $6  # $4 = $3 - $6  (Read  $3) (use $3 before the next instruction overwrites)
+add $3, $2, $1  # $3 = $2 + $1  (Write $3)
+    \end{minted}
+    Some instruction will overwrite an input to a preceding instruction.
+\end{definitionbox}
+
+\begin{definitionbox}{Write after Write / Output Dependence}
+    \begin{minted}{text}
+add   $3, $2, $1  # $3 = $2 + $1  (Write $3)
+sub   $3, $4, $6  # $3 = $4 - $6  (Write $3)
+addiu $7, $3, 100 # $7 = $3 + 100 (Read $3)
+    \end{minted}
+    The writes have a dependency as they write to the same location, the correct value must be present in the location for subsequent reads.
+\end{definitionbox}
+
+\section{Tomasulo's Algorithm}
+An out of order execution algorithm used to dynamically rename registers to bypass the limited number of floating-point registers in the IBM architecture specification, and allow faster computation on the IBM 360/91.
+\begin{itemize}
+    \item Each registers contains a tag. (null means the value is present, otherwise it is the identifier of the unit the result will come from)
+    \item By adding tags register renaming (simple) is achieved
+    \item A common data bus is used to broadcast the result of an operation, with its tag (unit it came from)
+\end{itemize}
+\begin{minted}{Python}
+"""Super abbreviated pseudocode for the IBM360/91 Out of Order Execution """
+class IBM36091:
+    def issue_instruction(instruction: Instr):
+        # for each argument, check if register value is present or waiting.
+
+        unit: FunUnitId = get_unit_from_opcode(get_opcode(instruction))
+        dest: Register = get_dest_register(instruction)
+        operands: List[Register] = get_operands(instruction)
+
+        # overwrite destination with new unit to take result from (all subsequent instructions use result from this units execution)
+        dest.set_tag(unit)
+        
+        # Get arguments (some from registers, some )
+        args: List[ArgType] = []
+        for op in operands:
+            if (tag := op.get_tag()) is not None:
+                args.append(WaitFor(tag))
+            else:
+                args.append(Value(op.get_register_value()))
+    
+    class Unit:
+        def broadcast(data):
+            # Broadcast data to registers and other functional units via the common data bus
+            common_data_bus.broadcast(self.unit_id, data)
+        
+        def recieve(unit_id, data):
+            # Given some data broadcast determine if it is needed, and if any instructions can be executed.
+            for instr in self.reservation_station:
+                # Check if an instruction is waiting for the tag
+                instr.take_args(unit_id, data)
+                if instr.is_ready():
+                    instr.queue_execute()
+    
+    class Register:
+        def recieve(unit_id, data):
+            # Check if the data broadcast is for the register.
+            if self.tag == unit_id:
+                self.tag = None
+                self.value = data
+\end{minted}
+\begin{tabbox}[.6\textwidth]{consbox}
+    \textbf{Complexity} & Led to delays in design, hardware overhead to overcome an ISA issue. \\
+    \textbf{Limited by CDB} & CBD must go through all functional units, and only one instruction can write to bus per cycle. \\
+    \textbf{No Precise Interrupts} & As instructions are executed out of order, we cannot clearly define a point in the \textit{in-order} program text where the processor is at at any given time. \\
+\end{tabbox}
+
+It is possible to overlap loop iterations:
+\begin{itemize}
+    \item (Effectively) Register renaming allows for different physical destinations (e.g ignore register and straight to functional unit).
+    \item Reservation stations can buffer old values to avoid write after read / anti dependence stalls.
+\end{itemize}
+
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=2faf6023-3195-440e-b4f3-af2a010f70d6}{Chapter 2 - Part 2: Speculation}
+
+\section{Precise Interrupts}
+In order to use precise interrupts we need a consistent state.
+\begin{itemize}
+    \item All instructions up to some point have committed changes to machine state (registers \& memory).
+    \item No instructions past have committed.
+    \item Hence on an interrupt (e.g page fault, syscall) we can easily save state, and restart where the interrupt suspended execution of a program.
+    \item This is also important for branches (need to undo prevent committing work executed speculatively)
+\end{itemize}
+Hence we want to make a \textit{speculative tomasulo algorithm}
+\begin{enumerate}
+    \item Issue/Dispatch (Get instruction from buffer of fetched instructions, send operands \& reorder buffer number to destination)
+    \item Execution (Out of order execution of issued instructions)
+    \item Write Back (in order to common data bus and waiting functional units)
+    \item Commit (Update register with reorder result, reorder buffer takes completed instructions, puts in issue order and updates state)
+\end{enumerate}
+This requires several additions
+\begin{itemize}
+    \item Commit unit to manage reorder buffer
+    \item Issue side registers for execution
+    \item Commit side registers for the committed results
+    \item Ability to flush the reorder buffer on a branch mispredict
+\end{itemize}
+
+\section{Store Buffering}
+Stores are an issue as they cannot be completed until committed, but succeeding loads can be executed straight away.
+\begin{itemize}
+    \item We could stall all preceding loads until the store is complete
+    \item We can buffer uncommitted stores, associated with addresses, and check these for any load (to get the nearest hit, or on miss go to memory). Loads must be stalled until all possibly aliasing store addresses are resolved
+\end{itemize}
+Loads and stores use computed addresses (not always known at issue time)
+\begin{itemize}
+    \item Can speculate, and forward a store's result to a load
+    \item Must recover when the computed address is not the speculated
+\end{itemize}
+
+\unfinished
+% Register Renaming Unit
+
+% Register Allocation Tables

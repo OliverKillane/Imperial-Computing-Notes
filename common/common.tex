@@ -38,7 +38,7 @@
 %	... the term's definition ...
 % \end{definitionbox}
 \newtcolorbox[auto counter,number within=section]{definitionbox}[2][]{%
-colback=blue!5!white,breakable,colframe=blue!75!black,arc=0mm,sharp corners=all,fonttitle=\bfseries,%
+colback=blue!5!white,colframe=blue!75!black,arc=0mm,sharp corners=all,fonttitle=\bfseries,%
 title=#2 \hfill Definition \thetcbcounter #1}
 
 % For term definitions
@@ -81,22 +81,30 @@ colback=green!5!white,breakable,colframe=green!75!black,leftrule=3mm,arc=0mm,sha
 \newtcolorbox[]{consbox}[1][]{%
 colback=red!5!white,breakable,colframe=red!75!black,leftrule=3mm,arc=0mm,sharp corners=all, #1}
 
+% For negatives/cons 
+% \begin{tabbox}{consbox}
+%	... the term's definition ...
+% \end{tabbox}
+\newenvironment{tabbox}[2][.8\textwidth]{
+	\def\boxtype{#2}
+	\begin{\boxtype}
+		\begin{center}
+			\begin{tabular}{r p{#1}}
+}{
+			\end{tabular}
+		\end{center}
+	\end{\boxtype}
+}
 
-% \begin{linuxbox}
+% \begin{panoptobox}
 %   ... the question ...
-% \end{linuxbox}
-\newtcolorbox{linuxbox}{enhanced,arc=0mm,breakable,sharp corners=all,colback=gray!5,colframe=gray,leftrule=12mm,%
-overlay={\node[anchor=north west,outer sep=2pt] at (frame.north west) {\includegraphics[width=8mm]{common/images/tux.png}}; }}
+% \end{panoptobox}
+\newtcolorbox{panoptobox}{enhanced,arc=0mm,breakable,sharp corners=all,colback=gray!5,colframe=gray,leftrule=12mm,detach title,%
+underlay unbroken and first={\node[below,text=black,anchor=east] at (interior.base west) {\includegraphics[width=11mm]{../common/images/panopto_logo.png}};}}
 
-% \begin{windowsbox}
-%   ... the question ...
-% \end{windowsbox}
-\newtcolorbox{windowsbox}{enhanced,arc=0mm,breakable,sharp corners=all,colback=gray!5,colframe=gray,leftrule=12mm,%
-overlay={\node[anchor=north west,outer sep=2pt] at (frame.north west) {\includegraphics[width=8mm]{common/images/windows.png}}; }}
-
-% \begin{pintosbox}
-%   ... the question ...
-% \end{pintosbox}
-\newtcolorbox{pintosbox}{enhanced,arc=0mm,breakable,sharp corners=all,colback=gray!5,colframe=gray,leftrule=12mm,%
-overlay={\node[anchor=north west,outer sep=2pt] at (frame.north west) {\includegraphics[width=8mm]{common/images/pintos.png}}; }}
+\newcommand{\lectlink}[2]{
+	\begin{panoptobox}
+		\textbf{\href{#1}{#2}}
+    \end{panoptobox}
+}
 %===============================================================================
