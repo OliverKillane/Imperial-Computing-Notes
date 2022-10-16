@@ -14,9 +14,14 @@ In this module you will study in detail the design of type assignment systems fo
 - Subtypes and subtype inference
 - Advanced topics, e.g. higher-rank types, dependent types and ownership types
 
+## On these Notes
+The provided [course notes](https://www.doc.ic.ac.uk/~svb/TSfPL/notes.pdf) developed by Prof Van Bakel are fantastic, and significantly better than those found here.
+
+I highly advise you read them instead of these notes, which are barebones revision notes for my own study.
 ## Lecturers
 Taught by [Professor Steffen van Bakel](https://www.doc.ic.ac.uk/~svb/)
+
 ## Resources
 - [College Site](https://www.imperial.ac.uk/computing/current-students/courses/60023/)
 - [Module Site](https://www.doc.ic.ac.uk/~svb/TSfPL/)
-- [Year 3 Tar](https://gitlab.doc.ic.ac.uk/ok220/year-three-tar/-/tree/master/60001%20-%20Advanced%20Computer%20Architecture) [Imperial Students Only]
+- [Course Notes](https://www.doc.ic.ac.uk/~svb/TSfPL/notes.pdf)
