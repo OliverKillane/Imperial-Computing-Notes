@@ -823,7 +823,14 @@ typedef struct {
 
 std::atomic<MyStruct> p({.a=1, .c=true});
 \end{minted}
-
+\begin{sidenotebox}{Weak vs Strong Exchange on ARM}
+  The arm architecture allows exchange to spuriously fail.
+  \begin{itemize}
+    \item This is documented behaviour for \mintinline{Cpp}{exchange_weak}
+    \item \mintinline{Cpp}{exchange_strong} contains a loop that makes use of \mintinline{Cpp}{exchange_weak}
+    \item On x86 strong and weak are identical and do not spuriously fail. 
+  \end{itemize}
+\end{sidenotebox}
 \subsection{Atomic Integral Types}
 For integral types, fast assembly supported instructions for atomic integers, booleans and floats can be used.
 \begin{itemize}
@@ -942,4 +949,99 @@ namespace std {
 \end{definitionbox}
 
 \section{Message Passing}
+Threads can communicate without blocking through atomics.
+\begin{itemize}
+  \item Poll on an atomic variable (potentially doing some other work while waiting)
+  \item Often used for synchronising access to shared resources (e.g spin locks)
+\end{itemize} 
+
+\subsection{Expensive Approach}
+We can use sequential consistency to ensure that the 
+\begin{minted}[bgcolor=threadGrey]{Cpp}  
+#include <atomic>
+
+std::atomic<bool> flag(true);
+SharedObj data(some_data);
+\end{minted}
+\begin{minipage}{.49\textwidth}
+  \begin{minted}[bgcolor=threadYellow]{Cpp}
+use_data(data);
+
+flag.store(true);
+
+
+  \end{minted}
+\end{minipage}
+\hfill
+\begin{minipage}{.49\textwidth}
+  \begin{minted}[bgcolor=threadBlue]{Cpp}
+while (!flag.load()) {
+// do nothing - a pure spinlock
+}
+
+use_data(data);
+  \end{minted}
+\end{minipage}
+
+\begin{tabbox}{consbox}
+  \textbf{Slow} &  On some architectures memory barriers are required for to ensure sequential consistency, are expensive. \\
+\end{tabbox}
+
+\begin{definitionbox}{Memory Barrier / Fence}
+  These prevent the reordering of load and store instructions by dynamically scheduled processors.
+  \begin{itemize}
+    \item On a single core processor this is not an issue (dynamic scheduling commits instructions effects in order)
+    \item On a multicore system instruction reordering in execution stages can result in non-sequentially consistent accesses.
+    \item Dynamic scheduling of instructions improves performance by filling potential \textit{stalls} with useful computation.
+  \end{itemize}
+\end{definitionbox}
+
+\subsection{Incorrect Approach}
+One approach could be to use relaxed memory ordering.
+\begin{itemize}
+  \item Allows for other values (e.g the data being protected by a spinlock) to be re-ordered around the atomic.
+  \item This removes the protection the spinloc is intended to provide.
+\end{itemize}
+
+\begin{minipage}{.49\textwidth}
+    \begin{minted}[bgcolor=threadYellow]{Cpp}
+// These can be reordered
+use_data(data);
+
+flag.store(true);
+  
+    \end{minted}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{.49\textwidth}
+    \begin{minted}[bgcolor=threadBlue]{Cpp}
+while (!flag.load()) {
+// do nothing - a pure spinlock
+}
+
+    use_data(data);
+    \end{minted}
+  \end{minipage}
+
+\subsection{Release-Acquire Consistency}
+Release acquire consistency
+\begin{minipage}{.49\textwidth}
+\begin{minted}[bgcolor=threadYellow]{Cpp}
+// These can be reordered
+use_data(data);
+
+flag.store(true, std::memory_order_release);
+
+  \end{minted}
+\end{minipage}
+\hfill
+\begin{minipage}{.49\textwidth}
+  \begin{minted}[bgcolor=threadBlue]{Cpp}
+while (!flag.load(std::memory_order_acquire)) {
+// do nothing - a pure spinlock
+}
+
+  use_data(data);
+  \end{minted}
+\end{minipage}
 \unfinished
