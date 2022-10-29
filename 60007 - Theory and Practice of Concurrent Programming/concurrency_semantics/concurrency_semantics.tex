@@ -1,0 +1,191 @@
+\chapter{Concurrency Semantics}
+
+\section{Formal Properties}
+\begin{center}
+    \begin{tabular}{r l l}
+        \textbf{Safety Properties} & \textit{Nothing bad happens} & Only violated by finite computations \\
+        \textbf{Liveness Properties} & \textit{Something good happens eventually} & Cannot be violated by finite computation \\
+    \end{tabular}
+\end{center}
+Deadlock is a \textbf{liveness} problem, while Mutual exclusion is a \textbf{Safety} problem.
+
+\begin{definitionbox}{Communication Deadlock}
+    When using transient communication, messages can be lost. 
+    A thread may wait on a reply from another thread, that never 
+    received to prompt to reply in the first place, thus causing a deadlock.
+\end{definitionbox}
+
+\begin{itemize}
+    \item Mutual Exclusion cannot be solved with transient communication
+    \item Interrupts can also not work?
+\end{itemize}
+
+\begin{definitionbox}{Mutual Exclusion}
+    When only one thread can execute in a critical region at a time, there is mutual exclusion.
+    \begin{itemize}
+        \item Mutual exclusion enforces removes parallelism for the critical section, limiting speedup from parallelism (Amdahl's law)
+    \end{itemize}
+\end{definitionbox}
+
+\begin{tcbraster}[raster columns=2, raster equal height]
+    \begin{definitionbox}{Turing Computability}
+        A model of computation that describes what is computable. 
+        \begin{itemize}
+            \item Efficiency mostly irrelevant
+            \item Only covers sequential computation.
+        \end{itemize}
+    \end{definitionbox}
+    \begin{definitionbox}{Shared-Memory Computability}
+        A model for concurrent computation.
+        \begin{itemize}
+            \item Describes what is concurrently computable.
+            \item Efficiency mostly irrelevant
+        \end{itemize}
+    \end{definitionbox}
+\end{tcbraster}
+
+\section{Shared-Memory Concurrency}
+\subsection{Read-Modify-Write}
+\begin{definitionbox}{Read-Modify-Write Instructions}
+    An instruction that reads, modifies (with some function) and writes to a memory location, returning the value prior to the modification.
+    \begin{minted}{Rust}
+//! Generically we can express this scheme for any data type
+struct RMWLocation<A> {data: A}
+
+impl<A: Clone> RMWLocation<A> {
+    /// This function is synchronised
+    fn read_modify_write(&mut self, apply: fn(&A) -> A) -> A {
+        let old_value = self.data.clone();
+        self.data = apply(&self.data);
+        old_value
+    }
+}
+    \end{minted}
+\end{definitionbox}
+There are many different RMW instructions, a read can be considered an RMW instruction (where modification applies is just identity).
+\begin{tcbraster}[raster columns=2, raster equal height]
+    \begin{definitionbox}{Weak RMW}
+        Allows for synchronisation between two threads.
+        \begin{itemize}
+            \item exchange Write - a new value to the location.
+            \item fetch and add - Atomically add to an integer at a location. \\
+        \end{itemize}
+    \end{definitionbox}
+    \begin{definitionbox}{Strong RMW}
+        Allows for synchronisation between an arbitrary number of threads.
+        \begin{itemize}
+            \item compare and set (CAS) - If the value is equal to the expected, set to updated and return true, else return false.
+        \end{itemize}
+    \end{definitionbox}
+\end{tcbraster}
+Many early machines provided weak RMW instructions (Test-and-set in IBM 360, Swap in original SPARCs), we now understand the limitations of these.
+\begin{itemize}
+    \item All intel x86 architectures support CAS.
+    \item ARM supports CAS through through load-linked and store-conditional instructions.
+\end{itemize}
+
+\subsection{Consistency/Memory Models}
+\begin{definitionbox}{Sequential Consistency}
+    Also known as interleaving semantics.
+    \begin{itemize}
+        \item Instructions for each thread are executed in order.
+        \item Instructions from different threads can be interleaved arbitrarily.
+    \end{itemize}
+\end{definitionbox}
+\subsubsection{Sequential Consistency Model}
+\begin{itemize}
+    \item Can work on a uniprocessor system (simple/idealised).
+    \item A good abstraction for concurrency \& easier to reason about.
+    \item Not available on any hardware platform by default.
+    \item Inefficient and expensive to implement.
+\end{itemize}
+\subsubsection{Hardware Consistency Models}
+\begin{itemize}
+    \item A weak memory model (due to dynamic scheduling on processors)
+    \item Complex for multicore systems.
+    \item Hardware implementation has to deal with complexities such as cache coherence.
+\end{itemize}
+\subsubsection{Software/Programming Language Consistency Models}
+\begin{itemize}
+    \item A weak memory model (compiler can reorder instructions, also must accommodate hardware)
+    \item Determined by the language specification, programmer uses this specification, compiler adapts to hardware.
+    \item C/C++ 2011 model (C11 model) (e.g \mintinline{C}{atomic.h})
+    \item Java Memory Model
+\end{itemize}
+
+\newcommand{\wmem}[1]{\textcolor{blue}{#1}}
+\newcommand{\wreg}[1]{\textcolor{red}{#1}}
+\newcommand{\wass}[2]{#1 \textcolor{purple}{\text{ := }} #2}
+\newcommand{\wseq}[2]{#1 \textcolor{purple}{\text{ ; }} #2}
+\newcommand{\wif}[3]{\textcolor{purple}{\text{if }}#1\textcolor{purple}{\text{ then }}#2\textcolor{purple}{\text{ else }}#3}
+\newcommand{\wwhile}[2]{\textcolor{purple}{\text{while }}#1\textcolor{purple}{\text{ do }}#2}
+\newcommand{\wcas}[3]{\textcolor{orange}{\text{CAS}}(#1, #2, #3)}
+\newcommand{\wffa}[2]{\textcolor{orange}{\text{\textit{FFA}}}(#1, #2)}
+\newcommand{\wskip}{\textcolor{purple}{\text{skip}}}
+
+\section{Operational Semantics of Sequential Consistency}
+We can create a basic while-language for sequential consistency.
+\[\begin{matrix}
+    B \in Bool ::= \dots & E \in Exp::= \dots & \wmem{x}, \wmem{y}, \wmem{x} \dots \in Loc ::= \text{ (Memory Location)} & \wreg{a}, \wreg{b}, \wreg{c} \dots \in Reg ::= \text{ (Register)} \\
+\end{matrix}\]
+
+\[\begin{split}
+    C \in Com ::= &\  \wass{\wreg{a}}{E} \\
+    | & \  \wass{\wreg{a}}{\wmem{x}} \\
+    | & \  \wass{\wmem{x}}{\wreg{a}} \\
+    | & \  \wass{\wreg{a}}{\wcas{\wmem{x}}{E}{E}}\\
+    | & \  \wffa{\wmem{x}}{E} \\
+    | & \  \wskip \\
+    | & \  \wseq{C}{C} \\
+    | & \  \wwhile{B}{C} \\
+    | & \  \wif{B}{C}{C} \\
+\end{split}\]
+
+Concurrent programs are modelled as a map from thread identifiers to sequential commands.
+\[\begin{matrix}
+    \tau \in Tid & \text{  and  } & P \in Prog \triangleq Tid \rightarrow Com
+\end{matrix}\]
+A concurrent program can be expressed using $||$ as:
+\[C_1 || C_2 || C_3 || \dots || C_n \text{ for program } P \text{ where } dom(P) = \{\tau_1, \tau_2, \tau_3, \dots, \tau_n\} \text{ and } P(\tau_i) = C_i \text{ for } i \in \{1,2,3,\dots, n\} \]
+\begin{examplebox}{Racey Increment}
+    Write a concurrent program $\text{inc}$ that comprises of two threads which increment some shared memory.
+    \tcblower
+    \[P_{\text{inc}} \triangleq \left. \begin{matrix*}[l]
+        \wass{\wreg{a1}}{cnt} \\
+        \wass{\wreg{a1}}{\wreg{a1} + 1} \\
+        \wass{\wmem{cnt}}{\wreg{a1}} \\
+    \end{matrix*} \ \right\lvert \left\rvert \
+    \begin{matrix*}[l]
+        \wass{\wreg{a2}}{cnt} \\
+        \wass{\wreg{a2}}{\wreg{a2} + 1} \\
+        \wass{\wmem{cnt}}{\wreg{a2}} \\
+    \end{matrix*} \right.\]
+    We can also express this as:
+    \[dom(P_{\text{inc}}) = \{\tau_1, \tau_2\} \begin{split}
+        P_{\text{inc}}(\tau_1) &= \wseq{
+            \wass{\wreg{a1}}{cnt} 
+        }{\wseq{
+            \wass{\wreg{a1}}{\wreg{a1} + 1} 
+        }{
+            \wass{\wmem{cnt}}{\wreg{a1}} 
+        }} \\
+        P_{\text{inc}}(\tau_1) &=  \wseq{
+            \wass{\wreg{a2}}{cnt} 
+        }{\wseq{
+            \wass{\wreg{a2}}{\wreg{a2} + 1} 
+        }{
+            \wass{\wmem{cnt}}{\wreg{a2}} 
+        }} \\
+    \end{split}\]
+\end{examplebox}
+
+Sequential Consistency configurations include:
+\[\begin{split}
+    \text{Shared memory } & M \in Mem \triangleq Loc \to Val \\
+    \text{Thread-local Registers } & s \in Store \triangleq Reg \to Val \\
+    \text{A store map for threads } & S \in SMap \triangleq Tid \to Store  \text{ where } S(\tau) = s \\
+\end{split}\]
+Hence the configuration is a triple of the concurrent program, shared memory and map to thread local stored.
+\[(P, S, M)\]
+
+
