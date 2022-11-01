@@ -1,4 +1,4 @@
-\chapter{Concurrency Semantics}
+\chapter{Operational Semantics}
 
 \section{Formal Properties}
 \begin{center}
@@ -113,17 +113,7 @@ Many early machines provided weak RMW instructions (Test-and-set in IBM 360, Swa
     \item Java Memory Model
 \end{itemize}
 
-\newcommand{\wmem}[1]{\textcolor{blue}{#1}}
-\newcommand{\wreg}[1]{\textcolor{red}{#1}}
-\newcommand{\wass}[2]{#1 \textcolor{purple}{\text{ := }} #2}
-\newcommand{\wseq}[2]{#1 \textcolor{purple}{\text{ ; }} #2}
-\newcommand{\wif}[3]{\textcolor{purple}{\text{if }}#1\textcolor{purple}{\text{ then }}#2\textcolor{purple}{\text{ else }}#3}
-\newcommand{\wwhile}[2]{\textcolor{purple}{\text{while }}#1\textcolor{purple}{\text{ do }}#2}
-\newcommand{\wcas}[3]{\textcolor{orange}{\text{CAS}}(#1, #2, #3)}
-\newcommand{\wffa}[2]{\textcolor{orange}{\text{\textit{FFA}}}(#1, #2)}
-\newcommand{\wskip}{\textcolor{purple}{\text{skip}}}
-
-\section{Operational Semantics of Sequential Consistency}
+\section{Sequential Consistency}
 We can create a basic while-language for sequential consistency.
 \[\begin{matrix}
     B \in Bool ::= \dots & E \in Exp::= \dots & \wmem{x}, \wmem{y}, \wmem{x} \dots \in Loc ::= \text{ (Memory Location)} & \wreg{a}, \wreg{b}, \wreg{c} \dots \in Reg ::= \text{ (Register)} \\
@@ -188,8 +178,6 @@ A concurrent program can be expressed using $||$ as:
 Hence the configuration is a triple of the concurrent program, shared memory and map to thread local stored.
 \[(P, S, M)\]
 
-\newcommand{\ctrans}[1]{\overset{#1}{\to_c}}
-\newcommand{\ceval}[2]{\text{eval}(#1, #2)}
 \subsection{Transitions}
 The operational semantics are split into two types of transition.
 \begin{center}
@@ -293,7 +281,7 @@ Note that program transitions do not consider memory, so no update takes place h
     \]    
 \end{minipage}
 
-\newcommand{\ptrans}[2]{\overset{#1:#2}{\to_p}}
+
 
 \subsection{Concurrent Program Transitions}
 \[\cfrac{
@@ -302,7 +290,6 @@ Note that program transitions do not consider memory, so no update takes place h
     P, S \ptrans{\tau}{l} P', S'
 }\]
 
-\newcommand{\mtrans}[2]{\overset{#1:#2}{\to_m}}
 \subsection{Storage Transitions}
 A storage transition is of the form $M \mtrans{\tau}{l} M'$ (thread $\tau$ updates $M \to M'$ using label $l$).
 \begin{itemize}
@@ -452,8 +439,6 @@ This does not hold due to the interleavings of the threads of $P$.
 \end{multline*}
 SC is not confluent for the same reason it is not deterministic (there are many possible \textit{SC-outcomes} for a program)
 
-
-\newcommand{\wmfence}{\textcolor{purple}{\text{mfence}}}
 \section{Total Store Ordering}
 \begin{definitionbox}{Weak Memory Models (WMM)}
     Allow for instructions in a thread to be reordered (e.g dynamically scheduled processors).
@@ -472,7 +457,7 @@ SC is not confluent for the same reason it is not deterministic (there are many 
 \end{definitionbox}
 
 \begin{center}
-    \includegraphics[width=.8\textwidth]{concurrency_semantics/images/tso.drawio.png}
+    \includegraphics[width=.8\textwidth]{operational_semantics/images/tso.drawio.png}
 \end{center}
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}

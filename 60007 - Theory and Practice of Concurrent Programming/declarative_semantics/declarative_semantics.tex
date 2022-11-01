@@ -1,0 +1,159 @@
+\chapter{Declarative Semantics}
+
+\begin{definitionbox}{Declarative/Axiomatic Semantics}
+    An alternative to operational semantics.
+    \begin{itemize}
+        \item Defines the notion of program execution (generalisation of execution trace)
+        \item Maps a program to a set of candidate executions
+        \item Define a consistency predicate on executions
+    \end{itemize}
+    Semantics are defined as the set of consistent executions of a program.
+\end{definitionbox}
+\begin{definitionbox}{Catch Fire Semantics}
+    The existence of one \textit{bad} consistent execution implies undefined behaviour.
+\end{definitionbox}
+Executions are expressed as graphs.
+\begin{center}
+    \begin{tabular}{l l p{.6\textwidth}}
+        \textbf{Events} & Graph Nodes & Reads, Writes, Updates \& Fences \\
+        \textbf{Relations} & Graph Edges & Program order ($\dpo$) and reads-from ($\drf$). \\
+    \end{tabular}
+\end{center}
+
+\begin{definitionbox}{Event}
+    \[\langle n, \tau, l \rangle\]
+    \[
+        n \in \mathbb{N}  \text{ Unique Event Identifier} \qquad
+        \tau \in Tid \cup \{0\}  \text{ Thread Identifier} \qquad
+        l \text{ Non-empty label}
+    \]
+\end{definitionbox}
+\begin{definitionbox}{Non-empty Label}
+    As labels are only associated with events, and events interact with memory, there is no concept of a $\epsilon$ empty label as in operational semantics.
+    \\
+    \\ Labels are model specific, so for sequential consistency they are:
+    \[(R, \wmem{x}, v_r) \qquad (W, \wmem{x}, v_w) \qquad (U, \wmem{x}, v_r, v_w)\]
+    where $x \in Loc$ and $v_r, v_w \in Val$
+\end{definitionbox}
+
+\subsection{Label and Event Notation}
+\begin{minipage}[b]{.33\textwidth}
+    \[
+        \begin{matrix*}[l]
+            \dtyp{(R, \wmem{x}, v_r)} & \triangleq R \\
+            \dtyp{(W, \wmem{x}, v_w)} & \triangleq W \\
+            \dtyp{(U, \wmem{x}, v_r, v_w)} & \triangleq U \\
+        \end{matrix*}
+    \]
+    \centerline{Get Label Type}
+\end{minipage}
+\begin{minipage}[b]{.33\textwidth}
+    \[
+        \begin{matrix*}[l]
+            \dval{r}{(R, \wmem{x}, v_r)} & \triangleq v_r \\
+            \dval{r}{(U, \wmem{x}, v_r, v_w)} & \triangleq v_r \\
+            \\
+            \dval{w}{(W, \wmem{x}, v_w)} & \triangleq v_w \\
+            \dval{w}{(U, \wmem{x}, v_r, v_w)} & \triangleq v_w \\
+        \end{matrix*}
+    \]
+    \centerline{Get read \& write values.}
+\end{minipage}
+\begin{minipage}[b]{.33\textwidth}
+    \[
+        \begin{matrix*}[l]
+            \dloc{(R, \wmem{x}, v_r)} & \triangleq \wmem{x} \\
+            \dloc{(W, \wmem{x}, v_w)} & \triangleq \wmem{x} \\
+            \dloc{(U, \wmem{x}, v_r, v_w)} & \triangleq \wmem{x} \\
+        \end{matrix*}
+    \]
+    \centerline{Get read \& write values.}
+\end{minipage}
+Given a set of events $A$, the relations $r, r' \subseteq A \times A $ and memory location $\wmem{x}$ we have:
+\[
+    \begin{matrix*}[l]
+        \text{Identity on } A & [A] & \triangleq & \{(a,a) \ | \ a \in A\} \\
+        \text{Domain of } r & dom(r) & \triangleq & \{a \ | \ (a, -) \in r\} \\
+        \text{Range of } r & rng(r) & \triangleq & \{a \ | \ (-, a) \in r\} \\
+        \text{Inverse of } r & r^{-1} & \triangleq & \{(b, a) \ | \ (a, b) \in r\} \\
+        \\
+        \text{Composition of } r \text{ and } r' & r; r' & \triangleq & \{(a,c) \ | \ (a,b) \in r \land (b,c) \in r'\} \\
+        \text{Reflexive Closure of } r & r^? & \triangleq & r \cup [dom(r) \cup rng(r)] \\
+        \text{Transitive Closure of } r & r^+ & \triangleq & \bigcup_{i=0}^{\infty}r^i \text{ where } r^0 \triangleq r \text{ and } r^{i + 1} \triangleq r; r^i \text{ for } i> 0 \\
+        \text{Reflexive \& Transitive closure of } r & r^* & \triangleq & (r^+)^? \\
+        \\
+        & A_{\wmem{x}} & \triangleq & \{e \in A \ | \ \dloc{e} = \wmem{x} \} \text{ and } r_{\wmem{x}} \triangleq r \cap (A_{\wmem{x}} \times A_{\wmem{x}}) \\
+        & r|_{loc} & \triangleq & \{(a,b) \in r \ | \ \dloc(a) = \dloc{b}\}
+    \end{matrix*}
+\]
+
+Given an event set $A$, a relation $r \in A \times A$ and a thread $\tau$ we have:
+\[
+    \begin{matrix*}[l]
+        \text{Initialisation of events in } A & A_0 & \triangleq & \{e \in A \ | \ \dtid(a) = 0\} \\
+        & A_{\tau} & \triangleq & \{e \in A \ | \ \dtid{a} = \tau\} \text{ and } r_{\tau} \triangleq \cap (A_{\tau} \times A_{\tau}) \\
+        \\
+        \text{For internal edges (of the same thread) } & ri & \triangleq & \{(a,b) \in r \ | \ \dtid{a} = \dtid{b} \} \\
+        \text{For external edges } & re & \triangleq & \{(a,b) \in r \ | \ \dtid{a} \neq \dtid{b} \} \\
+        \\
+        irreflexive(r) & & \overset{def}{\Leftrightarrow} & \neg \exists a. [(a,a) \in r] \\
+        acyclic(r) & &  \overset{def}{\Leftrightarrow} & irreflexive(r^+) \\
+
+    \end{matrix*}    
+\]
+\begin{definitionbox}{Partial Orders}
+    Given some set $A$ and relation $R$:
+    \[\begin{matrix*}[l]
+        R \text{ is reflexive} & \forall x, \in A . & [x \ R \ x] \\
+        R \text{ is irreflexive} & \forall x \in A . & [\neg (x \ R \ x)] \\
+        R \text{ is symmetric} & \forall x, y \in A . & [x \ R \ y \Rightarrow y \ R \ x] \\
+        R \text{ is anti-symmetric} & \forall x, y \in A . & [(x \ R \ y \land y \ R \ x) \rightarrow x = y] \\
+        R \text{ is transitive} & \forall x, y, z \in A . & [(x \ R \ y \land y \ R \ z) \Rightarrow x \ R \ z] \\
+    \end{matrix*}\]
+    \begin{center}
+        \begin{tabular}{l l}
+            Pre-order & Reflexive and Transitive \\
+            Partial order & Anti-symmetric \& pre-order. Hence is reflexive, transitive and anti-symmetric. \\
+            Strict partial order & Irreflexive and transitive \\
+            Total order & Partial order with $\forall x, y \in A. [x \ R \ y \lor y \ R \ x]$ \\
+            Strict total order & Strict partial order with $\forall x, y \in A. [x \neq y \Rightarrow (x \ R \ y \lor y \ R \ x)]$ \\
+        \end{tabular}
+    \end{center}
+
+\end{definitionbox}
+\begin{definitionbox}{Function Types}
+    \[f: A \to B \qquad dom(f) = A \qquad codom(f) = B\]
+    \begin{tabular}{l p{.35\textwidth} l}
+        \textbf{Injective/one-to-one} & Each output is mapped to by at most one input. & $\forall x_1, x_2 \in A. [f(x_1) = f(x_2) \Rightarrow x_1 = x_2]$ \\
+        \textbf{Surjective/onto} & Each output is mapped to by at least one input. & $\forall y \in B. \exists x \in A. [f(x) = y]$ \\
+        \textbf{Bijective} & Each output is mapped to by one input. & $bijective(f) = injective(f) \land surjective(f)$ \\
+    \end{tabular}
+\end{definitionbox}
+\begin{definitionbox}{Execution Graph}
+    \[\langle E, \dpo, \drf \rangle \]
+    \begin{tabular}{l p{.8\textwidth}}
+        $E$ & Finite set of events. \\
+        $\dpo$ & The Program order binary relation. \\
+        $\drf$ & Reads-from binary relation.
+    \end{tabular}
+    \begin{minipage}{.48\textwidth}
+        $\dpo$ is is such that:
+        \[\dpo \triangleq \left( \bigcup_{\tau \in tid} \dpo_\tau \right) \cup (E_0 \times (E \setminus E_0))\]
+        Each $\dpo_{\tau}$ is a strict total order on $E_{\tau}$.
+    \end{minipage}
+    \hfill
+    \vline
+    \hfill
+    \begin{minipage}{.48\textwidth}
+        $\drf$ is such that $\forall \langle w, r \rangle \in \drf$
+        \[\begin{matrix*}[l]
+            w \neq r \\
+            \dtyp{w} \in \{W, U\} \land \dtyp{r} \in \{R, U\} \\
+            \dloc{w} = \dloc{r} \\
+            \dval{w}{w} = \dval{r}{r} \\
+        \end{matrix*}\]
+    \end{minipage}
+\end{definitionbox}
+
+$\drf^{-1}$ is a function:
+\[\]

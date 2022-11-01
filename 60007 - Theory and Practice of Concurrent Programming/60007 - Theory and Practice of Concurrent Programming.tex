@@ -7,6 +7,33 @@
 \usepackage[a4paper, total={7in, 10in}]{geometry}
 \input{../common/common.tex}
 
+% Commands used for the while language and semantics
+% While Language
+\newcommand{\wmem}[1]{\textcolor{blue}{#1}}
+\newcommand{\wreg}[1]{\textcolor{red}{#1}}
+\newcommand{\wass}[2]{#1 \textcolor{purple}{\text{ := }} #2}
+\newcommand{\wseq}[2]{#1 \textcolor{purple}{\text{ ; }} #2}
+\newcommand{\wif}[3]{\textcolor{purple}{\text{if }}#1\textcolor{purple}{\text{ then }}#2\textcolor{purple}{\text{ else }}#3}
+\newcommand{\wwhile}[2]{\textcolor{purple}{\text{while }}#1\textcolor{purple}{\text{ do }}#2}
+\newcommand{\wcas}[3]{\textcolor{orange}{\text{CAS}}(#1, #2, #3)}
+\newcommand{\wffa}[2]{\textcolor{orange}{\text{\textit{FFA}}}(#1, #2)}
+\newcommand{\wskip}{\textcolor{purple}{\text{skip}}}
+
+% Evaluation and transitions
+\newcommand{\ctrans}[1]{\overset{#1}{\to_c}}
+\newcommand{\ceval}[2]{\text{eval}(#1, #2)}
+\newcommand{\ptrans}[2]{\overset{#1:#2}{\to_p}}
+\newcommand{\mtrans}[2]{\overset{#1:#2}{\to_m}}
+\newcommand{\wmfence}{\textcolor{purple}{\text{mfence}}}
+
+% Declarative Semantics
+\newcommand{\dpo}{\textcolor{blue}{\text{po}}}
+\newcommand{\drf}{\textcolor{green}{\text{rf}}}
+\newcommand{\dtyp}[1]{\textcolor{blue}{\text{typ}}(#1)}
+\newcommand{\dval}[2]{\textcolor{blue}{\text{val}}_{#1}(#2)}
+\newcommand{\dloc}[1]{\textcolor{blue}{\text{loc}}(#1)}
+\newcommand{\dtid}[1]{\textcolor{orange}{\text{tid}}(#1)}
+
 \begin{document}
 \include{titlepage/titlepage}
 
@@ -17,7 +44,9 @@
 
 \addchapter{concurrency_in_cpp}
 
-\addchapter{concurrency_semantics}
+\addchapter{operational_semantics}
+
+\addchapter{declarative_semantics}
 
 \addchapter{credit}
 
