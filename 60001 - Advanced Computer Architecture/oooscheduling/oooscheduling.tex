@@ -128,8 +128,22 @@ Loads and stores use computed addresses (not always known at issue time)
     \item Can speculate, and forward a store's result to a load
     \item Must recover when the computed address is not the speculated
 \end{itemize}
+Hence we can add a \textit{forwarding predictor} to determine if a store should be forwarded to some load behind it in the pipeline.
+\begin{sidenotebox}{Dependence Prediction}
+    More can be read about predicting the dependence of a load on another store instruction \href{here}{https://jilp.org/vol2/v2paper13.pdf}.
+\end{sidenotebox}
 
+\section{Register Update Unit}
+An alternative to reservation stations and the reorder buffer.
+\begin{itemize}
+    \item A single table of instructions after fetch, acting as a reservation station.
+    \item Once the operands are found, the instruction can be issued (hence functional unit determined after operands, unlike in Tomasulo's)
+    \item RUU entries are committed to update the commit side registers.
+\end{itemize}
+\begin{tabbox}{prosbox}
+    \textbf{Monitors} & In Tomasulo's every reservation station and reorder buffer entry needs to have a comparator and monitor the common data bus. With the RUU strategy, fewer comparators are required. \\
+    \textbf{Tags} & With RUU the tags are ROB entries. Furthermore the RUU is indexed by the tag. \\
+\end{tabbox}
+
+\section{Register Alias Tables}
 \unfinished
-% Register Renaming Unit
-
-% Register Allocation Tables

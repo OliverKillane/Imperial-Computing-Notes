@@ -154,3 +154,178 @@ The least recently used (LRU) evicts the oldest cache entry
     \end{definitionbox}
 \end{tcbraster}
 Neither avoid the cache-coherence problem (inconsistent values for locations cached on multiple cores/processors).
+
+\section{Miss Rate Reduction Using Hardware}
+\[\text{Average Memory Access Time (AMAT)} = \text{Hit Time} + \text{Miss Rate} \times \text{Miss Penalty}\]
+In order to reduce AMAT:
+\begin{itemize}
+    \item Reduce Miss Rate.
+    \item Reduce Miss Penalty.
+    \item Reduce time to hit cache.
+\end{itemize}
+
+\subsection{Reducing Misses}
+\begin{center}
+    \begin{tabular}{l p{.8\textwidth}}
+        \textbf{Compulsory} & First access so not in cache, also called a \textit{cold start miss} or \textit{first reference miss}. \\
+        \textbf{Capacity} & Cache cannot contain all blocks needed during the execution of a program. A capacity miss occurs when a block discarded due to capacity is later retrieved. \\
+        \textbf{Conflict} & Where the block placement strategy results in blocks being discarded as too many are mapped to a set (associativity conflicts). Also called \textit{collision misses} or \textit{interference misses}. \\
+    \end{tabular}
+\end{center}
+\begin{center}
+    \begin{tabular}{c c c}
+        \textbf{Compulsory} & \textbf{Capacity} & \textbf{Conflict} \\
+        Infinite Cache & Fully associative, finite cache & $n$-way associative, finite cache \\
+    \end{tabular}
+\end{center}
+
+\begin{sidenotebox}{Coherence Miss}
+    A miss caused by cache coherence protocols. For example another core or an I/O device may invalidate a cache entry. 
+\end{sidenotebox}
+
+\subsection{Increase Block Size}
+\begin{tabbox}{prosbox}
+    \textbf{Spatial Locality} & Larger block means more locations are speculatively cached. \\
+    \textbf{Cold Misses} & As more speculatively cached, fewer cold misses (cached speculatively before first access). \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{Wasted Space} & More of the cache is wasted on speculatively cached but unused data. \\
+    \textbf{Conflicts} & larger Blocks $\Rightarrow$ Fewer lines $\Rightarrow$ increase capacity conflicts as there is potentially more contention over lines. \\
+    \textbf{Loading} & Larger blocks may take longer to load (increased miss penalty) or require a wider bus (expensive hardware). \\
+\end{tabbox}
+
+\subsection{Increase Associativity}
+
+\begin{tabbox}{prosbox}
+    \textbf{Fewer Associativity Conflicts} & More ways $\Rightarrow$ more ways to not conflict. This reduces the miss rate.\\
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{Cycle Time} & Comparators in the critical path
+\end{tabbox}
+
+\subsection{Victim Cache}
+The main cache is a large directly mapped cache. A victim cache is fully associative and smaller, and contains data discarded from the main cache.
+\begin{itemize}
+    \item Checked in parallel.
+    \item Rarely used for L1 cache, but often used for last-level caches.
+\end{itemize}
+This is an example of combining two strategies to avoid both's worst case behaviour.
+\begin{sidenotebox}{Competitive Algorithms}
+    Given two strategies, combining to create a good composite strategy.
+    \begin{itemize}
+        \item \href{https://en.wikipedia.org/wiki/Ski_rental_problem}{Ski Rental Problem} (Combining the renting \& buying strategies)
+        \item Spinlocks vs context-switching (e.g spin before blocking?)
+        \item Paging (replacement \& eviction)
+        \item 
+    \end{itemize}
+\end{sidenotebox}
+
+\subsection{Skewed-Associative Caches}
+Given a two way set-associative cache.
+\begin{itemize}
+    \item Use a different \textit{hash function} for each cache (e.g one using regular (tag and index), other xors bits of index \& tag and reorders)
+    \item Associativity conflicts may be present in one cache, but not the other.
+\end{itemize}
+\begin{center}
+    \includegraphics[width=.9\textwidth]{caches/images/skew_associative_cache.drawio.png}
+\end{center}
+\begin{tabbox}[.6\textwidth]{prosbox}
+    \textbf{Associativity Conflicts} & Can reduce associativity conflicts. \\
+    \textbf{Reduce Associativity} & Fewer conflicts for a w-way set associativity means the same conflict rate can be achieved with lower associativity (less hardware complexity). \\
+    \textbf{More Predictable Average} & e.g with traversing two arrays and a non-skewed cache if we are \textit{"unlucky"} and get an associativity conflict on one element, we will get it on all subsequent. With skewed the next element may not. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{Some Conflicts} & Its very difficult to write a program free of all conflicts. \\
+    \textbf{More Decoders} & Need an address decoder per way/cache rather than a single for all. \\
+    \textbf{Hash Latency} & Complex hash increases latency (it is in the critical path). \\
+    \textbf{LRU} & Difficult to implement LRU eviction policy (though this is not necessarily a good policy). \\
+\end{tabbox}
+
+\subsection{Hardware Prefetching}
+When a cache miss occurs, fetch the data (as required), but also pre-buffer the next block in a \textit{stream buffer}.
+\begin{itemize}
+    \item Prefetched blocks are placed in the cache (would pollute and potentially evict blocks to be used).
+    \item Stream buffer checked in parallel with cache.
+    \item Can add several prefetch buffers (multi-way stream buffer) to prefetch up $w$-way, fetch to $w$ blocks ahead.
+    \item Used in most high performance processors.
+\end{itemize}
+
+\begin{tabbox}{prosbox}
+    \textbf{Sequential Access} & Can avoid misses when traversing arrays. \\
+    \textbf{Cache Untouched} & Can use any type of cache design with this - an addition. \\
+\end{tabbox}
+
+\begin{tabbox}[.7\textwidth]{consbox}
+    \textbf{Memory Bandwidth} & Need extra bandwidth to transfer block selected (cache miss) and block for pre-fetch. \\
+\end{tabbox}
+
+\begin{sidenotebox}{Decoupled Access-Execute}
+    Decouple the processor into an access and execution sides.
+\begin{itemize}
+    \item Access side fetches data to provide to the execute side.
+    \item Execute side takes data from access and runs arithmetic instructions on it.
+    \item Access side can be far ahead of execute, streaming the required data to it at close to memory bandwidth.
+\end{itemize}
+\end{sidenotebox}
+
+\section{Miss Rate Reduction Using Software}
+\subsection{Software Prefetching}
+Many modern processors provide prefetching instructions.
+\begin{itemize}
+    \item Rarely needed - hardware prefetching is good!
+    \item Useful on simpler processors with less or no hardware prefetching.
+    \item Care required to prevent unwanted side effects.
+    \item Prefetch instructions may target addresses that result in a page fault/protection violation (here they silently fail).
+\end{itemize}
+
+\subsection{Reducing Instruction Cache Misses}
+Associativity conflicts can occur in the instruction cache.
+\begin{itemize}
+    \item We want to avoid hot loops calling functions who's code have an associativity conflict with eachother.
+    \item By using the caller graph, with each loop labelled, we can determine how to pack subroutines into the program binary to avoid associativity conflicts.
+    \item Needs to consider the entire program, and the layout of all subroutines so must be done at link-time.
+\end{itemize}
+
+
+\subsection{Storage Layout \& Iteration Space Transformations}
+\begin{center}
+    \begin{tabular}{l p{.7\textwidth}}
+        \textbf{Merging Arrays} & Improve spatial locality by merging two arrays into a single array of compound elements (i.e a zip). (Struct of Arrays vs Array of Structs) \\
+        \textbf{Multidimensional Array Permutation} & Match array layout to traversal order. \\
+        \textbf{Loop Interchange} & Change nesting of loops to access data in order stored in memory. \\
+        \textbf{Loop Fusion} & Combine independent loops that have the looping behaviour (e.g bounds) and overlapping variables. Sometimes this can then enable \textit{Array Contraction}, where some array can be replaced by a scalar value. \\
+        \textbf{Blocking} & Improve temporal locality by accessing cache line sized blocks of data repeatedly instead of accessing columns or rows. \\
+    \end{tabular}
+\end{center}
+
+\begin{definitionbox}{Morton Ordering}
+    A traversal order for blocks.
+    \begin{itemize}
+        \item Split blocks into four.
+        \item Traverse four blocks in $Z$ shape, recursively.
+        \item A texture caching layout used in some GPUs.
+    \end{itemize}
+    \begin{minted}{Haskell}
+data QuadTree a = Single a | 
+  Quad { 
+    topLeft :: QuadTree a, topRight :: QuadTree a, 
+    bottomLeft :: QuadTree a, bottomRight :: QuadTree a
+  }
+
+{-
+ A----->B
+        |
+ -------
+ |
+ C----->D
+-}
+
+morton :: (a -> b) -> (b -> b -> b -> b -> b) -> QuadTree a -> b
+morton fun collect (Quad {tL, tR, bL, br}) 
+  = collect (morton' tL) (morton' tR) (morton' bL) (morton' bR) 
+  where
+    morton' :: QuadTree a -> b
+    morton' = morton fun collect
+morton fun _ (Single s) = fun s
+    \end{minted}
+\end{definitionbox}
