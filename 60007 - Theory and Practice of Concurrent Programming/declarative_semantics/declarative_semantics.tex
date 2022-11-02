@@ -36,7 +36,7 @@ Executions are expressed as graphs.
     where $x \in Loc$ and $v_r, v_w \in Val$
 \end{definitionbox}
 
-\subsection{Label and Event Notation}
+\section{Label and Event Notation}
 \begin{minipage}[b]{.33\textwidth}
     \[
         \begin{matrix*}[l]
@@ -145,15 +145,105 @@ Given an event set $A$, a relation $r \in A \times A$ and a thread $\tau$ we hav
     \vline
     \hfill
     \begin{minipage}{.48\textwidth}
-        $\drf$ is such that $\forall \langle w, r \rangle \in \drf$
+        $\drf$ is such that $\forall \langle w, r \rangle \in \drf$, (maps a write event, to an event that reads from it).
         \[\begin{matrix*}[l]
             w \neq r \\
             \dtyp{w} \in \{W, U\} \land \dtyp{r} \in \{R, U\} \\
             \dloc{w} = \dloc{r} \\
             \dval{w}{w} = \dval{r}{r} \\
         \end{matrix*}\]
+        $\drf^{-1}$ is a function (if $\langle w_1, r \rangle , \langle w_2, r \rangle \in \drf$ then $w_1 = w_2$)
     \end{minipage}
 \end{definitionbox}
 
-$\drf^{-1}$ is a function:
-\[\]
+The notation for a graph $G$ is:
+\[\begin{split}
+    G & = \langle E, \dpo, \drf \rangle \\
+    G.E & \triangleq E \\
+    G.\dpo & \triangleq \dpo \\
+    G.R & \triangleq \{ r \in E \ | \ \dtyp{r} = R\} \\
+    G.W & \triangleq \{ w \in E \ | \ \dtyp{w} = W\} \\
+    G.U & \triangleq \{ u \in E \ | \ \dtyp{u} = U\} \\
+    G.RU & \triangleq G.R \cup G.U \\
+    G.WU & \triangleq G.W \cup G.U \\
+    G.R_{\wmem{x}} &  \triangleq G.R \cap \{r \in E \ | \ \dloc{r} = \wmem{x}\} \\
+    G.W_{\wmem{x}} &  \triangleq G.W \cap \{w \in E \ | \ \dloc{w} = \wmem{x}\} \\
+\end{split}\]
+
+\section{Consistency Predicates}
+A program is mapped to a set of candidate executions. A consistency predicate filters these candidates.
+\begin{itemize}
+    \item The semantics of a program are the consistent executions of a program.
+    \item Consistency predicates include sequential consistency and total store ordering.
+\end{itemize}
+
+\begin{definitionbox}{Completeness}
+    A graph $G$ is complete if:
+    \[rng(G.\drf) = G.RU\]
+    Every read/update reads from some write/update. 
+\end{definitionbox}
+
+\section{Sequential Consistency}
+\begin{definitionbox}{Sequential Consistency (Lamport SC))}
+    $\dsc$ is a strict total order on $G.E$. $G$ is \textit{SC-consistent} if the following hold:
+    \[\begin{matrix*}[l]
+              & \langle a , b \rangle \in G.\dpo \Rightarrow \langle a , b \rangle \in \dsc & \text{i.e } G.\dpo \subseteq \dsc \\
+        \land & \langle w , r \rangle \in G.\drf \Rightarrow \langle w , r \rangle \in \dsc & \text{i.e } G.\drf \subseteq \dsc \\
+        \land & \langle w , r \rangle \in G.\drf \Rightarrow \neg \exists w' \in G.WU_{\dloc{r}} . [\langle w, w' \rangle \in \dsc \land \langle w', r \rangle \in \dsc ] & \text{i.e There is no $w'$ between $w$ and $r$} \\
+    \end{matrix*}\]
+    \begin{itemize}
+        \item $G$ must be complete
+        \item $G$ is SC-consistent with respect to some strict total order $\dsc$ on $G.E$
+    \end{itemize}
+\end{definitionbox}
+
+\begin{definitionbox}{Modification/Coherence Order (Alternative SC)}
+    $\dmo$ is a \textit{modification order} for an execution graph $G$ if:
+    \[\dmo = \bigcup_{\wmem{x} \in Loc}\dmo_{\wmem{x}} \text{ where } \dmo_{\wmem{x}} \text{ is a strict total order on } G.WU_{\wmem{x}}\]
+    We can then create an alternative definition for sequential consistency.
+    \[\begin{matrix*}[l]
+        & G \text{ is complete} \\
+        \land & \exists \ \dmo \text{ for } G . \ [acyclic(G.\dpo \cup G.\drf \cup \dmo \cup \drb)] \\
+        & \text{ where } \drb \triangleq G. \ \drf^{-1} ; \dmo \setminus id \\
+    \end{matrix*}\]
+\end{definitionbox}
+
+\begin{sidenotebox}{SC Equivalence}
+    \textbf{Lamport SC $\Rightarrow$ Alternative SC}
+    \begin{enumerate}
+        \item Take $\dmo_{\wmem{x}} \triangleq [WU_{\wmem{x}}]; \dsc ; [WU_{\wmem{x}}]$ 
+        \item The $G.\dpo \cup G.\drf \cup \dmo \cup \drb \subseteq \dsc$
+    \end{enumerate}
+    \textbf{Alternative SC $\Rightarrow$ Lamport SC}
+    \begin{enumerate}
+        \item Take $\dsc$ to be any strict total order extending $G.\dpo \cup G.\drf \cup \dmo \cup \drb$
+    \end{enumerate}
+\end{sidenotebox}
+
+\section{Total Store Order}
+\begin{definitionbox}{Total Store Order}
+    $\dtso$ is a strict partial order on $G.E$ where the following holds:
+    \[\begin{matrix*}[l]
+        & \dtso \text{ is total on } G.E \setminus G.R \\
+        \land & G.\dpo \setminus (G.W \times G.R) \subseteq \dtso \\
+        \land & G.\drf \subseteq \dtso \cup G.\dpo & \text{ This implies } G.\drf e \subseteq \dtso \\
+        \land & \langle w, r \rangle \in G.\drf \Rightarrow \neg \exists w' \in G.WU_{\dloc{r}} . [\langle w, w' \rangle \in \dtso \land \langle w', r \rangle \in \dtso \cup G.\dpo] \\
+    \end{matrix*}\]
+    An execution is TSO-consistent if:
+    \begin{itemize}
+        \item $G$ is complete
+        \item $G$ is TSO consistent with respect to some strict partial order $\dtso$ on $G.E$
+    \end{itemize}
+\end{definitionbox}
+
+\begin{definitionbox}{Alternative TSO}
+    An execution graph $G$ is TSo-Consistent if:
+    \[\begin{matrix*}[l]
+        & G \text{ is complete} \\
+        \land & \exists \text{ modification order } \dmo . [G.\drf i \cup G.rb i \subseteq G.\dpo] \\
+        \land & acyclic(\dppo \cup G.\drf e  \cup \dmo \cup \drb e) \\
+    \end{matrix*}\]
+    Where $\dppo \triangleq (G.\dpo \setminus (G.W \times G.R))^+ $ (preserved program order)
+\end{definitionbox}
+
+\unfinished
