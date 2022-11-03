@@ -101,6 +101,16 @@ Given an event set $A$, a relation $r \in A \times A$ and a thread $\tau$ we hav
 
     \end{matrix*}    
 \]
+\begin{definitionbox}{Relational Composition}
+    Given some relations $R \in X \times Y$ and $S \in Y \times Z$:
+    \[R;S \triangleq \{ (x,z) \in X \times Z | \exists y \in Y . [(x,y) \in R \land (y,z) \in S] \}\]
+    \[\begin{matrix}
+        injective(R;S) \Rightarrow injective(R) \qquad injective(R) \land injective(S) \Rightarrow injective(R;S) \\
+        surjective(R;S) \Rightarrow surjective(R) \qquad surjective(R) \land surjective(S) \Rightarrow surjective(R;S) \\
+        R ; (S ; T) = (R ; s) ; T \qquad (R ; S)^T = S^T ; R^T \\ 
+    \end{matrix}\]
+\end{definitionbox}
+
 \begin{definitionbox}{Partial Orders}
     Given some set $A$ and relation $R$:
     \[\begin{matrix*}[l]
