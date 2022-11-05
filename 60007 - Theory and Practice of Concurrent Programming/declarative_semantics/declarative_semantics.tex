@@ -83,7 +83,7 @@ Given a set of events $A$, the relations $r, r' \subseteq A \times A $ and memor
         \text{Reflexive \& Transitive closure of } r & r^* & \triangleq & (r^+)^? \\
         \\
         & A_{\wmem{x}} & \triangleq & \{e \in A \ | \ \dloc{e} = \wmem{x} \} \text{ and } r_{\wmem{x}} \triangleq r \cap (A_{\wmem{x}} \times A_{\wmem{x}}) \\
-        & r|_{loc} & \triangleq & \{(a,b) \in r \ | \ \dloc(a) = \dloc{b}\}
+        & r|_{loc} & \triangleq & \{(a,b) \in r \ | \ \dloc{a} = \dloc{b}\}
     \end{matrix*}
 \]
 
@@ -112,7 +112,7 @@ Given an event set $A$, a relation $r \in A \times A$ and a thread $\tau$ we hav
 \end{definitionbox}
 
 \begin{definitionbox}{Partial Orders}
-    Given some set $A$ and relation $R$:
+    Given some set $A$ and relation $R \subseteq (A \times A)$:
     \[\begin{matrix*}[l]
         R \text{ is reflexive} & \forall x, \in A . & [x \ R \ x] \\
         R \text{ is irreflexive} & \forall x \in A . & [\neg (x \ R \ x)] \\
@@ -192,9 +192,25 @@ A program is mapped to a set of candidate executions. A consistency predicate fi
     \[rng(G.\drf) = G.RU\]
     Every read/update reads from some write/update. 
 \end{definitionbox}
+\begin{examplebox}{Complete Graphs}
+    Define $G.\drf$ to complete the following graph:
+    \begin{center}
+        \includegraphics[width=.3\textwidth]{declarative_semantics/images/example_complete_graphs.drawio.png}
+    \end{center}
+    \tcblower
+    \begin{center}
+        \includegraphics[width=.3\textwidth]{declarative_semantics/images/example_complete_graphs_answer.drawio.png}
+    \end{center}
+    \[\begin{split}
+        G.UW =&  \{W \ x \ \ 0, W \ y \ \ 0, W \ x \ \ 1, W \ y \ \ 1 \}\\
+        G.RU = & \{R \ y \ \ 0, R \ x \ \ 1 \} \\
+    \end{split}\]
+    The location and value must match.
+    \[G.\drf = \{\langle W \ y \ \ 0, R \ y \ \ 0 \rangle, \langle W \ x \ \ 1, R \ x \ \ 1\rangle\}\]
+\end{examplebox}
 
 \section{Sequential Consistency}
-\begin{definitionbox}{Sequential Consistency (Lamport SC))}
+\begin{definitionbox}{Sequential Consistency (Lamport SC)}
     $\dsc$ is a strict total order on $G.E$. $G$ is \textit{SC-consistent} if the following hold:
     \[\begin{matrix*}[l]
               & \langle a , b \rangle \in G.\dpo \Rightarrow \langle a , b \rangle \in \dsc & \text{i.e } G.\dpo \subseteq \dsc \\
@@ -205,7 +221,28 @@ A program is mapped to a set of candidate executions. A consistency predicate fi
         \item $G$ must be complete
         \item $G$ is SC-consistent with respect to some strict total order $\dsc$ on $G.E$
     \end{itemize}
+    \begin{center}
+        \includegraphics[width=.9\textwidth]{declarative_semantics/images/definition_lamport_sc.drawio.png}
+    \end{center}
 \end{definitionbox}
+
+\begin{examplebox}{Consistency is key!}
+    \begin{center}
+        \includegraphics[width=.6\textwidth]{declarative_semantics/images/example_sequential_consistency.drawio.png}
+    \end{center}
+    Determine which of these are sequentially consistent using Lamport's definition.
+    \tcblower
+    \textbf{For the graph $G_1$:}
+    \begin{center}
+        \includegraphics[width=.9\textwidth]{declarative_semantics/images/example_sc_lamport_g1.drawio.png}
+    \end{center}  
+    Hence $G_1$ is SC-consistent.
+    \textbf{For the graph $G_2$:}
+    \begin{center}  
+        \includegraphics[width=.9\textwidth]{declarative_semantics/images/example_sc_lamport_g2.drawio.png}
+    \end{center}
+    Hence $G_2$ is not SC-consistent.
+\end{examplebox}
 
 \begin{definitionbox}{Modification/Coherence Order (Alternative SC)}
     $\dmo$ is a \textit{modification order} for an execution graph $G$ if:
@@ -216,7 +253,15 @@ A program is mapped to a set of candidate executions. A consistency predicate fi
         \land & \exists \ \dmo \text{ for } G . \ [acyclic(G.\dpo \cup G.\drf \cup \dmo \cup \drb)] \\
         & \text{ where } \drb \triangleq G. \ \drf^{-1} ; \dmo \setminus id \\
     \end{matrix*}\]
+    \begin{itemize}
+        \item On all architectures there is a strict total order or writes on a given cache line (here we consider location).
+        \item Applies to each memory location.
+    \end{itemize}
 \end{definitionbox}
+
+\begin{center}
+    \includegraphics[width=.8\textwidth]{declarative_semantics/images/basic_alternative_sc.drawio.png}
+\end{center}
 
 \begin{sidenotebox}{SC Equivalence}
     \textbf{Lamport SC $\Rightarrow$ Alternative SC}
@@ -243,17 +288,233 @@ A program is mapped to a set of candidate executions. A consistency predicate fi
     \begin{itemize}
         \item $G$ is complete
         \item $G$ is TSO consistent with respect to some strict partial order $\dtso$ on $G.E$
-    \end{itemize}
+        \item The writes have a total order, and the program ordering for (write $\to$ write) and (read $\to$ read) are in tso.
+    \end{itemize}    
 \end{definitionbox}
+\begin{examplebox}{TSO Consistency}
+    \begin{center}
+        \includegraphics[width=.3\textwidth]{declarative_semantics/images/example_tso_consistent.drawio.png}
+    \end{center}
+    Show the graph is TSO-Consistent.
+    \tcblower
+    \begin{center}
+        \includegraphics[width=.8\textwidth]{declarative_semantics/images/example_tso_consistent_answer.drawio.png}
+    \end{center}
+\end{examplebox}
 
 \begin{definitionbox}{Alternative TSO}
-    An execution graph $G$ is TSo-Consistent if:
+    An execution graph $G$ is TSO-Consistent if:
     \[\begin{matrix*}[l]
         & G \text{ is complete} \\
-        \land & \exists \text{ modification order } \dmo . [G.\drf i \cup G.rb i \subseteq G.\dpo] \\
-        \land & acyclic(\dppo \cup G.\drf e  \cup \dmo \cup \drb e) \\
+        \land & \exists \text{ modification order } \dmo . [G.\drf i \cup G.rb i \subseteq G.\dpo \land acyclic(\dppo \cup G.\drf e  \cup \dmo \cup \drb e)] \\
     \end{matrix*}\]
-    Where $\dppo \triangleq (G.\dpo \setminus (G.W \times G.R))^+ $ (preserved program order)
+    Where $\dppo \triangleq (G.\dpo \setminus (G.W \times G.R))^+ $ (preserved program order) and $\drb \triangleq G.\drf^{-1}; \dmo \setminus id$.
 \end{definitionbox}
 
-\unfinished
+\section{Coherent}
+\begin{definitionbox}{Coherence (COH)}
+    Considered \textit{"sc per location"}
+    \[
+        \begin{matrix*}[l]
+            & G \text{ is complete} \\
+            \land & \text{ for each location }\wmem{x} \text{ there is a strict total order }\dsc_x \text{ such that:} \\
+            & \ \  \quad \langle a, b \rangle \in G.\dpo \Rightarrow \langle a, b \rangle \in \dsc_{\wmem{x}} \\
+            & \land \quad \langle a, b \rangle \in G.\drf_{\wmem{x}} \Rightarrow \langle a, b \rangle \in \dsc_{\wmem{x}} \land \neg \exists c \in G.WU_{\wmem{x}} . [\langle a, c \rangle \in \dsc_{\wmem{x}} \land \langle c, b \rangle \in \dsc_{\wmem{x}}] \\
+        \end{matrix*}\]
+\end{definitionbox}
+\begin{definitionbox}{Coherence (Alternative)}
+    \[\begin{matrix*}[l]
+        SC: & acyclic(\dpo \cup \drf \cup \dmo \cup \drb) \\
+        SC: & acyclic(\dpo|_{loc} \cup \drf \cup \dmo \cup \drb) \\
+    \end{matrix*}\]
+\end{definitionbox}
+
+\subsection{Bad Patterns}
+As coherence is the weakest model, any pattern disallowed under coherence is disallowed under all models.
+\\ \begin{minipage}[b]{.33\textwidth}
+    \begin{center}
+        \includegraphics[scale=.15]{declarative_semantics/images/bad_patterns_no_future_read.drawio.png}
+    \end{center}
+    \[
+        \begin{matrix*}[l]
+            \wass{\wreg{r}}{\wmem{x}} & \text{Read }v\\
+            \wass{\wmem{x}}{v} \\
+        \end{matrix*}    
+    \]
+    \[\drf ; \dpo \text{ is irreflexive}\]
+    \centerline{\textbf{No Future Read}}
+\end{minipage}
+\begin{minipage}[b]{.33\textwidth}
+    \begin{center}
+        \includegraphics[scale=.15]{declarative_semantics/images/bad_patterns_rmw_1.drawio.png}
+    \end{center}
+    \[
+        \begin{matrix*}[l]
+            \wass{\wreg{r}}{\wcas{\wmem{x}}{v}{v}} & \text{Read }v \\
+            \\
+        \end{matrix*}    
+    \]
+    \[\drf \text{ is irreflexive}\]
+    \centerline{\textbf{RMW 1 Cannot Read from Self}}
+\end{minipage}
+\begin{minipage}[b]{.33\textwidth}
+    \begin{center}
+        \includegraphics[scale=.15]{declarative_semantics/images/bad_patterns_coherence_ww.drawio.png}
+    \end{center}
+    \[\begin{matrix*}[l]
+        \wass{\wmem{x}}{v} & \text{ Write } v' \\
+        \wass{\wmem{x}}{v'} & \text{ Write } v \\
+    \end{matrix*}\]
+    \[\dmo ; \dpo \text{ is irreflexive}\]
+    \centerline{\textbf{Coherence WW}}
+\end{minipage}
+\vspace{2cm}
+\begin{minipage}[b]{.33\textwidth}
+    \begin{center}
+        \includegraphics[scale=.15]{declarative_semantics/images/bad_patterns_coherence_rw.drawio.png}
+    \end{center}
+    \[\left. \begin{matrix*}[l]
+        \wass{\wmem{x}}{v} & \text{Write }v' \\
+        \\
+    \end{matrix*}\right\lVert \begin{matrix*}[l]
+        \wass{\wreg{r}}{\wmem{x}} & \text{Read }v\\
+        \wass{\wmem{x}}{v'} & \text{Write } v\\
+    \end{matrix*}\]
+    \[\dmo ; \drf ; \dpo \text{ is irreflexive}\]
+    \centerline{\textbf{Coherence RW}}
+\end{minipage}
+\begin{minipage}[b]{.33\textwidth}
+    \begin{center}
+        \includegraphics[scale=.15]{declarative_semantics/images/bad_patterns_coherence_wr.drawio.png}
+    \end{center}
+    \[\left. \begin{matrix*}[l]
+        \wass{\wmem{x}}{v} \\
+        \\
+    \end{matrix*}\right\lVert \begin{matrix*}[l]
+        \wass{\wmem{x}}{v'} \\
+        \wass{\wreg{r}}{\wmem{x}} & \text{Read } v \\
+    \end{matrix*}\]
+    \[\drf^{-1} ; \dmo ; \dpo \text{ is irreflexive}\]
+    \centerline{\textbf{Coherence WR}}
+\end{minipage}
+\begin{minipage}[b]{.33\textwidth}
+    \begin{center}
+        \includegraphics[scale=.15]{declarative_semantics/images/bad_patterns_coherence_rr.drawio.png}
+    \end{center}
+    \[\left.\begin{matrix*}[l]
+        \wass{\wmem{x}}{v} \\
+        \wass{\wmem{x}}{v'} \\
+    \end{matrix*} \right\lVert  \begin{matrix*}[l]
+        \wass{\wreg{r}}{\wmem{x}} & \text{Read }v' \\
+        \wass{\wreg{r}}{\wmem{x}} & \text{Read }v \\
+    \end{matrix*}\]
+    \[\drf^{-1} ; \dmo ; \drf \text{ is irreflexive}\]
+    \centerline{\textbf{Coherence RR}}
+\end{minipage}
+\begin{minipage}[b]{.5\textwidth}
+    \begin{center}
+        \includegraphics[scale=.15]{declarative_semantics/images/bad_patterns_rmw_2.drawio.png}
+    \end{center}
+    \[\dmo ; \drf \text{ is irreflexive}\]
+    \centerline{\textbf{RMW 2}}
+\end{minipage}
+\begin{minipage}[b]{.5\textwidth}
+    \begin{center}
+        \includegraphics[scale=.15]{declarative_semantics/images/bad_patterns_atomicity.drawio.png}
+    \end{center}
+    \[\drf^{-1} ; \dmo ; \dmo \text{ is irreflexive}\]
+    \centerline{\textbf{Atomicity}}
+\end{minipage}
+
+\begin{examplebox}{Coherence Test}
+    Determine if the following is COH-Consistent:
+    \[\begin{matrix}
+        \wass{\wmem{x}}{0} \\
+        \left. \begin{matrix*}[l]
+            \wass{\wmem{x}}{1} \\
+            \wass{\wreg{a}}{\wmem{x}} & \text{Read }1 \\
+        \end{matrix*} \right\lVert \begin{matrix*}[l]
+            \wass{\wmem{x}}{2} \\
+            \wass{\wreg{b}}{\wmem{x}} & \text{Read }2\\
+        \end{matrix*}
+    \end{matrix}\]
+    \tcblower
+    \begin{center}
+        \includegraphics[width=\textwidth]{declarative_semantics/images/example_coh_inconsistency.drawio.png}
+    \end{center}
+\end{examplebox}
+
+\section{Atomicity}
+COH is often too weak to be useful. As a example if we attempt to implement a lock
+\[\begin{matrix}
+    \wass{\wmem{x}}{0} \\
+    \left. \begin{matrix*}[l]
+        \wass{\wreg{a}}{\wffa{\wmem{x}}{1}}
+    \end{matrix*} \right\lVert \begin{matrix*}[l]
+        \wass{\wreg{b}}{\wffa{\wmem{x}}{1}}
+    \end{matrix*}
+\end{matrix}\]
+Guarantees that $a = 1 \lor b = 1$. 
+\\
+\\ We could attempt to implement spinlocks with a basic CAS
+\vspace{5mm}
+\\ \begin{minipage}{.5\textwidth}
+    \centerline{\textbf{Lock($l$)}}
+    \[\begin{matrix*}[l]
+        \wass{\wreg{a}}{0} \\
+        \wwhile{\neg r}{\wass{\wreg{r}}{\wcas{\wmem{l}}{0}{1}}}
+    \end{matrix*}\]
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+    \centerline{\textbf{Unock($l$)}}
+    \[\begin{matrix*}[l]
+        \wass{\wmem{l}}{0}
+    \end{matrix*}\]
+\end{minipage}
+However this will not provide mutual exclusion as we are relying on the ordering of memory accesses to multiple locations. COH only guarantees sequential consistency per location.
+\\
+\\ Here we attempt to do basic message passing using the location $\wmem{y}$. Given initially $x = y = 0$:
+\[
+    \left. \begin{matrix*}[l]
+        \wass{\wmem{x}}{42} \\
+        \wass{\wmem{y}}{1} \\
+        \\
+    \end{matrix*} \right\lVert \begin{matrix*}[l]
+        \wass{\wreg{a}}{\wmem{y}} \\
+        \wwhile{\neg \wreg{a}}{\wass{\wreg{a}}{\wmem{y}}} \\
+        \wass{\wreg{b}}{x} & \text{Read } 0\\
+    \end{matrix*}
+\]
+
+
+\section{Release/Acquire}
+\begin{definitionbox}{Release/Acquire Memory Model (RA)}
+    Where $\dmo$ is a modification order on execution graph $G$, $G$ is RA-Consistent if:
+    \[G \text{ is complete } \land acyclic(\dhb_{ra} \cup \dmo \cup \drb) \text{ where } \dhb_{ra} \triangleq (\dpo \cup \drf)^+|_{loc}\]
+    We can also defined it as if:
+    \[\begin{matrix*}[l]
+        (\dpo \cup \drf)^+ & \text{ is irreflexive} & \text{(No Future Read)} \\
+        \dmo ; (\dpo \cup \drf)^+ & \text{ is irreflexive} & \text{(Coherence WW)} \\
+        \drf^{-1} ; \dmo ; (\dpo \cup \drf)^+ & \text{ is irreflexive} & \text{(Coherence WR)} \\
+        \drf^{-1} ; \dmo ; \dmo & \text{ is irreflexive} & \text{(RMW Atomicity)} \\
+    \end{matrix*}\]
+
+    For comparison:
+    \[\begin{split}
+        SC \thicksim & acyclic(\dpo \cup \drf \cup \dmo \cup \drb) \\
+        RA \thicksim & acyclic((\dpo \cup \drf)|_{loc} \cup \dmo \cup \drb) \\
+        COH \thicksim & acyclic(\dpo|_{loc} \cup \drf \cup \dmo \cup \drb) \\
+    \end{split}\]
+    We can see that the addition of $\drf$ to the per location ordering strengthens it over COH.
+\end{definitionbox}
+
+\section{Ordering Models}
+\[COH < RA < TSO < SC\]
+We can also express this in terms of the set of consistent executions:
+\[execs(SC) \subset execs(TSO) \subset execs(RA) \subset execs(COH)\]
+Hence for two memory models $MM_A < MM_B$:
+\[\begin{split}
+    G \in execs(MM_B) & \Rightarrow G \in execs(MM_A) \\
+    G \not\in execs(MM_A) & \Rightarrow G \not\in execs(MM_B) \\
+\end{split}\]
+
