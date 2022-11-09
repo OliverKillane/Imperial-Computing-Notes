@@ -537,7 +537,7 @@ Storage transitions are of the form:
 \end{minipage}
 \begin{minipage}[b]{.33\textwidth}
     \[\cfrac{
-        B(\tau) = \emptyset \quad M(x) = v_0 \quad M' = M[\wmem{x} \mapsto v_n]
+        B(\tau) = \emptyset \quad M(\wmem{x}) = v_0 \quad M' = M[\wmem{x} \mapsto v_n]
     }{
         M, B \mtrans{\tau}{(U, \wmem{x}, v_0, v_n)} M' B
     }\]
@@ -545,7 +545,7 @@ Storage transitions are of the form:
 \end{minipage}
 \begin{minipage}[b]{.33\textwidth}
     \[\cfrac{
-        B(\tau) = \emptyset \quad M(x) = v
+        B(\tau) = \emptyset \quad M(\wmem{x}) = v
     }{
         M, B \mtrans{\tau}{(U, \wmem{x}, v, \bot)} M B
     }\]
@@ -556,7 +556,7 @@ The buffered writes may be propagated at any time through a silent step, this is
 \[\cfrac{
     B(\tau) = (W, \wmem{x}, v).b \quad M' = M[\wmem{x} \mapsto v] \quad B' = B[\tau \mapsto b]
 }{
-    M, b \mtrans{\tau}{\epsilon} M', B'
+    M, B \mtrans{\tau}{\epsilon} M', B'
 }\]
 
 \begin{minipage}[b]{.48\textwidth}
@@ -585,6 +585,79 @@ If both the program and storage systems make the same transition $l$ then we can
 }{
     P, S, M, B \to P', S', M', B'
 }\]
+
+\begin{examplebox}{sFence}
+    The x86-64 instruction set includes an $\wsfence$ instruction. This is similar to $\wmfence$, however allows for read reordering.
+    \[ \begin{matrix}
+        \left. \begin{matrix*}[l]
+            \wass{\wmem{x}}{1} \\
+            \wsfence \\
+            \wass{\wreg{a}}{\wmem{y}} \\
+        \end{matrix*}\right\lVert \begin{matrix*}[l]
+            \wass{\wmem{y}}{1} \\
+            \wsfence \\
+            \wass{\wreg{b}}{\wmem{x}} \\
+        \end{matrix*} \\
+        \text{Original}
+    \end{matrix}
+    \quad \approx \quad 
+    \begin{matrix}
+        \left. \begin{matrix*}[l]
+            \wass{\wmem{x}}{1} \\
+            \wass{\wreg{a}}{\wmem{y}} \\
+            \wsfence \\
+        \end{matrix*}\right\lVert \begin{matrix*}[l]
+            \wass{\wmem{y}}{1} \\
+            \wass{\wreg{b}}{\wmem{x}} \\
+            \wsfence \\
+        \end{matrix*} \\
+        \wsfence\text{-read-reordering}
+    \end{matrix}
+    \quad \approx \quad 
+    \begin{matrix}
+        \left. \begin{matrix*}[l]
+            \wass{\wreg{a}}{\wmem{y}} \\
+            \wass{\wmem{x}}{1} \\
+            \wsfence \\
+        \end{matrix*}\right\lVert \begin{matrix*}[l]
+            \wass{\wreg{b}}{\wmem{x}} \\
+            \wass{\wmem{y}}{1} \\
+            \wsfence \\
+        \end{matrix*} \\
+        \text{TSO allowed reorder}
+    \end{matrix}\]
+    Adapt the rules of TSO to implement $\wsfence$.
+    \tcblower
+    $\wsfence$ make no changes to registers/local store, but requires an $SF$ memory transition:
+    \[\cfrac{}{
+        \wsfence, s \ctrans{SF} \wskip, s
+    }\]
+    \\
+    \\ In order to implement, we will add $\wsfence$s to the store buffer, hence we must redefine the buffer:
+    \[b \in Buff \triangleq Seq \langle WLab \cup \{SF\}\rangle\]
+
+    \begin{itemize}
+        \item $\wsfence$ adds $SF$ to the store buffer.
+        \item When executing an $\wsfence$ transition, we do not need to check if the buffer is empty.
+        \item Since $\wsfence$ and write instructions are still ordered with respect to eachother, the buffers are still a FIFO queue.
+    \end{itemize}
+    Hence:
+    \\ \begin{minipage}{.5\textwidth}
+        \[\cfrac{
+            B(\tau) = b \quad B' = B[\tau \mapsto b.SF]
+        }{
+            M, B \mtrans{\tau}{SF} M, B'
+        }\]
+    \end{minipage}
+    \begin{minipage}{.5\textwidth}
+        \[\cfrac{
+            B(\tau) = SF.b \quad B' = B[\tau \mapsto b]
+        }{
+            M, B \mtrans{\tau}{\epsilon} M, B'
+        }\]
+    \end{minipage}
+    We can consider an $\wsfence$ as a kind of dummy write, much like normal writes other writes cannot be reordered, but reads can. However unlike a write it has no effect on memory.
+\end{examplebox}
 
 \subsection{Traces}
 TSO inherits much of the initial state from SC:
