@@ -1,0 +1,125 @@
+\chapter{Side Channels}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=0bb6927a-f2f3-453e-af3f-af2a01120300}{Chapter 5 - Part 1: Sidechannel Vulnerabilities}
+
+\begin{definitionbox}{Side Channel Attack}
+    An exploit that attacks the implementation of an algorithm by observing the state of system it runs within. For example:
+    \begin{itemize}
+        \item Detecting what is cached through memory access times
+        \item Power consumption, electromagnetic leaks and other physical effects
+    \end{itemize}
+\end{definitionbox}
+
+\section{Exfiltration}
+
+\begin{definitionbox}{Prime and Probe}
+    Detect eviction of the attacker's working set, that is caused by the victim.
+    \begin{enumerate}
+        \item Attacker primes the cache by filling some sets with its own lines.
+        \item Victim executes, once finished the attacker probes (timing its memory accesses) to see which of its lines were evicted.
+    \end{enumerate}
+    If a line has been evicted, then the victim accessed an address mapping to the same set.
+    \begin{itemize}
+        \item Requires the attacker to be able to force the start of victim execution.
+    \end{itemize}
+\end{definitionbox}
+
+\begin{definitionbox}{Evict and Time}
+    Detecting cache usage by the victim, by monitoring its performance after altering the cache.
+    \begin{enumerate}
+        \item Attacker causes victim to execute, and to preload the cache with its working set.
+        \item Attacker evicts a specific line from the cache.
+        \item Victim executes, attacker monitors execution time.
+    \end{enumerate}
+    By repeating this process for many lines, the attacker can see where the time to execute is lower, and hence which lines the victim was using.
+    \begin{itemize}
+        \item Requires the attacker to be able to force the start of victim execution.
+    \end{itemize}
+\end{definitionbox}
+
+\begin{definitionbox}{Flush and Reload}
+    Given the victim runs in the same address space. FLush the cache, let the victim run and study which lines it accessed.
+    \begin{enumerate}
+        \item Flush the shared line of interest (using dedicated instructions, or through contention by caching dummy data)
+        \item Allow the victim to execute, the victim will then load any data it uses.
+        \item Attacker then reloads the evicted line through an access, and measures time taken.
+    \end{enumerate}
+    A fast reload indicates the victim used that line.
+\end{definitionbox}
+
+\section{Shared State}
+On a modern CPU a large amount of state is shared between cores.
+\begin{itemize}
+    \item L2 and lower Cache
+    \item core interconnects/buses
+\end{itemize}
+If two threads run on thew same core (as with SMT, or HyperThreading):
+\begin{itemize}
+    \item Instruction and data caches, as well as TLB
+    \item Branch predictor
+    \item Prefetcher
+    \item Rename Registers
+    \item Dispatch Ports
+\end{itemize}
+
+\section{Triggering Victim Execution}
+\begin{center}
+    \begin{tabular}{p{.15\textwidth} p{.8\textwidth}}
+        \textbf{System Call} & If the operating system can invoke the victim, or the operating system itself is the victim. \\
+        \textbf{Lock Release} & A victim may be waiting on a held lock (e.g a lock on a file in the filesystem) \\
+        \textbf{Call it} & If the victim is contained in the same address space, call it as a function. \\
+    \end{tabular}
+\end{center}
+The latter point (\textit{"call it"}) applies as the attacker's code may be running in the same process as the victim, under some runtime system (e.g the JVM, or a browser's javascript engine).
+\begin{definitionbox}{Language Based Security}
+    The runtime system bundled with and provided by the language enforces separation between threads.
+    \begin{itemize}
+        \item i.e prevents pointer arithmetic, checks array index bounds
+    \end{itemize}
+\end{definitionbox}
+
+\section{Side Channels in Speculative Execution}
+Speculative execution of instructions can impact the state of the cache.
+\begin{itemize}
+    \item Can include instructions in code, that will be speculatively executed and as a result impact cache.
+    \item e.g Bypassing array bounds checks using the CPU's speculative execution of the invalid instruction to modify cache.
+\end{itemize}
+This vulnerability is commonly known as \textit{Meltdown} \& \textit{spectre} are is present in most modern dynamically scheduled processors.
+
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=77ffc1e8-4796-4ffe-9965-af2a011237e6}{Chapter 5 - Part 2: Attacking Other Processes and the OS}
+
+\section{Mitigation}
+\begin{center}
+    \begin{tabular}{p{.1\textwidth} p{.9\textwidth}}
+        \textbf{ASLR} & Address Space Layout Randomisation is where the operating system distributes user pages across memory. It can also randomly distribute the kernel pages locations within a process' address space. \\
+        \textbf{KPTI} & Kernel Address Space Isolation is where the virtual address mapping of kernel pages is changed every time the kernel is entered. This requires a reload of the TLB and a substantial performance penalty. \\
+    \end{tabular}
+\end{center}
+
+\section{Spectre v2}
+Even with these mitigations, it is still possible by training the branch predictor to mispredict a call within the victim's code.
+\begin{enumerate}
+    \item Train the branch predictor to predict jumps to your subroutine. (Need to consider design of the BTB)
+    \item Make the syscall to the kernel.
+    \item Kernel code starts running, hits a call that is mispredicted to the attacker's code.
+    \item Attacker's code speculatively executes before being flushed, but effect on cache, size channels is still present.
+\end{enumerate}
+This is called \textit{Spectre Variant 2}
+\\
+\\ There are several possible mitigations:
+\begin{center}
+    \begin{tabular}{p{.2\textwidth} p{.8\textwidth}}
+        \textbf{Block Microarchitecture and Cache Side Channels} & Very difficult to impossible. \\
+        \textbf{Reduce Accuracy of Probing} & Need to add noise to timers, but this will now affect other applications that need precision timing. \\
+        \textbf{Prevent Branch Predictor Poisoning} & Can add an instruction to prevent branch prediction, but there is a performance cost. \\
+        \textbf{Block Branch Predictor Contention} & Keep separate perdictions for each thread protection domain (ring/protection level). \\
+    \end{tabular}
+\end{center}
+Another solution is \textit{retpoline} - an indirect branch using a return instruction.
+\begin{minted}{NASM}
+RP0:  call RP2                  ; Push address of 
+RP1:  int 3                     ; A breakpoint (will be speculatively executed, but is a mispredict)
+RP2:  mov [rsp], <jump target>  ; overwrite the return address, now return will go to <jump target>
+RP3:  ret                       ; jump to jump target
+\end{minted}
+
+

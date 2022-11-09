@@ -138,21 +138,43 @@ The least recently used (LRU) evicts the oldest cache entry
 \end{itemize}
 
 \section{Write Strategy}
-\begin{tcbraster}[raster columns=2, raster equal height]
-    \begin{definitionbox}{Write Through}
-        Write to cache, and to the block in lower-level memory.
-        \begin{itemize}
-            \item Combined with write buffers to prevent a wait on memory
-        \end{itemize}
-    \end{definitionbox}
-    \begin{definitionbox}{Write Back}
-        Only write back when evicting from cache. 
-        \begin{itemize}
-            \item Track write backs with a dirty bit
-            \item Absorb cost of repeated writes
-        \end{itemize}
-    \end{definitionbox}
-\end{tcbraster}
+\begin{definitionbox}{Write Through}
+    On a cache hit, write to cache, and to the block in lower-level memory.
+    \begin{itemize}
+        \item Combined with write buffers to prevent a wait on memory
+        \item Can always discard cached data, the most up to date si always present in memory
+        \item Only requires a valid bit (cache control metadata)
+    \end{itemize}
+    \begin{tabbox}{prosbox}
+        \textbf{Simpler} & Cache management is simpler as the most up to date data is always in memory also. \\
+        \textbf{Sharing} & Next level of cache/potentially memory has the most up to date data. \\
+    \end{tabbox}
+\end{definitionbox}
+\begin{definitionbox}{Write Back}
+    On a cache hit, only write back when evicting from cache. 
+    \begin{itemize}
+        \item Track write backs with a dirty bit
+        \item Absorb cost of repeated writes
+        \item Cannot discard cache, when evicting it must be written back to memory
+        \item Cache entries require both valid and dirty bits (cache control metadata)
+    \end{itemize}
+    \begin{tabbox}{prosbox}
+        \textbf{Bandwidth} & Memory is often overwritten several times, with write-back this will only require a memory write back when the cache entry is evicted. \\
+        \textbf{Tolerance} & Fewer memory accesses can result in a better tolerance to longer-latency memory (cheaper). \\
+    \end{tabbox}
+\end{definitionbox}
+
+\begin{definitionbox}{Write Allocate}
+    When a cache miss occurs on write, allocate a new cache line and write to it.
+    \begin{itemize}
+        \item A read miss is required to fill in the rest of the cache line.
+        \item As only \textit{part} of the line is valid, a valid bit is required per word.
+    \end{itemize}
+\end{definitionbox}
+\begin{definitionbox}{Write Non-Allocate / Write Around}
+    When a cache miss occurs on write, send the data to memory / lower cache level (do not allocate a cache line).
+
+\end{definitionbox}
 Neither avoid the cache-coherence problem (inconsistent values for locations cached on multiple cores/processors).
 
 \section{Miss Rate Reduction Using Hardware}
@@ -329,3 +351,178 @@ morton fun collect (Quad {tL, tR, bL, br})
 morton fun _ (Single s) = fun s
     \end{minted}
 \end{definitionbox}
+
+\section{Miss Penalty Reduction}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=e8fc5064-49d4-45a4-bb1f-af2a01113c4d}{Chapter 3 - Part 3: Reducing Miss Penalty}
+
+\subsection{Write Buffers}
+\begin{minipage}{.4\textwidth}
+    \includegraphics[width=.9\textwidth]{caches/images/write_buffer.drawio.png}
+\end{minipage}
+\begin{minipage}{.6\textwidth}
+    \begin{itemize}
+        \item RAW conflict on main memory reads when the location has a write in the write buffer.
+        \item One solution is to wait until the write buffer is empty before reading, however this increases the read cache miss penalty
+        \item A better solution is to check the write buffer on every memory read, if present in the buffer, take the value from there, else go to memory. 
+    \end{itemize}
+
+    With write back we can reduce the stall for a read-miss that evicts a dirty cache line by:
+    \begin{enumerate}
+        \item Read miss on cache, evict dirty block.
+        \item Write dirty block to write buffer (fast).
+        \item Start read, CPU can resume/end stall when read is complete.
+        \item After read, write from write buffer to memory.
+    \end{enumerate}
+\end{minipage}
+\vspace{5mm}
+
+A cache is structured in terms of lines, hence the eviction of a cache entry means an entire line must be written back to memory.
+\begin{itemize}
+    \item Larger memory writes require more time, or more expensive/wider buses.
+    \item The write buffer needs to be large enough to store multiple lines being evicted. Small write buffer will lead to stalls when full.
+\end{itemize}
+
+\begin{center}
+    \begin{tabular}{p{.25\textwidth} p{.75\textwidth}}
+        \textbf{Coalescing Write Buffers} & Adjacent writes are merged into a single entry in the write buffer. This is especially important in write-through caches. \\
+        \textbf{Dependency Checks} & Use comparators to check load addresses against pending stores. On a match a dependency is present, so the load must be stalled (other instructions can run). \\
+        \textbf{Load Forwarding} & If a store and load match address, forward the data to the load. \\
+    \end{tabular}
+\end{center}
+
+\subsection{Early Restart}
+\begin{definitionbox}{Sectored Cache Lines}
+    A cache line can be divided into sectors.
+    \begin{itemize}
+        \item Each has its own validity bit, potentially dirty bit also.
+        \item Cache allocated in units of cache lines
+        \item Data delivered to cache in units of sectors.
+        \item Sectors can be fetched in any order, potentially even remaining invalid until requested.
+    \end{itemize}
+\end{definitionbox}
+During a read-miss induced stall, the processor can restart as soon as the requested word arrives.
+\begin{center}
+    \includegraphics[width=.7\textwidth]{caches/images/cache_block_critical_word.drawio.png}
+\end{center}
+A cache line consists of many words, when loading a line into cache following a read-miss, we can restart the CPU as soon as the requested word is present.
+\begin{center}
+    \begin{tabular}{p{.3\textwidth} p{.7\textwidth}}
+        \textbf{Early Restart} & As soon as the requested word arrives, send to the CPU and end stall/restart. \\
+        \textbf{Critical Word First} & Request the word on which the read-miss occurred from memory first. \\
+    \end{tabular}
+\end{center}
+\begin{tabbox}{consbox}
+    \textbf{Complexity} & Sectoring and ordering reads increase hardware complexity. Must be careful for edge cases (e.g read-miss on cache entry that is currently in the process of being loaded). \\
+\end{tabbox}
+
+\subsection{Non-Blocking Cache}
+\begin{definitionbox}{Non-Blocking / Lockup-free Cache}
+    Allows data cache to continue to supply hits for other locations, during a cache miss.
+    \begin{itemize}
+        \item Requires full/empty bits on registers, and out-of-order execution.
+        \item Requires multi-bank memories
+    \end{itemize}
+\end{definitionbox}
+
+\begin{tabbox}{prosbox}
+    \textbf{Hit Under Miss} & Effective miss penalty reduced as useful work is completed during a miss. \\
+    \textbf{miss under miss} & Misses are overlapped to reduce effective penalty. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{Cache Controller} & Needs to support multiple outstanding memory accesses to support \textit{miss-under-miss}. \\
+    \textbf{Complexity} & Requires extra hardware (e.g multiple memory banks), and complexities of out of order execution. \\
+    \textbf{Fences} & Hit under miss allows for load to be services out of order, hence a fence/barrier instruction must be available to prevent this when required. \\
+\end{tabbox}
+
+With In-Order pipeline processors, it is possible to implement some of this functionality by effectively making memory accesses out of order only.
+\begin{itemize}
+    \item Freeze pipeline in Mem stage, but continue the rest. 
+    \item Use full/empty bits on registers, and a MSHR (Miss Status/Handle Registers) queue where each entry tracks the status of an outstanding memory request, a register may be marked as \textit{empty} from a load, it will only stall if still empty when another instruction uses the register, at the decode stage.
+    \item This is a popular approach with in-order superscalar processors.
+\end{itemize}
+
+
+\subsection{Multiple Cache Levels}
+\[\begin{split}
+    AMAT & = \text{Hit Time}_{L1} + \text{Local Miss Rate}_{L1} \times \text{Miss Penalty}_{L1} \\
+    \text{Miss Penalty}_{L1} & = \text{Hit Time}_{L2} + \text{Local Miss Rate}_{L2} \times \text{Miss Penalty}_{L2} \\
+    & \text{Can continue recursively for }L3, L4 \text{ etc\dots} \\
+\end{split}\]
+\begin{tcbraster}[raster columns=2, raster equal height]
+    \begin{definitionbox}{Local Miss Rate}
+        \[\cfrac{\text{Misses for this Cache}}{\text{Accesses to this Cache}}\]
+        Misses in a given cache, divided by the total number of memory accesses to the cache.
+        \begin{itemize}
+            \item Relevant as a cache may not be accessed often, if the cache a level higher has a high hit rate.
+        \end{itemize}
+    \end{definitionbox}
+    \begin{definitionbox}{Global Miss Rate}
+        \[\cfrac{\text{Misses for this Cache}}{\text{Total Memory Accesses}}\]
+        Misses in a given cache, divided by the total number of memory accesses.
+    \end{definitionbox}
+\end{tcbraster}
+
+\begin{definitionbox}{Multilevel Inclusion}
+    Where lower caches contain all entries in the higher caches.
+    \[d \in L1 \Rightarrow d \in L2 \Rightarrow d \in L3\]
+\end{definitionbox}
+\begin{itemize}
+    \item Inclusion strategy affects placement of data, and hence cache controls on coherence, search (should lower caches be checked?) etc.
+    \item Can use the L2 cache to filter coherence protocol invalidations. If not in L2, no need to check L1, and hence no need to impact bandwidth to L1.
+    \item L3 / LLC (Last Level Cache) often managed as a victim cache, only allocated when data is displaced from L2.
+\end{itemize}
+
+\section{Hit Time Reduction}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=1f4afa53-8330-4f04-af28-af2a01118535}{Chapter 4 - Part 4: Hit Time Reduction and Address Translation}
+
+\subsection{Parallel Cache Access}
+When attempting to issue multiple instructions per cycle, parallel accesses to the cache are required.
+\begin{center}
+    \begin{tabular}{p{.2\textwidth} p{.8\textwidth}}
+        \textbf{Multiple Banks} & Divide the cache into several banks, with addresses mapped to banks (e.g using low order bits, or a hash function). Accesses to different banks can occur in parallel. \\
+        \textbf{Duplicate the Cache} & By using multiple copies of the same cache, each can be accessed separately. \\
+        \textbf{Multi-ported RAM} & Add another wordline per row, and another bitline per column to allow multiple accesses to the RAM at the same time, cache uses this multiported RAM. This is effectively duplicating the cache, but sharing the flipflops between caches. \\
+    \end{tabular}
+\end{center}
+
+
+\subsection{Address Translation}
+\begin{center}
+    \includegraphics[width=\textwidth]{caches/images/address_translation.drawio.png}
+\end{center}
+\begin{tcbraster}[raster columns=2,raster equal height]
+    \begin{definitionbox}{Homonyms}
+        \centerline{\textit{Same sound, different meaning}}
+        The same virtual address can point to different physical locations, in the context of different processes.
+        \begin{itemize}
+            \item A virtually indexed cache, as the tags are compared to determine hit/miss, we must flush the cache.
+            \item In a TLB, where the cache is necessarily virtually tagged \& indexed, a flush must occur, unless some process identifier is included in the tag (e.g ASID - Address Space ID).
+        \end{itemize}
+    \end{definitionbox}
+    \begin{definitionbox}{Synonyms}
+        \centerline{\textit{Same meaning, different sound}}
+        \begin{itemize}
+            \item Multiple virtual addresses point to the same physical.
+            \item In a virtually indexed cache multiple addresses may map to the same page.
+            \item Updates to one cached copy must be reflected in the others (shared pages)
+        \end{itemize}
+    \end{definitionbox}
+\end{tcbraster}
+
+\subsubsection{Faster Cache Hits by Avoiding Translation}
+\begin{center}
+    \includegraphics[width=\textwidth]{caches/images/fast_cache_hit_index_offset_bits.drawio.png}
+\end{center}
+\begin{sidenotebox}{Linux MMap}
+    \mintinline{C}{mmap} in linux does not specify the address in order to allow the operating system to determine this. This allows the OS to perform system specific tricks such as ensuring the page number bits in the cache index are identical for virtual addresses mapped to the same frame.
+\end{sidenotebox}
+The L2 cache makes use of physical addresses, and hence relies on the virtual-to-physical mapping provided by the OS.
+\begin{itemize}
+    \item The OS may choose mappings that result in associativity conflicts in the L2 cache.
+    \item This means that different instances of the same program, with the same computation can have different performance, as the OS may assign frames such that an associativity conflict occurs.
+\end{itemize}
+Operating systems can also use different page sizes.
+\begin{itemize}
+    \item large pages require smaller page tables, and use fewer TLB entries, which increases the hit rate for the TLB.
+    \item Requires support in hardware for multiple page sizes.
+\end{itemize}
