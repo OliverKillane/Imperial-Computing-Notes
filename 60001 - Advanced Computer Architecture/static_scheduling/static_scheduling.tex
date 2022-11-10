@@ -1,0 +1,10 @@
+\chapter{Static Scheduling}
+
+Dynamic scheduling (out of order scheduling) requires significant hardware complexity.
+\begin{itemize}
+    \item Register Update Units, reorder buffers, registers backed by commit registers and associated with tags, instruction dependency checks.
+    \item All of these take space on the die (not only does a larger chip necessitate fewer chips per wafer, but the yield is also decreased)
+    \item Also requires more energy, results in more heat and hence lower thermal limits.
+\end{itemize}
+With static scheduling this complexity is removed from hardware, and moved to the compiler, with the ISA providing necessary mechanisms to express how instructions should be scheduled (e.g in parallel).
+
