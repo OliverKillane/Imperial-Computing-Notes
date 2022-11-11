@@ -1,0 +1,65 @@
+\chapter{Curry Type Assignment}
+Type assignment follows the syntactic structure of terms. For example $\lambda x . M$ will be of the form $A \to B$ where the input $x$ is of type $A$, and $M$ is of type $B$.
+\\
+\\ $\mathcal{T_C}$ is the set of \textit{types}. 
+\begin{itemize}
+    \item This is ranged over by $A, B \dots$ and defined over the set of \textit{type variables} $\Phi$.
+    \item The set of \textit{type variables} $\Phi$ is ranged over by $\varphi$
+\end{itemize}
+\[A, B ::= \varphi \ | \ (A \to B) \]
+A type can be either some type variable (some type e.g Int), or a function converting one type to another.
+\begin{definitionbox}{Statement}
+    An expression of the form $M : A$ where $M \in \Lambda$ and $A \in \mathcal{T}_c$.
+    \begin{itemize}
+        \item $M$ is the \textit{subject}
+        \item $A$ is the \textit{predicate}
+    \end{itemize}
+\end{definitionbox}
+\begin{definitionbox}{Context}
+    A context $\Gamma$ is a set of statements with distinct variables as subjects.
+    \begin{itemize}
+        \item $\Gamma , x:A$ is shorthand for $\Gamma \cup \{x: A\}$ where $x$ does not occur as a subject in $\Gamma$ (variables must be distinct).
+        \item $x:A$ is shorthand for $\emptyset, x:A$.
+        \item $x \in \Gamma$ is shorthand for $\exists A \in \mathcal{T}_C . [x:A \in \Gamma]$, likewise, if $x$ is not typed in the context we use $x \not\in \Gamma$.
+    \end{itemize}
+    For example:
+    \[\Gamma_{\text{my context}} = \{x : A, y : B, c: B\}\]
+\end{definitionbox}
+
+$\to$ is used for function types, it is right associative, so:
+\[(A \to B) \to C \to D \equiv (A \to B) \to (C \to D)\]
+
+\subsection{Curry Type Assignment}
+\[\ninfer{$Ax$}{}{\Gamma, x:A \vdash_C x: A} \qquad \ninfers{$\to I$}{\Gamma, x: A \vdash_C M : B}{\Gamma \vdash_C \lambda x. M : A \to B}{x \not\in \Gamma} \qquad \ninfer{$\to E$}{\Gamma \vdash_C M_1 : A \to B \quad \Gamma \vdash_C M_2 : A}{\Gamma \vdash_c M_1 M_2 : B}\]
+\vspace{5mm}
+
+\begin{itemize}
+    \item {We can extend barendregt's convention to ommit the side-condition on $\to I$ by adding the assertion that:
+        \[\Gamma \vdash M : A \text{ we ensure } \forall x \in bv(M) . [x \not\in \Gamma]\]
+    }
+    \item {The definition provided is \textit{sound}:
+        \[(\Gamma \vdash_c M : A) \land (M \to^*_\beta N) \Rightarrow \Gamma \vdash_C N : A \] 
+    }
+\end{itemize}
+
+Some terms are not typeable under this definition, as self-application is not possible:
+\begin{itemize}
+    \item $\lambda x . x \ x$ is not typeable, neither is $\lambda f. (\lambda x. f(x \ x)) (\lambda x. f(x \ x))$
+    \item Type assignment rules do not cover approximants, and hence they are not typeable.
+\end{itemize}
+
+\begin{examplebox}{Self Application}
+    Is it possible to type \textit{self-application} $x \ x$?
+    \tcblower
+    We can attempt to use the inference system, however run into a contradiction:
+    \[\ainfer{$\to E$}{
+        \ainfer{$Ax$}{}{\Gamma, x: A \to B \vdash_C x : A \to B} \qquad \ainfer{$Ax$}{}{\Gamma, x : A \vdash_C x : A}
+    }{\Gamma, x: ? \vdash_C x \ x : B}\]
+    Hence we need a type such that $A \to B = A$.
+\end{examplebox}
+
+\subsection{Important Lemmas For Type Assignment}
+\subsubsection{Term Substitution}
+\[\exists C . [(\Gamma, x:C \vdash_C M:A) \land (\Gamma \vdash_C N : C)] \Rightarrow \Gamma \vdash_C M[N/x] : A\]
+
+\unfinished
