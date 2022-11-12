@@ -62,4 +62,105 @@ Some terms are not typeable under this definition, as self-application is not po
 \subsubsection{Term Substitution}
 \[\exists C . [(\Gamma, x:C \vdash_C M:A) \land (\Gamma \vdash_C N : C)] \Rightarrow \Gamma \vdash_C M[N/x] : A\]
 
-\unfinished
+\subsubsection{Free Variables}
+\[\Gamma \vdash_C M : A \land x \in fv(M) \Rightarrow \exists B \in \mathcal{T}_C . [x : B \in \Gamma]\]
+All free variables in $M$ are typed.
+\subsubsection{Weakening}
+\[\Gamma \vdash_C M : A \land \Gamma' \text{ is such that } \forall x: B \in \Gamma' . [x:B \in \Gamma \lor (x \not\in fv(M) \land x \not\in bv(M)) \Rightarrow \Gamma' \vdash_C M : A]\]
+We can create a new context $\Gamma'$ that types variables$x,y,z, dots$. If for every variable in the context $\Gamma'$ it is either not in $\Gamma$, or is in $\Gamma$  with the same type, then we can use $\Gamma'$ to type $M$.
+
+\subsubsection{Thinning}
+\[\Gamma, x:B \vdash_C M : A \land x \not\in fv(M) \Rightarrow \Gamma \vdash_C M : A\]
+If a variable is not free in $M$, then we do not need a type for it.
+
+\section{Principle Type Property}
+Principle type theory expresses the idea that a whole family of types could be assigned to a term, however only one is the \textit{principle type}.
+\begin{definitionbox}{Type Substitution}
+    \[(\varphi \mapsto C) : \mathcal{T}_C \to \mathcal{T}_C \text{ where } \varphi \text{ is a type variable and } C \in \mathcal{T}_C\]
+    Substitution is defined by:
+    \[\begin{matrix*}[l]
+        (\varphi \mapsto C) & \varphi & = C \\
+        (\varphi \mapsto C) & \varphi' & = \varphi' & (\varphi \neq \varphi') \\
+        (\varphi \mapsto C) & A \to B &= ((\varphi \mapsto C) \ A) \to ((\varphi \mapsto C) \ B) \\
+    \end{matrix*}\]
+    Here $(\varphi \mapsto C)$ is a substitution substituting the type variable $\varphi$ for the type $C$
+    \[S_1 \circ S_2 \text{ means } S_1 \circ S_2 \ A = S_1 (S_2 \ A) \qquad S \ \Gamma = \{x: S \ B | x:B \in \Gamma\} \qquad S \langle \Gamma ; A \rangle = \langle S \ \Gamma ; S \ A \rangle\]
+    \begin{itemize}
+        \item If there is a substitution $S$ such that $S \ A = B$ then $B$ is the \textit{substitution instance} of $A$.
+        \item $Id_S$ (\textit{identity substitution}) maps every type variable to itself.
+    \end{itemize}
+\end{definitionbox}
+
+For each typeable term $M$ there is a principal pair:
+\[\langle \Pi ; P \rangle \text{ where } \Pi \textit{ is a context and } P \in \mathcal{T}_C \text{ such that } \forall \Gamma, A \in \mathcal{T}_C . \exists \text{ substitution }S . [S \langle \Pi ; P \rangle = \langle \Gamma; A \rangle]\]
+
+\begin{tcbraster}[raster columns=2,raster equal height]
+    \begin{definitionbox}{Soundess}
+        A logical system is sound if every formula provable using the system is logically valid according to the semantics of the system.
+        \[Provable \Rightarrow True\]
+    \end{definitionbox}
+    \begin{definitionbox}{Completness}
+        A logical system is complete if any true statement can be proved using the system.
+        \[True \Rightarrow Provable\]
+    \end{definitionbox}
+\end{tcbraster}
+
+This definition is sound, for every substitution $S$:
+\[\text{if there is a derivation for } \Gamma \vdash_C M : A \text{ then we can  construct a derivation for } S \ \Gamma \vdash_C M : S \ A\]
+
+
+\subsection{Unification}
+
+\begin{definitionbox}{Robinson's Unification}
+    \[\begin{matrix*}[l]
+        unify & \varphi & \varphi & = (\varphi \mapsto \varphi) \\
+        unify & \varphi & B & = (\varphi \mapsto B)  \text{ given } \varphi \text{does not occur in B} \\
+        unify & A & \varphi & = unify \ \varphi \ A \\
+        unify &(A \to B) & (C \to D) & = S_1 \circ S_2 \text{ where} \\
+        & & & \qquad S_1 = unify \ A \ C \\
+        & & & \qquad S_2 = unify \ (S_1 \ B) \ (S_1 \ D)\\
+    \end{matrix*}\]
+    \begin{itemize}
+        \item Unification is associative and commutative
+        \item It returns the most general unifier of two types (the \textit{common substitution instance})
+    \end{itemize}
+\end{definitionbox}
+
+\textit{Robinson's Unification} can be generalised to unify contexts.
+\[\begin{matrix*}[l]
+    unifyContexts & (\Gamma_1, x:A) & \Gamma_2 & = unifyContexts \ \Gamma_1 \ \Gamma_2 \text{ given }x \text{ does not occur in } \Gamma_2 \\
+    unifyContexts & \emptyset & \Gamma_2 & = Id_S \\
+    unifyContexts & (\Gamma_1, x:A) & (\Gamma_2, x:B) & = S_1 \circ S_2 \text{ where}\\
+    & & & \qquad S_1 = unify \ A \ B \\
+    & & & \qquad S_2 = unifyContexts \ (S_1 \ \Gamma_1) \ (S_1 \ \Gamma_2) \\
+\end{matrix*}\]
+
+\subsection{Curry Principle Pair}
+
+\begin{definitionbox}{Curry Principle Pair}
+    Every term $M$ has a \textit{(Curry) Principle Pair} defined as $pp_c \ M = \langle \Pi ; P \rangle$ by:
+    \[\begin{matrix*}[l]
+        pp_c & x & = \langle x: \varphi ; \varphi \rangle \text{ where } \varphi \text{ is fresh} \\
+        \\
+        pp_c & \lambda x. M & = \begin{cases}
+            \langle \Pi' ; A \to P \rangle & (\Pi = \Pi', x:A) \\
+            \langle \Pi; \varphi \to P \rangle & (x \not\in \Pi) \\
+        \end{cases} \\
+        & & \qquad \begin{matrix*}[l]
+            \text{ where } & \langle \Pi; P \rangle &= pp_c \ M \\
+            & \varphi & \text{ is fresh}  \\
+        \end{matrix*} \\
+        \\
+        pp_c & M \ N & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2 ; \varphi \rangle \\
+        & & \qquad \begin{matrix*}[l]
+            \text{ where } & \langle \Pi_1 ; P_1 \rangle & = pp_c \ M \\
+            & \langle \Pi_2 ; P_2 \rangle & = pp_c \ N \\
+            & S_1 & = unify \ P_1 \ (P_2 \to \varphi) \\
+            & S_2 & = unifyContexts \ (S-1 \ \Pi_1) \ (S_1 \ \Pi_2) \\
+            & \varphi & \text{ is fresh} \\
+        \end{matrix*} \\
+    \end{matrix*}\]
+\end{definitionbox}
+
+Substitution is complete:
+\[\forall \Gamma, M \in \Lambda, A \in \mathcal{T}_c . [\Gamma \vdash_c M : A \Rightarrow \exists \Pi, P \in \mathcal{T}_c, S . [pp_c \ M = \langle \Pi ; P \rangle \land s \ \Pi \subseteq \Gamma \land S \ P = A]]\]
