@@ -1,0 +1,132 @@
+\chapter{Polymorphism}
+We can extend the $\lambda$-calculus to allow for functions that are \textit{polymorphic} (can be applied to many different types of inputs).
+\begin{itemize}
+    \item We can extend to include names and definitions (e.g $name = M$)
+    \item When type checking we can associate a call to a name with its definition, avoiding the need to re-type check for each call to a function.
+\end{itemize}
+
+\section{Language $\Lambda^N$}
+$\Lambda^N$ is Lambda Calculus with names. The syntax is as follows:
+\[\begin{split}
+    N, M & ::= x \ | \ name \ | \ \lambda x. N \ | \ M \ N \\
+    name & ::= \text{'A string of characters'} \\
+    Defs & ::= Defs ; name = M | \epsilon \text{ where } M \text{ is closed and name-free}\\ 
+    Program & ::= Defs : M \\
+\end{split}\]
+Reduction on terms can be defined by an inference system.
+\\ \begin{minipage}{.48\textwidth}
+    \[\infer{}{(\lambda x. M) N \to M[N/x]}\]
+    \centerline{Substitution of terms}
+\end{minipage}
+\hfill
+\begin{minipage}{.48\textwidth}
+    \[\infers{}{name \to M}{name = M \in Defs}\]
+    \centerline{Substituting of names for definitions (inlining)}
+\end{minipage}
+\vspace{2mm}
+\[\infer{M \to N}{\lambda x . M \to \lambda x . N} 
+\qquad \infer{M \to N}{M \ P \to N \ P}
+\qquad \infer{M \to N}{P \ M \to P \ N}\]
+\centerline{Reduction of terms}
+
+\[\infer{M \to N}{M \to^* N}
+\qquad \infer{}{M \to^* M}
+\qquad \infer{M \to^* N \quad N \to^* P}{M \to^* P}\]
+\centerline{Transitive closure of reduction}
+
+\[\infer{M \to N}{Defs : M \to Defs : N}\]
+\centerline{Reduction on Programs}
+
+\begin{itemize}
+    \item Names are closed $\lambda$-terms (have no free variables).
+    \item If a name is used but not defined, then the program is irreducible.
+    \item Programs written in $\Lambda^N$ can be translated to $\Lambda$ by substituting names.
+\end{itemize}
+We can translate using the transformation $\langle \cdot \rangle_\lambda : \Lambda^N \to \Lambda$:
+\[\begin{matrix*}[l]
+    \langle x \rangle_\lambda & = x \\
+    \langle name \rangle_\lambda & = \begin{cases}
+        \langle M \rangle_\lambda & \text{if } (name = M) \in Defs \\
+        undefined & otherwise \\
+    \end{cases} \\
+    \langle \lambda x . N \rangle_\lambda & = \lambda x . \langle N \rangle_\lambda \\
+    \langle \lambda N \ M \rangle_\lambda & = \langle \lambda N \rangle_\lambda \ \langle \lambda M \rangle_\lambda \\
+\end{matrix*}\]
+
+\section{Type Assignment for $\Lambda^N$}
+By extending Curry's type assignment system for $\lambda$-calculus we must consider the types of names in definitions.
+\begin{definitionbox}{Environment}
+    An environment $\varepsilon$ is a mapping on $names \to \mathcal{T}_c$.
+    \begin{itemize}
+        \item Similar to a context, but for names rather than terms.
+        \item $\varepsilon, name:A = \varepsilon \cup \{ name: A \}$ where either $name : A \in \varepsilon$ or $name$ does not occur in $\varepsilon$.
+    \end{itemize}
+\end{definitionbox}
+
+\[\ninfer{$Ax$}{}{\Gamma, x:A; \varepsilon \vdash x : A} 
+\qquad \ninfer{$\to I$}{\Gamma, x:A ; \varepsilon \vdash N : B}{\Gamma ; \epsilon \vdash \lambda x . N : A \to B}
+\qquad \ninfer{$\to E$}{\Gamma; \varepsilon \vdash P : A \to B \quad \Gamma ; \varepsilon \vdash Q : A}{\Gamma ; \varepsilon \vdash P \ Q : B}\]
+We have extended the curry type inference to include the environment $\varepsilon$.
+
+\[\ninfer{$\epsilon$}{}{\varepsilon \vdash \epsilon : \Diamond}\]
+We do not need to consider contexts (definitions use closed terms, no free variables from a context are required to type). $\Diamond$ is not a type, but rather notation of showing there is a type.
+
+\[\ninfer{$Defs$}{\varepsilon \vdash Defs : \Diamond \quad \emptyset ; \emptyset \vdash M : A}{\varepsilon, name:A \vdash Defs;name = M : \Diamond}\]
+A name can be defined, it must be closed (hence why context is $\emptyset$). Notice this definition ensures definitions are closed and name-free as the rule provides an empty environment and context.
+\[\ninfer{$Call$}{}{\Gamma ; \varepsilon , name : A \vdash name : S \ A}\]
+
+\[\ninfer{Program}{\varepsilon \vdash Defs : \Diamond \quad \Gamma ; \varepsilon \vdash M : A}{\Gamma ; \varepsilon \vdash Defs : M : A}\]
+
+\section{Principal Types}
+\[\begin{matrix*}[l]
+    pp_{\Lambda^N} \ x & \varepsilon & = \langle x: \varphi ; \varphi \rangle \text{ where } \varphi \text{ is fresh} \\
+    pp_{\Lambda^N} \ name & \varepsilon & = \langle \emptyset ; FreshInstance(\varepsilon \ name) \rangle \\
+    pp_{\Lambda^N} \ (\lambda x . M) & \varepsilon & = \begin{cases}
+        \langle \Pi'; A \to P \rangle & (\Pi = \Pi', x:A) \\
+        \langle \Pi; \varphi \to P \rangle & (x \not\in \Pi) \\
+    \end{cases} \\
+    & & \qquad \begin{matrix*}[l]
+        \text{where } & \langle \Pi; P \rangle & = pp_{\Lambda^N} \ M \ \varepsilon \\
+        & \varphi & \text{ is fresh} \\
+    \end{matrix*} \\
+    pp_{\Lambda^N} \ (M \ N) & \varepsilon & = s_2 \circ S_2 \langle \Pi_1 \cup \Pi_2 ; \varphi \rangle \\
+    & & \qquad \begin{matrix*}[l]
+        \text{where } & \langle \Pi_1 ; P_1 \rangle & = pp_{\Lambda^N} \ M \ \varepsilon \\
+        & \langle \Pi_2 ; P_2 \rangle & = pp_{\Lambda^N} \ N \ \varepsilon \\
+        & S_1 & = unify \ P_1 \ P_2 \to \varphi \\
+        & S_2 & = unifyContexts \ (S_1 \Pi_1) \ (S_1 \Pi_2) \\
+        & \varphi & \text{ is fresh} \\
+    \end{matrix*}
+\end{matrix*}\]
+We also need to define $pp_{\Lambda^N}$ for definitions.
+\[\begin{matrix*}[l]
+    BuildEnv \ (Defs ; name = M) & = (BuildEnv \ Defs), name:A \text{ where } \langle \emptyset; A \rangle = pp_{\Lambda^N} \ M \ \emptyset \\
+    BuildEnv \ \epsilon & = \emptyset \\
+\end{matrix*}\]
+Hence we can now define:
+\[pp_{\Lambda^N} \ (Defs; M) = pp_{\Lambda^N} \ M \ \varepsilon \text{ where } \varepsilon = BuildEnv \ Defs\]
+\begin{itemize}
+    \item For each name encountered, the environment is checked to find its principle type, a fresh instance of this type is taken (with all type variables replaced by fresh ones) this allows for polymorphism.
+\end{itemize}
+
+\begin{examplebox}{Identity}
+    Derive the $\Lambda^N$ type for $\lambda x . x$ where it is named $Id$
+    \tcblower
+    \[\ainfer{$Program$}{
+        \ainfer{$Defs$}{
+            \ainfer{$\epsilon$}{}{\emptyset \vdash \epsilon : \Diamond}
+            \quad \ainfer{$\to I$}{
+                \ainfer{$Ax$}{}{x:\varphi ; \emptyset \vdash x : \varphi}
+            }{\emptyset ; \emptyset \vdash_c \lambda x . x : \varphi \to \varphi}
+        }{
+            Id : \varphi \to \varphi \vdash I = \lambda x . x
+        } \qquad \ainfer{$\to E$}{
+           Call_1 \quad Call_2
+        }{\emptyset; Id : \varphi \to \varphi \vdash Id \ Id : A \to A}
+    }{\emptyset; Id : \varphi \to \varphi \vdash I = \lambda x . x : Id \ Id : A \to A}\]
+    \[\begin{split}
+        Call_1 & =  \ainfer{$Call$}{}{\emptyset; I: \varphi \to \varphi \vdash I : (A \to A) \to A \to A} \\
+        Call_2 & =  \ainfer{$Call$}{}{\emptyset; I: \varphi \to \varphi \vdash I : A \to A} \\
+    \end{split}\]
+
+\end{examplebox}
