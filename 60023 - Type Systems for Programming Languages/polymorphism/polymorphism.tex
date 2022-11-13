@@ -77,7 +77,7 @@ A name can be defined, it must be closed (hence why context is $\emptyset$). Not
 
 \[\ninfer{Program}{\varepsilon \vdash Defs : \Diamond \quad \Gamma ; \varepsilon \vdash M : A}{\Gamma ; \varepsilon \vdash Defs : M : A}\]
 
-\section{Principal Types}
+\section{Principal Types for $\Lambda^N$}
 \[\begin{matrix*}[l]
     pp_{\Lambda^N} \ x & \varepsilon & = \langle x: \varphi ; \varphi \rangle \text{ where } \varphi \text{ is fresh} \\
     pp_{\Lambda^N} \ name & \varepsilon & = \langle \emptyset ; FreshInstance(\varepsilon \ name) \rangle \\
