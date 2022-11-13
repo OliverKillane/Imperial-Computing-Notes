@@ -8,8 +8,8 @@ We can extend the $\lambda$-calculus to allow for functions that are \textit{pol
 \section{Language $\Lambda^N$}
 $\Lambda^N$ is Lambda Calculus with names. The syntax is as follows:
 \[\begin{split}
-    N, M & ::= x \ | \ name \ | \ \lambda x. N \ | \ M \ N \\
     name & ::= \text{'A string of characters'} \\
+    N, M & ::= x \ | \ name \ | \ \lambda x. N \ | \ M \ N \\
     Defs & ::= Defs ; name = M | \epsilon \text{ where } M \text{ is closed and name-free}\\ 
     Program & ::= Defs : M \\
 \end{split}\]
@@ -89,7 +89,7 @@ A name can be defined, it must be closed (hence why context is $\emptyset$). Not
         \text{where } & \langle \Pi; P \rangle & = pp_{\Lambda^N} \ M \ \varepsilon \\
         & \varphi & \text{ is fresh} \\
     \end{matrix*} \\
-    pp_{\Lambda^N} \ (M \ N) & \varepsilon & = s_2 \circ S_2 \langle \Pi_1 \cup \Pi_2 ; \varphi \rangle \\
+    pp_{\Lambda^N} \ (M \ N) & \varepsilon & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2 ; \varphi \rangle \\
     & & \qquad \begin{matrix*}[l]
         \text{where } & \langle \Pi_1 ; P_1 \rangle & = pp_{\Lambda^N} \ M \ \varepsilon \\
         & \langle \Pi_2 ; P_2 \rangle & = pp_{\Lambda^N} \ N \ \varepsilon \\

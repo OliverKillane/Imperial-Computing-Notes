@@ -1,0 +1,102 @@
+\chapter{Recursion}
+We can extend $\Lambda^N$ to include recursion as language $\Lambda^{NR}$.
+\begin{itemize}
+    \item Definitions can reference their own names, as well as other's names (e.g for mutually recursive functions)
+\end{itemize}
+
+\section{Language $\Lambda^{NR}$}
+\[\begin{split}
+    name & ::= \text{'A string of characters'} \\
+    N, M & ::= x \ | \ name \ | \ \lambda x. N \ | \ M \ N \\
+    Defs & ::= Defs ; name = M \ | \ Defs ; (rec \ name = M) \ | \ \epsilon \text{ where } M \text{ is closed}\\ 
+    Program & ::= Defs : M \\
+\end{split}\]
+The requirement that $M$ be name-free is removed, and a function labeled $rec$ can be recursive.
+
+\begin{definitionbox}{$\mathsf{Y}$ combinator}
+    \[\mathsf{Y} = \lambda f . (\lambda x . f x \ x) \ (\lambda x . f x \ x)\]
+    Can be used to encode recursion:
+    \[F = C [F] \to \mathsf{Y} \ (\lambda f . C [f]) \]
+\end{definitionbox}
+
+\begin{examplebox}{Factorial}
+    Write factorial in $\Lambda^{NR}$ given you can use arithmetic and the $Cond$ function. Then encode it using the $\mathsf{Y}$ combinator.
+    \tcblower
+    \[Factorial = \lambda n . (Cond \ (n == 0) \ 1 \ (n \times (Factorial \ (n - 1))) )\]
+    And with the $\mathsf{Y}$ combinator:
+    \[Fac = Y . (\lambda f n . Cond \ (n == 0) \ 1 \ (n \times f (n - 1)))\]
+\end{examplebox}
+We cannot directly translate $\Lambda^{NR}$ to lambda calculus as with $\Lambda^N$, and instead must alter recursive functions to make use of the $\mathsf{Y}$ combinator.
+\\
+\\ $\mathsf{Y}$ is not typeable under the $\vdash_c$ scheme discussed in these notes, so we must add an extension:
+\\ \begin{minipage}[b]{.33\textwidth}
+    \[M, N ::= \dots \ | \ \mathsf{Y}\]
+    Add $Y$ as a special term in the syntax.
+\end{minipage}
+\begin{minipage}[b]{.33\textwidth}
+    \[\mathsf{Y} \ M \to M (\mathsf{Y} \ M)\]
+    Add the reduction rule for $\mathsf{Y}$.
+\end{minipage}
+\begin{minipage}[b]{.33\textwidth}
+    \[\infer{}{\Gamma \vdash \mathsf{Y} : (A \to A) \to A}\]
+    Add a type assignment rule.
+\end{minipage}
+
+\section{$\Lambda^{NR}$ Type Assignment}
+\[\ninfer{$Ax$}{}{\Gamma, x:A; \varepsilon \vdash x : A} 
+\qquad \ninfer{$\to I$}{\Gamma, x:A ; \varepsilon \vdash N : B}{\Gamma ; \epsilon \vdash \lambda x . N : A \to B}
+\qquad \ninfer{$\to E$}{\Gamma; \varepsilon \vdash P : A \to B \quad \Gamma ; \varepsilon \vdash Q : A}{\Gamma ; \varepsilon \vdash P \ Q : B}\]
+The main $3$ typing rules remain unchanged.
+\[\ninfer{$Call$}{}{\Gamma ; \varepsilon , name : A \vdash name : S \ A} \qquad \ninfer{$Rec \ Call$}{}{\Gamma; \varepsilon, rec \ name: A \vdash name : A}\]
+\begin{itemize}
+    \item Call remains the same (still just substitutes the definition)
+    \item A recursive call is added, however the type cannot be substituted for this as the definition internally relies on the type.
+\end{itemize}
+\[\ninfer{$Def$}{\varepsilon \vdash Defs : \Diamond \quad \emptyset; \varepsilon \vdash M : A}{\varepsilon, name : A \vdash Defs ; name = M : \Diamond} 
+\qquad \ninfer{$Rec \ Def$}{\varepsilon \vdash Defs : \Diamond \quad \emptyset; \varepsilon, rec \ name: A \vdash M : A}{ \varepsilon, name : A \vdash Defs; rec \ name = M : \Diamond }\]
+\begin{itemize}
+    \item Definitions are no longer name-free and thus we must carry the environment in $Def$.
+    \item Recursive calls are typed with the same environment.
+\end{itemize}
+
+\[\ninfer{$\epsilon$}{}{\varepsilon \vdash \epsilon : \Diamond} \qquad \ninfer{Program}{\varepsilon \vdash Defs : \Diamond \quad \Gamma ; \varepsilon \vdash M : A}{\Gamma ; \varepsilon \vdash Defs : M : A}\]
+
+\[\begin{matrix*}[l]
+    pp_{\Lambda^{NR}} \ x & \varepsilon & = \langle x: \varphi ; \varphi ; \varepsilon \rangle \text{ where } \varphi \text{ is fresh} \\
+
+    pp_{\Lambda^{NR}} \ name & \varepsilon & = \begin{cases}
+        \langle \emptyset ; A ; \varepsilon \rangle & (rec \ name : A \in \varepsilon ) \\
+        \langle \emptyset ; FreshInstance(\varepsilon \ name) ; \varepsilon  \rangle & (name : A \in \varepsilon) \\
+    \end{cases} \\
+    pp_{\Lambda^{NR}} \ (\lambda x . M) & \varepsilon & = \begin{cases}
+        \langle \Pi'; A \to P ; \varepsilon' \rangle & (\Pi = \Pi', x:A) \\
+        \langle \Pi; \varphi \to P ; \varepsilon' \rangle & (x \not\in \Pi) \\
+    \end{cases} \\
+    & & \qquad \begin{matrix*}[l]
+        \text{where } & \langle \Pi; P ; \varepsilon' \rangle & = pp_{\Lambda^{NR}} \ M \ \varepsilon \\
+        & \varphi & \text{ is fresh} \\
+    \end{matrix*} \\
+    pp_{\Lambda^{NR}} \ (M \ N) & \varepsilon & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2 ; \varphi ; \varepsilon'' \rangle \\
+    & & \qquad \begin{matrix*}[l]
+        \text{where } & \langle \Pi_1 ; P_1 ; \varepsilon' \rangle & = pp_{\Lambda^{NR}} \ M \ \varepsilon \\
+        & \langle \Pi_2 ; P_2 ; \varepsilon'' \rangle & = pp_{\Lambda^{NR}} \ N \ \varepsilon \\
+        & S_1 & = unify \ P_1 \ P_2 \to \varphi \\
+        & S_2 & = unifyContexts \ (S_1 \Pi_1) \ (S_1 \Pi_2) \\
+        & \varphi & \text{ is fresh} \\
+    \end{matrix*}
+\end{matrix*}\]
+For defs we must modify the $buildEnv$ function to use environments:
+\[\begin{matrix*}[l]
+    BuildEnv \ (defs; name = M) \ \varepsilon & = (BuildEnv \ Defs \ \varepsilon), name: A \text{ where } \langle \emptyset ; A ; \varepsilon \rangle = pp_{\Lambda^{NR}} \ M \ \varepsilon \\
+    BuildEnv \ (defs; rec \ name = M) \ \varepsilon & = (BuildEnv \ Defs \ \varepsilon), name : S \ A \\
+    & \qquad \begin{matrix*}[l]
+        \text{where } & \langle \emptyset ; A ; \varepsilon' \langle & = pp_{\Lambda^{NR}} \ M (\varepsilon, rec \ name: \varphi) \\
+        & S &= unify \ A \ B \\
+        & rec \ name: B & \in \varepsilon' \\
+        & \varphi & \text{is fresh} \\
+    \end{matrix*} \\
+    BuildEnv \ \epsilon \ \varepsilon & = \varepsilon \\
+    pp_{\Lambda^{NR}} (Defs ; M)
+\end{matrix*}\]
+Hence we can now define $pp_{\Lambda^{NR}}$ for $Defs$:
+\[pp_{\Lambda^{NR}} \ (Defs; M) = pp_{\Lambda^{NR}} \ M \ \varepsilon \text{ where } \varepsilon = BuildEnv \ Defs \ \emptyset\]
