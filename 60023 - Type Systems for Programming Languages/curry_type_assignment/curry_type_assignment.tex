@@ -67,7 +67,7 @@ Some terms are not typeable under this definition, as self-application is not po
 All free variables in $M$ are typed.
 \subsubsection{Weakening}
 \[\Gamma \vdash_C M : A \land \Gamma' \text{ is such that } \forall x: B \in \Gamma' . [x:B \in \Gamma \lor (x \not\in fv(M) \land x \not\in bv(M)) \Rightarrow \Gamma' \vdash_C M : A]\]
-We can create a new context $\Gamma'$ that types variables$x,y,z, dots$. If for every variable in the context $\Gamma'$ it is either not in $\Gamma$, or is in $\Gamma$  with the same type, then we can use $\Gamma'$ to type $M$.
+We can create a new context $\Gamma'$ that types variables $x,y,z, \dots$. If for every variable in the context $\Gamma'$ it is either not in $\Gamma$, or is in $\Gamma$  with the same type, then we can use $\Gamma'$ to type $M$.
 
 \subsubsection{Thinning}
 \[\Gamma, x:B \vdash_C M : A \land x \not\in fv(M) \Rightarrow \Gamma \vdash_C M : A\]
