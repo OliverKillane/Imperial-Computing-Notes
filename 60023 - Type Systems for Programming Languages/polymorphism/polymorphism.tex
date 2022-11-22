@@ -56,43 +56,43 @@ We can translate using the transformation $\langle \cdot \rangle_\lambda : \Lamb
 \section{Type Assignment for $\Lambda^N$}
 By extending Curry's type assignment system for $\lambda$-calculus we must consider the types of names in definitions.
 \begin{definitionbox}{Environment}
-    An environment $\varepsilon$ is a mapping on $names \to \mathcal{T}_c$.
+    An environment $\mathcal{E}$ is a mapping on $names \to \mathcal{T}_c$.
     \begin{itemize}
         \item Similar to a context, but for names rather than terms.
-        \item $\varepsilon, name:A = \varepsilon \cup \{ name: A \}$ where either $name : A \in \varepsilon$ or $name$ does not occur in $\varepsilon$.
+        \item $\mathcal{E}, name:A = \mathcal{E} \cup \{ name: A \}$ where either $name : A \in \mathcal{E}$ or $name$ does not occur in $\mathcal{E}$.
     \end{itemize}
 \end{definitionbox}
 
-\[\ninfer{$Ax$}{}{\Gamma, x:A; \varepsilon \vdash x : A} 
-\qquad \ninfer{$\to I$}{\Gamma, x:A ; \varepsilon \vdash N : B}{\Gamma ; \epsilon \vdash \lambda x . N : A \to B}
-\qquad \ninfer{$\to E$}{\Gamma; \varepsilon \vdash P : A \to B \quad \Gamma ; \varepsilon \vdash Q : A}{\Gamma ; \varepsilon \vdash P \ Q : B}\]
-We have extended the curry type inference to include the environment $\varepsilon$.
+\[\ninfer{$Ax$}{}{\Gamma, x:A; \mathcal{E} \vdash x : A} 
+\qquad \ninfer{$\to I$}{\Gamma, x:A ; \mathcal{E} \vdash N : B}{\Gamma ; \epsilon \vdash \lambda x . N : A \to B}
+\qquad \ninfer{$\to E$}{\Gamma; \mathcal{E} \vdash P : A \to B \quad \Gamma ; \mathcal{E} \vdash Q : A}{\Gamma ; \mathcal{E} \vdash P \ Q : B}\]
+We have extended the curry type inference to include the environment $\mathcal{E}$.
 
-\[\ninfer{$\epsilon$}{}{\varepsilon \vdash \epsilon : \Diamond}\]
+\[\ninfer{$\epsilon$}{}{\mathcal{E} \vdash \epsilon : \Diamond}\]
 We do not need to consider contexts (definitions use closed terms, no free variables from a context are required to type). $\Diamond$ is not a type, but rather notation of showing there is a type.
 
-\[\ninfer{$Defs$}{\varepsilon \vdash Defs : \Diamond \quad \emptyset ; \emptyset \vdash M : A}{\varepsilon, name:A \vdash Defs;name = M : \Diamond}\]
+\[\ninfer{$Defs$}{\mathcal{E} \vdash Defs : \Diamond \quad \emptyset ; \emptyset \vdash M : A}{\mathcal{E}, name:A \vdash Defs;name = M : \Diamond}\]
 A name can be defined, it must be closed (hence why context is $\emptyset$). Notice this definition ensures definitions are closed and name-free as the rule provides an empty environment and context.
-\[\ninfer{$Call$}{}{\Gamma ; \varepsilon , name : A \vdash name : S \ A}\]
+\[\ninfer{$Call$}{}{\Gamma ; \mathcal{E} , name : A \vdash name : S \ A}\]
 
-\[\ninfer{Program}{\varepsilon \vdash Defs : \Diamond \quad \Gamma ; \varepsilon \vdash M : A}{\Gamma ; \varepsilon \vdash Defs : M : A}\]
+\[\ninfer{Program}{\mathcal{E} \vdash Defs : \Diamond \quad \Gamma ; \mathcal{E} \vdash M : A}{\Gamma ; \mathcal{E} \vdash Defs : M : A}\]
 
 \section{Principal Types for $\Lambda^N$}
 \[\begin{matrix*}[l]
-    pp_{\Lambda^N} \ x & \varepsilon & = \langle x: \varphi ; \varphi \rangle \text{ where } \varphi \text{ is fresh} \\
-    pp_{\Lambda^N} \ name & \varepsilon & = \langle \emptyset ; FreshInstance(\varepsilon \ name) \rangle \\
-    pp_{\Lambda^N} \ (\lambda x . M) & \varepsilon & = \begin{cases}
+    pp_{\Lambda^N} \ x & \mathcal{E} & = \langle x: \varphi ; \varphi \rangle \text{ where } \varphi \text{ is fresh} \\
+    pp_{\Lambda^N} \ name & \mathcal{E} & = \langle \emptyset ; FreshInstance(\mathcal{E} \ name) \rangle \\
+    pp_{\Lambda^N} \ (\lambda x . M) & \mathcal{E} & = \begin{cases}
         \langle \Pi'; A \to P \rangle & (\Pi = \Pi', x:A) \\
         \langle \Pi; \varphi \to P \rangle & (x \not\in \Pi) \\
     \end{cases} \\
     & & \qquad \begin{matrix*}[l]
-        \text{where } & \langle \Pi; P \rangle & = pp_{\Lambda^N} \ M \ \varepsilon \\
+        \text{where } & \langle \Pi; P \rangle & = pp_{\Lambda^N} \ M \ \mathcal{E} \\
         & \varphi & \text{ is fresh} \\
     \end{matrix*} \\
-    pp_{\Lambda^N} \ (M \ N) & \varepsilon & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2 ; \varphi \rangle \\
+    pp_{\Lambda^N} \ (M \ N) & \mathcal{E} & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2 ; \varphi \rangle \\
     & & \qquad \begin{matrix*}[l]
-        \text{where } & \langle \Pi_1 ; P_1 \rangle & = pp_{\Lambda^N} \ M \ \varepsilon \\
-        & \langle \Pi_2 ; P_2 \rangle & = pp_{\Lambda^N} \ N \ \varepsilon \\
+        \text{where } & \langle \Pi_1 ; P_1 \rangle & = pp_{\Lambda^N} \ M \ \mathcal{E} \\
+        & \langle \Pi_2 ; P_2 \rangle & = pp_{\Lambda^N} \ N \ \mathcal{E} \\
         & S_1 & = unify \ P_1 \ P_2 \to \varphi \\
         & S_2 & = unifyContexts \ (S_1 \Pi_1) \ (S_1 \Pi_2) \\
         & \varphi & \text{ is fresh} \\
@@ -104,7 +104,7 @@ We also need to define $pp_{\Lambda^N}$ for definitions.
     BuildEnv \ \epsilon & = \emptyset \\
 \end{matrix*}\]
 Hence we can now define:
-\[pp_{\Lambda^N} \ (Defs; M) = pp_{\Lambda^N} \ M \ \varepsilon \text{ where } \varepsilon = BuildEnv \ Defs\]
+\[pp_{\Lambda^N} \ (Defs; M) = pp_{\Lambda^N} \ M \ \mathcal{E} \text{ where } \mathcal{E} = BuildEnv \ Defs\]
 \begin{itemize}
     \item For each name encountered, the environment is checked to find its principle type, a fresh instance of this type is taken (with all type variables replaced by fresh ones) this allows for polymorphism.
 \end{itemize}

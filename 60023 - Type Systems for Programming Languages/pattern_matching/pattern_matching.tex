@@ -1,0 +1,133 @@
+\chapter{Pattern Matching}
+
+\begin{definitionbox}{Term Rewriting System}
+    An extension of lambda calculus allowing for formal parameters to have structure.
+    \begin{itemize}
+        \item Terms are built out of variables, function symbols and application.
+        \item There is no abstraction, functions are modelled by rewrite rules specifying how terms are modified.
+    \end{itemize}
+\end{definitionbox}
+
+\section{Syntax}
+
+An alphabet/signature consists of a finite, countable set of variables and a non-empty set of function symbols (each with fixed \textit{arity} - number of parameters).
+\[\begin{matrix}
+    \mathcal{X} = \{x_1, x_2, \dots\} \\
+    \text{Variables} \\
+\end{matrix} \qquad \begin{matrix}
+    \mathcal{F} = \{F, G, \dots\} \\
+    \text{Function Symbols}\\
+\end{matrix}\]
+The set of \textit{terms} $T(\mathcal{F}, \mathcal{X})$ ranged over by $t$ is:
+\[t ::= x \ | \ F \ | \ (t_1 \ t_2)\]
+A \textit{replacement} is where a term variable is consistently replaced (corresponds to the substitution of terms in $\lambda$-calculus).
+\[\begin{matrix}
+    \{x_1 \mapsto t_1, \dots , x_n \mapsto t_n\} \\
+    \text{A \textit{replacement}} \\
+\end{matrix} \qquad \begin{matrix}
+    t^R \\
+    \text{apply $R$ to term $t$} \\
+\end{matrix}\]
+
+\section{Reduction}
+\begin{definitionbox}{Rewrite Rule}
+    A pair of terms $(l, r)$, often written as a named rule $\mathbf{r} : l \to r$.
+    \[\text{Given that }l = F \ t_1 \dots t_n \text{ for some }F \in \mathcal{F} (\text{arity }n) \text{ and } t_1, \dots , t_n \in T(\mathcal{F}, \mathcal{X}) \land fv(r) \subseteq fv(l)\]
+    \begin{itemize}
+        \item A \textit{patterns} of a rule are the terms $t_t$ where either $t_i$ is not a variable or it is a variable $x$ and is a free variable in some term $t_j$.
+        \item {A rewrite rule $l \to r$ defines a set of rewrites $l^R \to r^R$ for all replacements $R$. 
+        \[\begin{matrix}
+            l & \to & r \\
+            \text{redex} & & \text{contractum} \\
+        \end{matrix}\]}
+        \item A \textit{redex} can be substituted by its \textit{contractum} in a context $C\lceil \cdot \rfloor$ for rewrite step $C\lceil t \rfloor \to C \lceil t' \rfloor$
+        \item Rewrite steps can be concatenated into a series $t_0 \to t_1 \to t_2 \to \dots t_n$. We can also write this as $t_0 \to^* t_n$
+        \item If $l \to r$ is a rule, then $l$ is not a variable, or an application starting with a variable (e.g $x \ F$). Hence $r$ cannot introduce new variables
+    \end{itemize}
+\end{definitionbox}
+
+\begin{definitionbox}{Term Rewriting System (TRS)}
+    \[\langle \mathcal{F}, \mathcal{X}, \mathbf{R} \rangle \text{ of an alphabet } \sum\]
+    In a rewrite rule $\mathbf{r} : F \ t_1 \dots t_n \to r \in \mathbf{R}$.
+    \begin{itemize}
+        \item $F \in \mathcal{F}$ is the \textit{defined symbol} of $\mathbf{r}$.
+        \item $\mathbf{r}$ \textit{defines} $F$.
+        \item For any $Q \in \mathcal{F}$, if a rule defines it, it is a \textit{defined symbol}, otherwise it is a \textit{constructor}.
+        \item TRS is turing-complete, however if lambda calculus is extended to include its pattern matching feature the Church-Rosser property no longer holds (ordering of reduction rules changes the end term / no longer confluent).
+    \end{itemize}
+\end{definitionbox}
+
+\begin{examplebox}{Definitions and Examples}
+    Provide a set of rewrite rules for appending to a list, and mapping over the list.
+    \tcblower
+    \[\begin{split}
+        \mathcal{F} &= \{\text{cons}, \text{nil}, \text{append}, \text{map}\} \\
+        \mathcal{X} & = \{f, x, y, l, l', l''\} \\
+        \mathbf{R} &= \begin{Bmatrix*}[l]
+            \text{append} \ \text{nil} \ l & \to l \\
+            \text{append} \ (\text{cons} \ x \ l) \ l' & \to \text{cons} \ x \ (\text{append} \ l \ l') \\
+            \text{append} \ (\text{append} \ l \ l') \ l'' & \to \text{append} \ l \ (\text{append} \ l' \ l'') \\
+            \text{map} \ f \ \text{nil} & \to \text{nil} \\
+            \text{map} \ f \ (\text{cons} \ y \ l) & \to \text{cons} \ (f \ y) \ (\text{map} \ f \ l) \\
+        \end{Bmatrix*} \\
+    \end{split}\]
+    cons and nil are constructors, map and append are defined functions.
+\end{examplebox}
+
+In a term rewriting system defined functions can appear in the terms (as well as the function position $F$ in a rule $F \ t_1 \dots t_n \to r$).
+
+\begin{examplebox}{Surjective Pairing}
+    Is the following a valid TRS?
+    \[\begin{matrix*}[l]
+        \text{In-Left} \ (\text{Pair} \ x \ y) & \to x \\
+        \text{In-Right} \ (\text{Pair} \ x \ y) & \to y \\
+        \text{Pair} \ (\text{In-Left} \ x) \ (\text{In-Right} \ x) & \to x \\
+    \end{matrix*}\]
+    \tcblower
+    It is a valid TRS.
+\end{examplebox}
+
+\section{Type Assignment for TRS}
+\begin{tcbraster}[raster columns=2,raster equal height]
+    \begin{definitionbox}{Environment}
+        Given $\langle \mathcal{F}, \mathcal{X}, \mathbf{R} \rangle$ there is environment $\mathcal{E} : \mathcal{F} \to \mathcal{T}_c$
+    \end{definitionbox}
+    \begin{definitionbox}{TRS-Context}
+        A set of statements with variables as subjects.
+    \end{definitionbox}
+\end{tcbraster}
+\[\ninfer{$Ax$}{}{\Gamma, x:A ; \mathcal{E} \vdash x : A} \qquad \ninfer{Call}{}{\Gamma; \mathcal{E}, F:A \vdash F : S \ A} \qquad \ninfer{$\to E$}{\Gamma;\mathcal{E} \vdash t_1 : A \to B \quad \Gamma;\mathcal{E} \vdash t_2 : A}{\Gamma ; \mathcal{E} \vdash t_1 \ t_2 : B}\]
+Note that (Call) uses a substitution $S$ on the type $A$. The environment provides the principle type for a function symbol, a substitution can be used to get a specific instance of the principle type.
+
+\subsection{Principle Pair for a TRS term}
+Given some TRS $\langle \mathcal{F}, \mathcal{X}, \mathbf{R} \rangle$ and environment $\mathcal{E}$:
+\[\begin{matrix*}[l]
+    pp \ x \ \mathcal{E} & \langle x:\varphi; \varphi \rangle \text{ where } \varphi \text{ is fresh} \\
+    \\
+    pp \ F \ \mathcal{E} & = \langle \emptyset; FreshInsstance (\mathcal{E} \ F) \rangle \\
+    \\
+    pp \ (t_1 \ t_2) \ \mathcal{E} & = S \langle \Pi_1 \cup \Pi_2 ; \varphi \rangle \\
+    & \qquad \begin{matrix*}[l]
+        \text{where } & \langle \Pi_1 ; P_1 \rangle & = pp \ t_1 \ \mathcal{E} \\
+        & \langle \Pi_2 ; P_2 \rangle & = pp \ t_2 \ \mathcal{E} \\
+        & S & = unify \ P_1 \ (P_2 \to \varphi) \\
+        & \varphi & \text{is fresh} \\
+    \end{matrix*} \\
+\end{matrix*}\]
+As a context can contain several statements for each variable, there ios not need to unify contexts $\Pi_1$ and $\Pi_2$ in the principle type of $(t_1 \ t_2)$.
+\\
+\\ Substitution is complete:
+\[\Gamma ; \mathcal{E} \vdash t : A \Rightarrow \exists \Pi, P, S . [pp \ t \ \mathcal{E} = \langle \Pi ; P \rangle \land S \Pi \subseteq \Gamma \land S \ P = A]\]
+
+\section{Subject Reduction}
+In order to ensure the subject reduction property, we must only accept rules $l \to r$ that satisfy:
+\[\forall R, \Gamma, A . [\Gamma;\mathcal{E} \vdash l^R : A \Rightarrow \Gamma;\mathcal{E} \vdash r^R : A]\]
+
+\begin{itemize}
+    \item {$l \to r$ with defined symbol $F$ is typeable with respect to $\mathcal{E}$ if there are $\Pi, P$ and $\mathcal{E}$ such that:
+        \[pp \ l \ \mathcal{E} = \langle \Pi ; P \rangle \land \Pi; \mathcal{E} \vdash r : P \land \text{the leftmost occurrence of }F\text{ is typed with }\mathcal{E}(F) \]
+    }
+    \item $\langle \mathcal{F}, \mathcal{X}, \mathbf{R} \rangle$ is typeable with respect to $\mathcal{E}$ if all $r \in R$ are typeable with respect to $\mathcal{E}$
+\end{itemize}
+
+\unfinished

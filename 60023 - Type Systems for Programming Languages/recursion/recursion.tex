@@ -43,45 +43,45 @@ We cannot directly translate $\Lambda^{NR}$ to lambda calculus as with $\Lambda^
 \end{minipage}
 
 \section{Type Assignment for $\Lambda^{NR}$}
-\[\ninfer{$Ax$}{}{\Gamma, x:A; \varepsilon \vdash x : A} 
-\qquad \ninfer{$\to I$}{\Gamma, x:A ; \varepsilon \vdash N : B}{\Gamma ; \epsilon \vdash \lambda x . N : A \to B}
-\qquad \ninfer{$\to E$}{\Gamma; \varepsilon \vdash P : A \to B \quad \Gamma ; \varepsilon \vdash Q : A}{\Gamma ; \varepsilon \vdash P \ Q : B}\]
+\[\ninfer{$Ax$}{}{\Gamma, x:A; \mathcal{E} \vdash x : A} 
+\qquad \ninfer{$\to I$}{\Gamma, x:A ; \mathcal{E} \vdash N : B}{\Gamma ; \epsilon \vdash \lambda x . N : A \to B}
+\qquad \ninfer{$\to E$}{\Gamma; \mathcal{E} \vdash P : A \to B \quad \Gamma ; \mathcal{E} \vdash Q : A}{\Gamma ; \mathcal{E} \vdash P \ Q : B}\]
 The main $3$ typing rules remain unchanged.
-\[\ninfer{$Call$}{}{\Gamma ; \varepsilon , name : A \vdash name : S \ A} \qquad \ninfer{$Rec \ Call$}{}{\Gamma; \varepsilon, rec \ name: A \vdash name : A}\]
+\[\ninfer{$Call$}{}{\Gamma ; \mathcal{E} , name : A \vdash name : S \ A} \qquad \ninfer{$Rec \ Call$}{}{\Gamma; \mathcal{E}, rec \ name: A \vdash name : A}\]
 \begin{itemize}
     \item Call remains the same (still just substitutes the definition)
     \item A recursive call is added, however the type cannot be substituted for this as the definition internally relies on the type.
 \end{itemize}
-\[\ninfer{$Def$}{\varepsilon \vdash Defs : \Diamond \quad \emptyset; \varepsilon \vdash M : A}{\varepsilon, name : A \vdash Defs ; name = M : \Diamond} 
-\qquad \ninfer{$Rec \ Def$}{\varepsilon \vdash Defs : \Diamond \quad \emptyset; \varepsilon, rec \ name: A \vdash M : A}{ \varepsilon, name : A \vdash Defs; rec \ name = M : \Diamond }\]
+\[\ninfer{$Def$}{\mathcal{E} \vdash Defs : \Diamond \quad \emptyset; \mathcal{E} \vdash M : A}{\mathcal{E}, name : A \vdash Defs ; name = M : \Diamond} 
+\qquad \ninfer{$Rec \ Def$}{\mathcal{E} \vdash Defs : \Diamond \quad \emptyset; \mathcal{E}, rec \ name: A \vdash M : A}{ \mathcal{E}, name : A \vdash Defs; rec \ name = M : \Diamond }\]
 \begin{itemize}
     \item Definitions are no longer name-free and thus we must carry the environment in $Def$.
     \item Recursive calls are typed with the same environment.
 \end{itemize}
 
-\[\ninfer{$\epsilon$}{}{\varepsilon \vdash \epsilon : \Diamond} \qquad \ninfer{Program}{\varepsilon \vdash Defs : \Diamond \quad \Gamma ; \varepsilon \vdash M : A}{\Gamma ; \varepsilon \vdash Defs : M : A}\]
+\[\ninfer{$\epsilon$}{}{\mathcal{E} \vdash \epsilon : \Diamond} \qquad \ninfer{Program}{\mathcal{E} \vdash Defs : \Diamond \quad \Gamma ; \mathcal{E} \vdash M : A}{\Gamma ; \mathcal{E} \vdash Defs : M : A}\]
 
 \section{Principle Types for $\Lambda^{NR}$}
 
 \[\begin{matrix*}[l]
-    pp_{\Lambda^{NR}} \ x & \varepsilon & = \langle x: \varphi ; \varphi ; \varepsilon \rangle \text{ where } \varphi \text{ is fresh} \\
+    pp_{\Lambda^{NR}} \ x & \mathcal{E} & = \langle x: \varphi ; \varphi ; \mathcal{E} \rangle \text{ where } \varphi \text{ is fresh} \\
 
-    pp_{\Lambda^{NR}} \ name & \varepsilon & = \begin{cases}
-        \langle \emptyset ; A ; \varepsilon \rangle & (rec \ name : A \in \varepsilon ) \\
-        \langle \emptyset ; FreshInstance(\varepsilon \ name) ; \varepsilon  \rangle & (name : A \in \varepsilon) \\
+    pp_{\Lambda^{NR}} \ name & \mathcal{E} & = \begin{cases}
+        \langle \emptyset ; A ; \mathcal{E} \rangle & (rec \ name : A \in \mathcal{E} ) \\
+        \langle \emptyset ; FreshInstance(\mathcal{E} \ name) ; \mathcal{E}  \rangle & (name : A \in \mathcal{E}) \\
     \end{cases} \\
-    pp_{\Lambda^{NR}} \ (\lambda x . M) & \varepsilon & = \begin{cases}
-        \langle \Pi'; A \to P ; \varepsilon' \rangle & (\Pi = \Pi', x:A) \\
-        \langle \Pi; \varphi \to P ; \varepsilon' \rangle & (x \not\in \Pi) \\
+    pp_{\Lambda^{NR}} \ (\lambda x . M) & \mathcal{E} & = \begin{cases}
+        \langle \Pi'; A \to P ; \mathcal{E}' \rangle & (\Pi = \Pi', x:A) \\
+        \langle \Pi; \varphi \to P ; \mathcal{E}' \rangle & (x \not\in \Pi) \\
     \end{cases} \\
     & & \qquad \begin{matrix*}[l]
-        \text{where } & \langle \Pi; P ; \varepsilon' \rangle & = pp_{\Lambda^{NR}} \ M \ \varepsilon \\
+        \text{where } & \langle \Pi; P ; \mathcal{E}' \rangle & = pp_{\Lambda^{NR}} \ M \ \mathcal{E} \\
         & \varphi & \text{ is fresh} \\
     \end{matrix*} \\
-    pp_{\Lambda^{NR}} \ (M \ N) & \varepsilon & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2 ; \varphi ; \varepsilon'' \rangle \\
+    pp_{\Lambda^{NR}} \ (M \ N) & \mathcal{E} & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2 ; \varphi ; \mathcal{E}'' \rangle \\
     & & \qquad \begin{matrix*}[l]
-        \text{where } & \langle \Pi_1 ; P_1 ; \varepsilon' \rangle & = pp_{\Lambda^{NR}} \ M \ \varepsilon \\
-        & \langle \Pi_2 ; P_2 ; \varepsilon'' \rangle & = pp_{\Lambda^{NR}} \ N \ \varepsilon \\
+        \text{where } & \langle \Pi_1 ; P_1 ; \mathcal{E}' \rangle & = pp_{\Lambda^{NR}} \ M \ \mathcal{E} \\
+        & \langle \Pi_2 ; P_2 ; \mathcal{E}'' \rangle & = pp_{\Lambda^{NR}} \ N \ \mathcal{E} \\
         & S_1 & = unify \ P_1 \ P_2 \to \varphi \\
         & S_2 & = unifyContexts \ (S_1 \Pi_1) \ (S_1 \Pi_2) \\
         & \varphi & \text{ is fresh} \\
@@ -89,16 +89,16 @@ The main $3$ typing rules remain unchanged.
 \end{matrix*}\]
 For defs we must modify the $buildEnv$ function to use environments:
 \[\begin{matrix*}[l]
-    BuildEnv \ (defs; name = M) \ \varepsilon & = (BuildEnv \ Defs \ \varepsilon), name: A \text{ where } \langle \emptyset ; A ; \varepsilon \rangle = pp_{\Lambda^{NR}} \ M \ \varepsilon \\
-    BuildEnv \ (defs; rec \ name = M) \ \varepsilon & = (BuildEnv \ Defs \ \varepsilon), name : S \ A \\
+    BuildEnv \ (defs; name = M) \ \mathcal{E} & = (BuildEnv \ Defs \ \mathcal{E}), name: A \text{ where } \langle \emptyset ; A ; \mathcal{E} \rangle = pp_{\Lambda^{NR}} \ M \ \mathcal{E} \\
+    BuildEnv \ (defs; rec \ name = M) \ \mathcal{E} & = (BuildEnv \ Defs \ \mathcal{E}), name : S \ A \\
     & \qquad \begin{matrix*}[l]
-        \text{where } & \langle \emptyset ; A ; \varepsilon' \langle & = pp_{\Lambda^{NR}} \ M (\varepsilon, rec \ name: \varphi) \\
+        \text{where } & \langle \emptyset ; A ; \mathcal{E}' \langle & = pp_{\Lambda^{NR}} \ M (\mathcal{E}, rec \ name: \varphi) \\
         & S &= unify \ A \ B \\
-        & rec \ name: B & \in \varepsilon' \\
+        & rec \ name: B & \in \mathcal{E}' \\
         & \varphi & \text{is fresh} \\
     \end{matrix*} \\
-    BuildEnv \ \epsilon \ \varepsilon & = \varepsilon \\
+    BuildEnv \ \epsilon \ \mathcal{E} & = \mathcal{E} \\
     pp_{\Lambda^{NR}} (Defs ; M)
 \end{matrix*}\]
 Hence we can now define $pp_{\Lambda^{NR}}$ for $Defs$:
-\[pp_{\Lambda^{NR}} \ (Defs; M) = pp_{\Lambda^{NR}} \ M \ \varepsilon \text{ where } \varepsilon = BuildEnv \ Defs \ \emptyset\]
+\[pp_{\Lambda^{NR}} \ (Defs; M) = pp_{\Lambda^{NR}} \ M \ \mathcal{E} \text{ where } \mathcal{E} = BuildEnv \ Defs \ \emptyset\]

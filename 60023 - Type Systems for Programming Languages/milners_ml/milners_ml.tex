@@ -421,39 +421,39 @@ Hence the derivation rule allows for type-schemes (the $\tau$) which means diffe
 
 \subsection{Mycroft-Style Assignment for $\Lambda^{NR}$}
 The rules for $\epsilon$, Call, Rec Call, Def and Rec Def can be replaced by the rules:
-\[\ninfer{$\epsilon$}{}{\varepsilon \vdash \epsilon : \diamond} \qquad \ninfer{Call}{}{\Gamma;\varepsilon,name:A \vdash name : S \ A} \qquad \ninfer{Defs}{\varepsilon, name : A \vdash Defs : \diamond \quad \emptyset; \varepsilon, name: A \vdash M : A}{\varepsilon, name : A \vdash Defs ; name = M : \diamond}\]
+\[\ninfer{$\epsilon$}{}{\mathcal{E} \vdash \epsilon : \diamond} \qquad \ninfer{Call}{}{\Gamma;\mathcal{E},name:A \vdash name : S \ A} \qquad \ninfer{Defs}{\mathcal{E}, name : A \vdash Defs : \diamond \quad \emptyset; \mathcal{E}, name: A \vdash M : A}{\mathcal{E}, name : A \vdash Defs ; name = M : \diamond}\]
 With the principle pair algorithm as:
 \[\begin{matrix*}[l]
-    pp_{\Lambda^{RN}} \ x \ \varepsilon & = \langle x:\varepsilon; \varepsilon \rangle \text{ where } \varepsilon \text{ is fresh} \\
+    pp_{\Lambda^{RN}} \ x \ \mathcal{E} & = \langle x:\mathcal{E}; \mathcal{E} \rangle \text{ where } \mathcal{E} \text{ is fresh} \\
     \\
-    pp_{\Lambda^{RN}} \ name \ \varepsilon & = \langle \emptyset; FreshInstance(\varepsilon \ name) \rangle \\
+    pp_{\Lambda^{RN}} \ name \ \mathcal{E} & = \langle \emptyset; FreshInstance(\mathcal{E} \ name) \rangle \\
     \\
-    pp_{\Lambda^{RN}} \ (\lambda x . M) \ \varepsilon & = \begin{cases}
+    pp_{\Lambda^{RN}} \ (\lambda x . M) \ \mathcal{E} & = \begin{cases}
         \langle \Pi'; A \to P \rangle & (\Pi = \Pi',x:A) \\
         \langle \Pi; \varphi \to P \rangle & (x \not\in \Pi) \\
     \end{cases} \\
     & \begin{matrix*}[l]
-        \qquad \text{where } & \langle \Pi ; P \rangle & = pp_{\Lambda^{RN}} \ M \ \varepsilon \\
+        \qquad \text{where } & \langle \Pi ; P \rangle & = pp_{\Lambda^{RN}} \ M \ \mathcal{E} \\
         & \varphi & \text{is fresh} \\
     \end{matrix*} \\
     \\
-    pp_{\Lambda^{RN}} \ (M \ N) \ \varepsilon & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2; \varepsilon \rangle \\
+    pp_{\Lambda^{RN}} \ (M \ N) \ \mathcal{E} & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2; \mathcal{E} \rangle \\
     & \begin{matrix*}[l]
-        \text{where } & \langle \Pi_1 ; P_1 \rangle & = pp_{\Lambda^{RN}} \ M \ \varepsilon \\
-        & \langle \Pi_2 ; P_2 \rangle & = pp_{\Lambda^{RN}} \ M \ \varepsilon \\
+        \text{where } & \langle \Pi_1 ; P_1 \rangle & = pp_{\Lambda^{RN}} \ M \ \mathcal{E} \\
+        & \langle \Pi_2 ; P_2 \rangle & = pp_{\Lambda^{RN}} \ M \ \mathcal{E} \\
         S_1 & = unify P_1 \ (P_2 \to \varphi) \\
         s_2 & = unifyContexts \ (S_1 \ \Pi_1) \ (S_1 \ \Pi_2) \\
         \varphi & \text{is fresh} \\
     \end{matrix*} \\
     \\
-    pp_{\Lambda^{RN}} \ (Defs ; M) \ \varepsilon & = \begin{cases}
-        pp_{\Lambda^{RN}} \ M \ \varepsilon & \text{if } CheckEnv \ Defs \ \varepsilon \\
+    pp_{\Lambda^{RN}} \ (Defs ; M) \ \mathcal{E} & = \begin{cases}
+        pp_{\Lambda^{RN}} \ M \ \mathcal{E} & \text{if } CheckEnv \ Defs \ \mathcal{E} \\
         \text{untypeable} & otherwise \\
     \end{cases} \\
     & \begin{matrix*}[l]
-        \qquad \text{where } & CheckEnv \ (Defs;name = M) \ \varepsilon & = (CheckEnv \ Defs \ \varepsilon) \land (\varepsilon \ name) = P \\
-        & & \qquad \text{where} \langle \emptyset, P \rangle = pp_{\Lambda^{RN}} \ M \ \varepsilon \\
-        & CheckEnv \ \epsilon \ \varepsilon & = true \\
+        \qquad \text{where } & CheckEnv \ (Defs;name = M) \ \mathcal{E} & = (CheckEnv \ Defs \ \mathcal{E}) \land (\mathcal{E} \ name) = P \\
+        & & \qquad \text{where} \langle \emptyset, P \rangle = pp_{\Lambda^{RN}} \ M \ \mathcal{E} \\
+        & CheckEnv \ \epsilon \ \mathcal{E} & = true \\
     \end{matrix*}
 \end{matrix*}\]
 
