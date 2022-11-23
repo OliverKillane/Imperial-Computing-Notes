@@ -373,6 +373,60 @@ If $A$ is an approximant of $Mz$, and $z$ is not free in $M$, then either:
 If $A$ is ordered before $M$, and $M$ $\beta$-reduces to $N$, then $A$ is also before $N$.
 \vspace{5mm}
 \[A \in \mathcal{A}(M) \land M \to^*_\beta N \Rightarrow A \in \mathcal{A}(N) \qquad A \in \mathcal{A}(N) \land M \to^*_\beta N \Rightarrow A \in \mathcal{A}(M)\]
+Beta reduction is irrelevant.
+\[M_1 \sqsubseteq M \land M_2 \sqsubseteq M \Rightarrow M_1 \sqcup M_2 \text{ is defined} \land M_1 \sqsubseteq M_1 \sqcup M_2 \land M_2 \sqsubseteq M_1 \sqcup M_2 \land M_1 \sqcup M_2 \sqsubseteq M \]
 
-\unfinished
+\[M =_\beta N \Rightarrow \mathcal{A}(M) = \mathcal{A}(N)\]
+
+
+\begin{definitionbox}{Join ($\sqcup$)}
+    Join is a partial mapping on $\Lambda \bot$ ($\sqcup : \Lambda \bot \times \Lambda \bot \to \Lambda \bot$):
+    \[\begin{split}
+        \bot \sqcup M \equiv M \sqcup \bot & \equiv M \\
+        x \sqcup x & \equiv x \\
+        (\lambda x . M) \sqcup (\lambda x . N) & \equiv \lambda x . (M \sqcup N) \\
+        (M_1 \ M_2) \sqcup (N_1 \ N_2) & \equiv (M_1 \sqcup N_1) \ (M_2 \sqcup N_2) \\
+    \end{split}\]
+    If $M \sqcup N$ is defined, then $M$ and $N$ are compatible.
+    \begin{itemize}
+        \item Compatible terms are equal, but with $\bot$ in some locations.
+        \item It is undefined for terms with different structures, e.g ($x$ and $\lambda x . x$)
+    \end{itemize}
+\end{definitionbox}
+
+\section{Explicit Lambda Calculus}
+\begin{itemize}
+    \item Substitution in $\lambda$-calculus is atomic. $M[N/x]$ replaces all $x$ in $M$ in a single step.
+    \item Substitution is not cost-free in some execution models, hence we may want to make substitution explicit so it can be tracked as part of $\beta$-reduction.
+\end{itemize}
+Explicit $\lambda$-calculus ($\lambda \mathbf{x}$) is defined as:
+\[M,N ::= x \ | \ \lambda x . M \ | \ M \ N \ | \ M \langle x := N \rangle \]
+For $M \langle x := N \rangle$ occurrences of $x$ in $M$ are bound, and by barendregt's convention $x$ cannot occur (free or bound) in $N$.
+\[\begin{split}
+    (\lambda x . M) \ N & \to M \langle x := N \rangle \\
+    (M \ N) \langle x := L \rangle & \to (M \langle x := L \rangle)(N \langle x := L \rangle) \\
+    (\lambda y . M)\langle x := L \rangle & \to \lambda y . (M\langle x := L \rangle) \\
+    x \langle x := L \rangle & \to L \\
+    M \langle x := L \rangle & \to M \text{ given } (x \not\in fv(M)) \\
+\end{split} \qquad M \to N \Rightarrow \begin{cases}
+    \lambda x.M & \to \lambda x.N \\
+    M \ L & \to N \ L \\
+    L \ M & \to L \ N \\
+    M \langle x := L \rangle &\to N \langle x := L \rangle \\
+    L \langle x := M \rangle & \to L\langle x := N \rangle \\
+\end{cases}\]
+If $\to_\beta$ is not applied the $\to_{:=}$ is used. The combination of both reductions for this system is $\to_x$.
+\\\begin{minipage}[t]{.49\textwidth}
+    \[M \to_\beta N \Rightarrow M \to_x^* N\]
+    \begin{center}
+        Can reduce anything $\beta$-reduction can
+    \end{center}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.49\textwidth}
+    \[M \in \Lambda \land M \to_x^* N \Rightarrow \exists L \in \Lambda . [N \to_{:=}^* L \land M \to_\beta^* L]\]
+    \begin{center}
+        $\beta$-reduction is equivalent to doing all explicit substitutions, then $\beta$ reducing
+    \end{center}
+\end{minipage}
 
