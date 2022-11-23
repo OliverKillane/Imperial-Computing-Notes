@@ -1,0 +1,61 @@
+\chapter{Extensions to Type Systems}
+
+\section{Data Structures}
+\begin{tabular}{l l l}
+    Tuples & Structs/Data Classes/Records & Combine data, equivalent to product. \\
+    Choice & Enums/Variants/Tagged Unions & Choose between variants of data. \\
+\end{tabular}
+\subsection{Pairing}
+We extend the grammar of types to:
+\[A, B ::= \dots \ | \ A \times B | A + B\]
+We can then extend the $\lambda$-calculus to:
+\[E ::= \dots \ | \ \langle E_1 E_2 \rangle \ | \ left (E) \ | \ right(E) \]
+And can add the following rules to the curry's type assignment system:
+\[\ninfer{$Pair$}{\Gamma \vdash E_1 : A \quad \Gamma \vdash E_2 : B}{\Gamma \vdash \langle E-1, E_2 \rangle : A \times B}
+\qquad \ninfer{$left$}{\Gamma \vdash E : A \times B}{\Gamma \vdash left (E) : A}
+\qquad \ninfer{$right$}{\Gamma \vdash E : A \times B}{\Gamma \vdash right (E) : B}\]
+The reduction rules for $left$ and $right$ are as follows:
+\[\begin{split}
+    left \ \langle E_1, E_2 \rangle & \to E_1 \\
+    right \ \langle E_1, E_2 \rangle & \to E_2 \\
+\end{split} \qquad
+E \to E' \Rightarrow \begin{cases}
+    \langle E', E_2 \rangle & \to \langle E', E_2 \rangle \\
+    \langle E_1, E \rangle & \to \langle E_1, E' \rangle \\
+    left (E) & \to left (E') \\
+    right (E) & \to right (E') \\
+\end{cases}\]
+Here $left$ and $right$ are constructors (in the same spirit as seem with pattern matching), we could add a rule to reconstruct tuples as below, but this would remove confluence (this is the surjective pairing mentioned in pattern matching).
+\[\langle left(E), right(E) \rangle \to E\]
+
+\subsection{Disjoint Unions}
+We can then extend the $\lambda$-calculus to:
+\[E ::= \dots \ | \ case(E_1, E_2, E_3) \ | \ inj \cdot l (E) \ | \ inj \cdot r (E)\]
+Here the unions can only be of two types, and $case$(expression, if A, if B) is a match/case of statement. $inj$ is used to construct the left or right type.
+And can add the following rules to the curry's type assignment system:
+\[\ninfer{$case$}{\Gamma \vdash E_1 : A + B \quad \Gamma \vdash E_2 : A \to C \quad \Gamma \vdash E_2 : B \to C}{\Gamma \vdash case(E_1, E_2, E_3) : C}\]
+\[\ninfer{$inj \cdot l$}{\Gamma \vdash E : A}{\Gamma \vdash inj \cdot l (E) : A + B} \qquad
+\ninfer{$inj \cdot r$}{\Gamma \vdash E : B}{\Gamma \vdash inj \cdot r (E) : A + B} \]
+The reduction rules for the new constructors are as follows:
+\[\begin{split}
+    case(inj \cdot l (E_1), E_2, E_3) &\to E_2 \ E_1 \\
+    case(inj \cdot r (E_1), E_2, E_3) &\to E_3 \ E_1 \\
+\end{split} \qquad E \to E' \Rightarrow \begin{cases}
+    case(E,E_2,E_3) & \to case(E',E_2,E_3) \\
+    case(E_1,E,E_33) & \to case(E_1,E',E_33) \\
+    case(E_1,E_2,E) & \to case(E_1,E_2,E') \\
+    inj \cdot l (E) & \to inj \cdot l (E') \\
+    inj \cdot r (E) & \to inj \cdot r (E') \\
+\end{cases}\]
+
+\section{Recursive Types}
+Recursive types are required for many types of data structure (single linked lists, trees, other structures with unbounded size).
+\begin{definitionbox}{Unit Type}
+    A unit type is an empty type containing no data.
+    \begin{itemize}
+        \item Considered an empty tuple
+        \item Supported by many languages (e.g Rust, Haskell)
+    \end{itemize}
+\end{definitionbox}
+
+\unfinished
