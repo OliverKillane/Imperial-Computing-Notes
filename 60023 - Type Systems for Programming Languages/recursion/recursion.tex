@@ -31,15 +31,15 @@ We cannot directly translate $\Lambda^{NR}$ to lambda calculus as with $\Lambda^
 \\ $\mathsf{Y}$ is not typeable under the $\vdash_c$ scheme discussed in these notes, so we must add an extension:
 \\ \begin{minipage}[b]{.33\textwidth}
     \[M, N ::= \dots \ | \ \mathsf{Y}\]
-    Add $Y$ as a special term in the syntax.
+    \centerline{Add $Y$ as a special term in the syntax.}
 \end{minipage}
 \begin{minipage}[b]{.33\textwidth}
     \[\mathsf{Y} \ M \to M (\mathsf{Y} \ M)\]
-    Add the reduction rule for $\mathsf{Y}$.
+    \centerline{Add the reduction rule for $\mathsf{Y}$.}
 \end{minipage}
 \begin{minipage}[b]{.33\textwidth}
     \[\infer{}{\Gamma \vdash \mathsf{Y} : (A \to A) \to A}\]
-    Add a type assignment rule.
+    \centerline{Add a type assignment rule.}
 \end{minipage}
 
 \section{Type Assignment for $\Lambda^{NR}$}
