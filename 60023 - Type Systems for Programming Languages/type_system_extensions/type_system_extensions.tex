@@ -58,4 +58,145 @@ Recursive types are required for many types of data structure (single linked lis
     \end{itemize}
 \end{definitionbox}
 
-\unfinished
+To properly express recursive types, many programming languages include a unit type (to be used as the base case for some recursive types).
+\[\ninfer{unit}{}{\Gamma \vdash () : \text{unit}}\]
+\begin{minipage}{.5\textwidth}
+    We can extend the grammar of types to:
+    \[A, B = \dots \ | \ X \ | \ \mu X . A\]
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+    $=_\mu$ is the smallest equivalence relation containing:
+    \[\mu X.A =_\mu A[\mu X.A/X]\]
+\end{minipage}
+
+\begin{examplebox}{lists}
+    Define a singly linked list using the recursive types scheme described in this section.
+    \tcblower
+    \[[B] \triangleq \mu X. unit + (B \times X)\]
+    We can show this using $=_\mu$ as:
+    \[\begin{matrix*}[l]
+        [B] &\triangleq& \mu X . unit + (B \times X) \\
+        &=_\mu& (unit + (B \times X))[\mu X . unit + (B \times X)/X] \\
+        &=& (unit + (B \times \mu X . unit + (B \times X))) \\
+        &=& (unit + (B \times [B])) \\
+    \end{matrix*}\]
+\end{examplebox}
+
+\subsection{Equi-recursive Approach}
+\[\ninfers{$\mu$}{\Gamma \vdash E : A}{\Gamma \vdash E : B}{A =_\mu B}\]
+Hence we can now type the list as:
+\[\ainfer{$\mu$}{
+    \ainfer{$inj \cdot l$}{
+        \ainfer{unit}{}{
+            \Gamma \vdash () : \text{unit}
+        }
+    }{
+        \Gamma \vdash inj \cdot l () : \text{unit} + (B \times [B])
+    }
+}{
+    \Gamma \vdash inj \cdot l () : [B]
+}\]
+
+\[\ainfer{$\mu$}{
+    \ainfer{$inj \cdot r$}{
+        \ainfer{Pair}{
+            \infer{\dots}{\Gamma \vdash E_1 : B} \quad \infer{\dots}{\Gamma \vdash E_2 : [B]}
+        }{
+            \Gamma \vdash \langle E_1, E_2 \rangle : B \times [B]
+        }
+    }{
+        \Gamma \vdash inj \cdot r \langle E_1 , E_2 \rangle : \text{unit} + (B \times [B])
+    }
+}{
+    \Gamma \vdash inj \cdot r \langle E_1, E_2 \rangle : [B]
+}\]
+\begin{prosbox}
+    This approach requires no explicit type annotations or declarations (full type inference is preserved)
+\end{prosbox}
+\begin{consbox}
+    Meaningless program have types, for example self application can be typed.
+    \[\lambda x . x \ x : \mu X.X \to \varphi\]
+\end{consbox}
+
+\subsection{Iso-recursive Approach}
+Here syntactic markers for fold and unfold are added, recursive types are folded and unfolded on demand.
+\begin{prosbox}
+    Disallows typing of self-application, as is the case with \textit{equi-recursive types}.
+\end{prosbox}
+
+The syntax is extended with:
+\[E ::= \dots \ | \ fold(E) \ | \ unfold(E) \]
+The following reduction rule is added:
+\[unfold(fold(E)) \to E \quad E \to E' \Rightarrow \begin{cases}
+    unfold(E) &\to unfold(E') \\
+    fold(E) &\to fold(E') \\
+\end{cases}\]
+We then must add the type assignment rules:
+\[\ninfer{fold}{
+    \Gamma \vdash E : A[\mu X . A / X]
+}{
+    \Gamma \vdash fold(E) : \mu X.A
+} \qquad \ninfer{unfold}{
+    \Gamma \vdash E : \mu X . A
+}{
+    \Gamma \vdash unfold(E) : A[\mu X.A / X]
+}\]
+\[\ainfer{fold}{
+    \ainfer{$inj \cdot l$}{
+        \ainfer{unit}{}{
+            \Gamma \vdash () : \text{unit}
+        }
+    }{
+        \Gamma \vdash inj \cdot l () : \text{unit} + (B \times [B])
+    }
+}{
+    \Gamma \vdash fold(inj \cdot l ()) : [B]
+}\]
+
+\[\ainfer{fold}{
+    \ainfer{$inj \cdot r$}{
+        \ainfer{Pair}{
+            \infer{\dots}{\Gamma \vdash E_1 : B} \quad \infer{\dots}{\Gamma \vdash E_2 : [B]}
+        }{
+            \Gamma \vdash \langle E_1, E_2 \rangle : B \times [B]
+        }
+    }{\Gamma \vdash inj \cdot r \langle E_1 , E_2 \rangle : \text{unit} + (B \times [B])}
+}{
+    \Gamma \vdash fold(inj \cdot r \langle E_1, E_2 \rangle) : [B]
+}\]
+
+
+\section{Recursive Data Types}
+Rather than specifically use $\mu . X . A$ for fold/unfold, we can instead generalise to fold/unfold any type. This allows us to build recursive data types.
+\[\ninfer{$fold_{\mu X . A}$}{
+    \Gamma \vdash E : A[\mu X . A / X]}{\Gamma \vdash fold_{\mu X . A}(E) : \mu X . A
+} \qquad \ninfer{$unfold_{\mu X . A}$}{
+    \Gamma \vdash E : \mu X . A
+}{
+    \Gamma \vdash unfold_{\mu X . A} (E) : A[\mu X . A / X]
+}\]
+
+We can hence create some identifier for a recursive type, and then use the relevant fold and unfolds for it.
+\[A = \text{unit} + (B \times A) \qquad \text{with identifier } [A]\]
+
+More generally a recursive data type is defined as $C \overset{\rightharpoonup}{\varphi} = A_C[\overset{\rightharpoonup}{\varphi}]$.
+\\
+\\ The syntax can be extended by:
+\[E ::= \dots \ | \ fold_C(E) \ | \ unfold_C(E)\]
+We also add the reduction rules as:
+\[unfold_C(fold_C(E)) \to E \qquad E \to E' \Rightarrow \begin{cases}
+    unfold_C(E) & \to unfold_C(E') \\
+    fold_C(E) & \to fold_C(E') \\
+\end{cases}\]
+With type assignbment rules:
+\[\ninfer{$fold_C$}{
+    \Gamma \vdash E : A_C[\overset{\rightharpoonup}{B}]
+}{
+    \Gamma \vdash fold_C(E) : C \overset{\rightharpoonup}{B}
+} \qquad \ninfer{$unfold_C$}{
+    \Gamma \vdash E : C \overset{\rightharpoonup}{B}
+}{
+    \Gamma \vdash unfold_C(E) : A_C[\overset{\rightharpoonup}{B}]
+}\]
+for every type definition $C \overset{\rightharpoonup}{\varphi} = A_C[\overset{\rightharpoonup}{\varphi}]$.
+
