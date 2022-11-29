@@ -130,4 +130,81 @@ In order to ensure the subject reduction property, we must only accept rules $l 
     \item $\langle \mathcal{F}, \mathcal{X}, \mathbf{R} \rangle$ is typeable with respect to $\mathcal{E}$ if all $r \in R$ are typeable with respect to $\mathcal{E}$
 \end{itemize}
 
-\unfinished
+\subsubsection{Replacement Lemma}
+Given $\langle \mathcal{F}, \mathcal{X}, \mathbf{R} \rangle$ is a TRS, with environment $\mathcal{E}$. $R$ is a replacement.
+
+\[pp \ t \ \mathcal{E} = \langle \Pi ; P \rangle \land \Gamma; \mathcal{E} \vdash t^R : A \Rightarrow \exists S . \ [S \ P = A \land \forall x:C \in \Pi . \ [\Gamma, \mathcal{E} \vdash x^R : S \ C]]\]
+\centerline{Given the principle type of $t$, any reduction is this type \& context substituted.}
+\\
+\[\Gamma ; \mathcal{E} \vdash t : A \land \forall x:C \in \Gamma . \ [\Gamma';\mathcal{E} \vdash x^R : C] \Rightarrow \Gamma;\mathcal{E} \vdash t^R : A\]
+\centerline{If $t : A$ and all variables when typed by $\Gamma'$ and replaced by $R$ go to $C$, then $t^R : A$}
+
+\subsubsection{Subject Reduction Theorem}
+Given $\langle \mathcal{F}, \mathcal{X}, \mathbf{R} \rangle$ is a TRS, with environment $\mathcal{E}$.
+\[\text{All rules in $\mathbf{R}$ are typeable} \Rightarrow (\Gamma; \mathcal{E} \vdash t : A \land t \to t' \Rightarrow \Gamma;\mathcal{E} \vdash t' : A)\]
+\centerline{Reduction does not change the type.}
+
+\section{Combinatory Logic}
+Combinatory logic is an alternative approach to the $\lambda$-calculus to express computability.
+\begin{itemize}
+    \item Developed around the same time as $\lambda$-calculus was developed by Church.
+    \item A type of applicative TRS.
+    \item Formal parameters of function symbols cannot have structure.
+    \item The right hand side of term rewriting rules can only contain term-variables.
+\end{itemize}
+\subsection{Syntax}
+\begin{minipage}[t]{.6\textwidth}
+    Only permitted rules are:
+    \[\begin{matrix*}[l]
+        K \ x \ y &\to x  & \text{ (removal of information)}\\
+        S \ x \ y \ z &\to x \ z (y \ z) & \text{ (distribution of information)}\\
+    \end{matrix*}\]
+\end{minipage}
+\begin{minipage}[t]{.4\textwidth}
+    Terms are defined as:
+    \[t ::= K \ | \ S \ | \ t_1 \ t_2 \]
+\end{minipage}
+\vspace{2mm}
+\\ We can also add implicit rule $I = SKK$ as $SKKx \to Kx(kx) \to x$
+
+\subsection{Extending CL}
+We can add a bracket abstraction to CL to extend it.
+By adding the rules on the left, we ca make the optimisations on the right:
+\[\begin{matrix*}[l]
+    I & x &   &   & \to x \\
+    K & x & y &   & \to x \\
+    S & x & y & z & \to xz(yz) \\
+    B & x & y & z & \to x(yz) \\
+    C & x & y & z & \to x z y \\
+    W & x & y &   & \to x y y \\
+\end{matrix*} \qquad \begin{matrix}
+    S & (K x) & (K y) & \to K(xy) \\
+    S & (K x) & I     & \to x \\
+    S & (K x) & y     & \to B x y \\
+    S & x     & (K y) & C x y \\
+\end{matrix}\]
+Adding these rules means that the structure of combinators is made precise (e.g $S (K x) \ (K y) \to K (x y)$ requires terms of structure $k \ t$ as arguments). This effectively adds pattern matching in, as we can now specify precise structures for rules to match.
+
+\subsection{Type Assignment for CL}
+Type assignment is done with a basic inference system:
+\\ \begin{minipage}[b]{.5\textwidth}
+    \[\ninfer{$S$}{}{\Gamma \vdash S: (A \to B \to C) \to (A \to B) \to A \to C}\]
+    \centerline{The $S$ abstraction's type is \textit{built in}}
+\end{minipage}
+\begin{minipage}[b]{.5\textwidth}
+    \[\ninfer{$K$}{}{\Gamma \vdash K : A \to B \to A}\]
+    \centerline{The $K$ abstraction's type is \textit{built in}}
+\end{minipage}
+\\
+\begin{minipage}[b]{.33\textwidth}
+    \[\ninfer{$I$}{}{\Gamma \vdash I : A \to A}\]
+    \centerline{$I$ is implied by $SKK$}
+\end{minipage}
+\begin{minipage}[b]{.33\textwidth}
+    \[\ninfer{$Ax$}{}{\Gamma, x:A \vdash x : A}\]
+    \centerline{Typing variables}
+\end{minipage}
+\begin{minipage}[b]{.33\textwidth}
+    \[\ninfer{$\to E$}{\Gamma \vdash t_1 : A \to B \quad \Gamma \vdash t_2 : A}{\Gamma \vdash t_1 \ t_2 : B}\]
+    \centerline{Application elimination}
+\end{minipage}
