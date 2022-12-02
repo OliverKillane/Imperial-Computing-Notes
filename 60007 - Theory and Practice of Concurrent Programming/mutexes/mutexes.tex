@@ -1,0 +1,291 @@
+\chapter{Mutexes}
+
+\section{Spinlocks}
+\subsection{Test-and-Set Spinlock}
+\begin{definitionbox}{Test-and-Set Spinlock}
+    A single bit is used to determine if the lock is acquired or not.
+    \begin{itemize}
+        \item Threads can use an atomic test-and-set operation to attempt to acquire the lock.
+        \item Avoids making system calls (expensive)
+        \item Wastes CPU time while spinning - hence useful only when the expected wait / critical section is short.
+        \item Poor worst case behaviour.
+    \end{itemize}
+    Hybrid locks that spin before using an OS provided lock mechanism exist to overcome the worst-case behaviour.
+\end{definitionbox}
+
+A simple spinlock can be implemented in C++ as:
+\begin{minted}{Cpp}
+#include <atomic>
+
+class SpinLock {
+  public:
+    SpinLock() : _lock_bit(false) {}
+
+    void Lock() {
+      while (_lock_bit.exchange(true));
+    }
+
+    void Unlock() {
+      _lock_bit.store(false)
+    }
+  
+  private:
+    std::atomic<bool> _lock_bit;
+}
+\end{minted}
+This simple lock has an issue with \textit{cache thrashing}. 
+\begin{itemize}
+  \item Each core on a multicore CPU has its own caches (L2 (\textit{often}), L1 cache)
+  \item A \textit{cache coherency protocol} is used to ensure different cache lines in different caches on different cores are coherent / if valid contain the correct value (not an outdated one)
+  \item Typically when a location is written to in some cache, invalidation messages are sent to the other caches.
+\end{itemize}
+As in every attempt to acquire the lock, the test and set instruction writes to the lock 
+
+\subsection{Local Spinning}
+To reduce the frequency of invalidations a ticket based spinlock can be used.
+\begin{itemize}
+  \item First check if the lock is held (read - does not invalidate)
+  \item Then if the lock is not held, attempt to access with an RMW operation (exchange) which writes \& invalidates.
+\end{itemize}
+\begin{minted}{Cpp}
+class SpinLockLocalSpinning : public SpinLock {
+  public:
+    SpinLock() : _lock_bit(false) {}
+
+    void Lock() {
+      while (_lock_bit.exchange(true)) { // <- threads can still have a 'TAS fight' here
+        // could not get the lock, so keep reading until it is free
+        while (_lock_bit.load());
+        // the lock is now free, so we attempt to acquire it again
+      }
+    }
+}
+\end{minted}
+Bus traffic is still an issue - we want to reduce the rate of accesses. This will also help to reduce the contention.
+
+\subsection{Fixed Backoff}
+\begin{definitionbox}{Active Backoff}
+  On each iteration of local spinning, do nothing / wait for some fixed time period. This waiting is \textit{active} (e.g spin in a loop).
+\end{definitionbox}
+We can implement active backoff by adding a fixed, redundant \mintinline{Cpp}{for} loop.
+\begin{minted}{Cpp}
+class SpinLockLocalActiveBackoff : public SpinLock {
+  public:
+    void Lock() {
+      while (_lock_bit.exchange(true)) { // <- threads can still have a 'TAS fight' here
+        // could not get the lock, so keep reading until it is free
+        do {
+          // volatile prevents the loop from being eliminated
+          // spin for N iterations, we could also use library provided busy-wait functions
+          for (volatile size_t i = 0; i < N; i++);
+        } while (_lock_bit.load());
+        // the lock is now free, so we attempt to acquire it again
+      }
+    }
+}
+\end{minted}
+
+\begin{definitionbox}{Passive Backoff}
+  On each iteration of local spinning, do nothing / wait for some fixed time period using a processor instruction that informs the CPU to wait/do nothing.
+  \begin{itemize}
+    \item \mintinline{asm}{pause} on x86, accessed through the \mintinline{Cpp}{_mm_pause()} \href{https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#techs=SSE2}{SSE2 intrinsic}
+    \item \mintinline{asm}{YIELD} on ARM
+  \end{itemize}
+  These instructions inform the CPU to do nothing for some period of time.
+  \begin{itemize}
+    \item Less energy consumption than actively spinning.
+    \item Does not induce an OS context switch, simply a \textit{do nothing} instruction.
+  \end{itemize}
+\end{definitionbox}
+\begin{minted}{Cpp}
+#include <emmintrin.h>
+
+class SpinLockLocalPassiveBackoff : public SpinLock {
+  public:
+    void Lock() {
+      while (_lock_bit.exchange(true)) { 
+        // could not get the lock, so keep reading until it is free
+        do {
+          // pause N times
+          for (size_t i = 0; i < N; i++) {
+            _mm_pause()
+          }
+        } while (_lock_bit.load());
+        // the lock is now free, so we attempt to acquire it again
+      }
+    }
+}
+\end{minted}
+
+Both active and passive backoff use a fixed backoff period.
+\begin{itemize}
+  \item For a short backoff while little time is \textit{wasted} (lock free but threads are backed-off), threads are more likely to TAS at similar times (more potential for contention on the lock acquire)
+  \item For a long backoff the timings of TAS diverge for different threads, however more time can be spent backed-off when the lock is acquirable.
+\end{itemize}
+
+\subsection{Exponential Backoff}
+\begin{definitionbox}{Exponential Backoff}
+  We can increase the backoff time exponentially for every iteration of local spinning.
+  \begin{itemize}
+    \item Start from a small value
+    \item Double at each local spin iteration, until some maximum value is hit.
+  \end{itemize}
+\end{definitionbox}
+\begin{minted}{Cpp}
+// So we can specify backoffs: SpinLockLocalExponentialBackoff<4,4096>()
+#template<
+  size_t MIN_BACKOFFS = 2,
+  size_t MAX_BACKOFFS = 2048
+>
+class SpinLockLocalExponentialBackoff : public SpinLock {
+  public:
+    void Lock() {
+      size_t backoffs = MIN_BACKOFFS;
+      while (_lock_bit.exchange(true)) { 
+        // could not get the lock, so keep reading until it is free
+        do {
+          for (size_t i = 0; i < backoffs; i++) {
+            _mm_pause()
+          }
+          // double the backoffs up to a limit
+          backoffs = std::min(backoffs * 2, MAX_BACKOFFS)
+        } while (_lock_bit.load());
+      }
+    }
+}
+\end{minted}
+\begin{itemize}
+  \item Much like with fixed backoffs, there may be \textit{wasted} time between the lock being released and a thread acquiring it (thread is backed-off/doing nothing)
+  \item Higher contention means more failed acquisitions and longer backoff periods
+\end{itemize}
+
+\section{Ticket Locks}
+\subsubsection{Unfairness}
+There is a tension between fairness and performance for spinlocks:
+\begin{itemize}
+  \item Some thread may be unable to acquire a lock continually, while others may be able to reacquire frequently
+  \item Threads reacquiring is good for temporal locality of cache (i.e a thread traversing a data structure will get better cache performance if it does not wait often - waiting allows opportunities for other threads to evict cached parts of the data structure)
+  \item The lack of a fairness guarantee means thread starvation can occur, this can result in longer waits (e.g thread A is waiting on data from thread B, but thread B is being starved of a lock it needs by thread C to M)
+\end{itemize}
+A ticket lock a lock implementation that provides fairness guarantees.
+
+\begin{definitionbox}{Ticket Lock}
+  A spinlock that uses an integer \textit{ticket} to determine which of some waiting threads can run.
+  \begin{itemize}
+    \item To acquire, threads request a ticket, then spin until the lock matches their ticket.
+    \item To release a thread sets the lock to serve the next ticket
+  \end{itemize}
+\end{definitionbox}
+
+\begin{minted}{Cpp}
+#include <atomic>
+
+class TicketLock {
+  public:
+    SpinLock() : _next_ticket_(0), _serving_ticket_(0) {}
+
+    void Lock() {
+      const auto ticket = _next_ticket_.fetch_add(1);
+      while (_serving_ticket_.load() != ticket) {
+        _mm_pause();
+      }
+    }
+
+    void Unlock() {
+      _serving_ticket_.store(_serving_ticket_.load() + 1);
+    }
+  
+  private:
+    std::atomic<size_t> _next_ticket_;
+    std::atomic<size_t> _serving_ticket_;
+}
+\end{minted}
+
+\section{Futexes}
+\begin{minipage}{.49\textwidth}
+  \subsubsection{Spinlock}
+  \begin{itemize}
+    \item Thready busy-waits until the lock is free.
+    \item Uses atomic RMW operations
+    \item No system calls required, operates entirely in user-space
+  \end{itemize}
+  \textit{Staying awake is expensive.}
+  \begin{prosbox}
+    Useful when contention is low and critical sections are short
+  \end{prosbox}
+  \begin{consbox}
+    High contention results in lots of wasteful \textit{spinning} rather than useful work
+  \end{consbox}
+\end{minipage}
+\hfill
+\begin{minipage}{.49\textwidth}
+  \subsubsection{Sleeping Lock}
+  \begin{itemize}
+    \item Use of a system call to ask the OS to block the thread until the lock is available.
+    \item While the thread is blocked, other threads can be run.
+  \end{itemize}
+  \textit{Going to sleep is expensive.}
+  \begin{prosbox}
+    Useful for long critical sections.
+  \end{prosbox}
+  \begin{consbox}
+    Overhead of system call is problematic when critical section is short - lock will be free imminently.
+  \end{consbox}
+\end{minipage}
+\begin{sidenotebox}{Confusing Terminology}
+  note that \href{https://man7.org/linux/man-pages/man2/futex.2.html}{\mintinline{C}{futex}} is a name for a linux system call.
+  \begin{itemize}
+    \item Exposes kernel functionality (so is not userspace).
+    \item Works on userspace data, hence can be used to implement synchronisation primitives (not just mutexes) that operate mostly in userspace.
+  \end{itemize}
+\end{sidenotebox}
+
+\begin{definitionbox}{Fast Userspace Mutex (Futex)}
+  
+\end{definitionbox}
+
+\subsection{Futex Operations}
+\begin{minted}{C}
+/* Wait on a futex
+ * if *p != v -> Returns immediately
+ * else       -> Adds the calling thread to the wait queue associated with p.
+ */
+void futex_wait(int *p, int v);
+\end{minted}
+\begin{itemize}
+  \item The threads can be from different processes
+\end{itemize}
+
+
+\begin{minted}{C}
+/* Wake up a wake_count threads in the thread queue associated with p */
+void futex_wake(int *p, int wake_count);
+\end{minted}
+\begin{itemize}
+  \item Typically \mintinline{C}{wake_count} is $1$ (wake next/one) or $INT_MAX$ (wake all)
+\end{itemize}
+
+Here \mintinline{C}{int *p} can be a pointer to any \textit{int-sized} data.
+
+\subsection{Futex Implementation}
+\begin{minted}{Cpp}
+class MutexSimple {
+  public:
+    MutexSimple() : state_(kFree) {}
+
+    void Lock() {
+      while (state.exchange(kLocked) == kLocked) {
+        syscall( SYS_futex, &state_, FUTEX_WAIT, kLocked, ...);
+      }
+    }
+
+    void Unlock() {
+      state_.store(kFree);
+      syscall(SYS_futex, &state_, FUTEX_WAKE, 1, ...);
+    }
+  private:
+    const int kFree = 0;
+    const int kLocked = 1;
+    std::atomic<int> state_;
+};
+\end{minted}

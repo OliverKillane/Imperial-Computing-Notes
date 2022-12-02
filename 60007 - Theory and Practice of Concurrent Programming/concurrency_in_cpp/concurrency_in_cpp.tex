@@ -499,6 +499,13 @@ fn main() {
       \item e.g one thread stores the same value, another thread reads. 
     \end{itemize}
     Always a bug, considered an unintentional race condition.
+    \\
+    \\ Synchronisation is achieved via:
+    \begin{itemize}
+      \item Mutexes
+      \item Acquire load from release store
+      \item sequentially consistent load from sequentially consistent store
+    \end{itemize}
 \end{definitionbox}
 \begin{definitionbox}{Undefined Behaviour}
   \begin{quote}
@@ -1000,22 +1007,22 @@ use_data(data);
 One approach could be to use relaxed memory ordering.
 \begin{itemize}
   \item Allows for other values (e.g the data being protected by a spinlock) to be re-ordered around the atomic.
-  \item This removes the protection the spinloc is intended to provide.
+  \item This removes the protection the spinlock is intended to provide.
 \end{itemize}
-
+\noindent
 \begin{minipage}{.49\textwidth}
     \begin{minted}[bgcolor=threadYellow]{Cpp}
 // These can be reordered
 use_data(data);
 
-flag.store(true);
+flag.store(true, std::memory_order_relaxed);
   
     \end{minted}
   \end{minipage}
   \hfill
   \begin{minipage}{.49\textwidth}
     \begin{minted}[bgcolor=threadBlue]{Cpp}
-while (!flag.load()) {
+while (!flag.load(std::memory_order_relaxed)) {
 // do nothing - a pure spinlock
 }
 
@@ -1044,4 +1051,8 @@ while (!flag.load(std::memory_order_acquire)) {
   use_data(data);
   \end{minted}
 \end{minipage}
-\unfinished
+The load is hence synchronised with the store, and reordering is prevented.
+\begin{itemize}
+  \item Ensures correctness
+  \item Potentially uses fewer memory barriers than SC (depends on the architecture)
+\end{itemize}
