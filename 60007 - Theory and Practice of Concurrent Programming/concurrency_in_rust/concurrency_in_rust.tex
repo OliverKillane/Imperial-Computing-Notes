@@ -1,0 +1,226 @@
+\chapter{Concurrency in Rust}
+
+Rust is similar to C++ in many ways:
+\begin{itemize}
+    \item Designed for high performance (similar performance to C++)
+    \item Extensive support for systems programming (e.g drivers, operating systems) achieved with \mintinline{Rust}{unsafe}
+    \item Minimal runtime (i.e no garbage collection)
+    \item Zero cost abstractions
+\end{itemize}
+However it has some fundamental differences
+\begin{itemize}
+    \item Programs \& Libraries packages as crates (rather than includes \& headers) managed by a first-party build system (cargo)
+    \item A \textit{proper} type system supporting algebraic data types, traits (see C++ concepts), which also includes mutability (of values and references)
+    \item Type system manages ownership and borrowing, as well as the lifetime of an objects \& references (a similar concept to moves, unique pointers and RAII in C++, but strengthened and a first-class part of the language). This ensures that well-typed safe rust code cannot contain data races.
+    \item Powerful type inference (C++ auto on steroids) enabled by the improved type system
+    \item Pattern matching (very similar to \& directly inspired by haskell's \mintinline{haskell}{data})
+    \item No undefined behaviour is possible in safe rust code (with the exception of bugs in the compiler, and \href{https://doc.rust-lang.org/reference/behavior-considered-undefined.html}{\mintinline{Rust}{unsafe} code})
+    \item Sanitary \& powerful macro system (powerful enough to support entire languages as a DSL)
+\end{itemize}
+
+\begin{sidenotebox}{What's all the hype}
+    Rust has gained a significant following despite being a relatively new language (Rust 1.0 release on May 1th, 2015).
+    \begin{itemize}
+        \item It is being introduced into the Linux kernel as a second language to C.
+        \item As of 2022 it has been the most loved language in the stack-overflow survey for 6 years in a row, and the 5th most wanted language
+        \item It has been embraced by major tech companies (e.g Rust has been used in parts of android since 2019, has become a particular favourite of microsoft and has been introduced to windows \& azure)
+    \end{itemize}
+    This is despite the steep leaning curve, new compiler (lacks the decades of experience with gcc, clang) and lack of teaching (few computer science degrees teach rust).
+    \\
+    \\ This popularity is mainly a result of deliberate language \& compiler design choices to position rust as a better alternative to C++  by systematically removing the most frustrating parts of C++ (undefined behaviour, complex build systems, legacy features, unsanitary macros, memory bugs, poor error message quality in template-heavy code) and to incorporate well-tested \& popular concepts from other, more established languages (smart pointers from C++, algebraic data types and pattern matching from functional languages (in particular Haskell), generic traits with associated types (haskell type classes), etc).
+\end{sidenotebox}
+
+\section{learning Rust}
+These notes only cover critical concepts for a basic understanding of what concurrency looks like in Rust.
+\\
+\\ If you are looking for a more in depth understanding, the following resources are recommended:
+\begin{itemize}
+    \item \href{https://doc.rust-lang.org/book/}{\textbf{Rust Book}}
+    \item \href{https://doc.rust-lang.org/reference/}{\textbf{Rust Reference}}
+    \item \href{https://github.com/rust-lang/rustlings}{\textbf{Rustlings Problems}}
+    \item \href{https://doc.rust-lang.org/std/}{\textbf{Standard Library Documentation}}
+    \item \href{https://doc.rust-lang.org/nomicon/}{\textbf{The Rustonomicon}}
+\end{itemize}
+
+\section{Ownership in Rust}
+In rust ownership rules are enforced by the type system:
+\begin{itemize}
+    \item Each value in Rust has an owner.
+    \item There can only be one owner at a time.
+    \item When the owner goes out of scope, the value will be dropped.
+    \item You can have many immutable references (readers) to a value, or one mutable reference (writer).
+\end{itemize}
+\begin{minted}{Rust}
+fn my_function() {
+    // a owns the string object
+    let a = String::from("This is my string");
+    // c owns the string object
+    let c = String::from("Keep me!");
+    { // start of a new scope
+        // a transfers ownership to b
+        let b = a;
+        // a is no longer valid - it owns no data
+        // b's scope ends here, so the string is now dropped
+    }
+    // end of the function scope, c is dropped
+}
+\end{minted}
+
+The transfer of ownership occurs when we assign a value, or use it in a function call. For example:
+\begin{minted}{Rust}
+fn show(a: String) {
+    // a now owns the string
+    // a gives a reference of the string to println to allow it to print
+    println!("The string is: {}", a)
+    // a goes out of scope, and the string is dropped
+}
+
+fn print_my_string() {
+    let my_string = String::from("This is my string");
+    show(a);
+    // we cannot use a anymore - the value it owned has been given to show
+    // no drop occurs here, as no data is owned by a
+
+}
+\end{minted}
+
+We want to be able to pass values to functions \& data structures, without the value being consumed / ownership taken. To do this we use immutable and mutable references.
+\begin{minted}{Rust}
+fn bar(a: &i32) -> &str {
+    match a {
+        0 => "none",
+        1 => "single",
+        2 => "double",
+        _ => "more"
+    }
+}
+
+fn zig(n: &mut i32) {
+    *n += 1
+    // n goes out of scope, but nothing is dropped
+}
+
+fn foo() {
+    let mut a = 3; // we borrow mutably later so must be mut
+    {
+        let b = &a;        // b borrows a reference to a
+        let c = bar(b);    // c takes b (a reference) and 
+        // b goes out of scope, c goes out of scope and the string is dropped
+    }
+
+    zig(&mut a); // a is incremented
+    // a goes out of scope
+}
+\end{minted}
+
+\section{Lifetimes}
+References are associated with a lifetime - the scope within which the reference is valid.
+\begin{itemize}
+    \item The compiler can check if the reference outlives the value at compiler time (this would represent a dangling pointer \& use after free bug in C/C++)
+    \item Lifetime elison is used to infer the lifetimes of references (so we do not need to explicitly add them for all references), however this is not perfect, and often explicit lifetimes must be added (e.g in data structures)
+\end{itemize}
+
+\begin{minted}{Rust}
+fn bing() { // Scope a starts here
+    let mut num_1: Option<&i32> = None;
+
+    { // Scope b starts here
+        let num_2 = 7;
+        num_1 = Some(&num_2);
+
+        // num_2 is dropped here
+    }
+    // num_1 no longer valid - it contains a reference to num_2 but outlives num_2
+}
+\end{minted}
+We can also see this in reference to data structures
+\begin{minted}{Rust}
+#[derive(Debug)]
+struct PersonID<'a> {
+    name: &'a str,
+    id_ref: &'a str,
+    age: u8
+}
+
+fn zapp<'a>() { // we explicitly use lifetime 'a here - elision would otherwise infer the lifetime of the inner scope
+    let mut bob : PersonID<'a> = PersonID {name: "bob", id_ref: "120dd", age: 99};
+
+    {
+        let new_name = String::from("jimmy");
+        bob.name = &new_name; // error! the id_ref has a longer lifetime than the new_name
+    }
+}
+\end{minted}
+
+\section{Closures}
+A closure is a anonymous function that can capture variables from their environment.
+\begin{minted}{Rust}
+// explicitly specify types
+|arg1: SomeType, arg2: OtherType| -> AnotherType { code }
+
+// let parameter types be inferred
+|arg1, arg2| { code }
+
+// if the return type is inferred we can potentially remove the braces
+|arg1, arg2| expression
+\end{minted}
+
+For example we can capture a mutable reference to a vector in a closure:
+\begin{minted}{Rust}
+fn zing() {
+    let mut nums = vec![1,2,3,4];
+
+    // add is mutable - each call changes nums, it captures a mutable reference to nums
+    let mut add = |n| nums.push(n);
+
+    // we cannot access nums here, a mutable reference is already in add
+    
+    for x in 0..=10 {
+        add(x)
+    }
+    
+    // we can now use a mutable reference to nums, add is not used after / can be considered dropped
+    nums.push(3);
+}
+\end{minted}
+
+\begin{itemize}
+    \item In many languages, e.g lambda expressions in C++
+    \item Closure takes some parameters, returns some value.
+    \item When a variable from the environment (e.g outside the scope of the closure) is used, Rust infers if it is borrowed, mutable borrowed or moved based on the operations used (e.g types of functions the captured variable is passed to)
+\end{itemize}
+We can force captured variables to be moved/ownership to be transfered by using a move closure.
+\begin{minted}{Rust}
+fn zang() {
+    let mut nums = vec![1,2,3,4];
+
+    // add is mutable - each call changes nums, it captures a mutable reference to nums
+    let mut add = move |n| nums.push(n);
+    // we cannot use nums from here onwards - it has been moved into add
+    
+    for x in 0..=10 {
+        add(x)
+    }
+}
+\end{minted}
+
+\section{Threads}
+\begin{sidenotebox}{\mintinline{Rust}{std::thread}}
+    The standard library's \href{https://doc.rust-lang.org/std/thread/}{thread documentation} covers this section far more extensively.
+\end{sidenotebox}
+\begin{minted}{Rust}
+use std::thread;
+
+fn main() {
+    let handle = thread::spawn(move || {
+        // some work here
+        // return something of type T
+    });
+
+    // Result<T, _> we can get the result of the thread back, or an error (e.g thread was killed).
+    let result = handle.join();
+}
+\end{minted}
+
+As a thread may outlive the scope in which it is spawned, data used must either be \mintinline{Rust}{&'static}, heap allocated \& shared with an atomic reference counting smart pointer, or be moved into the closure.
+\unfinished
