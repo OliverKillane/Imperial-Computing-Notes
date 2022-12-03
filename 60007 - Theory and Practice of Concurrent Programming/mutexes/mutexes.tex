@@ -269,9 +269,9 @@ Here \mintinline{C}{int *p} can be a pointer to any \textit{int-sized} data.
 
 \subsection{Futex Implementation}
 \begin{minted}{Cpp}
-class MutexSimple {
+class MutexFutexNaive {
   public:
-    MutexSimple() : state_(kFree) {}
+    MutexFutexNaive() : state_(kFree) {}
 
     void Lock() {
       while (state.exchange(kLocked) == kLocked) {
@@ -289,3 +289,78 @@ class MutexSimple {
     std::atomic<int> state_;
 };
 \end{minted}
+\begin{itemize}
+  \item The value stored at \mintinline{C}{*p} is simply used as a key into a queue that the kernel holds. The queue is allocated on the first thread put to sleep, and freed when no threads are sleeping.
+  \item Hence the kernel only \textit{knows about} (has queue allocated for key \mintinline{C}{*p}) this mutex if some threads are sleeping.
+\end{itemize}
+\begin{definitionbox}{Barging}
+  In the provided \mintinline{Cpp}{class MutexFutexNaive} a thread waking up, and aquiring the lock is not atomic. Hence we can have the scenario:
+  \begin{enumerate}
+    \item $T_1$ is awoken
+    \item $T_2$ uses TAS to attempt to acquire the lock $\to$ Success! ($T_2$ is \textit{barging in})
+    \item $T_1$ uses TAS to attempt to acquire the lock $\to$ Failure!
+    \item $T_1$ is put to sleep.
+  \end{enumerate}
+\end{definitionbox}
+This implementation requires a syscall to wake, even when no threads are waiting. We can remove this inefficiency by storing more state in the mutex.
+\begin{minted}{Cpp}
+// note: this code can be greatly simplified - it is verbose for understanding
+class MutexFutexSmart {
+  public:
+    MutexFutexSmart() : state_(kFree) {}
+
+    void Lock() {
+      if (state_.compare_exchange_strong(kFree, kLockedNoWaiters)) {
+        // Was free, is now locked with a single waiter.
+        // The lock is now acquired with no waiters.
+
+      } else {
+        // The state_ must be either 1 or 2, hence we compare:
+        do {
+          // If locked with no waiters, set to locked with waiters
+          state_.compare_exchange_strong(kLockedNoWaiters, kLockedWaiters);
+          // start waiting
+          syscall(SYS_futex, &state_, FUTEX_WAIT, kLockedWaiters, ...);
+
+          // if we can acquire the lock (replace free with locked with waiters, we return, otherwise attempt again)
+        } while (!state_.compare_exchange_strong(kFree, kLockedWaiters));
+      }
+    }
+
+    void Unlock() {
+      if (state_.sub(1) == kLockedWaiters) {
+        // There are potentially other thread
+        state_.store(kFree)
+        syscall(SYS_futex, &state_, FUTEX_WAKE, kLockedWaiters, ...);
+      } else {
+        // subtracted to kfree and no need to wake any threads
+      }
+    }
+
+  private:
+
+    const int kFree = 0;
+    const int kLockedNoWaiters = 1;
+    const int kLockedWaiters = 2;
+
+    std::atomic<int> state_;
+};
+\end{minted}
+\begin{itemize}
+  \item A thread that \textit{barges} in and sets the state to \mintinline{Cpp}{lockedNoWaiters} (from \mintinline{Cpp}{free}) does not cause any waiters to sleep forever as the thread unlocking awakens a thread, which will set it to \mintinline{Cpp}{LockedWaiters}
+  \item No kernel memory is used if no threads are waiting
+  \item As we use a key into the kernel for the lock, we can share this key between processes (can synchronise threads in different processes)
+\end{itemize}
+
+
+\section{Hybrid/Adaptive Locking}
+In order to avoid \textit{microcontention} a lock may spin before sleeping.
+\begin{itemize}
+  \item The time spent spinning can be adaptive
+  \item Threads can attempt to lock fast (e.g using test-and-set), but worst case spinlock behaviour is avoided by sleeping.
+\end{itemize}
+\begin{sidenotebox}{Hybrid Locks in the Wild}
+  \href{https://webkit.org/blog/6161/locking-in-webkit/}{WebKit} abstracts away spinlocks and OS-provided mutexes under a single primitive (\mintinline{Cpp}{WTF::Lock})
+  \\
+  \\ Java uses adaptive locks (discussed in this \href{https://blog.openj9.org/2019/04/02/adaptive-spinning/}{blog post})
+\end{sidenotebox}
