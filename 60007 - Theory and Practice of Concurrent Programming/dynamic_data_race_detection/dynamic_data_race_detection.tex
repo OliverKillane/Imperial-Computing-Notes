@@ -1,9 +1,135 @@
 \chapter{Dynamic Data Race Detection}
 
-\section{Thread Sanitizer}
+\begin{definitionbox}{Thread Sanitizer / TSan}
+    A C++ development tool for detection of data races,
+    \begin{itemize}
+        \item Compile with \mintinline{Bash}{-fsanitize=thread}
+        \item Replaces basic thread, synchronisation and atomic operations into calls to a library that tracks and analyses the program.
+        \item Library updates a dynamic data race detection state.
+        \item All library functions must be mutually exclusive, which is expensive.
+        \item Significant runtime overhead is incurred.
+        \item Proven to always detect a data race if one exists
+    \end{itemize}
+    |Operations considered are:
+    \begin{itemize}
+        \item Thread launch/join
+        \item Mutex acquire/release
+        \item Read/write from/to potentially-shared address (compiler cannot prove it is only accessed by one thread)
+        \item Atomic operations
+    \end{itemize}
+\end{definitionbox}
 
 \section{Vector Clocks}
+\subsection{Notation}
+\begin{minipage}{.33\textwidth}
+    \[Threads \triangleq \{0,1,\dots, N-1\}\]
+    \center
+    $N$ threads tracked by the algorithm, with id starting at $0$
+\end{minipage}
+\begin{minipage}{.33\textwidth}
+    \[Locks\]
+    \center
+    The set of locks.
+\end{minipage}
+\begin{minipage}{.33\textwidth}
+    \[Locations\]
+    \center
+    The set of potentially shared memory locations.
+\end{minipage}
 
-\section{Detecting Data Races}
+A \textit{logical clock} is a non negative integer.
+\begin{itemize}
+    \item A thread's \textit{logical clock} is incremented when a mutex is released (transitioning to the next stage of the program)
+\end{itemize}
+
+\[VC \triangleq (c_0, c_1, \dots , c_{N-1})\]
+A \textit{vector clock} is a tuple of $N$ clocks (clock per thread)
+\begin{itemize}
+    \item Can also be expressed as a mapping from $ThreadId \to Clock$
+    \item For vector clock $V$, thread $t$ we have $V(t) =$ logical clock of $t$.
+    \item $VC$ is the set of all vector clocks
+\end{itemize}
+\begin{center}
+    \begin{tabular}{l p{.6\textwidth}}
+        \textbf{Bottom Vector Clock} & $\bot = (0,0, \dots, 0)$ \\
+        \textbf{Partial Order on Vector Clocks} & $V_1 \sqsubseteq V_2 \Leftrightarrow \forall t . \ [V_1(t) \leq V_2(t)]$ (pointwise $\leq$) \\
+        \textbf{Join of vector clocks} & $V_1 \sqcup V_2 = (c_0, c_1, \dots, c_{n-1})$ where \newline $\forall t . \ [V_1 \sqcup V_2 (t) = \begin{cases}
+            V_1(t) & V_1(t) > V_2(t) \\
+            V_2(t) & otherwise \\
+        \end{cases}]$ (pointwise maximum) \\
+        \textbf{Vector Clock Increment} & $inc_t(V) = V[t \mapsto V(t) + 1]$
+    \end{tabular}
+\end{center}
+
+\subsection{Vector Clock Algorithm State}
+\[(\underset{Threads}{C}, \underset{Locks}{L}, \underset{Location Reads}{R}, \underset{Location Writes}{W})\]
+\subsubsection{$C: Thread \to VC$}
+\begin{itemize}
+    \item Each thread has a vector clock
+    \item $C_t \triangleq C(t)$ which represents what thread $t$ knows about the logical clocks of all threads
+    \item $C_t(t)$ is the logical clock of $t$ (always positive, and a source of truth for $t$'s clock)
+    \item For $u \neq t$, $C_t(u)=z$ means thread $t$ knows thread $u$'s logical clock is at least $z$
+    \item When $t$ acquires a lock, it gets information about the logical clocks of other threads who previously held the lock
+\end{itemize}
+
+\subsubsection{$L: Locks \to VC$}
+\begin{itemize}
+    \item $L_m$ represents the logical clock each thread had the last time it released lock $m$
+    \item $L_m(t) = 0$ means $t$ has never released $m$
+    \item $L_m(t) = z \neq 0$ means $z$ was thread $t$'s logical clock the last time it released lock $m$
+\end{itemize}
+
+\subsubsection{$R: Locations \to VC$}
+\begin{itemize}
+    \item $R_x$ is the logical clock of each thread the last time it read location $x$
+    \item $R_x(t) = 0$ means $t$ has never read location $x$
+    \item $R_x(t) = z zneq 0$ means $z$ is the was the logical clock of thread $t$ last time it read location $x$
+\end{itemize}
+
+\subsubsection{$W: Locations \to VC$}
+\begin{itemize}
+    \item $W_x$ is the logical clock of each thread the last time it wrote to location $x$
+    \item $W_x(t) = 0$ means $t$ has never written to location $x$
+    \item $W_x(t) = z zneq 0$ means $z$ is the was the logical clock of thread $t$ last time it wrote to location $x$
+\end{itemize}
+
+\subsubsection{Initial State}
+\[(C, L, R, W) \text{ where}\]
+\[\begin{matrix*}[l]
+    C & = (inc_0(\bot), inc_1(\bot), \dots, inc_{N-1}(\bot)) \\
+    L & = \lambda m . \bot \\
+    R & = \lambda x . \bot \\
+    W & = \lambda x . \bot \\
+\end{matrix*}\]
+
+\subsection{Intercepted Operations}
+\begin{center}
+    \begin{tabular}{l p{.8\textwidth}}
+        $rd(t,x)$ & Thread $t$ reads location $x$. \\
+        $wr(t,x)$ & Thread $t$ writes to location $x$. \\
+        $acq(t,m)$ & Thread $t$ acquires lock $m$ \\
+        $rel(t,m)$ & Thread $t$ releases lock $m$ \\
+    \end{tabular}
+\end{center}
+
+\begin{sidenotebox}{Joining threads}
+    Here we do not cover the semantics for creating and joining threads. This is covered in the \href{https://users.soe.ucsc.edu/~cormac/papers/pldi09.pdf}{fastrack paper} as $fork(t,u)$ and $join(t,u)$.
+\end{sidenotebox}
+
+Each operation can be considered a transition in a inference system.
+
+\subsection{Inference Rules}
+\[(\text{Acquire})\cfrac{C' = C[t \mapsto (C_t \sqcup L_m)]}{(C,L,R,W) \overset{acq(t,m)}{\to} (C', L, R, W)} \]
+
+\[(\text{Release})\cfrac{L' = L[m \mapsto C_t] \quad C' = C[t \mapsto inc_t(C_t)]}{(C,L,R,W) \overset{rel(t,m)}{\to} (C', L', R, W)} \]
+
+\[(\text{Read})\cfrac{W_x \sqsubseteq C_t \quad R' = R[x \mapsto R_x[t \mapsto C_t(t)]]}{(C,L,R,W) \overset{rd(t,x)}{\to} (C,L,R',W)}\]
+
+\[(\text{Write})\cfrac{W_x \sqsubseteq C_t \quad R_x \sqsubseteq C_t \quad W' = W[x \mapsto W_x[t \mapsto C_t(t)]]}{(C,L,R,W) \overset{wr(t,x)}{\to} (C,L,R,W')}\]
+
+We can then include a rule to detect a race condition
+\[(\text{Write-Read Race})\cfrac{\exists u . \ [W_x(u) > C_t(u)]}{(C,L,R,W) \overset{rd(t,x)}{\to} \mathbf{WriteReadRace}(u,t,x)}\]
+\[(\text{Write-Write Race})\cfrac{\exists u . \ [W_x(u) > C_t(u)]}{(C,L,R,W) \overset{wr(t,x)}{\to} \mathbf{WriteWriteRace}(u,t,x)}\]
+\[(\text{Read-Write Race})\cfrac{\exists u . \ [R_x(u) > C_t(u)]}{(C,L,R,W) \overset{wr(t,x)}{\to} \mathbf{ReadWriteRace}(u,t,x)}\]
 
 \unfinished
