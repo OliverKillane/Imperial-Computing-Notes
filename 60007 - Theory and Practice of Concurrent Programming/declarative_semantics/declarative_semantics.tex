@@ -90,7 +90,7 @@ Given a set of events $A$, the relations $r, r' \subseteq A \times A $ and memor
 Given an event set $A$, a relation $r \in A \times A$ and a thread $\tau$ we have:
 \[
     \begin{matrix*}[l]
-        \text{Initialisation of events in } A & A_0 & \triangleq & \{e \in A \ | \ \dtid(a) = 0\} \\
+        \text{Initialisation of events in } A & A_0 & \triangleq & \{e \in A \ | \ \dtid{a} = 0\} \\
         & A_{\tau} & \triangleq & \{e \in A \ | \ \dtid{a} = \tau\} \text{ and } r_{\tau} \triangleq \cap (A_{\tau} \times A_{\tau}) \\
         \\
         \text{For internal edges (of the same thread) } & ri & \triangleq & \{(a,b) \in r \ | \ \dtid{a} = \dtid{b} \} \\

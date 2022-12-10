@@ -14,7 +14,7 @@ We can extend $\Lambda^N$ to include recursion as language $\Lambda^{NR}$.
 The requirement that $M$ be name-free is removed, and a function labeled $rec$ can be recursive.
 
 \begin{definitionbox}{$\mathsf{Y}$ combinator}
-    \[\mathsf{Y} = \lambda f . (\lambda x . f x \ x) \ (\lambda x . f x \ x)\]
+    \[\mathsf{Y} = \lambda f . (\lambda x . f (x \ x)) \ (\lambda x . f (x \ x))\]
     Can be used to encode recursion:
     \[F = C [F] \to \mathsf{Y} \ (\lambda f . C [f]) \]
 \end{definitionbox}
@@ -44,7 +44,7 @@ We cannot directly translate $\Lambda^{NR}$ to lambda calculus as with $\Lambda^
 
 \section{Type Assignment for $\Lambda^{NR}$}
 \[\ninfer{$Ax$}{}{\Gamma, x:A; \mathcal{E} \vdash x : A} 
-\qquad \ninfer{$\to I$}{\Gamma, x:A ; \mathcal{E} \vdash N : B}{\Gamma ; \epsilon \vdash \lambda x . N : A \to B}
+\qquad \ninfer{$\to I$}{\Gamma, x:A ; \mathcal{E} \vdash N : B}{\Gamma ; \mathcal{E} \vdash \lambda x . N : A \to B}
 \qquad \ninfer{$\to E$}{\Gamma; \mathcal{E} \vdash P : A \to B \quad \Gamma ; \mathcal{E} \vdash Q : A}{\Gamma ; \mathcal{E} \vdash P \ Q : B}\]
 The main $3$ typing rules remain unchanged.
 \[\ninfer{$Call$}{}{\Gamma ; \mathcal{E} , name : A \vdash name : S \ A} \qquad \ninfer{$Rec \ Call$}{}{\Gamma; \mathcal{E}, rec \ name: A \vdash name : A}\]

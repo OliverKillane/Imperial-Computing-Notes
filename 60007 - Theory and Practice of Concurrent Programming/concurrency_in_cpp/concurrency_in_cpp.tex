@@ -493,7 +493,7 @@ fn main() {
       \item At least of of the accesses is non-atomic (allows for operations of other threads to be interleaved)
       \item Accesses are not ordered by synchronisation (e.g for mutual exclusion)
     \end{itemize}
-    Data races are value-obilvious, meaning a data race is present even if value of some shared data is not affected.
+    Data races are value-oblivious, meaning a data race is present even if value of some shared data is not affected.
     \begin{itemize}
       \item e.g Two threads write the same value to the same place.
       \item e.g one thread stores the same value, another thread reads. 
@@ -840,9 +840,7 @@ std::atomic<MyStruct> p({.a=1, .c=true});
 \end{sidenotebox}
 \subsection{Atomic Integral Types}
 For integral types, fast assembly supported instructions for atomic integers, booleans and floats can be used.
-\begin{itemize}
-  \item 
-\end{itemize}
+
 \begin{minted}{Cpp}
   namespace std {
     template<> struct atomic</* integral */> {
@@ -941,7 +939,6 @@ namespace std {
   The order of operations are executed as in the order of the program text.
   \begin{itemize}
     \item The default memory ordering for atomics (\mintinline{Cpp}{std::atomics::memory_order_seq_cst})
-    \item 
   \end{itemize}
   \begin{tabbox}{prosbox}
     \textbf{Simple} & Easy to reason about the interleaving of threads. \\

@@ -42,7 +42,7 @@ Term substitution is defined as with the following rules:
 \end{minipage}
 \vspace{5mm}
 \[\begin{split}
-    (\mllet{x = E_1}{E_2})[E/x] &= \mllet{y = E_1[E/x]}{E_2[E/x]} \\
+    (\mllet{y = E_1}{E_2})[E/x] &= \mllet{y = E_1[E/x]}{E_2[E/x]} \\
     (\mlfix{g}{E'})[E/x] &= \mlfix{g}{E'[E/x]} \\
 \end{split}\]
 \centerline{let statements and fixed point (for recursion)}
@@ -360,7 +360,7 @@ We can remove variables that are not free in $E$ from the context, and the conte
 \subsection{Application}
 
 \[\begin{matrix*}[l]
-    \mathcal{W} \ \Gamma \ (E_1 \ E_2) & = \langle S_3 \circ S_2 \circ S_1, S_2 \varphi \rangle \\
+    \mathcal{W} \ \Gamma \ (E_1 \ E_2) & = \langle S_3 \circ S_2 \circ S_1, S_3 \varphi \rangle \\
     & \begin{matrix*}[l]
         \text{where } & \langle S_1, A \rangle & = \mathcal{W} \ \Gamma \ E_1 \\
         & \langle S_2, B \rangle & = \mathcal{W} \ (S_1 \ \Gamma) \ E_2 \\

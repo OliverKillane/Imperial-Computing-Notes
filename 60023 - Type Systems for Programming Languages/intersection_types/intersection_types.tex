@@ -4,13 +4,13 @@ We can extend the curry types with a new constructor $\cap$, and limit its use t
 \\ To allow this we use a two-level grammar to define $\mathcal{T}_s$ (strict types)
 \[\begin{matrix*}[l]
     A & ::= \varphi \ | \ (\sigma \to A) \\
-    \sigma, \tau & ::= (A_1 \cap \dots \cap A_n) \quad (n \geq 0) \\
+    \sigma & ::= (A_1 \cap \dots \cap A_n) \quad (n \geq 0) \\
 \end{matrix*}\]
 
 On $\mathcal{T}_s$ we define the relation $\leq$ as the smallest relation such that:
 \[\begin{matrix*}[l]
     \forall 1 \leq i \leq n . \ [A_1 \cap \dots \cap A_n \leq A_i] & (n \geq 1)  & \text{\textit{The intersection is smaller than any contained type.}}\\
-    \forall 1 \leq i \leq n . \ [\sigma \leq A_1] \Rightarrow \sigma \leq A_1 \cap \dots \cap A_n & (n \geq 0) & \text{\textit{If smaller than all types, its smaller than intersection.}}\\
+    \forall 1 \leq i \leq n . \ [\sigma \leq A_i] \Rightarrow \sigma \leq A_1 \cap \dots \cap A_n & (n \geq 0) & \text{\textit{If smaller than all types, its smaller than intersection.}}\\
     \sigma \leq \tau \leq \rho \Rightarrow \sigma \leq \rho & & \text{\textit{It is transitive.}}\\
 \end{matrix*}\]
 
@@ -191,4 +191,39 @@ Approximation Theorem:
 \[M \text{ is strongly normalisable } \Leftrightarrow \Gamma \vdash_\cap M : A \land \top \text{ is not used in } A\]
 
 \section{Principle Intersection Pairs}
-\unfinished
+For approximant $A \in \mathcal{A}$ we can define the principle part of $A$
+\[\begin{matrix*}[l]
+    pp & \bot & = \langle \emptyset \top \rangle \\
+    \\
+    pp & x & = \langle x : \varphi , \varphi \rangle \text{ where $\varphi$ is fresh}\\
+    \\
+    pp & (\lambda x . A) & = \begin{cases}
+        \langle \Pi', \sigma \to P \rangle & (\Pi',x:\sigma = \Pi) \\
+        \langle \Pi, \top \to P \rangle & (x \not\in \Pi) \\
+    \end{cases} \\
+    & & \begin{matrix*}[l]
+        \text{ where } & \langle \Pi, P \rangle & = pp \ A \\
+    \end{matrix*} \\
+    \\
+    pp & (x A_1 \dots A_n) & = \langle \bigcap_n\Pi_i \cap \{x: P_1 \to \dots \to P_n \to \varphi\}, \varphi \rangle \\
+    & & \begin{matrix*}[l]
+        \text{ where } & \langle \Pi_i, P_i \rangle & = pp \ A_i \\
+        & \varphi & \text{ is fresh} \\
+    \end{matrix*} \\
+\end{matrix*}\]
+\subsubsection{Properties of $pp$}
+\[pp(A) = \langle \Pi, P \rangle \Rightarrow \Pi \vdash_\cap A : P\]
+\[\forall A \in \mathcal{A} . \ [A \neq \bot \Rightarrow \exists \Gamma, B . \ [\Gamma \vdash_\cap A : B]]\]
+
+\subsubsection{Pairs for Arbitrary $\Lambda$-Terms}
+We can define P as the set of all principle types of all approximants.
+\[\mathcal{P} = \{ \langle \Pi, P \rangle \ | \ \exists A \in \mathcal{A} (pp(A) = \langle \Pi, P \rangle)\}\]
+Hence we can now define $\mathcal{P}(M)$ as the set of all principle pairs for all approximants of $M$:
+\[\mathcal{P}(M) = \{pp(A) \ | \ A \in \mathcal{A}(M)\}\]
+\begin{itemize}
+    \item If $\mathcal{P}(M)$ is finite then there is a pair $\langle \Pi, P \rangle = \sqcup \mathcal{P}(M)$ such that $\langle \Pi, P \rangle \in \mathcal{P}$ (the principle pair of $M$).
+    \item If $\mathcal{P}(M)$ is infinite then the principle pair of $M$ is the infinite set of pairs $\mathcal{P}(M)$.
+\end{itemize}
+
+
+

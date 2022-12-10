@@ -15,6 +15,7 @@ Computer architecture concerns the design of general-purpose and special-purpose
 - Optimisations for parallelism and locality and their automation in compilers
 - Graphics processors and manycore architectures
 - Security vulnerabilities and their mitigation
+
 ## Lecturers
 Taught by [Professor Paul Kelly](https://www.imperial.ac.uk/people/p.kelly)
 ## Resources
