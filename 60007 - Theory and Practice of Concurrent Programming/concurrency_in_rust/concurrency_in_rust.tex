@@ -189,7 +189,7 @@ fn zing() {
     \item Closure takes some parameters, returns some value.
     \item When a variable from the environment (e.g outside the scope of the closure) is used, Rust infers if it is borrowed, mutable borrowed or moved based on the operations used (e.g types of functions the captured variable is passed to)
 \end{itemize}
-We can force captured variables to be moved/ownership to be transfered by using a move closure.
+We can force captured variables to be moved/ownership to be transferred by using a move closure.
 \begin{minted}{Rust}
 fn zang() {
     let mut nums = vec![1,2,3,4];
@@ -223,4 +223,29 @@ fn main() {
 \end{minted}
 
 As a thread may outlive the scope in which it is spawned, data used must either be \mintinline{Rust}{&'static}, heap allocated \& shared with an atomic reference counting smart pointer, or be moved into the closure.
+\subsection{Reference Counting}
+A reference counting smart pointer is available in rust as \mintinline{Rust}{Rc}.
+\begin{itemize}
+    \item \mintinline{Rust}{Rc} is cloned to create new pointers to the same object.
+    \item Can return a reference (immutable) to the contained object. The interior mutability pattern can then be used for shared mutable objects.
+    \item \mintinline{Rust}{Rc} is not thread safe, so an \mintinline{Rust}{Arc} (atomic reference counter) is used in the context of multithreading.
+    \item We can enclose data in a structure that enforces the ownership rules (such as a read write lock, or mutex).
+\end{itemize}
+\begin{minted}{Rust}
+use std::{thread, sync::{Arc, Mutex}};
+
+fn main() {
+    let counter = Arc::new(Mutex::new(0));
+
+    (1..10)
+        .map(|_| counter.clone())
+        .map(|i: Arc<Mutex<i32>>| thread::spawn(move || *i.lock().unwrap() += 1))
+        .map(|t| t.join().unwrap())
+        .for_each(drop);
+    
+    println!("Final value: {}", *counter.lock().unwrap())
+}
+\end{minted}
+
+
 \unfinished

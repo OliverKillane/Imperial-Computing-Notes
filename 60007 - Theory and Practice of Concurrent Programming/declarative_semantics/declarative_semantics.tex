@@ -134,7 +134,7 @@ Given an event set $A$, a relation $r \in A \times A$ and a thread $\tau$ we hav
 \begin{definitionbox}{Function Types}
     \[f: A \to B \qquad dom(f) = A \qquad codom(f) = B\]
     \begin{tabular}{l p{.35\textwidth} l}
-        \textbf{Injective/one-to-one} & Each output is mapped to by at most one input. & $\forall x_1, x_2 \in A. [f(x_1) = f(x_2) \Rightarrow x_1 = x_2]$ \\
+        \textbf{Injective/one-to-one} & Every element in input is mapped to a unique element in output. & $\forall x_1, x_2 \in A. [f(x_1) = f(x_2) \Rightarrow x_1 = x_2]$ \\
         \textbf{Surjective/onto} & Each output is mapped to by at least one input. & $\forall y \in B. \exists x \in A. [f(x) = y]$ \\
         \textbf{Bijective} & Each output is mapped to by one input. & $bijective(f) = injective(f) \land surjective(f)$ \\
     \end{tabular}
@@ -325,7 +325,7 @@ A program is mapped to a set of candidate executions. A consistency predicate fi
 \begin{definitionbox}{Coherence (Alternative)}
     \[\begin{matrix*}[l]
         SC: & acyclic(\dpo \cup \drf \cup \dmo \cup \drb) \\
-        SC: & acyclic(\dpo|_{loc} \cup \drf \cup \dmo \cup \drb) \\
+        COH: & acyclic(\dpo|_{loc} \cup \drf \cup \dmo \cup \drb) \\
     \end{matrix*}\]
 \end{definitionbox}
 

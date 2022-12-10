@@ -244,6 +244,8 @@ A method call is no longer an atomic event.
     \end{itemize}
 \end{definitionbox}
 
+
+\section{Linearisability}
 \begin{definitionbox}{Linearisability Formally}
     A history $H$ is linearisable if it can be extended to $G$ by:
     \begin{itemize}
@@ -253,7 +255,6 @@ A method call is no longer an atomic event.
     Where $G$ will be equivalent to the \textit{legal sequential} history $S$ and ($\to_G \subseteq \to_S$)
 \end{definitionbox}
 
-
 \begin{definitionbox}{Composability Theorem}
     \[linearisable(H) \Leftrightarrow \forall x. \ [linearisable(H|x)]\]
     A history $H$ is linearisable if and only if for every object $x$, $H|x$ is linearisable.
@@ -261,6 +262,15 @@ A method call is no longer an atomic event.
         \item This allows for the linearisability of objects to be considered independently, and then composed.
     \end{itemize}
 \end{definitionbox}
+To show a history $H$ is linearisable:
+\begin{enumerate}
+    \item We can split the history using the composability theorem.
+    \item Make the $H$ history complete (no pending invocations) (history $H'$)
+    \item Create a sequential history $S$ that is legal (within sequential specification)
+    \item Show $H'$ is equivalent to $S$ using projections.
+    \item Get the strict total order $\to_S$ and show $\to_H$ is a subset of $\to_S$
+\end{enumerate}
+
 
 \section{Sequential Consistency}
 A history $H$ is Sequentially Consistent if it can be extended to $G$ by:
@@ -269,5 +279,3 @@ A history $H$ is Sequentially Consistent if it can be extended to $G$ by:
     \item Discarding pending invocations.
 \end{itemize}
 Where $G$ will be equivalent to the \textit{legal sequential} history $S$. Unlike with linearisability, $G$ does not have to be a subset of $S$.
-
-\unfinished
