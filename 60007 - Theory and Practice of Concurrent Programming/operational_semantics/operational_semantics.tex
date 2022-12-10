@@ -182,7 +182,7 @@ Hence the configuration is a triple of the concurrent program, shared memory and
 The operational semantics are split into two types of transition.
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}
-        \textbf{Program Transitions} & A step inb program execution (e.g if condition) \\
+        \textbf{Program Transitions} & A step in program execution (e.g if condition) \\
         \textbf{Storage Transitions} & Describes behaviour of memory (e.g read/write) \\
     \end{tabular}
 \end{center}
@@ -274,9 +274,9 @@ Note that program transitions do not consider memory, so no update takes place h
     \]
     \[
         \cfrac{
-            \ceval{s}{E_0} = v_0 \quad v \to v_0 \quad s' = s[a \mapsto 0]
+            \ceval{s}{E_0} = v_0 \quad v \neq v_0 \quad s' = s[\wreg{a} \mapsto 0]
         }{
-            \wass{\wreg{a}}{\wcas{\wmem{x}}{E_0}{E_n}}, s 
+            \wass{\wreg{a}}{\wcas{\wmem{x}}{E_0}{E_n}}, s \ctrans{(U, \wmem{x}, v, \bot)} \wskip, s'
         }
     \]    
 \end{minipage}
