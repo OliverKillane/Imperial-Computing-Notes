@@ -794,6 +794,7 @@ namespace std {
 
     // if the old value is expected, then replace with desired and return true.
     // if the old value is not expected, then return false
+    // the old value (regardless is expected) is placed in expected
     bool compare_exchange_strong(T& expected, T desired, memory_order, memory_order) volatile noexcept;
     bool compare_exchange_strong(T& expected, T desired, memory_order, memory_order) noexcept;
     bool compare_exchange_strong(T& expected, T desired,
@@ -944,7 +945,7 @@ namespace std {
     \textbf{Simple} & Easy to reason about the interleaving of threads. \\
   \end{tabbox}
   \begin{tabbox}{consbox}
-    \textbf{Expensive} & Compiler uses memory barriers which restrict how instructions can eb reordered and optimised. \\
+    \textbf{Expensive} & Compiler uses memory barriers which restrict how instructions can be reordered and optimised. \\
   \end{tabbox}
 \end{definitionbox}
 

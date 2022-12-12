@@ -90,7 +90,7 @@ A \textit{vector clock} is a tuple of $N$ clocks (clock per thread)
 \begin{itemize}
     \item $W_x$ is the logical clock of each thread the last time it wrote to location $x$
     \item $W_x(t) = 0$ means $t$ has never written to location $x$
-    \item $W_x(t) = z zneq 0$ means $z$ is the was the logical clock of thread $t$ last time it wrote to location $x$
+    \item $W_x(t) = z \neq 0$ means $z$ is the was the logical clock of thread $t$ last time it wrote to location $x$
 \end{itemize}
 
 \subsubsection{Initial State}

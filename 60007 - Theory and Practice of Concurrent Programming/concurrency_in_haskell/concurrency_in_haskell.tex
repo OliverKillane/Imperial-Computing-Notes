@@ -96,7 +96,7 @@ newMVar :: a -> IO (MVar a)
 takeMVar :: MVar a -> IO a
 
 -- Blocks until the mVar is empty, and then places a value (making the MVar full)
-putMVar a -> a -> IO ()
+putMVar :: MVar a -> a -> IO ()
 \end{minted}
 \begin{itemize}
     \item Can be accessed by multiple threads.
