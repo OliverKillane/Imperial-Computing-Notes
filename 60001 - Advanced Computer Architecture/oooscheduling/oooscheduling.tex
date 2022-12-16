@@ -3,41 +3,41 @@
 \section{Bypassing Stalls}
 The basic concept behind out of order scheduling is that instructions behind a stall can be allowed to continue provided data dependence/hazards allow.
 \begin{itemize}
-    \item When an instruction stalls (e.g cache miss or forwarding not possible) save the state of that instruction.
-    \item Instructions are issued in order, have dependencies analysed and can then be executed out of order.
-    \item When operands are available allow execution pof the stalled instruction to continue.
+	\item When an instruction stalls (e.g cache miss or forwarding not possible) save the state of that instruction.
+	\item Instructions are issued in order, have dependencies analysed and can then be executed out of order.
+	\item When operands are available allow execution pof the stalled instruction to continue.
 \end{itemize}
 \begin{definitionbox}{Read After Write / True Dependence}
-    \begin{minted}{text}
+	\begin{minted}{text}
 add $3, $2, $1  # $3 = $2 + $1  (Write $3)
 sub $4, $3, $6  # $4 = $3 - $6  (Read  $3) (needs previous instruction's value)
     \end{minted}
-    The output of one instruction is required as the input to another.
+	The output of one instruction is required as the input to another.
 \end{definitionbox}
 
 \begin{definitionbox}{Write After Read / Anti Dependence}
-    \begin{minted}{text}
+	\begin{minted}{text}
 sub $4, $3, $6  # $4 = $3 - $6  (Read  $3) (use $3 before the next instruction overwrites)
 add $3, $2, $1  # $3 = $2 + $1  (Write $3)
     \end{minted}
-    Some instruction will overwrite an input to a preceding instruction.
+	Some instruction will overwrite an input to a preceding instruction.
 \end{definitionbox}
 
 \begin{definitionbox}{Write after Write / Output Dependence}
-    \begin{minted}{text}
+	\begin{minted}{text}
 add   $3, $2, $1  # $3 = $2 + $1  (Write $3)
 sub   $3, $4, $6  # $3 = $4 - $6  (Write $3)
 addiu $7, $3, 100 # $7 = $3 + 100 (Read $3)
     \end{minted}
-    The writes have a dependency as they write to the same location, the correct value must be present in the location for subsequent reads.
+	The writes have a dependency as they write to the same location, the correct value must be present in the location for subsequent reads.
 \end{definitionbox}
 
 \section{Tomasulo's Algorithm}
 An out of order execution algorithm used to dynamically rename registers to bypass the limited number of floating-point registers in the IBM architecture specification, and allow faster computation on the IBM 360/91.
 \begin{itemize}
-    \item Each registers contains a tag. (null means the value is present, otherwise it is the identifier of the unit the result will come from)
-    \item By adding tags register renaming (simple) is achieved
-    \item A common data bus is used to broadcast the result of an operation, with its tag (unit it came from)
+	\item Each registers contains a tag. (null means the value is present, otherwise it is the identifier of the unit the result will come from)
+	\item By adding tags register renaming (simple) is achieved
+	\item A common data bus is used to broadcast the result of an operation, with its tag (unit it came from)
 \end{itemize}
 \begin{minted}{Python}
 """Super abbreviated pseudocode for the IBM360/91 Out of Order Execution """
@@ -81,15 +81,15 @@ class IBM36091:
                 self.value = data
 \end{minted}
 \begin{tabbox}[.6\textwidth]{consbox}
-    \textbf{Complexity} & Led to delays in design, hardware overhead to overcome an ISA issue. \\
-    \textbf{Limited by CDB} & CBD must go through all functional units, and only one instruction can write to bus per cycle. \\
-    \textbf{No Precise Interrupts} & As instructions are executed out of order, we cannot clearly define a point in the \textit{in-order} program text where the processor is at at any given time. \\
+	\textbf{Complexity} & Led to delays in design, hardware overhead to overcome an ISA issue. \\
+	\textbf{Limited by CDB} & CBD must go through all functional units, and only one instruction can write to bus per cycle. \\
+	\textbf{No Precise Interrupts} & As instructions are executed out of order, we cannot clearly define a point in the \textit{in-order} program text where the processor is at at any given time. \\
 \end{tabbox}
 
 It is possible to overlap loop iterations:
 \begin{itemize}
-    \item (Effectively) Register renaming allows for different physical destinations (e.g ignore register and straight to functional unit).
-    \item Reservation stations can buffer old values to avoid write after read / anti dependence stalls.
+	\item (Effectively) Register renaming allows for different physical destinations (e.g ignore register and straight to functional unit).
+	\item Reservation stations can buffer old values to avoid write after read / anti dependence stalls.
 \end{itemize}
 
 \lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=2faf6023-3195-440e-b4f3-af2a010f70d6}{Chapter 2 - Part 2: Speculation}
@@ -97,52 +97,52 @@ It is possible to overlap loop iterations:
 \section{Precise Interrupts}
 In order to use precise interrupts we need a consistent state.
 \begin{itemize}
-    \item All instructions up to some point have committed changes to machine state (registers \& memory).
-    \item No instructions past have committed.
-    \item Hence on an interrupt (e.g page fault, syscall) we can easily save state, and restart where the interrupt suspended execution of a program.
-    \item This is also important for branches (need to undo prevent committing work executed speculatively)
+	\item All instructions up to some point have committed changes to machine state (registers \& memory).
+	\item No instructions past have committed.
+	\item Hence on an interrupt (e.g page fault, syscall) we can easily save state, and restart where the interrupt suspended execution of a program.
+	\item This is also important for branches (need to undo prevent committing work executed speculatively)
 \end{itemize}
 Hence we want to make a \textit{speculative tomasulo algorithm}
 \begin{enumerate}
-    \item Issue/Dispatch (Get instruction from buffer of fetched instructions, send operands \& reorder buffer number to destination)
-    \item Execution (Out of order execution of issued instructions)
-    \item Write Back (in order to common data bus and waiting functional units)
-    \item Commit (Update register with reorder result, reorder buffer takes completed instructions, puts in issue order and updates state)
+	\item Issue/Dispatch (Get instruction from buffer of fetched instructions, send operands \& reorder buffer number to destination)
+	\item Execution (Out of order execution of issued instructions)
+	\item Write Back (in order to common data bus and waiting functional units)
+	\item Commit (Update register with reorder result, reorder buffer takes completed instructions, puts in issue order and updates state)
 \end{enumerate}
 This requires several additions
 \begin{itemize}
-    \item Commit unit to manage reorder buffer
-    \item Issue side registers for execution
-    \item Commit side registers for the committed results
-    \item Ability to flush the reorder buffer on a branch mispredict
+	\item Commit unit to manage reorder buffer
+	\item Issue side registers for execution
+	\item Commit side registers for the committed results
+	\item Ability to flush the reorder buffer on a branch mispredict
 \end{itemize}
 
 \section{Store Buffering}
 Stores are an issue as they cannot be completed until committed, but succeeding loads can be executed straight away.
 \begin{itemize}
-    \item We could stall all preceding loads until the store is complete
-    \item We can buffer uncommitted stores, associated with addresses, and check these for any load (to get the nearest hit, or on miss go to memory). Loads must be stalled until all possibly aliasing store addresses are resolved
+	\item We could stall all preceding loads until the store is complete
+	\item We can buffer uncommitted stores, associated with addresses, and check these for any load (to get the nearest hit, or on miss go to memory). Loads must be stalled until all possibly aliasing store addresses are resolved
 \end{itemize}
 Loads and stores use computed addresses (not always known at issue time)
 \begin{itemize}
-    \item Can speculate, and forward a store's result to a load
-    \item Must recover when the computed address is not the speculated
+	\item Can speculate, and forward a store's result to a load
+	\item Must recover when the computed address is not the speculated
 \end{itemize}
 Hence we can add a \textit{forwarding predictor} to determine if a store should be forwarded to some load behind it in the pipeline.
 \begin{sidenotebox}{Dependence Prediction}
-    More can be read about predicting the dependence of a load on another store instruction \href{here}{https://jilp.org/vol2/v2paper13.pdf}.
+	More can be read about predicting the dependence of a load on another store instruction \href{here}{https://jilp.org/vol2/v2paper13.pdf}.
 \end{sidenotebox}
 
 \section{Register Update Unit}
 An alternative to reservation stations and the reorder buffer.
 \begin{itemize}
-    \item A single table of instructions after fetch, acting as a reservation station.
-    \item Once the operands are found, the instruction can be issued (hence functional unit determined after operands, unlike in Tomasulo's)
-    \item RUU entries are committed to update the commit side registers.
+	\item A single table of instructions after fetch, acting as a reservation station.
+	\item Once the operands are found, the instruction can be issued (hence functional unit determined after operands, unlike in Tomasulo's)
+	\item RUU entries are committed to update the commit side registers.
 \end{itemize}
 \begin{tabbox}{prosbox}
-    \textbf{Monitors} & In Tomasulo's every reservation station and reorder buffer entry needs to have a comparator and monitor the common data bus. With the RUU strategy, fewer comparators are required. \\
-    \textbf{Tags} & With RUU the tags are ROB entries. Furthermore the RUU is indexed by the tag. \\
+	\textbf{Monitors} & In Tomasulo's every reservation station and reorder buffer entry needs to have a comparator and monitor the common data bus. With the RUU strategy, fewer comparators are required. \\
+	\textbf{Tags} & With RUU the tags are ROB entries. Furthermore the RUU is indexed by the tag. \\
 \end{tabbox}
 
 \section{Register Alias Tables}

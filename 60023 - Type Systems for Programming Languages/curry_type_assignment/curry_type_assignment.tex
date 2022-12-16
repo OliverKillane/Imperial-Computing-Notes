@@ -1,29 +1,29 @@
 \chapter{Curry Type Assignment}
 Type assignment follows the syntactic structure of terms. For example $\lambda x . M$ will be of the form $A \to B$ where the input $x$ is of type $A$, and $M$ is of type $B$.
 \\
-\\ $\mathcal{T_C}$ is the set of \textit{types}. 
+\\ $\mathcal{T_C}$ is the set of \textit{types}.
 \begin{itemize}
-    \item This is ranged over by $A, B \dots$ and defined over the set of \textit{type variables} $\Phi$.
-    \item The set of \textit{type variables} $\Phi$ is ranged over by $\varphi$
+	\item This is ranged over by $A, B \dots$ and defined over the set of \textit{type variables} $\Phi$.
+	\item The set of \textit{type variables} $\Phi$ is ranged over by $\varphi$
 \end{itemize}
 \[A, B ::= \varphi \ | \ (A \to B) \]
 A type can be either some type variable (some type e.g Int), or a function converting one type to another.
 \begin{definitionbox}{Statement}
-    An expression of the form $M : A$ where $M \in \Lambda$ and $A \in \mathcal{T}_c$.
-    \begin{itemize}
-        \item $M$ is the \textit{subject}
-        \item $A$ is the \textit{predicate}
-    \end{itemize}
+	An expression of the form $M : A$ where $M \in \Lambda$ and $A \in \mathcal{T}_c$.
+	\begin{itemize}
+		\item $M$ is the \textit{subject}
+		\item $A$ is the \textit{predicate}
+	\end{itemize}
 \end{definitionbox}
 \begin{definitionbox}{Context}
-    A context $\Gamma$ is a set of statements with distinct variables as subjects.
-    \begin{itemize}
-        \item $\Gamma , x:A$ is shorthand for $\Gamma \cup \{x: A\}$ where $x$ does not occur as a subject in $\Gamma$ (variables must be distinct).
-        \item $x:A$ is shorthand for $\emptyset, x:A$.
-        \item $x \in \Gamma$ is shorthand for $\exists A \in \mathcal{T}_C . [x:A \in \Gamma]$, likewise, if $x$ is not typed in the context we use $x \not\in \Gamma$.
-    \end{itemize}
-    For example:
-    \[\Gamma_{\text{my context}} = \{x : A, y : B, c: B\}\]
+	A context $\Gamma$ is a set of statements with distinct variables as subjects.
+	\begin{itemize}
+		\item $\Gamma , x:A$ is shorthand for $\Gamma \cup \{x: A\}$ where $x$ does not occur as a subject in $\Gamma$ (variables must be distinct).
+		\item $x:A$ is shorthand for $\emptyset, x:A$.
+		\item $x \in \Gamma$ is shorthand for $\exists A \in \mathcal{T}_C . [x:A \in \Gamma]$, likewise, if $x$ is not typed in the context we use $x \not\in \Gamma$.
+	\end{itemize}
+	For example:
+	\[\Gamma_{\text{my context}} = \{x : A, y : B, c: B\}\]
 \end{definitionbox}
 
 $\to$ is used for function types, it is right associative, so:
@@ -34,28 +34,28 @@ $\to$ is used for function types, it is right associative, so:
 \vspace{5mm}
 
 \begin{itemize}
-    \item {We can extend barendregt's convention to ommit the side-condition on $\to I$ by adding the assertion that:
-        \[\Gamma \vdash M : A \text{ we ensure } \forall x \in bv(M) . [x \not\in \Gamma]\]
-    }
-    \item {The definition provided is \textit{sound}:
-        \[(\Gamma \vdash_c M : A) \land (M \to^*_\beta N) \Rightarrow \Gamma \vdash_C N : A \] 
-    }
+	\item {We can extend barendregt's convention to ommit the side-condition on $\to I$ by adding the assertion that:
+	      \[\Gamma \vdash M : A \text{ we ensure } \forall x \in bv(M) . [x \not\in \Gamma]\]
+	      }
+	\item {The definition provided is \textit{sound}:
+	      \[(\Gamma \vdash_c M : A) \land (M \to^*_\beta N) \Rightarrow \Gamma \vdash_C N : A \]
+	      }
 \end{itemize}
 
 Some terms are not typeable under this definition, as self-application is not possible:
 \begin{itemize}
-    \item $\lambda x . x \ x$ is not typeable, neither is $\lambda f. (\lambda x. f(x \ x)) (\lambda x. f(x \ x))$
-    \item Type assignment rules do not cover approximants, and hence they are not typeable.
+	\item $\lambda x . x \ x$ is not typeable, neither is $\lambda f. (\lambda x. f(x \ x)) (\lambda x. f(x \ x))$
+	\item Type assignment rules do not cover approximants, and hence they are not typeable.
 \end{itemize}
 
 \begin{examplebox}{Self Application}
-    Is it possible to type \textit{self-application} $x \ x$?
-    \tcblower
-    We can attempt to use the inference system, however run into a contradiction:
-    \[\ainfer{$\to E$}{
-        \ainfer{$Ax$}{}{\Gamma, x: A \to B \vdash_C x : A \to B} \qquad \ainfer{$Ax$}{}{\Gamma, x : A \vdash_C x : A}
-    }{\Gamma, x: ? \vdash_C x \ x : B}\]
-    Hence we need a type such that $A \to B = A$.
+	Is it possible to type \textit{self-application} $x \ x$?
+	\tcblower
+	We can attempt to use the inference system, however run into a contradiction:
+	\[\ainfer{$\to E$}{
+			\ainfer{$Ax$}{}{\Gamma, x: A \to B \vdash_C x : A \to B} \qquad \ainfer{$Ax$}{}{\Gamma, x : A \vdash_C x : A}
+		}{\Gamma, x: ? \vdash_C x \ x : B}\]
+	Hence we need a type such that $A \to B = A$.
 \end{examplebox}
 
 \subsection{Important Lemmas For Type Assignment}
@@ -76,33 +76,33 @@ If a variable is not free in $M$, then we do not need a type for it.
 \section{Principle Type Property}
 Principle type theory expresses the idea that a whole family of types could be assigned to a term, however only one is the \textit{principle type}.
 \begin{definitionbox}{Type Substitution}
-    \[(\varphi \mapsto C) : \mathcal{T}_C \to \mathcal{T}_C \text{ where } \varphi \text{ is a type variable and } C \in \mathcal{T}_C\]
-    Substitution is defined by:
-    \[\begin{matrix*}[l]
-        (\varphi \mapsto C) & \varphi & = C \\
-        (\varphi \mapsto C) & \varphi' & = \varphi' & (\varphi \neq \varphi') \\
-        (\varphi \mapsto C) & A \to B &= ((\varphi \mapsto C) \ A) \to ((\varphi \mapsto C) \ B) \\
-    \end{matrix*}\]
-    Here $(\varphi \mapsto C)$ is a substitution substituting the type variable $\varphi$ for the type $C$
-    \[S_1 \circ S_2 \text{ means } S_1 \circ S_2 \ A = S_1 (S_2 \ A) \qquad S \ \Gamma = \{x: S \ B | x:B \in \Gamma\} \qquad S \langle \Gamma ; A \rangle = \langle S \ \Gamma ; S \ A \rangle\]
-    \begin{itemize}
-        \item If there is a substitution $S$ such that $S \ A = B$ then $B$ is the \textit{substitution instance} of $A$.
-        \item $Id_S$ (\textit{identity substitution}) maps every type variable to itself.
-    \end{itemize}
+	\[(\varphi \mapsto C) : \mathcal{T}_C \to \mathcal{T}_C \text{ where } \varphi \text{ is a type variable and } C \in \mathcal{T}_C\]
+	Substitution is defined by:
+	\[\begin{matrix*}[l]
+			(\varphi \mapsto C) & \varphi & = C \\
+			(\varphi \mapsto C) & \varphi' & = \varphi' & (\varphi \neq \varphi') \\
+			(\varphi \mapsto C) & A \to B &= ((\varphi \mapsto C) \ A) \to ((\varphi \mapsto C) \ B) \\
+		\end{matrix*}\]
+	Here $(\varphi \mapsto C)$ is a substitution substituting the type variable $\varphi$ for the type $C$
+	\[S_1 \circ S_2 \text{ means } S_1 \circ S_2 \ A = S_1 (S_2 \ A) \qquad S \ \Gamma = \{x: S \ B | x:B \in \Gamma\} \qquad S \langle \Gamma ; A \rangle = \langle S \ \Gamma ; S \ A \rangle\]
+	\begin{itemize}
+		\item If there is a substitution $S$ such that $S \ A = B$ then $B$ is the \textit{substitution instance} of $A$.
+		\item $Id_S$ (\textit{identity substitution}) maps every type variable to itself.
+	\end{itemize}
 \end{definitionbox}
 
 For each typeable term $M$ there is a principal pair:
 \[\langle \Pi ; P \rangle \text{ where } \Pi \textit{ is a context and } P \in \mathcal{T}_C \text{ such that } \forall \Gamma, A \in \mathcal{T}_C . \exists \text{ substitution }S . [S \langle \Pi ; P \rangle = \langle \Gamma; A \rangle]\]
 
 \begin{tcbraster}[raster columns=2,raster equal height]
-    \begin{definitionbox}{Soundness}
-        A logical system is sound if every formula provable using the system is logically valid according to the semantics of the system.
-        \[Provable \Rightarrow True\]
-    \end{definitionbox}
-    \begin{definitionbox}{Completeness}
-        A logical system is complete if any true statement can be proved using the system.
-        \[True \Rightarrow Provable\]
-    \end{definitionbox}
+	\begin{definitionbox}{Soundness}
+		A logical system is sound if every formula provable using the system is logically valid according to the semantics of the system.
+		\[Provable \Rightarrow True\]
+	\end{definitionbox}
+	\begin{definitionbox}{Completeness}
+		A logical system is complete if any true statement can be proved using the system.
+		\[True \Rightarrow Provable\]
+	\end{definitionbox}
 \end{tcbraster}
 
 This definition is sound, for every substitution $S$:
@@ -112,54 +112,54 @@ This definition is sound, for every substitution $S$:
 \subsection{Unification}
 
 \begin{definitionbox}{Robinson's Unification}
-    \[\begin{matrix*}[l]
-        unify & \varphi & \varphi & = (\varphi \mapsto \varphi) \\
-        unify & \varphi & B & = (\varphi \mapsto B)  \text{ given } \varphi \text{does not occur in B} \\
-        unify & A & \varphi & = unify \ \varphi \ A \\
-        unify &(A \to B) & (C \to D) & = S_1 \circ S_2 \text{ where} \\
-        & & & \qquad S_1 = unify \ A \ C \\
-        & & & \qquad S_2 = unify \ (S_1 \ B) \ (S_1 \ D)\\
-    \end{matrix*}\]
-    \begin{itemize}
-        \item Unification is associative and commutative
-        \item It returns the most general unifier of two types (the \textit{common substitution instance})
-    \end{itemize}
+	\[\begin{matrix*}[l]
+			unify & \varphi & \varphi & = (\varphi \mapsto \varphi) \\
+			unify & \varphi & B & = (\varphi \mapsto B)  \text{ given } \varphi \text{does not occur in B} \\
+			unify & A & \varphi & = unify \ \varphi \ A \\
+			unify &(A \to B) & (C \to D) & = S_1 \circ S_2 \text{ where} \\
+			& & & \qquad S_1 = unify \ A \ C \\
+			& & & \qquad S_2 = unify \ (S_1 \ B) \ (S_1 \ D)\\
+		\end{matrix*}\]
+	\begin{itemize}
+		\item Unification is associative and commutative
+		\item It returns the most general unifier of two types (the \textit{common substitution instance})
+	\end{itemize}
 \end{definitionbox}
 
 \textit{Robinson's Unification} can be generalised to unify contexts.
 \[\begin{matrix*}[l]
-    unifyContexts & (\Gamma_1, x:A) & \Gamma_2 & = unifyContexts \ \Gamma_1 \ \Gamma_2 \text{ given }x \text{ does not occur in } \Gamma_2 \\
-    unifyContexts & \emptyset & \Gamma_2 & = Id_S \\
-    unifyContexts & (\Gamma_1, x:A) & (\Gamma_2, x:B) & = S_1 \circ S_2 \text{ where}\\
-    & & & \qquad S_1 = unify \ A \ B \\
-    & & & \qquad S_2 = unifyContexts \ (S_1 \ \Gamma_1) \ (S_1 \ \Gamma_2) \\
-\end{matrix*}\]
+		unifyContexts & (\Gamma_1, x:A) & \Gamma_2 & = unifyContexts \ \Gamma_1 \ \Gamma_2 \text{ given }x \text{ does not occur in } \Gamma_2 \\
+		unifyContexts & \emptyset & \Gamma_2 & = Id_S \\
+		unifyContexts & (\Gamma_1, x:A) & (\Gamma_2, x:B) & = S_1 \circ S_2 \text{ where}\\
+		& & & \qquad S_1 = unify \ A \ B \\
+		& & & \qquad S_2 = unifyContexts \ (S_1 \ \Gamma_1) \ (S_1 \ \Gamma_2) \\
+	\end{matrix*}\]
 
 \subsection{Curry Principle Pair}
 
 \begin{definitionbox}{Curry Principle Pair}
-    Every term $M$ has a \textit{(Curry) Principle Pair} defined as $pp_c \ M = \langle \Pi ; P \rangle$ by:
-    \[\begin{matrix*}[l]
-        pp_c & x & = \langle x: \varphi ; \varphi \rangle \text{ where } \varphi \text{ is fresh} \\
-        \\
-        pp_c & \lambda x. M & = \begin{cases}
-            \langle \Pi' ; A \to P \rangle & (\Pi = \Pi', x:A) \\
-            \langle \Pi; \varphi \to P \rangle & (x \not\in \Pi) \\
-        \end{cases} \\
-        & & \qquad \begin{matrix*}[l]
-            \text{ where } & \langle \Pi; P \rangle &= pp_c \ M \\
-            & \varphi & \text{ is fresh}  \\
-        \end{matrix*} \\
-        \\
-        pp_c & M \ N & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2 ; \varphi \rangle \\
-        & & \qquad \begin{matrix*}[l]
-            \text{ where } & \langle \Pi_1 ; P_1 \rangle & = pp_c \ M \\
-            & \langle \Pi_2 ; P_2 \rangle & = pp_c \ N \\
-            & S_1 & = unify \ P_1 \ (P_2 \to \varphi) \\
-            & S_2 & = unifyContexts \ (S_1 \ \Pi_1) \ (S_1 \ \Pi_2) \\
-            & \varphi & \text{ is fresh} \\
-        \end{matrix*} \\
-    \end{matrix*}\]
+	Every term $M$ has a \textit{(Curry) Principle Pair} defined as $pp_c \ M = \langle \Pi ; P \rangle$ by:
+	\[\begin{matrix*}[l]
+			pp_c & x & = \langle x: \varphi ; \varphi \rangle \text{ where } \varphi \text{ is fresh} \\
+			\\
+			pp_c & \lambda x. M & = \begin{cases}
+				\langle \Pi' ; A \to P \rangle     & (\Pi = \Pi', x:A) \\
+				\langle \Pi; \varphi \to P \rangle & (x \not\in \Pi)   \\
+			\end{cases} \\
+			& & \qquad \begin{matrix*}[l]
+				\text{ where } & \langle \Pi; P \rangle &= pp_c \ M \\
+				& \varphi & \text{ is fresh}  \\
+			\end{matrix*} \\
+			\\
+			pp_c & M \ N & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2 ; \varphi \rangle \\
+			& & \qquad \begin{matrix*}[l]
+				\text{ where } & \langle \Pi_1 ; P_1 \rangle & = pp_c \ M \\
+				& \langle \Pi_2 ; P_2 \rangle & = pp_c \ N \\
+				& S_1 & = unify \ P_1 \ (P_2 \to \varphi) \\
+				& S_2 & = unifyContexts \ (S_1 \ \Pi_1) \ (S_1 \ \Pi_2) \\
+				& \varphi & \text{ is fresh} \\
+			\end{matrix*} \\
+		\end{matrix*}\]
 \end{definitionbox}
 
 Substitution is complete:

@@ -1,18 +1,18 @@
 
 \chapter{Milner's ML}
 \begin{definitionbox}{$\mathcal{L}_{ML}$}
-    $\mathcal{L}_{ML}$ is a simple programming language supporting \textit{shallow polymorphic} procedures on a wide variety of objects.
-    \begin{itemize}
-        \item It is an extension of $\lambda$-calculus
-        \item Adds a construct for expressing recursion
-        \item Adds a construct for expressing sub-terms can be used in different ways.
-    \end{itemize}
+	$\mathcal{L}_{ML}$ is a simple programming language supporting \textit{shallow polymorphic} procedures on a wide variety of objects.
+	\begin{itemize}
+		\item It is an extension of $\lambda$-calculus
+		\item Adds a construct for expressing recursion
+		\item Adds a construct for expressing sub-terms can be used in different ways.
+	\end{itemize}
 \end{definitionbox}
 
 A new type-assignment algorithm is paired with $\mathcal{L}_{ML}$ called $\mathcal{W}$:
 \begin{itemize}
-    \item \textit{Semantically Sound} - all typed programs are correct.
-    \item \textit{Syntactically Sound} - if $\mathcal{W}$ accepts a program, then it is well-typed.
+	\item \textit{Semantically Sound} - all typed programs are correct.
+	\item \textit{Syntactically Sound} - if $\mathcal{W}$ accepts a program, then it is well-typed.
 \end{itemize}
 
 \section{The ML Type Assignment System}
@@ -20,155 +20,155 @@ $ML$ expressions are of the form:
 \[E ::= x \ | \ c \ | \ \lambda x.E \ | \ E_1 \ E_2 \ | \ \mllet{x = E_1}{E_2} \ | \ \text{fix }g . E\]
 where:
 \begin{itemize}
-    \item $x$ is bound over $E_2$ in $\text{let }x = E_1 \text{ in } E_2$
-    \item $g$ is bound over $E$ in $\text{fix }g . E$
-    \item $c$ is a term constant, such as a number, character or operator
+	\item $x$ is bound over $E_2$ in $\text{let }x = E_1 \text{ in } E_2$
+	\item $g$ is bound over $E$ in $\text{fix }g . E$
+	\item $c$ is a term constant, such as a number, character or operator
 \end{itemize}
 \subsection{Term Substitution}
 Term substitution is defined as with the following rules:
 \\ \begin{minipage}[t]{.5\textwidth}
-    \[\begin{split}
-        x[E/x] &= x \\
-        y[E/x] &= y \qquad (y \neq x) \\
-    \end{split}\]
-    \centerline{Basic substitution of variables.}
+	\[\begin{split}
+			x[E/x] &= x \\
+			y[E/x] &= y \qquad (y \neq x) \\
+		\end{split}\]
+	\centerline{Basic substitution of variables.}
 \end{minipage}
 \begin{minipage}[t]{.5\textwidth}
-    \[\begin{split}
-        (\lambda y . E')[E/x] &= \lambda y.(E'[E/x]) \\
-        (E_1 \ E_2)[E/x] &= E_1[E/x] \ E_2[E/x] \\
-    \end{split}\]
-    \centerline{Substitution of sub-terms.}
+	\[\begin{split}
+			(\lambda y . E')[E/x] &= \lambda y.(E'[E/x]) \\
+			(E_1 \ E_2)[E/x] &= E_1[E/x] \ E_2[E/x] \\
+		\end{split}\]
+	\centerline{Substitution of sub-terms.}
 \end{minipage}
 \vspace{5mm}
 \[\begin{split}
-    (\mllet{y = E_1}{E_2})[E/x] &= \mllet{y = E_1[E/x]}{E_2[E/x]} \\
-    (\mlfix{g}{E'})[E/x] &= \mlfix{g}{E'[E/x]} \\
-\end{split}\]
+		(\mllet{y = E_1}{E_2})[E/x] &= \mllet{y = E_1[E/x]}{E_2[E/x]} \\
+		(\mlfix{g}{E'})[E/x] &= \mlfix{g}{E'[E/x]} \\
+	\end{split}\]
 \centerline{let statements and fixed point (for recursion)}
 Note that \textit{barendregt's convention} assumed here.
 \begin{itemize}
-    \item The \textit{let} construction is added to cover cases where $(\lambda x . E_1) E_2$ is not typeable but where the contraction $E_1[E_2/x]$ is typeable.
-    \item The \textit{fix} construction introduces model recursion. It is not a combinator, but rather another abstraction mechanism (e.g like $\lambda . $).
+	\item The \textit{let} construction is added to cover cases where $(\lambda x . E_1) E_2$ is not typeable but where the contraction $E_1[E_2/x]$ is typeable.
+	\item The \textit{fix} construction introduces model recursion. It is not a combinator, but rather another abstraction mechanism (e.g like $\lambda . $).
 \end{itemize}
 
 \subsection{Reduction}
 Reduction on $\mathcal{L}{ML}$ is $\to_{ML}$ and is defined as an extension of $\to_\beta$, with the additional rules:
 \[\begin{split}
-    \mllet{x_1 = E_1}{E_2} & \to_{ML} E_2[E_1/x] \\
-    \mlfix{g}{E} & \to_{ML} E[(\mlfix{g}{E})/g] \\
-\end{split}\]
+		\mllet{x_1 = E_1}{E_2} & \to_{ML} E_2[E_1/x] \\
+		\mlfix{g}{E} & \to_{ML} E[(\mlfix{g}{E})/g] \\
+	\end{split}\]
 We also add some contextual rules.
 \[E \to_{ML} E' \Rightarrow \begin{cases}
-    \mllet{x = E}{E_2} &\to_{ML} \mllet{x = E'}{E_2} \\
-    \mllet{x = E_1}{E} &\to_{ML} \mllet{x = E_1}{E'} \\
-    \mlfix{g}{E} & \to_{ML} \mlfix{g}{E'} \\
-\end{cases}\]
+		\mllet{x = E}{E_2} & \to_{ML} \mllet{x = E'}{E_2} \\
+		\mllet{x = E_1}{E} & \to_{ML} \mllet{x = E_1}{E'} \\
+		\mlfix{g}{E}       & \to_{ML} \mlfix{g}{E'}       \\
+	\end{cases}\]
 Under reduction both $\mllet{x = E_2}{E_1}$ and $(\lambda x . E_1) \ E_2$ are \textit{reducible expressions} and both reduce to $E_1[E_2/x]$
 \begin{itemize}
-    \item $(\lambda x . E_1) \ E_2$ semantically interpreted as a function with an operand $x$
-    \item $\mllet{x = E_2}{E_1}$ interpreted as a substitution.
+	\item $(\lambda x . E_1) \ E_2$ semantically interpreted as a function with an operand $x$
+	\item $\mllet{x = E_2}{E_1}$ interpreted as a substitution.
 \end{itemize}
 Type assignment treats both differently.
 
 \subsection{Type Assignment}
 The set of types is defined similarly to with curry types ($\mathcal{T}_c$).
 \begin{itemize}
-    \item Extended with type constants $'C$ that includes $\text{int}, \text{bool}, \dots$.
-    \item Ranged over by type $A, B, \dots$ much like with $\mathcal{T}_c$.
-    \item Types can be \textit{quantified}, creating \textit{generic types} / \textit{type schemes} ranged over by $\sigma, \tau, \dots$.
+	\item Extended with type constants $'C$ that includes $\text{int}, \text{bool}, \dots$.
+	\item Ranged over by type $A, B, \dots$ much like with $\mathcal{T}_c$.
+	\item Types can be \textit{quantified}, creating \textit{generic types} / \textit{type schemes} ranged over by $\sigma, \tau, \dots$.
 \end{itemize}
 \[\begin{matrix*}[l]
-    A, B & ::= \varphi \ | \ c \ | \ (A \to B) & (\text{basic types}) \\
-    \sigma , \tau & ::= A \ | \ (\forall \varphi . \tau) & (\text{polymorphic types}) \\
-\end{matrix*}\]
+		A, B & ::= \varphi \ | \ c \ | \ (A \to B) & (\text{basic types}) \\
+		\sigma , \tau & ::= A \ | \ (\forall \varphi . \tau) & (\text{polymorphic types}) \\
+	\end{matrix*}\]
 Types of the form $\forall \varphi . \tau$ are called \textit{quantified types}.
 \begin{itemize}
-    \item $(\forall \varphi_1 . (\forall \varphi_2 . \dots (\forall \varphi_n . A)\dots))$ is abbreviated by $\forall \overset{\rightharpoonup}{\varphi} . A$
-    \item $\varphi$ is bound in $\forall \varphi . \tau$
-    \item Free and bound type variables can be defined just as with variables in $\lambda$-calculus, but must have names kept separate.
+	\item $(\forall \varphi_1 . (\forall \varphi_2 . \dots (\forall \varphi_n . A)\dots))$ is abbreviated by $\forall \overset{\rightharpoonup}{\varphi} . A$
+	\item $\varphi$ is bound in $\forall \varphi . \tau$
+	\item Free and bound type variables can be defined just as with variables in $\lambda$-calculus, but must have names kept separate.
 \end{itemize}
 
 \textit{ML type substitution} is defined as:
 \\ \begin{minipage}[b]{.5\textwidth}
-    \[\begin{matrix*}[l]
-        (\varphi \mapsto C) & \varphi & = C \\
-        (\varphi \mapsto C) & c & = c \\
-        (\varphi \mapsto C) & \varphi' & = \varphi' & (\varphi' \neq \varphi) \\
-        (\varphi \mapsto C) & A \to B & = ((\varphi \mapsto C) A) \to ((\varphi \mapsto C) B) \\
-    \end{matrix*}\]
-    \centerline{Basic type substitutions}
+	\[\begin{matrix*}[l]
+			(\varphi \mapsto C) & \varphi & = C \\
+			(\varphi \mapsto C) & c & = c \\
+			(\varphi \mapsto C) & \varphi' & = \varphi' & (\varphi' \neq \varphi) \\
+			(\varphi \mapsto C) & A \to B & = ((\varphi \mapsto C) A) \to ((\varphi \mapsto C) B) \\
+		\end{matrix*}\]
+	\centerline{Basic type substitutions}
 \end{minipage}
 \begin{minipage}[b]{.5\textwidth}
-    \[\begin{matrix*}[l]
-        (\varphi \mapsto C) & \forall \varphi' . \psi & = \forall \varphi' .((\varphi \mapsto C) \psi) \\
-    \end{matrix*}\]
-    \centerline{Quantified types}
+	\[\begin{matrix*}[l]
+			(\varphi \mapsto C) & \forall \varphi' . \psi & = \forall \varphi' .((\varphi \mapsto C) \psi) \\
+		\end{matrix*}\]
+	\centerline{Quantified types}
 \end{minipage}
 \vspace{2mm}
 Unification is also extended with type constants as:
 \[\begin{matrix*}[l]
-    unify & \varphi & c & = (\varphi \mapsto c) \\
-    unify & c & \varphi & = unify \ \varphi \ c \\
-    unify & c & c & = Id_S \\
-\end{matrix*}\]
+		unify & \varphi & c & = (\varphi \mapsto c) \\
+		unify & c & \varphi & = unify \ \varphi \ c \\
+		unify & c & c & = Id_S \\
+	\end{matrix*}\]
 \begin{itemize}
-    \item Here a unification of all other cases including a type constant will fail (e.g cannot unify $\text{int}$ and $\text{bool}$)
-    \item Types are considered modulo a kind of $\alpha$-conversion (similar to barendregt's convention - avoid type variable capture)
-    \item As $\varphi'$ is bound in $\forall \varphi' . \psi$ we can assume in $(\varphi \mapsto C) \ \forall \varphi' . \psi$ we have $\varphi \neq \varphi'$ and $\varphi' \not\in fv(C)$.
-    \item As we can have free type variables, the set of types occurring in $\forall \varphi_1 \dots \forall \varphi_n . A$ is not necessarily $\{\varphi_1, \dots , \varphi_n\}$.
+	\item Here a unification of all other cases including a type constant will fail (e.g cannot unify $\text{int}$ and $\text{bool}$)
+	\item Types are considered modulo a kind of $\alpha$-conversion (similar to barendregt's convention - avoid type variable capture)
+	\item As $\varphi'$ is bound in $\forall \varphi' . \psi$ we can assume in $(\varphi \mapsto C) \ \forall \varphi' . \psi$ we have $\varphi \neq \varphi'$ and $\varphi' \not\in fv(C)$.
+	\item As we can have free type variables, the set of types occurring in $\forall \varphi_1 \dots \forall \varphi_n . A$ is not necessarily $\{\varphi_1, \dots , \varphi_n\}$.
 \end{itemize}
 \[\overline{\Gamma} \ A = \forall \overset{\rightharpoonup}{\varphi} . A\]
 $\overset{\rightharpoonup}{\varphi}$ appear free in $A$, but are not in the context of $A$.
 \\
 \\ For the inference system expressing type assignment, we include a function $\nu$ which maps constants to their type (e.g a constant type such as Char, Int or a closed polymorphic type).
 \\ \begin{minipage}[b]{.5\textwidth}
-    \[\ninfer{$Ax$}{}{\Gamma, x:\tau \vdash x : \tau}\]
-    \centerline{Basic substitution of free variable}
+	\[\ninfer{$Ax$}{}{\Gamma, x:\tau \vdash x : \tau}\]
+	\centerline{Basic substitution of free variable}
 \end{minipage}
 \begin{minipage}[b]{.5\textwidth}
-    \[\ninfer{$\mathcal{C}$}{}{\Gamma \vdash c : \nu \ c}\]
-    \centerline{Substituting constants}
+	\[\ninfer{$\mathcal{C}$}{}{\Gamma \vdash c : \nu \ c}\]
+	\centerline{Substituting constants}
 \end{minipage}
 \vspace{2mm}
 \\ \begin{minipage}[b]{.5\textwidth}
-    \[\ninfer{$\to I$}{\Gamma, x:A \vdash E : B}{\Gamma \vdash \lambda x . E : A \to B}\]
+	\[\ninfer{$\to I$}{\Gamma, x:A \vdash E : B}{\Gamma \vdash \lambda x . E : A \to B}\]
 \end{minipage}
 \begin{minipage}[b]{.5\textwidth}
-    \[\ninfer{$\to E$}{\Gamma \vdash E_1 : A \to B \quad \Gamma \vdash E_2 : A}{\Gamma \vdash E_1 \ E_2 : B}\]
+	\[\ninfer{$\to E$}{\Gamma \vdash E_1 : A \to B \quad \Gamma \vdash E_2 : A}{\Gamma \vdash E_1 \ E_2 : B}\]
 \end{minipage}
 \vspace{2mm}
 \\ \begin{minipage}[b]{.5\textwidth}
-    \[\ninfer{let}{\Gamma \vdash E_1 : \tau \quad \Gamma, x: \tau \vdash E_2 : B}{\mllet{x = E_1}{E_2 : B}}\]
+	\[\ninfer{let}{\Gamma \vdash E_1 : \tau \quad \Gamma, x: \tau \vdash E_2 : B}{\mllet{x = E_1}{E_2 : B}}\]
 \end{minipage}
 \begin{minipage}[b]{.5\textwidth}
-    \[\ninfer{fix}{\Gamma, g:A \vdash E : A}{\Gamma \vdash \mlfix{g}{E} : A}\]
+	\[\ninfer{fix}{\Gamma, g:A \vdash E : A}{\Gamma \vdash \mlfix{g}{E} : A}\]
 \end{minipage}
 \vspace{2mm}
 \\ \begin{minipage}[b]{.5\textwidth}
-    \[\ninfers{$\forall I$}{\Gamma \vdash E : \tau}{\Gamma \vdash E : \forall \varphi . \tau}{\varphi \text{ not free in } \Gamma}  \]
+	\[\ninfers{$\forall I$}{\Gamma \vdash E : \tau}{\Gamma \vdash E : \forall \varphi . \tau}{\varphi \text{ not free in } \Gamma}  \]
 \end{minipage}
 \begin{minipage}[b]{.5\textwidth}
-    \[\ninfer{$\forall E$}{\Gamma \vdash E : \forall \varphi . \tau}{\Gamma \vdash E : \tau [A / \varphi]}\]
+	\[\ninfer{$\forall E$}{\Gamma \vdash E : \forall \varphi . \tau}{\Gamma \vdash E : \tau [A / \varphi]}\]
 \end{minipage}
 \vspace{5mm}
 \\ Quantification is introduced to model substitution operations on types, rasther than replacing all type variables at once.
 \begin{itemize}
-    \item $\forall \varphi : \tau$ - all occurrences of type variable $\varphi$ can be replaced by some basic type.
-    \item The side condition on $\forall I$ ensures that the type variables used do not also occur in the context (there is no reference back to the context).
+	\item $\forall \varphi : \tau$ - all occurrences of type variable $\varphi$ can be replaced by some basic type.
+	\item The side condition on $\forall I$ ensures that the type variables used do not also occur in the context (there is no reference back to the context).
 \end{itemize}
 We can model the substitution of $\varphi$ in $A$, by type $B$ as $(\varphi \mapsto B) \ A$.
 \[\ainfer{$\forall E$}{\ainfer{$\forall I$}{\emptyset \vdash_{ML} E : A}{\emptyset \vdash_{ML} E : \forall \varphi . A}}{\emptyset \vdash_{ML} E : A [B/\varphi]}\]
 The let construct corresponds to definitions in $A^{NR}$.
 \begin{itemize}
-    \item Can occur anywhere within a term.
-    \item Given $\mllet{x = E_1}{E_1}$, $E_1$ does not need to be a \textit{closed-term}, so it is possible to define terms that are \textit{partially-polymorphic} (a term of type $\forall \overset{\rightharpoonup}{\varphi} . A$ where $A$ contains free type variables).
-    \item When applying $\forall I$ only the type variable that we attempt to bind must not occur in the context.
+	\item Can occur anywhere within a term.
+	\item Given $\mllet{x = E_1}{E_1}$, $E_1$ does not need to be a \textit{closed-term}, so it is possible to define terms that are \textit{partially-polymorphic} (a term of type $\forall \overset{\rightharpoonup}{\varphi} . A$ where $A$ contains free type variables).
+	\item When applying $\forall I$ only the type variable that we attempt to bind must not occur in the context.
 \end{itemize}
 To allow for recursion to be typed, the syntax for fix is added.
 \begin{itemize}
-    \item Previously we have seen $\mathbf{Y}$ added as a typed constant.
-    \item It is also possible to solve this by defining \textit{letrec} as a combination of \textit{let} and \textit{fix} ($\text{letrec } g = \lambda x . E_1 in E_2$)
+	\item Previously we have seen $\mathbf{Y}$ added as a typed constant.
+	\item It is also possible to solve this by defining \textit{letrec} as a combination of \textit{let} and \textit{fix} ($\text{letrec } g = \lambda x . E_1 in E_2$)
 \end{itemize}
 \subsection{Lemmas for Type Assignment}
 \subsubsection{Free Variables}
@@ -183,195 +183,195 @@ We can remove variables that are not free in $E$ from the context, and the conte
 
 \subsubsection{Generation}
 \begin{definitionbox}{$>_\Gamma$}
-    \[\Gamma \vdash_{ML} E : A[B / \varphi]\]
-    The smallest reflexive and transitive relation such that:
-    \[\begin{split}
-        \rho & >_\Gamma \forall \varphi . \rho \qquad (\varphi \text{ is not free in }\Gamma\text{ and not bound in }\rho)\\
-        \forall \varphi . \rho & >_\Gamma \rho[B / \varphi] \\
-    \end{split}\]
-    Where there are no free $\varphi'$ in $A$.
-    \begin{itemize}
-        \item If $\sigma >_\Gamma \tau$ then $\tau$ is a \textit{generic instance} of $\sigma$.
-        \item Each context $\Gamma$ induces a new relation.
-        \item This relation represents applying the $\forall I$ and $\forall E$ steps.
-    \end{itemize}
-    \[\Gamma \vdash_{ML} E : \sigma \land \sigma >_{\Gamma} \tau \Rightarrow \Gamma_{ML} E : \tau\]
+	\[\Gamma \vdash_{ML} E : A[B / \varphi]\]
+	The smallest reflexive and transitive relation such that:
+	\[\begin{split}
+			\rho & >_\Gamma \forall \varphi . \rho \qquad (\varphi \text{ is not free in }\Gamma\text{ and not bound in }\rho)\\
+			\forall \varphi . \rho & >_\Gamma \rho[B / \varphi] \\
+		\end{split}\]
+	Where there are no free $\varphi'$ in $A$.
+	\begin{itemize}
+		\item If $\sigma >_\Gamma \tau$ then $\tau$ is a \textit{generic instance} of $\sigma$.
+		\item Each context $\Gamma$ induces a new relation.
+		\item This relation represents applying the $\forall I$ and $\forall E$ steps.
+	\end{itemize}
+	\[\Gamma \vdash_{ML} E : \sigma \land \sigma >_{\Gamma} \tau \Rightarrow \Gamma_{ML} E : \tau\]
 \end{definitionbox}
 
 \[\begin{matrix*}[l]
-    (1) & \Gamma \vdash_{ML} & x : \sigma & \Rightarrow & \exists x:\tau \in \Gamma . & \tau >_\Gamma \sigma \\
-    \\
-    (2) & \Gamma \vdash_{ML} & \lambda x . E : \sigma & \Rightarrow & \exists A,B . & \ \ \quad  \Gamma, x:A \vdash_{ML} E : B  \\
-    & & & & & \land \quad \sigma = \forall \overset{\rightharpoonup}{\varphi_i} . A \to B \\
-    & & & & & \land \quad A \to B >_\Gamma \sigma \\
-    \\ 
-    (3) & \Gamma \vdash_{ML} & E_1 \ E_2 : \sigma & \Rightarrow & \exists A,B . & \ \ \quad \Gamma \vdash_{ML} E_1 : A \to B \\
-    & & & & & \land \quad  \Gamma \vdash_{ML} E_2 : A \\
-    & & & & & \land \quad  B >_{\Gamma} \sigma \\
-    \\
-    (4) & \Gamma \vdash_{ML} & \mlfix{g}{E} : \sigma & \Rightarrow & \exists A . & \ \quad \Gamma , g: A \vdash_{ML} E : A \\
-    & & & & & \land \quad \sigma = \sigma = \forall \overset{\rightharpoonup}{\varphi_i} . A \\
-    & & & & & \land \quad A >_\Gamma \sigma \\
-    \\
-    (5) & \Gamma \vdash_{ML} & \mllet{x = E_1}{E_2} : \sigma & \Rightarrow & \exists A, \tau & \ \ \quad \Gamma  , x: \tau \vdash_{ML} E_2 : A \\
-    & & & & & \land \quad \Gamma \vdash_{ML} E_1 : \tau \\
-    & & & & & \land \quad A >_\Gamma \sigma \\
-\end{matrix*}\]
+		(1) & \Gamma \vdash_{ML} & x : \sigma & \Rightarrow & \exists x:\tau \in \Gamma . & \tau >_\Gamma \sigma \\
+		\\
+		(2) & \Gamma \vdash_{ML} & \lambda x . E : \sigma & \Rightarrow & \exists A,B . & \ \ \quad  \Gamma, x:A \vdash_{ML} E : B  \\
+		& & & & & \land \quad \sigma = \forall \overset{\rightharpoonup}{\varphi_i} . A \to B \\
+		& & & & & \land \quad A \to B >_\Gamma \sigma \\
+		\\
+		(3) & \Gamma \vdash_{ML} & E_1 \ E_2 : \sigma & \Rightarrow & \exists A,B . & \ \ \quad \Gamma \vdash_{ML} E_1 : A \to B \\
+		& & & & & \land \quad  \Gamma \vdash_{ML} E_2 : A \\
+		& & & & & \land \quad  B >_{\Gamma} \sigma \\
+		\\
+		(4) & \Gamma \vdash_{ML} & \mlfix{g}{E} : \sigma & \Rightarrow & \exists A . & \ \quad \Gamma , g: A \vdash_{ML} E : A \\
+		& & & & & \land \quad \sigma = \sigma = \forall \overset{\rightharpoonup}{\varphi_i} . A \\
+		& & & & & \land \quad A >_\Gamma \sigma \\
+		\\
+		(5) & \Gamma \vdash_{ML} & \mllet{x = E_1}{E_2} : \sigma & \Rightarrow & \exists A, \tau & \ \ \quad \Gamma  , x: \tau \vdash_{ML} E_2 : A \\
+		& & & & & \land \quad \Gamma \vdash_{ML} E_1 : \tau \\
+		& & & & & \land \quad A >_\Gamma \sigma \\
+	\end{matrix*}\]
 
 \begin{sidenotebox}{System F}
-    The ML type assignment is a restriction on the \textit{polymorphic type discipline} (System F).
-    \begin{itemize}
-        \item In the ML type assignment covered in these notes, $\forall$ occurs outside of a type (\textit{shallow polymorphism}). It is also decidable.
-        \item In System F $\forall$ is a general type constructor, so $A \to \forall \varphi . B$ is a valid type. It is not decidable.
-    \end{itemize}
+	The ML type assignment is a restriction on the \textit{polymorphic type discipline} (System F).
+	\begin{itemize}
+		\item In the ML type assignment covered in these notes, $\forall$ occurs outside of a type (\textit{shallow polymorphism}). It is also decidable.
+		\item In System F $\forall$ is a general type constructor, so $A \to \forall \varphi . B$ is a valid type. It is not decidable.
+	\end{itemize}
 \end{sidenotebox}
 
 \begin{examplebox}{Complex Types}
-    Type $\mllet{i = \lambda x . x}{i \ i}$.
-    \tcblower
-    \[\ainfer{let}{
-        \ainfer{$\forall I$}{
-            \ainfer{$\to I$}{
-                \ainfer{$Ax$}{
-                }{
-                    x : \varphi \vdash x : \varphi
-                }
-            }{
-                \emptyset \vdash \lambda x . x : \varphi \to \varphi
-            }
-        }{
-            \emptyset \vdash \lambda x . x : \forall \varphi . \varphi \to \varphi
-        } \qquad \ainfer{$\to E$}{
-            (1) \qquad (2)
-        }{
-            i: \forall \varphi . \varphi \to \varphi \vdash i \ i : A \to A
-        }
-    }{\emptyset \vdash \mllet{i = \lambda x . x}{i \ i} : A \to A}\]
-    where:
-    \[(1) = \ainfer{$\forall E$}{
-        \ainfer{$Ax$}{
-        }{
-            i: \forall \varphi . \varphi \to \varphi \vdash i : \forall \varphi . \varphi \to \varphi
-        }
-    }{
-        i: \forall \varphi . \varphi \to \varphi \vdash i : (A \to A) \to A \to A
-    }\]
-    \[(2) = \ainfer{$\forall E$}{
-        \ainfer{$Ax$}{
-        }{
-            i: \forall \varphi . \varphi \to \varphi \vdash i : \forall \varphi . \varphi \to \varphi
-        }
-    }{
-        i: \forall \varphi . \varphi \to \varphi \vdash i : A \to A
-    }\]
+	Type $\mllet{i = \lambda x . x}{i \ i}$.
+	\tcblower
+	\[\ainfer{let}{
+			\ainfer{$\forall I$}{
+				\ainfer{$\to I$}{
+					\ainfer{$Ax$}{
+					}{
+						x : \varphi \vdash x : \varphi
+					}
+				}{
+					\emptyset \vdash \lambda x . x : \varphi \to \varphi
+				}
+			}{
+				\emptyset \vdash \lambda x . x : \forall \varphi . \varphi \to \varphi
+			} \qquad \ainfer{$\to E$}{
+				(1) \qquad (2)
+			}{
+				i: \forall \varphi . \varphi \to \varphi \vdash i \ i : A \to A
+			}
+		}{\emptyset \vdash \mllet{i = \lambda x . x}{i \ i} : A \to A}\]
+	where:
+	\[(1) = \ainfer{$\forall E$}{
+			\ainfer{$Ax$}{
+			}{
+				i: \forall \varphi . \varphi \to \varphi \vdash i : \forall \varphi . \varphi \to \varphi
+			}
+		}{
+			i: \forall \varphi . \varphi \to \varphi \vdash i : (A \to A) \to A \to A
+		}\]
+	\[(2) = \ainfer{$\forall E$}{
+			\ainfer{$Ax$}{
+			}{
+				i: \forall \varphi . \varphi \to \varphi \vdash i : \forall \varphi . \varphi \to \varphi
+			}
+		}{
+			i: \forall \varphi . \varphi \to \varphi \vdash i : A \to A
+		}\]
 \end{examplebox}
 
 \begin{examplebox}{Addition}
-    Express Addition in ML.
-    \tcblower
-    We can use type constants by defining then in $\nu$:
-    \[\nu \ x = \begin{cases}
-        Num \to Num & x = Succ \\
-        Num \to Num & x = Pred \\
-        Num \to Bool & x = IsZero \\
-        \forall \varphi . Bool \to \varphi \to \varphi \to \varphi & x = Cond \\
-        \vdots & \vdots \\
-    \end{cases}\]
-    We can define it recursively as:
-    \[Add = \lambda x y . Cond \ (IsZero x) \ y \ (Succ \ (Add \ (Pred x) y))\]
-    This recursion can be implemented in ML using fix.
-    \[Add = \mlfix{a}{\lambda x y . Cond \ (IsZero x) \ y \ (Succ \ (a \ (Pred x) y))}\]
+	Express Addition in ML.
+	\tcblower
+	We can use type constants by defining then in $\nu$:
+	\[\nu \ x = \begin{cases}
+			Num \to Num                                                & x = Succ   \\
+			Num \to Num                                                & x = Pred   \\
+			Num \to Bool                                               & x = IsZero \\
+			\forall \varphi . Bool \to \varphi \to \varphi \to \varphi & x = Cond   \\
+			\vdots                                                     & \vdots     \\
+		\end{cases}\]
+	We can define it recursively as:
+	\[Add = \lambda x y . Cond \ (IsZero x) \ y \ (Succ \ (Add \ (Pred x) y))\]
+	This recursion can be implemented in ML using fix.
+	\[Add = \mlfix{a}{\lambda x y . Cond \ (IsZero x) \ y \ (Succ \ (a \ (Pred x) y))}\]
 \end{examplebox}
 
 \section{Milner's $\mathcal{W}$}
 \begin{definitionbox}{Milner's Type Assignment Algorithm}
-    Milner's $\mathcal{W}$ is a type assignment algorithm for ML.
-    \begin{itemize}
-        \item It has a \textit{principle type property} - given any $\Gamma$ and $E$ there is a principle type computed by $\mathcal{W}$.
-        \item Its does not have the \textit{principle pair property} as if $\Gamma, x:\tau \vdash_{ML} E : A$ may exist, but $\lambda x. E$ may not be typeable.
-        \item Type assignment is decidable.
-    \end{itemize}
-    It is complete, given some $E$, contexts $\Gamma$ and $\Gamma'$ and type $A$:
-    \[\Gamma' \text{ is an instance of } \Gamma \land \Gamma' \vdash_{ML} E : A \Rightarrow \mathcal{W} \ \Gamma \ E = \langle S, B \rangle \land \exists \ S' . \ [\Gamma' = S' (S \ \Gamma) \land S' (S \ B) >_{\Gamma'} A]\]
-    It is also sound:
-    \[\forall \ E . \ [\mathcal{W} \ \Gamma \ E = \langle S, A \rangle \Rightarrow S \ \Gamma \vdash_{ML} E : A]\]
+	Milner's $\mathcal{W}$ is a type assignment algorithm for ML.
+	\begin{itemize}
+		\item It has a \textit{principle type property} - given any $\Gamma$ and $E$ there is a principle type computed by $\mathcal{W}$.
+		\item Its does not have the \textit{principle pair property} as if $\Gamma, x:\tau \vdash_{ML} E : A$ may exist, but $\lambda x. E$ may not be typeable.
+		\item Type assignment is decidable.
+	\end{itemize}
+	It is complete, given some $E$, contexts $\Gamma$ and $\Gamma'$ and type $A$:
+	\[\Gamma' \text{ is an instance of } \Gamma \land \Gamma' \vdash_{ML} E : A \Rightarrow \mathcal{W} \ \Gamma \ E = \langle S, B \rangle \land \exists \ S' . \ [\Gamma' = S' (S \ \Gamma) \land S' (S \ B) >_{\Gamma'} A]\]
+	It is also sound:
+	\[\forall \ E . \ [\mathcal{W} \ \Gamma \ E = \langle S, A \rangle \Rightarrow S \ \Gamma \vdash_{ML} E : A]\]
 \end{definitionbox}
 
 \subsection{Basic Cases}
-\begin{minipage}{.5\textwidth}  
-\[\begin{matrix*}[l]
-    \mathcal{W} \ \Gamma \ c & = \langle id, B \rangle \\
-    & \begin{matrix*}[l]
-        \text{where } & \nu \ c & = \forall \overset{\rightharpoonup}{\varphi} . A \\
-        & B & = A [\overset{\rightharpoonup}{\varphi' / \varphi}] \\
-        & \text{all } \varphi' & \text{ are fresh} \\
-    \end{matrix*} \\
-    \\
-    \mathcal{W} \ \Gamma \ (\lambda x . E) & = \langle S , S \ (\varphi \mapsto A) \rangle \\
-    & \begin{matrix*}[l]
-        \text{where } & \langle S, A \rangle &= \mathcal{W} \ (\Gamma, x:\varphi) \ E \\
-        & \varphi & \text{is fresh} \\
-    \end{matrix*} \\
-\end{matrix*}\]
+\begin{minipage}{.5\textwidth}
+	\[\begin{matrix*}[l]
+			\mathcal{W} \ \Gamma \ c & = \langle id, B \rangle \\
+			& \begin{matrix*}[l]
+				\text{where } & \nu \ c & = \forall \overset{\rightharpoonup}{\varphi} . A \\
+				& B & = A [\overset{\rightharpoonup}{\varphi' / \varphi}] \\
+				& \text{all } \varphi' & \text{ are fresh} \\
+			\end{matrix*} \\
+			\\
+			\mathcal{W} \ \Gamma \ (\lambda x . E) & = \langle S , S \ (\varphi \mapsto A) \rangle \\
+			& \begin{matrix*}[l]
+				\text{where } & \langle S, A \rangle &= \mathcal{W} \ (\Gamma, x:\varphi) \ E \\
+				& \varphi & \text{is fresh} \\
+			\end{matrix*} \\
+		\end{matrix*}\]
 \end{minipage}
 \vline
 \begin{minipage}{.5\textwidth}
-\[\begin{matrix*}[l]
-    \mathcal{W} \ \Gamma \ x & = \langle id, B \rangle \\
-    & \begin{matrix*}[l]
-        \text{where } & x:\forall \overset{\rightharpoonup}{\varphi} . A & \in \Gamma \\
-        & B & = A [\overset{\rightharpoonup}{\varphi' / \varphi}] \\
-        & \text{all } \varphi' & \text{are fresh} \\
-    \end{matrix*} \\
-\end{matrix*}\]
+	\[\begin{matrix*}[l]
+			\mathcal{W} \ \Gamma \ x & = \langle id, B \rangle \\
+			& \begin{matrix*}[l]
+				\text{where } & x:\forall \overset{\rightharpoonup}{\varphi} . A & \in \Gamma \\
+				& B & = A [\overset{\rightharpoonup}{\varphi' / \varphi}] \\
+				& \text{all } \varphi' & \text{are fresh} \\
+			\end{matrix*} \\
+		\end{matrix*}\]
 \end{minipage}
 
 \subsection{Let Construct}
 
 \[\begin{matrix*}[l]
-    \mathcal{W} \ \Gamma \ (\mllet{x = E_1}{E_2}) & = \langle S_2 \circ S_1, B \rangle \\
-    & \begin{matrix*}[l]
-        \text{where } & \langle S_1, A \rangle & = \mathcal{W} \ \Gamma \ E_1 \\
-        & \langle S_2, B \rangle & = \mathcal{W} \ (S_1 \Gamma, x:\sigma) \ E_2 \\
-        & \sigma & = \overline{S_1\Gamma} A \\
-    \end{matrix*} \\
-\end{matrix*}\]
+		\mathcal{W} \ \Gamma \ (\mllet{x = E_1}{E_2}) & = \langle S_2 \circ S_1, B \rangle \\
+		& \begin{matrix*}[l]
+			\text{where } & \langle S_1, A \rangle & = \mathcal{W} \ \Gamma \ E_1 \\
+			& \langle S_2, B \rangle & = \mathcal{W} \ (S_1 \Gamma, x:\sigma) \ E_2 \\
+			& \sigma & = \overline{S_1\Gamma} A \\
+		\end{matrix*} \\
+	\end{matrix*}\]
 \begin{enumerate}
-    \item Get the type and substitutions for $E_1$ given the context $\Gamma$
-    \item Get the type and substitutions for $E_2$, the context needs to have $E_1$'s substitutions applied, we add in a new variable $x$ (it will be free in $E_2$) and give it a $\forall$ type that uses no type variables already bound in $S_1 \ \Gamma$.
-    \item The resulting type for $E_2$ is the type of the whole term, we must compose the substitutions for $E_1$ and $E_2$.
+	\item Get the type and substitutions for $E_1$ given the context $\Gamma$
+	\item Get the type and substitutions for $E_2$, the context needs to have $E_1$'s substitutions applied, we add in a new variable $x$ (it will be free in $E_2$) and give it a $\forall$ type that uses no type variables already bound in $S_1 \ \Gamma$.
+	\item The resulting type for $E_2$ is the type of the whole term, we must compose the substitutions for $E_1$ and $E_2$.
 \end{enumerate}
 
 \subsection{Fix Construct}
 
 \[\begin{matrix*}[l]
-    \mathcal{W} \ \Gamma \ (\mlfix{g}{E}) & = \langle S_2 \circ S_1, S_2 \ A \rangle \\
-    & \begin{matrix*}[l]
-        \text{where } & \langle S_1, A \rangle &= \mathcal{W} \ (\Gamma, g:\varphi) \ E \\
-        & S_2 & = unify \ (S_1 \varphi) \ A \\
-        & \varphi & \text{is fresh} \\
-    \end{matrix*} \\
-\end{matrix*}\]
+		\mathcal{W} \ \Gamma \ (\mlfix{g}{E}) & = \langle S_2 \circ S_1, S_2 \ A \rangle \\
+		& \begin{matrix*}[l]
+			\text{where } & \langle S_1, A \rangle &= \mathcal{W} \ (\Gamma, g:\varphi) \ E \\
+			& S_2 & = unify \ (S_1 \varphi) \ A \\
+			& \varphi & \text{is fresh} \\
+		\end{matrix*} \\
+	\end{matrix*}\]
 \begin{enumerate}
-    \item $g$ must have the same type as $E$ (recursion, the inner call has the same type as the outer), hence to compute the pair for $E$ we add $g$ to the context with fresh type variable $\varphi$
-    \item We then get a substitution $S_1$ and type $A$, we must unify this with the type of $g$ (with $S_1$ applied) to type the whole term.
+	\item $g$ must have the same type as $E$ (recursion, the inner call has the same type as the outer), hence to compute the pair for $E$ we add $g$ to the context with fresh type variable $\varphi$
+	\item We then get a substitution $S_1$ and type $A$, we must unify this with the type of $g$ (with $S_1$ applied) to type the whole term.
 \end{enumerate}
 
 \subsection{Application}
 
 \[\begin{matrix*}[l]
-    \mathcal{W} \ \Gamma \ (E_1 \ E_2) & = \langle S_3 \circ S_2 \circ S_1, S_3 \varphi \rangle \\
-    & \begin{matrix*}[l]
-        \text{where } & \langle S_1, A \rangle & = \mathcal{W} \ \Gamma \ E_1 \\
-        & \langle S_2, B \rangle & = \mathcal{W} \ (S_1 \ \Gamma) \ E_2 \\
-        & S_3 & = unify \ (S_2 \ A) \ (B \to \varphi) \\
-        & \varphi & \text{is fresh} \\
-    \end{matrix*} \\
-\end{matrix*}\]
+		\mathcal{W} \ \Gamma \ (E_1 \ E_2) & = \langle S_3 \circ S_2 \circ S_1, S_3 \varphi \rangle \\
+		& \begin{matrix*}[l]
+			\text{where } & \langle S_1, A \rangle & = \mathcal{W} \ \Gamma \ E_1 \\
+			& \langle S_2, B \rangle & = \mathcal{W} \ (S_1 \ \Gamma) \ E_2 \\
+			& S_3 & = unify \ (S_2 \ A) \ (B \to \varphi) \\
+			& \varphi & \text{is fresh} \\
+		\end{matrix*} \\
+	\end{matrix*}\]
 \begin{enumerate}
-    \item First the type of $E_1$ is computed ass type $A$, with substitutions $S_1$.
-    \item Next we get the type of $E_2$, first applying the substitution $S_1$ to the context $\Gamma$.
-    \item We now have $E_1 : A$ and $E_2 : B$. $A$ must be equal to some type $B \to \varphi$ ($E_1$ is a function taking $E_2$ as input), hence we unify $A$ with $B \to \varphi$
+	\item First the type of $E_1$ is computed ass type $A$, with substitutions $S_1$.
+	\item Next we get the type of $E_2$, first applying the substitution $S_1$ to the context $\Gamma$.
+	\item We now have $E_1 : A$ and $E_2 : B$. $A$ must be equal to some type $B \to \varphi$ ($E_1$ is a function taking $E_2$ as input), hence we unify $A$ with $B \to \varphi$
 \end{enumerate}
 
 \section{Polymorphic Recursion}
@@ -382,20 +382,20 @@ squarelist ls = map (\x -> x^2) ls
 \end{minted}
 In $\Lambda^{NR}$ this would be defined as:
 \[\begin{matrix*}[l]
-    \vdots & (\text{definitions of head, tail, cons, etc}) \\
-    map & = \lambda f \ ls . Cond \ (null \ ls) \ ls \ (cons \ (f \ (head \ ls)) \ (map \ f \ (tail \ ls))) \\
-    squarelist & = \lambda ls . map \ (\lambda x . mul \ x \ x) \ ls \\
-\end{matrix*}\]
+		\vdots & (\text{definitions of head, tail, cons, etc}) \\
+		map & = \lambda f \ ls . Cond \ (null \ ls) \ ls \ (cons \ (f \ (head \ ls)) \ (map \ f \ (tail \ ls))) \\
+		squarelist & = \lambda ls . map \ (\lambda x . mul \ x \ x) \ ls \\
+	\end{matrix*}\]
 The name $squarelist$ could then be used in a program.
 \\
-\\ In ML there is no check to see if functions are independent or mutually recursive, so all definitions must be done in a single step. 
+\\ In ML there is no check to see if functions are independent or mutually recursive, so all definitions must be done in a single step.
 Hence we can extend $\mathcal{L}_{ML}$ with a pairing function $\langle \ . \ , \ . \ \rangle$:
 \[\mllet{\langle map, squarelist \rangle = \mlfix{\langle m, s \rangle}{\langle \lambda f \ ls . Cond \ (null \ ls) \ l \ (cons \ (f \ (head \ ls)) \ (m \ f \ (tail \ ls))), \lambda ls . m \ (\lambda x . mul \ x \ x) \ ls\rangle}}{\dots}\]
 However we still have a type assignment issue, $\mathcal{W}$ will get the following types:
 \[\begin{matrix*}[l]
-    map & :: (num \to num) \to [num] \to [num] \\
-    squarelist & :: [num] \to [num] \\
-\end{matrix*}\]
+		map & :: (num \to num) \to [num] \to [num] \\
+		squarelist & :: [num] \to [num] \\
+	\end{matrix*}\]
 The definition of map has the type:
 \[map :: \forall \varphi_1 \varphi_2 . (\varphi_1 \to \varphi_2) \to [\varphi_1] \to [\varphi_2]\]
 
@@ -406,12 +406,12 @@ For $\mlfix{g}{E}$ milner's $\mathcal{W}$ unifies the type of $E$ and $g$, this 
 
 Instead in Mycroft's system the fix rule is altered.
 \\ \begin{minipage}[b]{.5\textwidth}
-    \[\ninfer{fix}{\Gamma, g:A \vdash E : A}{\Gamma \vdash \mlfix{g}{E} : A}\]
-    \centerline{\textbf{Milner's}}
+	\[\ninfer{fix}{\Gamma, g:A \vdash E : A}{\Gamma \vdash \mlfix{g}{E} : A}\]
+	\centerline{\textbf{Milner's}}
 \end{minipage}
 \begin{minipage}[b]{.5\textwidth}
-    \[\ninfer{fix}{\Gamma, g: \tau \vdash_{MYC} E : \tau}{\Gamma \vdash_{MYC} \mlfix{g}{E} : \tau}\]
-    \centerline{\textbf{Mycroft's}}
+	\[\ninfer{fix}{\Gamma, g: \tau \vdash_{MYC} E : \tau}{\Gamma \vdash_{MYC} \mlfix{g}{E} : \tau}\]
+	\centerline{\textbf{Mycroft's}}
 \end{minipage}
 Hence the derivation rule allows for type-schemes (the $\tau$) which means different curry types (e.g $A$) may be used.
 
@@ -421,53 +421,53 @@ The rules for $\epsilon$, Call, Rec Call, Def and Rec Def can be replaced by the
 \[\ninfer{$\epsilon$}{}{\mathcal{E} \vdash \epsilon : \diamond} \qquad \ninfer{Call}{}{\Gamma;\mathcal{E},name:A \vdash name : S \ A} \qquad \ninfer{Defs}{\mathcal{E}, name : A \vdash Defs : \diamond \quad \emptyset; \mathcal{E}, name: A \vdash M : A}{\mathcal{E}, name : A \vdash Defs ; name = M : \diamond}\]
 With the principle pair algorithm as:
 \[\begin{matrix*}[l]
-    pp_{\Lambda^{RN}} \ x \ \mathcal{E} & = \langle x:\mathcal{E}; \mathcal{E} \rangle \text{ where } \mathcal{E} \text{ is fresh} \\
-    \\
-    pp_{\Lambda^{RN}} \ name \ \mathcal{E} & = \langle \emptyset; FreshInstance(\mathcal{E} \ name) \rangle \\
-    \\
-    pp_{\Lambda^{RN}} \ (\lambda x . M) \ \mathcal{E} & = \begin{cases}
-        \langle \Pi'; A \to P \rangle & (\Pi = \Pi',x:A) \\
-        \langle \Pi; \varphi \to P \rangle & (x \not\in \Pi) \\
-    \end{cases} \\
-    & \begin{matrix*}[l]
-        \qquad \text{where } & \langle \Pi ; P \rangle & = pp_{\Lambda^{RN}} \ M \ \mathcal{E} \\
-        & \varphi & \text{is fresh} \\
-    \end{matrix*} \\
-    \\
-    pp_{\Lambda^{RN}} \ (M \ N) \ \mathcal{E} & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2; \mathcal{E} \rangle \\
-    & \begin{matrix*}[l]
-        \text{where } & \langle \Pi_1 ; P_1 \rangle & = pp_{\Lambda^{RN}} \ M \ \mathcal{E} \\
-        & \langle \Pi_2 ; P_2 \rangle & = pp_{\Lambda^{RN}} \ M \ \mathcal{E} \\
-        S_1 & = unify P_1 \ (P_2 \to \varphi) \\
-        s_2 & = unifyContexts \ (S_1 \ \Pi_1) \ (S_1 \ \Pi_2) \\
-        \varphi & \text{is fresh} \\
-    \end{matrix*} \\
-    \\
-    pp_{\Lambda^{RN}} \ (Defs ; M) \ \mathcal{E} & = \begin{cases}
-        pp_{\Lambda^{RN}} \ M \ \mathcal{E} & \text{if } CheckEnv \ Defs \ \mathcal{E} \\
-        \text{untypeable} & otherwise \\
-    \end{cases} \\
-    & \begin{matrix*}[l]
-        \qquad \text{where } & CheckEnv \ (Defs;name = M) \ \mathcal{E} & = (CheckEnv \ Defs \ \mathcal{E}) \land (\mathcal{E} \ name) = P \\
-        & & \qquad \text{where} \langle \emptyset, P \rangle = pp_{\Lambda^{RN}} \ M \ \mathcal{E} \\
-        & CheckEnv \ \epsilon \ \mathcal{E} & = true \\
-    \end{matrix*}
-\end{matrix*}\]
+		pp_{\Lambda^{RN}} \ x \ \mathcal{E} & = \langle x:\mathcal{E}; \mathcal{E} \rangle \text{ where } \mathcal{E} \text{ is fresh} \\
+		\\
+		pp_{\Lambda^{RN}} \ name \ \mathcal{E} & = \langle \emptyset; FreshInstance(\mathcal{E} \ name) \rangle \\
+		\\
+		pp_{\Lambda^{RN}} \ (\lambda x . M) \ \mathcal{E} & = \begin{cases}
+			\langle \Pi'; A \to P \rangle      & (\Pi = \Pi',x:A) \\
+			\langle \Pi; \varphi \to P \rangle & (x \not\in \Pi)  \\
+		\end{cases} \\
+		& \begin{matrix*}[l]
+			\qquad \text{where } & \langle \Pi ; P \rangle & = pp_{\Lambda^{RN}} \ M \ \mathcal{E} \\
+			& \varphi & \text{is fresh} \\
+		\end{matrix*} \\
+		\\
+		pp_{\Lambda^{RN}} \ (M \ N) \ \mathcal{E} & = S_2 \circ S_1 \langle \Pi_1 \cup \Pi_2; \mathcal{E} \rangle \\
+		& \begin{matrix*}[l]
+			\text{where } & \langle \Pi_1 ; P_1 \rangle & = pp_{\Lambda^{RN}} \ M \ \mathcal{E} \\
+			& \langle \Pi_2 ; P_2 \rangle & = pp_{\Lambda^{RN}} \ M \ \mathcal{E} \\
+			S_1 & = unify P_1 \ (P_2 \to \varphi) \\
+			s_2 & = unifyContexts \ (S_1 \ \Pi_1) \ (S_1 \ \Pi_2) \\
+			\varphi & \text{is fresh} \\
+		\end{matrix*} \\
+		\\
+		pp_{\Lambda^{RN}} \ (Defs ; M) \ \mathcal{E} & = \begin{cases}
+			pp_{\Lambda^{RN}} \ M \ \mathcal{E} & \text{if } CheckEnv \ Defs \ \mathcal{E} \\
+			\text{untypeable}                   & otherwise                                \\
+		\end{cases} \\
+		& \begin{matrix*}[l]
+			\qquad \text{where } & CheckEnv \ (Defs;name = M) \ \mathcal{E} & = (CheckEnv \ Defs \ \mathcal{E}) \land (\mathcal{E} \ name) = P \\
+			& & \qquad \text{where} \langle \emptyset, P \rangle = pp_{\Lambda^{RN}} \ M \ \mathcal{E} \\
+			& CheckEnv \ \epsilon \ \mathcal{E} & = true \\
+		\end{matrix*}
+	\end{matrix*}\]
 
 \subsection{Milner's and Mycroft's System's Differences}
 As Mycroft's system is an extension of Milner's:
 \[\text{Typeable in Milner's} \Rightarrow \text{Typeable in Mycroft's}\]
 \begin{itemize}
-    \item Many terms are typeable in Mycroft's but not in Milner's
-    \item Some terms can be given more general type in Mycroft's than Milner's
+	\item Many terms are typeable in Mycroft's but not in Milner's
+	\item Some terms can be given more general type in Mycroft's than Milner's
 \end{itemize}
 The key difference between the systems is that in Milner's recursive calls use the same curry type, but in Mycroft's these can be a more general type, this allows for polymorphic recursion.
 \begin{examplebox}{Typeability}
-    Create a term typeable in Mycroft's System but not in Milner's.
-    \tcblower
-    \[\mlfix{g}{(\lambda (ab.a) \ (g \ \lambda c . c) \ (g \ \lambda de.d ))}\]
-    We can write this as:
-    \begin{minted}{Haskell}
+	Create a term typeable in Mycroft's System but not in Milner's.
+	\tcblower
+	\[\mlfix{g}{(\lambda (ab.a) \ (g \ \lambda c . c) \ (g \ \lambda de.d ))}\]
+	We can write this as:
+	\begin{minted}{Haskell}
         func :: a -> b
         func = (\a b -> a) (func (\c -> c))  (func (\lambda d e -> d))
         -- or more idomatically
@@ -482,5 +482,5 @@ The key difference between the systems is that in Milner's recursive calls use t
             ...
           = func' id id ... id x
     \end{minted}
-    This is not typeable in Milner's as here $g$ effectively has two types. Mycroft's allows this as both types can come from the polymorphic type $\forall \varphi_1 \varphi_2 . \varphi_1 \to \varphi_2$.
+	This is not typeable in Milner's as here $g$ effectively has two types. Mycroft's allows this as both types can come from the polymorphic type $\forall \varphi_1 \varphi_2 . \varphi_1 \to \varphi_2$.
 \end{examplebox}

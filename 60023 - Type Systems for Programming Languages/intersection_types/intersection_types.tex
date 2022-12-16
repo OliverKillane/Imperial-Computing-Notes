@@ -3,27 +3,27 @@ We can extend the curry types with a new constructor $\cap$, and limit its use t
 \\
 \\ To allow this we use a two-level grammar to define $\mathcal{T}_s$ (strict types)
 \[\begin{matrix*}[l]
-    A & ::= \varphi \ | \ (\sigma \to A) \\
-    \sigma & ::= (A_1 \cap \dots \cap A_n) \quad (n \geq 0) \\
-\end{matrix*}\]
+		A & ::= \varphi \ | \ (\sigma \to A) \\
+		\sigma & ::= (A_1 \cap \dots \cap A_n) \quad (n \geq 0) \\
+	\end{matrix*}\]
 
 On $\mathcal{T}_s$ we define the relation $\leq$ as the smallest relation such that:
 \[\begin{matrix*}[l]
-    \forall 1 \leq i \leq n . \ [A_1 \cap \dots \cap A_n \leq A_i] & (n \geq 1)  & \text{\textit{The intersection is smaller than any contained type.}}\\
-    \forall 1 \leq i \leq n . \ [\sigma \leq A_i] \Rightarrow \sigma \leq A_1 \cap \dots \cap A_n & (n \geq 0) & \text{\textit{If smaller than all types, its smaller than intersection.}}\\
-    \sigma \leq \tau \leq \rho \Rightarrow \sigma \leq \rho & & \text{\textit{It is transitive.}}\\
-\end{matrix*}\]
+		\forall 1 \leq i \leq n . \ [A_1 \cap \dots \cap A_n \leq A_i] & (n \geq 1)  & \text{\textit{The intersection is smaller than any contained type.}}\\
+		\forall 1 \leq i \leq n . \ [\sigma \leq A_i] \Rightarrow \sigma \leq A_1 \cap \dots \cap A_n & (n \geq 0) & \text{\textit{If smaller than all types, its smaller than intersection.}}\\
+		\sigma \leq \tau \leq \rho \Rightarrow \sigma \leq \rho & & \text{\textit{It is transitive.}}\\
+	\end{matrix*}\]
 
 We can define a relation $\sim$ on types (considered \textit{equals}) as:
 \[\begin{split}
-    \sigma \leq \tau \leq \sigma &\Rightarrow \sigma \sim \tau \\
-    \sigma \sim \tau \land A \sim B & \Rightarrow \sigma \to A \sim \tau \to B \\
-\end{split}\]
+		\sigma \leq \tau \leq \sigma &\Rightarrow \sigma \sim \tau \\
+		\sigma \sim \tau \land A \sim B & \Rightarrow \sigma \to A \sim \tau \to B \\
+	\end{split}\]
 Conventions:
 \begin{itemize}
-    \item We will consider types modulo $\sim$.
-    \item $\bigcap_nA_i \triangleq A_1 \cap \dots A_n$
-    \item $\bigcap_0A_i = \top$ where $\top$ is used for subterms that will disappear during reduction (and hence we do not care about)
+	\item We will consider types modulo $\sim$.
+	\item $\bigcap_nA_i \triangleq A_1 \cap \dots A_n$
+	\item $\bigcap_0A_i = \top$ where $\top$ is used for subterms that will disappear during reduction (and hence we do not care about)
 \end{itemize}
 
 \[\textit{A statement is: } \underset{\textit{subject}}{M} : \underset{\textit{predicate}}{\sigma}\]
@@ -31,47 +31,47 @@ A context $\Gamma$ is a set of statements with distinct variables as subjects (s
 \\
 \\ The relations for $\leq$ and $\sim$ can be extended to context by:
 \[\begin{matrix*}[l]
-    \Gamma \leq \Gamma' & \Leftrightarrow \forall x : \tau \in \Gamma' \exists x : \sigma \in \Gamma . \ [\sigma \leq \tau] \\
-    \Gamma \sim \Gamma' & \Leftrightarrow \Gamma \leq \Gamma' \leq \Gamma \\
-\end{matrix*}\]
+		\Gamma \leq \Gamma' & \Leftrightarrow \forall x : \tau \in \Gamma' \exists x : \sigma \in \Gamma . \ [\sigma \leq \tau] \\
+		\Gamma \sim \Gamma' & \Leftrightarrow \Gamma \leq \Gamma' \leq \Gamma \\
+	\end{matrix*}\]
 
 We can find the intersection of contexts as:
 \[\begin{matrix*}[l]
-    \Gamma_1 \cap \Gamma_2 \triangleq & \{x: \sigma \cap \tau &| x:\sigma \in \Gamma_1 & \land x:\tau \in \Gamma_2 &\} & \cup \\
-     & \{x : \sigma &| x : \sigma \in \Gamma_1 & \land x \not\in \Gamma_2 &\} & \cup \\
-     & \{x : \tau &| x : \tau \in \Gamma_2 & \land x \not\in \Gamma_1 &\} & \\
-\end{matrix*}\]
+		\Gamma_1 \cap \Gamma_2 \triangleq & \{x: \sigma \cap \tau &| x:\sigma \in \Gamma_1 & \land x:\tau \in \Gamma_2 &\} & \cup \\
+		& \{x : \sigma &| x : \sigma \in \Gamma_1 & \land x \not\in \Gamma_2 &\} & \cup \\
+		& \{x : \tau &| x : \tau \in \Gamma_2 & \land x \not\in \Gamma_1 &\} & \\
+	\end{matrix*}\]
 Conventions:
 \begin{itemize}
-    \item $\bigcap_{\underline{n}}\Gamma_i \triangleq \Gamma_1 \cap \dots \cap \Gamma_n$
-    \item $\Gamma \cap \{x:\sigma\} = \Gamma \cap x:\sigma$
+	\item $\bigcap_{\underline{n}}\Gamma_i \triangleq \Gamma_1 \cap \dots \cap \Gamma_n$
+	\item $\Gamma \cap \{x:\sigma\} = \Gamma \cap x:\sigma$
 \end{itemize}
 
 \section{Type Assignment}
 \textit{Strict type assignment} and \textit{strict derivations} are defined through an inference system:
 \\ \begin{minipage}{.5\textwidth}
-    \[\ninfers{$Ax$}{}{\Gamma, x: \bigcap_nA_i \vdash_\cap x : A_i}{n \geq 1}\]
+	\[\ninfers{$Ax$}{}{\Gamma, x: \bigcap_nA_i \vdash_\cap x : A_i}{n \geq 1}\]
 \end{minipage}
 \begin{minipage}{.5\textwidth}
-    \[\ninfers{$\cap I$}{\Gamma \vdash_\cap M:A_1 \quad \dots \quad \Gamma \vdash_\cap M : A_n }{\Gamma \vdash_\cap M : \bigcap_nA_i}{n \geq 0}\]
+	\[\ninfers{$\cap I$}{\Gamma \vdash_\cap M:A_1 \quad \dots \quad \Gamma \vdash_\cap M : A_n }{\Gamma \vdash_\cap M : \bigcap_nA_i}{n \geq 0}\]
 \end{minipage}
 \\ \vspace{2mm}
 \\ \begin{minipage}{.5\textwidth}
-    \[\ninfer{$\to I$}{
-        \Gamma, x: \sigma \vdash_\cap M : B
-    }{
-        \Gamma \vdash_\cap \lambda x . M : \sigma \to B
-    }\]
+	\[\ninfer{$\to I$}{
+			\Gamma, x: \sigma \vdash_\cap M : B
+		}{
+			\Gamma \vdash_\cap \lambda x . M : \sigma \to B
+		}\]
 \end{minipage}
 \begin{minipage}{.5\textwidth}
-    \[\ninfer{$\to E$}{
-        \Gamma \vdash_\cap M : \sigma \to B \quad \Gamma \vdash_\cap N : \sigma
-    }{
-        \Gamma \vdash_\cap M \ N : B
-    }\]
+	\[\ninfer{$\to E$}{
+			\Gamma \vdash_\cap M : \sigma \to B \quad \Gamma \vdash_\cap N : \sigma
+		}{
+			\Gamma \vdash_\cap M \ N : B
+		}\]
 \end{minipage}
 \begin{itemize}
-    \item The $\cap I$ rule allows for $\bot$
+	\item The $\cap I$ rule allows for $\bot$
 \end{itemize}
 
 \subsubsection{Generation Lemma}
@@ -88,129 +88,129 @@ Adding more variables to the environment (that are not free in the expression)
 
 As we can discard some types as $\top$ (\textit{"don't care"}) we can type some results where a discarded argument may not be typeable, but is not part of the end result, so is ignored.
 \[\ainfer{$\to E$}{
-    \ainfer{$\to E$}{
-        \ainfer{$Ax$}{}{\emptyset, y : \top, z : A \vdash_\cap z : A}
-    }{\emptyset, y : \top \vdash_\cap \lambda z . z : A \to A}
-}{
-    \emptyset \vdash_\cap \lambda yz . z : \top \to A \to A
-}\]
+		\ainfer{$\to E$}{
+			\ainfer{$Ax$}{}{\emptyset, y : \top, z : A \vdash_\cap z : A}
+		}{\emptyset, y : \top \vdash_\cap \lambda z . z : A \to A}
+	}{
+		\emptyset \vdash_\cap \lambda yz . z : \top \to A \to A
+	}\]
 
 \section{Subject Reduction and Normalisation}
 \[\ainfer{$\to E$}{
-    \ainfer{$\to I$}{
-        \infer{
-            \ainfer{$Ax$}{}{
-                \Gamma, x: \bigcap_nB_i \vdash_\cap x : B_1
-            } \quad \dots \quad \ainfer{$Ax$}{}{
-                \Gamma, x: \bigcap_nB_i \vdash_\cap x : B_n
-            }
-        }{\vdots}
-    }{\Gamma \vdash_\cap \lambda x . M : (\bigcap_nB_i) \to A}
-    \quad \ainfer{$\cap I$}{
-        \infer{\dots}{\Gamma \vdash_\cap N : B_1} \quad \dots \quad \infer{\dots}{\Gamma \vdash_\cap N : B_n}
-    }{
-        \Gamma \vdash_\cap \bigcap_nB_i
-    }
-}{
-    \Gamma \vdash_\cap (\lambda x. M) \ N : A 
-}\]
-In this system a variable can have more than one type, combined at an intersection using ($\cap I$). 
+		\ainfer{$\to I$}{
+			\infer{
+				\ainfer{$Ax$}{}{
+					\Gamma, x: \bigcap_nB_i \vdash_\cap x : B_1
+				} \quad \dots \quad \ainfer{$Ax$}{}{
+					\Gamma, x: \bigcap_nB_i \vdash_\cap x : B_n
+				}
+			}{\vdots}
+		}{\Gamma \vdash_\cap \lambda x . M : (\bigcap_nB_i) \to A}
+		\quad \ainfer{$\cap I$}{
+			\infer{\dots}{\Gamma \vdash_\cap N : B_1} \quad \dots \quad \infer{\dots}{\Gamma \vdash_\cap N : B_n}
+		}{
+			\Gamma \vdash_\cap \bigcap_nB_i
+		}
+	}{
+		\Gamma \vdash_\cap (\lambda x. M) \ N : A
+	}\]
+In this system a variable can have more than one type, combined at an intersection using ($\cap I$).
 \\
 \\ We can use an empty ($\cap I$) to get a $\top$:
 \[\ainfer{$\cap I$}{}{
-    \Gamma \vdash M : \top
-}\]
+		\Gamma \vdash M : \top
+	}\]
 \begin{itemize}
-    \item Types are no invariant by $\eta$ reduction.
-    \item 
+	\item Types are no invariant by $\eta$ reduction.
+	\item
 \end{itemize}
 
 \section{Rank 2 and ML}
 It is possible to limit depth at which the intersection type constructor can be used.
 \begin{itemize}
-    \item Rank $n$ being usage up to a depth of $n$ (rank $1$ only allows intersection at the top).
-    \item Rank $2$ is enough to model ML's let constructor.
+	\item Rank $n$ being usage up to a depth of $n$ (rank $1$ only allows intersection at the top).
+	\item Rank $2$ is enough to model ML's let constructor.
 \end{itemize}
 Recall that in ML we require a let construct in type assignment:
 \[\ninfer{let}{\Gamma \vdash E_1 : \tau \quad \Gamma, x: \tau \vdash E_2 : B}{\mllet{x = E_1}{E_2 : B}}\]
 This is used for when we want a term of the form $(\lambda x . E_2) \ E_1$m but cannot type as:
 \[\infer{
-    \infer{
-        \infer{\vdots}{\Gamma \vdash E_1 : A[B/\varphi]} \quad \infer{\vdots}{\Gamma \vdash E_1 : A[C/\varphi]}
-    }{
-        \vdots
-    }
-}{
-    \Gamma \vdash E_2[E_2 / x] : D
-}\]
+	\infer{
+		\infer{\vdots}{\Gamma \vdash E_1 : A[B/\varphi]} \quad \infer{\vdots}{\Gamma \vdash E_1 : A[C/\varphi]}
+	}{
+		\vdots
+	}
+	}{
+	\Gamma \vdash E_2[E_2 / x] : D
+	}\]
 For example if some term with a polymorphic type is used with two different types within an expression, we need to type both separately.
 \\
 \\ By using Rank $2$ types we can type and intersect as we can associate two types with $E_1$:
 \\ Where $\Gamma' = \Gamma, x:A[B/\varphi] \cap A[C/\varphi]$
 \[\ainfer{let}{
-    \ainfer{$\to I$}{
-        \infer{
-            \infer{
-                \ainfer{$Ax$}{}{
-                    \Gamma' \vdash x : A[B/\varphi]
-                } \quad \ainfer{$Ax$}{}{
-                    \Gamma' \vdash x : A[C/\varphi]
-                }
-            }{\vdots}
-        }{\Gamma; \vdash E_2 : D}
-    }{
-        \Gamma \vdash \lambda x.E_2 : A[B/\varphi] \cap A[C/\varphi] \to D
-    } \quad \ainfer{$\cap I$}{
-        \infer{\vdots}{
-            \Gamma \vdash E_1 : A[B/\varphi]
-        } \quad \infer{\vdots}{
-            \Gamma \vdash E_1 : A[C/\varphi]
-        }
-    }{
-        \Gamma \vdash E_1 : A[B/\varphi] \cap A[C/\varphi]
-    }
-}{
-    \Gamma \vdash (\lambda x.E_2) \ E_1 : D
-}\]
+		\ainfer{$\to I$}{
+			\infer{
+				\infer{
+					\ainfer{$Ax$}{}{
+						\Gamma' \vdash x : A[B/\varphi]
+					} \quad \ainfer{$Ax$}{}{
+						\Gamma' \vdash x : A[C/\varphi]
+					}
+				}{\vdots}
+			}{\Gamma; \vdash E_2 : D}
+		}{
+			\Gamma \vdash \lambda x.E_2 : A[B/\varphi] \cap A[C/\varphi] \to D
+		} \quad \ainfer{$\cap I$}{
+			\infer{\vdots}{
+				\Gamma \vdash E_1 : A[B/\varphi]
+			} \quad \infer{\vdots}{
+				\Gamma \vdash E_1 : A[C/\varphi]
+			}
+		}{
+			\Gamma \vdash E_1 : A[B/\varphi] \cap A[C/\varphi]
+		}
+	}{
+		\Gamma \vdash (\lambda x.E_2) \ E_1 : D
+	}\]
 \section{Approximation Results}
 Approximation Theorem:
 \[\Gamma \vdash_\cap M : \sigma \Leftrightarrow \exists \mathbf{A} \in \mathcal{A}M . \ [\Gamma \vdash_\cap \mathbf{A} : \sigma]\]
 \begin{itemize}
-    \item $\top$ can only appear in in the type of terms that are $\bot$.
-    \item The assigned type of $M$ hence predicts part of the shape of the normal form of $M$.
-    \item Type assignment with intersection types is undecidable.
+	\item $\top$ can only appear in in the type of terms that are $\bot$.
+	\item The assigned type of $M$ hence predicts part of the shape of the normal form of $M$.
+	\item Type assignment with intersection types is undecidable.
 \end{itemize}
 
 \[\Gamma \vdash_\cap M : \sigma \land M \sqsubseteq M' \Rightarrow \Gamma \vdash_\cap M' : \sigma\]
 
 \section{Characterisation of Head/Strong Normalisation}
 \begin{definitionbox}{Head-Normalisation}
-    \[\exists \Gamma, A . \ [\Gamma \vdash_\cap M : A] \Leftrightarrow M \text{ has head-normal form}\]
-    A $\lambda$-term is in head normal form if it is an abstraction with a body that is not \textit{reducible}
+	\[\exists \Gamma, A . \ [\Gamma \vdash_\cap M : A] \Leftrightarrow M \text{ has head-normal form}\]
+	A $\lambda$-term is in head normal form if it is an abstraction with a body that is not \textit{reducible}
 \end{definitionbox}
 \[M \text{ is strongly normalisable } \Leftrightarrow \Gamma \vdash_\cap M : A \land \top \text{ is not used in } A\]
 
 \section{Principle Intersection Pairs}
 For approximant $A \in \mathcal{A}$ we can define the principle part of $A$
 \[\begin{matrix*}[l]
-    pp & \bot & = \langle \emptyset \top \rangle \\
-    \\
-    pp & x & = \langle x : \varphi , \varphi \rangle \text{ where $\varphi$ is fresh}\\
-    \\
-    pp & (\lambda x . A) & = \begin{cases}
-        \langle \Pi', \sigma \to P \rangle & (\Pi',x:\sigma = \Pi) \\
-        \langle \Pi, \top \to P \rangle & (x \not\in \Pi) \\
-    \end{cases} \\
-    & & \begin{matrix*}[l]
-        \text{ where } & \langle \Pi, P \rangle & = pp \ A \\
-    \end{matrix*} \\
-    \\
-    pp & (x A_1 \dots A_n) & = \langle \bigcap_n\Pi_i \cap \{x: P_1 \to \dots \to P_n \to \varphi\}, \varphi \rangle \\
-    & & \begin{matrix*}[l]
-        \text{ where } & \langle \Pi_i, P_i \rangle & = pp \ A_i \\
-        & \varphi & \text{ is fresh} \\
-    \end{matrix*} \\
-\end{matrix*}\]
+		pp & \bot & = \langle \emptyset \top \rangle \\
+		\\
+		pp & x & = \langle x : \varphi , \varphi \rangle \text{ where $\varphi$ is fresh}\\
+		\\
+		pp & (\lambda x . A) & = \begin{cases}
+			\langle \Pi', \sigma \to P \rangle & (\Pi',x:\sigma = \Pi) \\
+			\langle \Pi, \top \to P \rangle    & (x \not\in \Pi)       \\
+		\end{cases} \\
+		& & \begin{matrix*}[l]
+			\text{ where } & \langle \Pi, P \rangle & = pp \ A \\
+		\end{matrix*} \\
+		\\
+		pp & (x A_1 \dots A_n) & = \langle \bigcap_n\Pi_i \cap \{x: P_1 \to \dots \to P_n \to \varphi\}, \varphi \rangle \\
+		& & \begin{matrix*}[l]
+			\text{ where } & \langle \Pi_i, P_i \rangle & = pp \ A_i \\
+			& \varphi & \text{ is fresh} \\
+		\end{matrix*} \\
+	\end{matrix*}\]
 \subsubsection{Properties of $pp$}
 \[pp(A) = \langle \Pi, P \rangle \Rightarrow \Pi \vdash_\cap A : P\]
 \[\forall A \in \mathcal{A} . \ [A \neq \bot \Rightarrow \exists \Gamma, B . \ [\Gamma \vdash_\cap A : B]]\]
@@ -221,8 +221,8 @@ We can define P as the set of all principle types of all approximants.
 Hence we can now define $\mathcal{P}(M)$ as the set of all principle pairs for all approximants of $M$:
 \[\mathcal{P}(M) = \{pp(A) \ | \ A \in \mathcal{A}(M)\}\]
 \begin{itemize}
-    \item If $\mathcal{P}(M)$ is finite then there is a pair $\langle \Pi, P \rangle = \sqcup \mathcal{P}(M)$ such that $\langle \Pi, P \rangle \in \mathcal{P}$ (the principle pair of $M$).
-    \item If $\mathcal{P}(M)$ is infinite then the principle pair of $M$ is the infinite set of pairs $\mathcal{P}(M)$.
+	\item If $\mathcal{P}(M)$ is finite then there is a pair $\langle \Pi, P \rangle = \sqcup \mathcal{P}(M)$ such that $\langle \Pi, P \rangle \in \mathcal{P}$ (the principle pair of $M$).
+	\item If $\mathcal{P}(M)$ is infinite then the principle pair of $M$ is the infinite set of pairs $\mathcal{P}(M)$.
 \end{itemize}
 
 

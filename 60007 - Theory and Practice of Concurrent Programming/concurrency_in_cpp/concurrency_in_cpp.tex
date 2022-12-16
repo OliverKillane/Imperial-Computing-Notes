@@ -7,8 +7,8 @@
 \section{Threads}
 To interact with threads the \mintinline{Cpp}{thread} header must be included.
 \begin{itemize}
-    \item It provides a standard, implementation independent, interface for handling threads.
-    \item Provides the \mintinline{Cpp}{std::thread} class
+	\item It provides a standard, implementation independent, interface for handling threads.
+	\item Provides the \mintinline{Cpp}{std::thread} class
 \end{itemize}
 \begin{minted}{Cpp}
 #include <thread>
@@ -64,8 +64,8 @@ namespace std {
 }
 \end{minted}
 \begin{definitionbox}{Lambda}
-    A lambda is a small function that can be defined in an expression, capture values in its scope (and above), and be passed as a value.
-    \begin{minted}{Cpp}
+	A lambda is a small function that can be defined in an expression, capture values in its scope (and above), and be passed as a value.
+	\begin{minted}{Cpp}
 // [captures] (arguments) {body}
 
 // a basic lambda with no captures
@@ -75,7 +75,7 @@ auto my_lambda = [] (int a, int b) -> int {return a + b;}
 int c = my_lambda(1, 2);
 
 auto another_lambda = [c&] (int d) {return c + d;}
-    \end{minted} 
+    \end{minted}
 \end{definitionbox}
 We can construct using \mintinline{Cpp}{std::thread}'s constructors.
 \begin{minted}{Cpp}
@@ -89,14 +89,14 @@ auto my_thread = std::thread(StartFunction, arg1, arg2, ...)
 
 // pass lambda as function
 std::thread my_thread(StartFunction, arg1, arg2, ...)
-\end{minted} 
+\end{minted}
 
 When passing arguments to the thread, if these are by reference, a \mintinline{Cpp}{std::ref} or \mintinline{Cpp}{std::cref} must be used.
 
 \begin{examplebox}{Reference this!}
-  Given some function \mintinline{Cpp}{static void some_func(const int& a)} create a thread to take a reference to the number $42$.
-  \tcblower
-  \begin{minted}{Cpp}
+	Given some function \mintinline{Cpp}{static void some_func(const int& a)} create a thread to take a reference to the number $42$.
+	\tcblower
+	\begin{minted}{Cpp}
 int a = 42;
 std::thread my_thread(some_func, std::cref(42));
 my_thread.join();  
@@ -106,8 +106,8 @@ my_thread.join();
 \subsection{Vectors of Threads}
 When adding an object to a container (e.g a vector) we want to avoid allocating the object, and then moving it into the container.
 \begin{itemize}
-  \item Some objects may not be movable/copyable.
-  \item The object should be allocated within the container.
+	\item Some objects may not be movable/copyable.
+	\item The object should be allocated within the container.
 \end{itemize}
 For this we can use emplacement.
 \begin{minted}{Cpp}
@@ -116,9 +116,9 @@ void emplace_back( Args&&... args );
 \end{minted}
 
 \begin{examplebox}{Emplace}
-  Given some function \mintinline{Cpp}{static void some_func()} create 10 threads and append to the vector using \mintinline{Cpp}{std::vector::push_back} and another 10 with \mintinline{Cpp}{std::vector::emplace}.
-  \tcblower
-  \begin{minted}{Cpp}
+	Given some function \mintinline{Cpp}{static void some_func()} create 10 threads and append to the vector using \mintinline{Cpp}{std::vector::push_back} and another 10 with \mintinline{Cpp}{std::vector::emplace}.
+	\tcblower
+	\begin{minted}{Cpp}
 std::vector<std::thread> threads;
 
 for (int i; i < 10; i++) {
@@ -166,9 +166,9 @@ namespace std {
 }
 \end{minted}
 \begin{examplebox}{Clock watching}
-  Create program that prints the thread id, and sleeps.
-  \tcblower
-  \begin{minted}{C}
+	Create program that prints the thread id, and sleeps.
+	\tcblower
+	\begin{minted}{C}
 #include <thread>
 #include <iostream>
 #include <chrono>
@@ -186,15 +186,15 @@ int main() {
 
 \section{Locks}
 \begin{definitionbox}{RAII}
-  \textit{Resource Acquisition Is Initialization} (also called Scope-Bound Resource Management and Constructor Acquires, Destructor Release) is where a resource's allocation and release is bound to the lifetime of an object.
-  \begin{itemize}
-    \item a resource may be the memory allocated to an object, or resources such as os provided file handlers.
-    \item When the object goes out of scope (e.g the variable owning the object is destroyed) the resource is released.
-    \item In C++, when a variable goes out of scope, the destructor of the contained object is called, so the destructor must release the resources.
-    \item This concept is heavily embedded in Rust. Lifetimes are a major part of the type system, and ownership rules are enforced by the compiler.
-    \item RAII is used for smart pointers such as \mintinline{Rust}{Rc} in rust or \mintinline{Cpp}{std::shared_ptr}.
-  \end{itemize}
-  \begin{minted}{Cpp}
+	\textit{Resource Acquisition Is Initialization} (also called Scope-Bound Resource Management and Constructor Acquires, Destructor Release) is where a resource's allocation and release is bound to the lifetime of an object.
+	\begin{itemize}
+		\item a resource may be the memory allocated to an object, or resources such as os provided file handlers.
+		\item When the object goes out of scope (e.g the variable owning the object is destroyed) the resource is released.
+		\item In C++, when a variable goes out of scope, the destructor of the contained object is called, so the destructor must release the resources.
+		\item This concept is heavily embedded in Rust. Lifetimes are a major part of the type system, and ownership rules are enforced by the compiler.
+		\item RAII is used for smart pointers such as \mintinline{Rust}{Rc} in rust or \mintinline{Cpp}{std::shared_ptr}.
+	\end{itemize}
+	\begin{minted}{Cpp}
 static void my_scope() {
     MyClass my_object;  // initialised, default constructor called
 
@@ -278,9 +278,9 @@ namespace std {
 \end{minted}
 
 \begin{examplebox}{Locked Out}
-  Create a mutex to protect a counter, and use 100 threads to increment the counter 10 times each. Add a wait of 1ms between each increment and only lock for each increment.
-  \tcblower
-  \begin{minted}{Cpp}
+	Create a mutex to protect a counter, and use 100 threads to increment the counter 10 times each. Add a wait of 1ms between each increment and only lock for each increment.
+	\tcblower
+	\begin{minted}{Cpp}
 #include <thread>
 #include <iostream>
 #include <mutex>
@@ -312,14 +312,14 @@ int main() {
 
   std::cout << "The counter is: " << cnt << std::endl;
 }
-  \end{minted} 
+  \end{minted}
 \end{examplebox}
 
 \subsection{Lock Guards}
 We can use \mintinline{Cpp}{scoped_lock}, \mintinline{Cpp}{unique_lock} or \mintinline{Cpp}{lock_guard} to link the time the lock is held to the lifetime of the lock guard object.
 \begin{itemize}
-  \item Each has slight differences, separate implementations are provided rather than using complex template magic.
-  \item Deadlock avoidance is used to ensure all threads acquire and release locks in the same order.
+	\item Each has slight differences, separate implementations are provided rather than using complex template magic.
+	\item Deadlock avoidance is used to ensure all threads acquire and release locks in the same order.
 \end{itemize}
 
 \subsubsection{Scoped Lock}
@@ -343,12 +343,12 @@ We can use \mintinline{Cpp}{scoped_lock}, \mintinline{Cpp}{unique_lock} or \mint
   }
 \end{minted}
 \begin{itemize}
-  \item Constructed from one or more mutexes.
-  \item Locks all mutexes on construction.
-  \item Unlocks all mutexes on destruction.
+	\item Constructed from one or more mutexes.
+	\item Locks all mutexes on construction.
+	\item Unlocks all mutexes on destruction.
 \end{itemize}
 \begin{consbox}
-  Does not support deferred locking, early unlocking or ownership transfer (with \mintinline{Cpp}{std::move}).
+	Does not support deferred locking, early unlocking or ownership transfer (with \mintinline{Cpp}{std::move}).
 \end{consbox}
 
 \begin{minted}{Cpp}
@@ -423,20 +423,20 @@ namespace std {
 }
 \end{minted}
 \begin{itemize}
-  \item Constructed from one mutex.
-  \item Locks mutex on construction by default, but can have locking deferred.
-  \item Allows for unlocking and relocking.
-  \item If mutex held on destruction, unlocks.
-  \item Can transfer lock ownership with \mintinline{Cpp}{std::move}.
+	\item Constructed from one mutex.
+	\item Locks mutex on construction by default, but can have locking deferred.
+	\item Allows for unlocking and relocking.
+	\item If mutex held on destruction, unlocks.
+	\item Can transfer lock ownership with \mintinline{Cpp}{std::move}.
 \end{itemize}
 \begin{consbox}
-  Only works for a single mutex.
+	Only works for a single mutex.
 \end{consbox}
 
 \begin{examplebox}{Scoped out}
-  Create a basic implementation of defer that could be used for a scoped lock.
-  \tcblower
-  \begin{minted}{Cpp}
+	Create a basic implementation of defer that could be used for a scoped lock.
+	\tcblower
+	\begin{minted}{Cpp}
 #include <mutex>
 #include <iostream>
 #include <functional>
@@ -464,8 +464,8 @@ int main() {
   std::cout << "lets do some racey stuff here" << std::endl;
 }
   \end{minted}
-  We could also implement this pattern in rust. As mutexes already work this way in rust, we create a dummy mutex struct to use.
-  \begin{minted}{Rust}
+	We could also implement this pattern in rust. As mutexes already work this way in rust, we create a dummy mutex struct to use.
+	\begin{minted}{Rust}
 #![feature(fn_traits)]
 struct Defer<F: FnMut()>(F);
 
@@ -486,48 +486,48 @@ fn main() {
 
 \section{Race Conditions in C++}
 \begin{definitionbox}{Data Race}
-    A data race is a race condition on the value of some data shared between threads.
-    \begin{itemize}
-      \item Distinct threads access a memory location.
-      \item At least one thread modifies the location.
-      \item At least of of the accesses is non-atomic (allows for operations of other threads to be interleaved)
-      \item Accesses are not ordered by synchronisation (e.g for mutual exclusion)
-    \end{itemize}
-    Data races are value-oblivious, meaning a data race is present even if value of some shared data is not affected.
-    \begin{itemize}
-      \item e.g Two threads write the same value to the same place.
-      \item e.g one thread stores the same value, another thread reads. 
-    \end{itemize}
-    Always a bug, considered an unintentional race condition.
-    \\
-    \\ Synchronisation is achieved via:
-    \begin{itemize}
-      \item Mutexes
-      \item Acquire load from release store
-      \item sequentially consistent load from sequentially consistent store
-    \end{itemize}
+	A data race is a race condition on the value of some data shared between threads.
+	\begin{itemize}
+		\item Distinct threads access a memory location.
+		\item At least one thread modifies the location.
+		\item At least of of the accesses is non-atomic (allows for operations of other threads to be interleaved)
+		\item Accesses are not ordered by synchronisation (e.g for mutual exclusion)
+	\end{itemize}
+	Data races are value-oblivious, meaning a data race is present even if value of some shared data is not affected.
+	\begin{itemize}
+		\item e.g Two threads write the same value to the same place.
+		\item e.g one thread stores the same value, another thread reads.
+	\end{itemize}
+	Always a bug, considered an unintentional race condition.
+	\\
+	\\ Synchronisation is achieved via:
+	\begin{itemize}
+		\item Mutexes
+		\item Acquire load from release store
+		\item sequentially consistent load from sequentially consistent store
+	\end{itemize}
 \end{definitionbox}
 \begin{definitionbox}{Undefined Behaviour}
-  \begin{quote}
-    \textit{"Anything at all can happen; the Standard imposes no requirements. The program 
-    may fail to compile, or it may execute incorrectly (either crashing or silently 
-    generating incorrect results), or it may fortuitously do exactly what the programmer 
-    intended."} - \href{https://c-faq.com/ansi/undef.html}{C FAQ}
-  \end{quote}
-  \begin{itemize}
-    \item Programmer must avoid relying on undefined behaviour.
-    \item Different compilers implementing the specification can do anything with undefined behaviour.
-    \item Allows compilers to do more optimisation (fewer guarantees to satisfy).
-    \item Among the most cited language design issues with C++.
-  \end{itemize}
-  The behaviour of a C++ program on some input is undefined if a data race can occur. This means
-  specification is saying a program with a data race can do \textit{anything}, there are no guarantees (even that the result depends on the outcome of the race).
+	\begin{quote}
+		\textit{"Anything at all can happen; the Standard imposes no requirements. The program
+			may fail to compile, or it may execute incorrectly (either crashing or silently
+			generating incorrect results), or it may fortuitously do exactly what the programmer
+			intended."} - \href{https://c-faq.com/ansi/undef.html}{C FAQ}
+	\end{quote}
+	\begin{itemize}
+		\item Programmer must avoid relying on undefined behaviour.
+		\item Different compilers implementing the specification can do anything with undefined behaviour.
+		\item Allows compilers to do more optimisation (fewer guarantees to satisfy).
+		\item Among the most cited language design issues with C++.
+	\end{itemize}
+	The behaviour of a C++ program on some input is undefined if a data race can occur. This means
+	specification is saying a program with a data race can do \textit{anything}, there are no guarantees (even that the result depends on the outcome of the race).
 \end{definitionbox}
 
-Compilers typically optimise on the assumption there is no undefined behaviour. 
+Compilers typically optimise on the assumption there is no undefined behaviour.
 \begin{itemize}
-  \item If there is no undefined behaviour, then assuming none is fine.
-  \item If there is undefined behaviour, the language specification says \textit{anything goes} and hence any output is valid.
+	\item If there is no undefined behaviour, then assuming none is fine.
+	\item If there is undefined behaviour, the language specification says \textit{anything goes} and hence any output is valid.
 \end{itemize}
 
 \begin{minted}{Cpp}
@@ -551,7 +551,7 @@ int main() {
 \end{minted}
 Here the loop in \mintinline{Cpp}{wait_x} can be optimised.
 \\\begin{minipage}{.5\textwidth}
-  \begin{minted}{Cpp}
+	\begin{minted}{Cpp}
 static void wait_x(int& x) {
   int temp_register = r; 
   while (temp == 0);
@@ -560,15 +560,15 @@ static void wait_x(int& x) {
 \end{minipage}
 \hfill
 \begin{minipage}{.48\textwidth}
-  \begin{enumerate}
-    \item x is a non-atomic variable
-    \item if another thread modified x, then there would be a data race.
-    \item A data race is undefined behaviour
-  \end{enumerate}
-  Place copy of x into a register and compare using this.
+	\begin{enumerate}
+		\item x is a non-atomic variable
+		\item if another thread modified x, then there would be a data race.
+		\item A data race is undefined behaviour
+	\end{enumerate}
+	Place copy of x into a register and compare using this.
 \end{minipage}
 \\\begin{minipage}{.5\textwidth}
-  \begin{minted}{Cpp}
+	\begin{minted}{Cpp}
 static void wait_x(int& x) {
   // terminate thread
 }
@@ -576,29 +576,29 @@ static void wait_x(int& x) {
 \end{minipage}
 \hfill
 \begin{minipage}{.48\textwidth}
-  \begin{enumerate}
-    \item An infinite loop with no side effects is undefined behaviour.
-    \item Can assume it is \textit{dead code} and remove.
-  \end{enumerate}
-  Dead code can be removed.
+	\begin{enumerate}
+		\item An infinite loop with no side effects is undefined behaviour.
+		\item Can assume it is \textit{dead code} and remove.
+	\end{enumerate}
+	Dead code can be removed.
 \end{minipage}
 
 \subsection{Thread Sanitiser}
 A sanitiser to automatically detect data races.
 \begin{itemize}
-  \item Available in clang++ and g++ compilers.
-  \item Enabled with \mintinline{Bash}{-fsanitize=thread} and add debug symbols with \mintinline{Bash}{-g}.
+	\item Available in clang++ and g++ compilers.
+	\item Enabled with \mintinline{Bash}{-fsanitize=thread} and add debug symbols with \mintinline{Bash}{-g}.
 \end{itemize}
 
 \section{Condition Variables}
 \begin{definitionbox}{Condition Variable}
-  A condition that can be waited on, and notified.
-  \begin{itemize}
-    \item Threads can wait on the condition to be signalled.
-    \item Can be used to construct a monitor.
-    \item In languages without a monitor construct, an explicit lock is required.
-  \end{itemize}
-  \begin{minted}{Cpp}
+	A condition that can be waited on, and notified.
+	\begin{itemize}
+		\item Threads can wait on the condition to be signalled.
+		\item Can be used to construct a monitor.
+		\item In languages without a monitor construct, an explicit lock is required.
+	\end{itemize}
+	\begin{minted}{Cpp}
 #include <semaphore>
 #include <mutex>
 #include <deque>
@@ -701,14 +701,14 @@ namespace std {
 }
 \end{minted}
 \begin{minipage}{.48\textwidth}
-  \subsubsection{Wait on Signal}
-  \begin{enumerate}
-    \item Associated a \mintinline{Cpp}{std::mutex} with the condition variable.
-    \item Acquire a lock on the mutex with a unique lock.
-    \item Call wait with the lock.
-  \end{enumerate}
-  The thread will block until the condition variable is signalled.
-  \begin{minted}{Cpp}
+	\subsubsection{Wait on Signal}
+	\begin{enumerate}
+		\item Associated a \mintinline{Cpp}{std::mutex} with the condition variable.
+		\item Acquire a lock on the mutex with a unique lock.
+		\item Call wait with the lock.
+	\end{enumerate}
+	The thread will block until the condition variable is signalled.
+	\begin{minted}{Cpp}
 #include <mutex>
 #include <condition_variable>
 
@@ -725,16 +725,16 @@ static void some_func() {
 \vline
 \hfill
 \begin{minipage}{.48\textwidth}
-  \subsubsection{Wait on predicate}
-  \begin{enumerate}
-    \item Associated a \mintinline{Cpp}{std::mutex} with the condition variable.
-    \item Acquire a lock on the mutex with a unique lock.
-    \item Call wait with a predicate.
-  \end{enumerate}
-  Immediately returns if the predicate is true. Otherwise blocks, when the condition variable is 
-  signalled, the predicate will be checked, if true the thread returns, otherwise the thread 
-  is blocked again.
-  \begin{minted}{Cpp}
+	\subsubsection{Wait on predicate}
+	\begin{enumerate}
+		\item Associated a \mintinline{Cpp}{std::mutex} with the condition variable.
+		\item Acquire a lock on the mutex with a unique lock.
+		\item Call wait with a predicate.
+	\end{enumerate}
+	Immediately returns if the predicate is true. Otherwise blocks, when the condition variable is
+	signalled, the predicate will be checked, if true the thread returns, otherwise the thread
+	is blocked again.
+	\begin{minted}{Cpp}
 #include <mutex>
 #include <condition_variable>
 
@@ -745,15 +745,15 @@ static void some_func() {
     std::unique_lock<std::mutex> lock(m);
     cond.wait(lock, [...]() -> bool {...});
 }
-  \end{minted} 
+  \end{minted}
 \end{minipage}
 
 
 \section{Atomics}
 Defined in the \mintinline{Cpp}{atomic} header. Allow for the construction of atomic variables for integral and arbitrary types (that are TriviallyCopyable, CopyConstructible and CopyAssignable).
 \begin{itemize}
-  \item For integral types atomic operations offer lower overhead alternatives for protecting small amounts of data than using a mutex.
-  \item Atomic declarations prevent data races. This can be useful in declaring an intentional race condition (to prevent undefined behaviour)
+	\item For integral types atomic operations offer lower overhead alternatives for protecting small amounts of data than using a mutex.
+	\item Atomic declarations prevent data races. This can be useful in declaring an intentional race condition (to prevent undefined behaviour)
 \end{itemize}
 \subsection{Atomic Template Class}
 \begin{minted}{Cpp}
@@ -832,12 +832,12 @@ typedef struct {
 std::atomic<MyStruct> p({.a=1, .c=true});
 \end{minted}
 \begin{sidenotebox}{Weak vs Strong Exchange on ARM}
-  The arm architecture allows exchange to spuriously fail.
-  \begin{itemize}
-    \item This is documented behaviour for \mintinline{Cpp}{exchange_weak}
-    \item \mintinline{Cpp}{exchange_strong} contains a loop that makes use of \mintinline{Cpp}{exchange_weak}
-    \item On x86 strong and weak are identical and do not spuriously fail. 
-  \end{itemize}
+	The arm architecture allows exchange to spuriously fail.
+	\begin{itemize}
+		\item This is documented behaviour for \mintinline{Cpp}{exchange_weak}
+		\item \mintinline{Cpp}{exchange_strong} contains a loop that makes use of \mintinline{Cpp}{exchange_weak}
+		\item On x86 strong and weak are identical and do not spuriously fail.
+	\end{itemize}
 \end{sidenotebox}
 \subsection{Atomic Integral Types}
 For integral types, fast assembly supported instructions for atomic integers, booleans and floats can be used.
@@ -885,7 +885,7 @@ For integral types, fast assembly supported instructions for atomic integers, bo
 \end{minted}
 For example we can see a single add is used for the \mintinline{Cpp}{fetch_add} here.
 \\ \begin{minipage}{.49\textwidth}
-  \begin{minted}[bgcolor=threadYellow]{Cpp}
+	\begin{minted}[bgcolor=threadYellow]{Cpp}
 #include <atomic>
 
 int main() {
@@ -896,7 +896,7 @@ int main() {
 \end{minipage}
 \hfill
 \begin{minipage}{.49\textwidth}
-  \begin{minted}[bgcolor=threadBlue]{NASM}
+	\begin{minted}[bgcolor=threadBlue]{NASM}
 main:
   mov       DWORD PTR [rsp-4], 1
   lock add  DWORD PTR [rsp-4], 3
@@ -937,31 +937,31 @@ namespace std {
 \end{minted}
 
 \begin{definitionbox}{Sequential Consistency}
-  The order of operations are executed as in the order of the program text.
-  \begin{itemize}
-    \item The default memory ordering for atomics (\mintinline{Cpp}{std::atomics::memory_order_seq_cst})
-  \end{itemize}
-  \begin{tabbox}{prosbox}
-    \textbf{Simple} & Easy to reason about the interleaving of threads. \\
-  \end{tabbox}
-  \begin{tabbox}{consbox}
-    \textbf{Expensive} & Compiler uses memory barriers which restrict how instructions can be reordered and optimised. \\
-  \end{tabbox}
+	The order of operations are executed as in the order of the program text.
+	\begin{itemize}
+		\item The default memory ordering for atomics (\mintinline{Cpp}{std::atomics::memory_order_seq_cst})
+	\end{itemize}
+	\begin{tabbox}{prosbox}
+		\textbf{Simple} & Easy to reason about the interleaving of threads. \\
+	\end{tabbox}
+	\begin{tabbox}{consbox}
+		\textbf{Expensive} & Compiler uses memory barriers which restrict how instructions can be reordered and optimised. \\
+	\end{tabbox}
 \end{definitionbox}
 
 \begin{definitionbox}{Relaxed Memory Order}
-  Guarantees only sequential consistency per location.
+	Guarantees only sequential consistency per location.
 \end{definitionbox}
 
 \section{Message Passing}
 Threads can communicate without blocking through atomics.
 \begin{itemize}
-  \item Poll on an atomic variable (potentially doing some other work while waiting)
-  \item Often used for synchronising access to shared resources (e.g spin locks)
-\end{itemize} 
+	\item Poll on an atomic variable (potentially doing some other work while waiting)
+	\item Often used for synchronising access to shared resources (e.g spin locks)
+\end{itemize}
 
 \subsection{Expensive Approach}
-We can use sequential consistency to ensure that the 
+We can use sequential consistency to ensure that the
 \begin{minted}[bgcolor=threadGrey]{Cpp}  
 #include <atomic>
 
@@ -969,7 +969,7 @@ std::atomic<bool> flag(true);
 SharedObj data(some_data);
 \end{minted}
 \begin{minipage}{.49\textwidth}
-  \begin{minted}[bgcolor=threadYellow]{Cpp}
+	\begin{minted}[bgcolor=threadYellow]{Cpp}
 use_data(data);
 
 flag.store(true);
@@ -979,7 +979,7 @@ flag.store(true);
 \end{minipage}
 \hfill
 \begin{minipage}{.49\textwidth}
-  \begin{minted}[bgcolor=threadBlue]{Cpp}
+	\begin{minted}[bgcolor=threadBlue]{Cpp}
 while (!flag.load()) {
 // do nothing - a pure spinlock
 }
@@ -989,49 +989,49 @@ use_data(data);
 \end{minipage}
 
 \begin{tabbox}{consbox}
-  \textbf{Slow} &  On some architectures memory barriers are required for to ensure sequential consistency, are expensive. \\
+	\textbf{Slow} &  On some architectures memory barriers are required for to ensure sequential consistency, are expensive. \\
 \end{tabbox}
 
 \begin{definitionbox}{Memory Barrier / Fence}
-  These prevent the reordering of load and store instructions by dynamically scheduled processors.
-  \begin{itemize}
-    \item On a single core processor this is not an issue (dynamic scheduling commits instructions effects in order)
-    \item On a multicore system instruction reordering in execution stages can result in non-sequentially consistent accesses.
-    \item Dynamic scheduling of instructions improves performance by filling potential \textit{stalls} with useful computation.
-  \end{itemize}
+	These prevent the reordering of load and store instructions by dynamically scheduled processors.
+	\begin{itemize}
+		\item On a single core processor this is not an issue (dynamic scheduling commits instructions effects in order)
+		\item On a multicore system instruction reordering in execution stages can result in non-sequentially consistent accesses.
+		\item Dynamic scheduling of instructions improves performance by filling potential \textit{stalls} with useful computation.
+	\end{itemize}
 \end{definitionbox}
 
 \subsection{Incorrect Approach}
 One approach could be to use relaxed memory ordering.
 \begin{itemize}
-  \item Allows for other values (e.g the data being protected by a spinlock) to be re-ordered around the atomic.
-  \item This removes the protection the spinlock is intended to provide.
+	\item Allows for other values (e.g the data being protected by a spinlock) to be re-ordered around the atomic.
+	\item This removes the protection the spinlock is intended to provide.
 \end{itemize}
 \noindent
 \begin{minipage}{.49\textwidth}
-    \begin{minted}[bgcolor=threadYellow]{Cpp}
+	\begin{minted}[bgcolor=threadYellow]{Cpp}
 // These can be reordered
 use_data(data);
 
 flag.store(true, std::memory_order_relaxed);
   
     \end{minted}
-  \end{minipage}
-  \hfill
-  \begin{minipage}{.49\textwidth}
-    \begin{minted}[bgcolor=threadBlue]{Cpp}
+\end{minipage}
+\hfill
+\begin{minipage}{.49\textwidth}
+	\begin{minted}[bgcolor=threadBlue]{Cpp}
 while (!flag.load(std::memory_order_relaxed)) {
 // do nothing - a pure spinlock
 }
 
     use_data(data);
     \end{minted}
-  \end{minipage}
+\end{minipage}
 
 \subsection{Release-Acquire Consistency}
 Release acquire consistency
 \\ \begin{minipage}{.49\textwidth}
-\begin{minted}[bgcolor=threadYellow]{Cpp}
+	\begin{minted}[bgcolor=threadYellow]{Cpp}
 // These can be reordered
 use_data(data);
 
@@ -1041,7 +1041,7 @@ flag.store(true, std::memory_order_release);
 \end{minipage}
 \hfill
 \begin{minipage}{.49\textwidth}
-  \begin{minted}[bgcolor=threadBlue]{Cpp}
+	\begin{minted}[bgcolor=threadBlue]{Cpp}
 while (!flag.load(std::memory_order_acquire)) {
 // do nothing - a pure spinlock
 }
@@ -1051,6 +1051,6 @@ while (!flag.load(std::memory_order_acquire)) {
 \end{minipage}
 The load is hence synchronised with the store, and reordering is prevented.
 \begin{itemize}
-  \item Ensures correctness
-  \item Potentially uses fewer memory barriers than SC (depends on the architecture)
+	\item Ensures correctness
+	\item Potentially uses fewer memory barriers than SC (depends on the architecture)
 \end{itemize}

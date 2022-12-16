@@ -2,32 +2,32 @@
 
 Rust is similar to C++ in many ways:
 \begin{itemize}
-    \item Designed for high performance (similar performance to C++)
-    \item Extensive support for systems programming (e.g drivers, operating systems) achieved with \mintinline{Rust}{unsafe}
-    \item Minimal runtime (i.e no garbage collection)
-    \item Zero cost abstractions
+	\item Designed for high performance (similar performance to C++)
+	\item Extensive support for systems programming (e.g drivers, operating systems) achieved with \mintinline{Rust}{unsafe}
+	\item Minimal runtime (i.e no garbage collection)
+	\item Zero cost abstractions
 \end{itemize}
 However it has some fundamental differences
 \begin{itemize}
-    \item Programs \& Libraries packages as crates (rather than includes \& headers) managed by a first-party build system (cargo)
-    \item A \textit{proper} type system supporting algebraic data types, traits (see C++ concepts), which also includes mutability (of values and references)
-    \item Type system manages ownership and borrowing, as well as the lifetime of an objects \& references (a similar concept to moves, unique pointers and RAII in C++, but strengthened and a first-class part of the language). This ensures that well-typed safe rust code cannot contain data races.
-    \item Powerful type inference (C++ auto on steroids) enabled by the improved type system
-    \item Pattern matching (very similar to \& directly inspired by haskell's \mintinline{haskell}{data})
-    \item No undefined behaviour is possible in safe rust code (with the exception of bugs in the compiler, and \href{https://doc.rust-lang.org/reference/behavior-considered-undefined.html}{\mintinline{Rust}{unsafe} code})
-    \item Sanitary \& powerful macro system (powerful enough to support entire languages as a DSL)
+	\item Programs \& Libraries packages as crates (rather than includes \& headers) managed by a first-party build system (cargo)
+	\item A \textit{proper} type system supporting algebraic data types, traits (see C++ concepts), which also includes mutability (of values and references)
+	\item Type system manages ownership and borrowing, as well as the lifetime of an objects \& references (a similar concept to moves, unique pointers and RAII in C++, but strengthened and a first-class part of the language). This ensures that well-typed safe rust code cannot contain data races.
+	\item Powerful type inference (C++ auto on steroids) enabled by the improved type system
+	\item Pattern matching (very similar to \& directly inspired by haskell's \mintinline{haskell}{data})
+	\item No undefined behaviour is possible in safe rust code (with the exception of bugs in the compiler, and \href{https://doc.rust-lang.org/reference/behavior-considered-undefined.html}{\mintinline{Rust}{unsafe} code})
+	\item Sanitary \& powerful macro system (powerful enough to support entire languages as a DSL)
 \end{itemize}
 
 \begin{sidenotebox}{What's all the hype}
-    Rust has gained a significant following despite being a relatively new language (Rust 1.0 release on May 1th, 2015).
-    \begin{itemize}
-        \item It is being introduced into the Linux kernel as a second language to C.
-        \item As of 2022 it has been the most loved language in the stack-overflow survey for 6 years in a row, and the 5th most wanted language
-        \item It has been embraced by major tech companies (e.g Rust has been used in parts of android since 2019, has become a particular favourite of microsoft and has been introduced to windows \& azure)
-    \end{itemize}
-    This is despite the steep leaning curve, new compiler (lacks the decades of experience with gcc, clang) and lack of teaching (few computer science degrees teach rust).
-    \\
-    \\ This popularity is mainly a result of deliberate language \& compiler design choices to position rust as a better alternative to C++  by systematically removing the most frustrating parts of C++ (undefined behaviour, complex build systems, legacy features, unsanitary macros, memory bugs, poor error message quality in template-heavy code) and to incorporate well-tested \& popular concepts from other, more established languages (smart pointers from C++, algebraic data types and pattern matching from functional languages (in particular Haskell), generic traits with associated types (haskell type classes), etc).
+	Rust has gained a significant following despite being a relatively new language (Rust 1.0 release on May 1th, 2015).
+	\begin{itemize}
+		\item It is being introduced into the Linux kernel as a second language to C.
+		\item As of 2022 it has been the most loved language in the stack-overflow survey for 6 years in a row, and the 5th most wanted language
+		\item It has been embraced by major tech companies (e.g Rust has been used in parts of android since 2019, has become a particular favourite of microsoft and has been introduced to windows \& azure)
+	\end{itemize}
+	This is despite the steep leaning curve, new compiler (lacks the decades of experience with gcc, clang) and lack of teaching (few computer science degrees teach rust).
+	\\
+	\\ This popularity is mainly a result of deliberate language \& compiler design choices to position rust as a better alternative to C++  by systematically removing the most frustrating parts of C++ (undefined behaviour, complex build systems, legacy features, unsanitary macros, memory bugs, poor error message quality in template-heavy code) and to incorporate well-tested \& popular concepts from other, more established languages (smart pointers from C++, algebraic data types and pattern matching from functional languages (in particular Haskell), generic traits with associated types (haskell type classes), etc).
 \end{sidenotebox}
 
 \section{Learning Rust}
@@ -35,20 +35,20 @@ These notes only cover critical concepts for a basic understanding of what concu
 \\
 \\ If you are looking for a more in depth understanding, the following resources are recommended:
 \begin{itemize}
-    \item \href{https://doc.rust-lang.org/book/}{\textbf{Rust Book}}
-    \item \href{https://doc.rust-lang.org/reference/}{\textbf{Rust Reference}}
-    \item \href{https://github.com/rust-lang/rustlings}{\textbf{Rustlings Problems}}
-    \item \href{https://doc.rust-lang.org/std/}{\textbf{Standard Library Documentation}}
-    \item \href{https://doc.rust-lang.org/nomicon/}{\textbf{The Rustonomicon}}
+	\item \href{https://doc.rust-lang.org/book/}{\textbf{Rust Book}}
+	\item \href{https://doc.rust-lang.org/reference/}{\textbf{Rust Reference}}
+	\item \href{https://github.com/rust-lang/rustlings}{\textbf{Rustlings Problems}}
+	\item \href{https://doc.rust-lang.org/std/}{\textbf{Standard Library Documentation}}
+	\item \href{https://doc.rust-lang.org/nomicon/}{\textbf{The Rustonomicon}}
 \end{itemize}
 
 \section{Ownership in Rust}
 In rust ownership rules are enforced by the type system:
 \begin{itemize}
-    \item Each value in Rust has an owner.
-    \item There can only be one owner at a time.
-    \item When the owner goes out of scope, the value will be dropped.
-    \item You can have many immutable references (readers) to a value, or one mutable reference (writer).
+	\item Each value in Rust has an owner.
+	\item There can only be one owner at a time.
+	\item When the owner goes out of scope, the value will be dropped.
+	\item You can have many immutable references (readers) to a value, or one mutable reference (writer).
 \end{itemize}
 \begin{minted}{Rust}
 fn my_function() {
@@ -116,8 +116,8 @@ fn foo() {
 \section{Lifetimes}
 References are associated with a lifetime - the scope within which the reference is valid.
 \begin{itemize}
-    \item The compiler can check if the reference outlives the value at compiler time (this would represent a dangling pointer \& use after free bug in C/C++)
-    \item Lifetime elison is used to infer the lifetimes of references (so we do not need to explicitly add them for all references), however this is not perfect, and often explicit lifetimes must be added (e.g in data structures)
+	\item The compiler can check if the reference outlives the value at compiler time (this would represent a dangling pointer \& use after free bug in C/C++)
+	\item Lifetime elison is used to infer the lifetimes of references (so we do not need to explicitly add them for all references), however this is not perfect, and often explicit lifetimes must be added (e.g in data structures)
 \end{itemize}
 
 \begin{minted}{Rust}
@@ -185,9 +185,9 @@ fn zing() {
 \end{minted}
 
 \begin{itemize}
-    \item In many languages, e.g lambda expressions in C++
-    \item Closure takes some parameters, returns some value.
-    \item When a variable from the environment (e.g outside the scope of the closure) is used, Rust infers if it is borrowed, mutable borrowed or moved based on the operations used (e.g types of functions the captured variable is passed to)
+	\item In many languages, e.g lambda expressions in C++
+	\item Closure takes some parameters, returns some value.
+	\item When a variable from the environment (e.g outside the scope of the closure) is used, Rust infers if it is borrowed, mutable borrowed or moved based on the operations used (e.g types of functions the captured variable is passed to)
 \end{itemize}
 We can force captured variables to be moved/ownership to be transferred by using a move closure.
 \begin{minted}{Rust}
@@ -206,7 +206,7 @@ fn zang() {
 
 \section{Threads}
 \begin{sidenotebox}{\mintinline{Rust}{std::thread}}
-    The standard library's \href{https://doc.rust-lang.org/std/thread/}{thread documentation} covers this section far more extensively.
+	The standard library's \href{https://doc.rust-lang.org/std/thread/}{thread documentation} covers this section far more extensively.
 \end{sidenotebox}
 \begin{minted}{Rust}
 use std::thread;
@@ -226,10 +226,10 @@ As a thread may outlive the scope in which it is spawned, data used must either 
 \subsection{Reference Counting}
 A reference counting smart pointer is available in rust as \mintinline{Rust}{Rc}.
 \begin{itemize}
-    \item \mintinline{Rust}{Rc} is cloned to create new pointers to the same object.
-    \item Can return a reference (immutable) to the contained object. The interior mutability pattern can then be used for shared mutable objects.
-    \item \mintinline{Rust}{Rc} is not thread safe, so an \mintinline{Rust}{Arc} (atomic reference counter) is used in the context of multithreading.
-    \item We can enclose data in a structure that enforces the ownership rules (such as a read write lock, or mutex).
+	\item \mintinline{Rust}{Rc} is cloned to create new pointers to the same object.
+	\item Can return a reference (immutable) to the contained object. The interior mutability pattern can then be used for shared mutable objects.
+	\item \mintinline{Rust}{Rc} is not thread safe, so an \mintinline{Rust}{Arc} (atomic reference counter) is used in the context of multithreading.
+	\item We can enclose data in a structure that enforces the ownership rules (such as a read write lock, or mutex).
 \end{itemize}
 \begin{minted}{Rust}
 use std::{thread, sync::{Arc, Mutex}};

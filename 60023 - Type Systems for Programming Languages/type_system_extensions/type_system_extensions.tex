@@ -2,8 +2,8 @@
 
 \section{Data Structures}
 \begin{tabular}{l l l}
-    Tuples & Structs/Data Classes/Records & Combine data, equivalent to product. \\
-    Choice & Enums/Variants/Tagged Unions & Choose between variants of data. \\
+	Tuples & Structs/Data Classes/Records & Combine data, equivalent to product. \\
+	Choice & Enums/Variants/Tagged Unions & Choose between variants of data.     \\
 \end{tabular}
 \subsection{Pairing}
 We extend the grammar of types to:
@@ -12,19 +12,19 @@ We can then extend the $\lambda$-calculus to:
 \[E ::= \dots \ | \ \langle E_1 E_2 \rangle \ | \ left (E) \ | \ right(E) \]
 And can add the following rules to the curry's type assignment system:
 \[\ninfer{$Pair$}{\Gamma \vdash E_1 : A \quad \Gamma \vdash E_2 : B}{\Gamma \vdash \langle E-1, E_2 \rangle : A \times B}
-\qquad \ninfer{$left$}{\Gamma \vdash E : A \times B}{\Gamma \vdash left (E) : A}
-\qquad \ninfer{$right$}{\Gamma \vdash E : A \times B}{\Gamma \vdash right (E) : B}\]
+	\qquad \ninfer{$left$}{\Gamma \vdash E : A \times B}{\Gamma \vdash left (E) : A}
+	\qquad \ninfer{$right$}{\Gamma \vdash E : A \times B}{\Gamma \vdash right (E) : B}\]
 The reduction rules for $left$ and $right$ are as follows:
 \[\begin{split}
-    left \ \langle E_1, E_2 \rangle & \to E_1 \\
-    right \ \langle E_1, E_2 \rangle & \to E_2 \\
-\end{split} \qquad
-E \to E' \Rightarrow \begin{cases}
-    \langle E', E_2 \rangle & \to \langle E', E_2 \rangle \\
-    \langle E_1, E \rangle & \to \langle E_1, E' \rangle \\
-    left (E) & \to left (E') \\
-    right (E) & \to right (E') \\
-\end{cases}\]
+		left \ \langle E_1, E_2 \rangle & \to E_1 \\
+		right \ \langle E_1, E_2 \rangle & \to E_2 \\
+	\end{split} \qquad
+	E \to E' \Rightarrow \begin{cases}
+		\langle E', E_2 \rangle & \to \langle E', E_2 \rangle \\
+		\langle E_1, E \rangle  & \to \langle E_1, E' \rangle \\
+		left (E)                & \to left (E')               \\
+		right (E)               & \to right (E')              \\
+	\end{cases}\]
 Here $left$ and $right$ are constructors (in the same spirit as seem with pattern matching), we could add a rule to reconstruct tuples as below, but this would remove confluence (this is the surjective pairing mentioned in pattern matching).
 \[\langle left(E), right(E) \rangle \to E\]
 
@@ -35,146 +35,146 @@ Here the unions can only be of two types, and $case$(expression, if A, if B) is 
 And can add the following rules to the curry's type assignment system:
 \[\ninfer{$case$}{\Gamma \vdash E_1 : A + B \quad \Gamma \vdash E_2 : A \to C \quad \Gamma \vdash E_2 : B \to C}{\Gamma \vdash case(E_1, E_2, E_3) : C}\]
 \[\ninfer{$inj \cdot l$}{\Gamma \vdash E : A}{\Gamma \vdash inj \cdot l (E) : A + B} \qquad
-\ninfer{$inj \cdot r$}{\Gamma \vdash E : B}{\Gamma \vdash inj \cdot r (E) : A + B} \]
+	\ninfer{$inj \cdot r$}{\Gamma \vdash E : B}{\Gamma \vdash inj \cdot r (E) : A + B} \]
 The reduction rules for the new constructors are as follows:
 \[\begin{split}
-    case(inj \cdot l (E_1), E_2, E_3) &\to E_2 \ E_1 \\
-    case(inj \cdot r (E_1), E_2, E_3) &\to E_3 \ E_1 \\
-\end{split} \qquad E \to E' \Rightarrow \begin{cases}
-    case(E,E_2,E_3) & \to case(E',E_2,E_3) \\
-    case(E_1,E,E_33) & \to case(E_1,E',E_33) \\
-    case(E_1,E_2,E) & \to case(E_1,E_2,E') \\
-    inj \cdot l (E) & \to inj \cdot l (E') \\
-    inj \cdot r (E) & \to inj \cdot r (E') \\
-\end{cases}\]
+		case(inj \cdot l (E_1), E_2, E_3) &\to E_2 \ E_1 \\
+		case(inj \cdot r (E_1), E_2, E_3) &\to E_3 \ E_1 \\
+	\end{split} \qquad E \to E' \Rightarrow \begin{cases}
+		case(E,E_2,E_3)  & \to case(E',E_2,E_3)  \\
+		case(E_1,E,E_33) & \to case(E_1,E',E_33) \\
+		case(E_1,E_2,E)  & \to case(E_1,E_2,E')  \\
+		inj \cdot l (E)  & \to inj \cdot l (E')  \\
+		inj \cdot r (E)  & \to inj \cdot r (E')  \\
+	\end{cases}\]
 
 \section{Recursive Types}
 Recursive types are required for many types of data structure (single linked lists, trees, other structures with unbounded size).
 \begin{definitionbox}{Unit Type}
-    A unit type is an empty type containing no data.
-    \begin{itemize}
-        \item Considered an empty tuple
-        \item Supported by many languages (e.g Rust, Haskell)
-    \end{itemize}
+	A unit type is an empty type containing no data.
+	\begin{itemize}
+		\item Considered an empty tuple
+		\item Supported by many languages (e.g Rust, Haskell)
+	\end{itemize}
 \end{definitionbox}
 
 To properly express recursive types, many programming languages include a unit type (to be used as the base case for some recursive types).
 \[\ninfer{unit}{}{\Gamma \vdash () : \text{unit}}\]
 \begin{minipage}{.5\textwidth}
-    We can extend the grammar of types to:
-    \[A, B = \dots \ | \ X \ | \ \mu X . A\]
+	We can extend the grammar of types to:
+	\[A, B = \dots \ | \ X \ | \ \mu X . A\]
 \end{minipage}
 \begin{minipage}{.5\textwidth}
-    $=_\mu$ is the smallest equivalence relation containing:
-    \[\mu X.A =_\mu A[\mu X.A/X]\]
+	$=_\mu$ is the smallest equivalence relation containing:
+	\[\mu X.A =_\mu A[\mu X.A/X]\]
 \end{minipage}
 
 \begin{examplebox}{lists}
-    Define a singly linked list using the recursive types scheme described in this section.
-    \tcblower
-    \[[B] \triangleq \mu X. unit + (B \times X)\]
-    We can show this using $=_\mu$ as:
-    \[\begin{matrix*}[l]
-        [B] &\triangleq& \mu X . unit + (B \times X) \\
-        &=_\mu& (unit + (B \times X))[\mu X . unit + (B \times X)/X] \\
-        &=& (unit + (B \times \mu X . unit + (B \times X))) \\
-        &=& (unit + (B \times [B])) \\
-    \end{matrix*}\]
+	Define a singly linked list using the recursive types scheme described in this section.
+	\tcblower
+	\[[B] \triangleq \mu X. unit + (B \times X)\]
+	We can show this using $=_\mu$ as:
+	\[\begin{matrix*}[l]
+			[B] &\triangleq& \mu X . unit + (B \times X) \\
+			&=_\mu& (unit + (B \times X))[\mu X . unit + (B \times X)/X] \\
+			&=& (unit + (B \times \mu X . unit + (B \times X))) \\
+			&=& (unit + (B \times [B])) \\
+		\end{matrix*}\]
 \end{examplebox}
 
 \subsection{Equi-recursive Approach}
 \[\ninfers{$\mu$}{\Gamma \vdash E : A}{\Gamma \vdash E : B}{A =_\mu B}\]
 Hence we can now type the list as:
 \[\ainfer{$\mu$}{
-    \ainfer{$inj \cdot l$}{
-        \ainfer{unit}{}{
-            \Gamma \vdash () : \text{unit}
-        }
-    }{
-        \Gamma \vdash inj \cdot l () : \text{unit} + (B \times [B])
-    }
-}{
-    \Gamma \vdash inj \cdot l () : [B]
-}\]
+	\ainfer{$inj \cdot l$}{
+		\ainfer{unit}{}{
+			\Gamma \vdash () : \text{unit}
+		}
+	}{
+		\Gamma \vdash inj \cdot l () : \text{unit} + (B \times [B])
+	}
+	}{
+	\Gamma \vdash inj \cdot l () : [B]
+	}\]
 
 \[\ainfer{$\mu$}{
-    \ainfer{$inj \cdot r$}{
-        \ainfer{Pair}{
-            \infer{\dots}{\Gamma \vdash E_1 : B} \quad \infer{\dots}{\Gamma \vdash E_2 : [B]}
-        }{
-            \Gamma \vdash \langle E_1, E_2 \rangle : B \times [B]
-        }
-    }{
-        \Gamma \vdash inj \cdot r \langle E_1 , E_2 \rangle : \text{unit} + (B \times [B])
-    }
-}{
-    \Gamma \vdash inj \cdot r \langle E_1, E_2 \rangle : [B]
-}\]
+	\ainfer{$inj \cdot r$}{
+	\ainfer{Pair}{
+	\infer{\dots}{\Gamma \vdash E_1 : B} \quad \infer{\dots}{\Gamma \vdash E_2 : [B]}
+	}{
+	\Gamma \vdash \langle E_1, E_2 \rangle : B \times [B]
+	}
+	}{
+	\Gamma \vdash inj \cdot r \langle E_1 , E_2 \rangle : \text{unit} + (B \times [B])
+	}
+	}{
+	\Gamma \vdash inj \cdot r \langle E_1, E_2 \rangle : [B]
+	}\]
 \begin{prosbox}
-    This approach requires no explicit type annotations or declarations (full type inference is preserved)
+	This approach requires no explicit type annotations or declarations (full type inference is preserved)
 \end{prosbox}
 \begin{consbox}
-    Meaningless program have types, for example self application can be typed.
-    \[\lambda x . x \ x : \mu X.X \to \varphi\]
+	Meaningless program have types, for example self application can be typed.
+	\[\lambda x . x \ x : \mu X.X \to \varphi\]
 \end{consbox}
 
 \subsection{Iso-recursive Approach}
 Here syntactic markers for fold and unfold are added, recursive types are folded and unfolded on demand.
 \begin{prosbox}
-    Disallows typing of self-application, as is the case with \textit{equi-recursive types}.
+	Disallows typing of self-application, as is the case with \textit{equi-recursive types}.
 \end{prosbox}
 
 The syntax is extended with:
 \[E ::= \dots \ | \ fold(E) \ | \ unfold(E) \]
 The following reduction rule is added:
 \[unfold(fold(E)) \to E \quad E \to E' \Rightarrow \begin{cases}
-    unfold(E) &\to unfold(E') \\
-    fold(E) &\to fold(E') \\
-\end{cases}\]
+		unfold(E) & \to unfold(E') \\
+		fold(E)   & \to fold(E')   \\
+	\end{cases}\]
 We then must add the type assignment rules:
 \[\ninfer{fold}{
-    \Gamma \vdash E : A[\mu X . A / X]
-}{
-    \Gamma \vdash fold(E) : \mu X.A
-} \qquad \ninfer{unfold}{
-    \Gamma \vdash E : \mu X . A
-}{
-    \Gamma \vdash unfold(E) : A[\mu X.A / X]
-}\]
+		\Gamma \vdash E : A[\mu X . A / X]
+	}{
+		\Gamma \vdash fold(E) : \mu X.A
+	} \qquad \ninfer{unfold}{
+		\Gamma \vdash E : \mu X . A
+	}{
+		\Gamma \vdash unfold(E) : A[\mu X.A / X]
+	}\]
 \[\ainfer{fold}{
-    \ainfer{$inj \cdot l$}{
-        \ainfer{unit}{}{
-            \Gamma \vdash () : \text{unit}
-        }
-    }{
-        \Gamma \vdash inj \cdot l () : \text{unit} + (B \times [B])
-    }
-}{
-    \Gamma \vdash fold(inj \cdot l ()) : [B]
-}\]
+	\ainfer{$inj \cdot l$}{
+		\ainfer{unit}{}{
+			\Gamma \vdash () : \text{unit}
+		}
+	}{
+		\Gamma \vdash inj \cdot l () : \text{unit} + (B \times [B])
+	}
+	}{
+	\Gamma \vdash fold(inj \cdot l ()) : [B]
+	}\]
 
 \[\ainfer{fold}{
-    \ainfer{$inj \cdot r$}{
-        \ainfer{Pair}{
-            \infer{\dots}{\Gamma \vdash E_1 : B} \quad \infer{\dots}{\Gamma \vdash E_2 : [B]}
-        }{
-            \Gamma \vdash \langle E_1, E_2 \rangle : B \times [B]
-        }
-    }{\Gamma \vdash inj \cdot r \langle E_1 , E_2 \rangle : \text{unit} + (B \times [B])}
-}{
-    \Gamma \vdash fold(inj \cdot r \langle E_1, E_2 \rangle) : [B]
-}\]
+	\ainfer{$inj \cdot r$}{
+	\ainfer{Pair}{
+	\infer{\dots}{\Gamma \vdash E_1 : B} \quad \infer{\dots}{\Gamma \vdash E_2 : [B]}
+	}{
+	\Gamma \vdash \langle E_1, E_2 \rangle : B \times [B]
+	}
+	}{\Gamma \vdash inj \cdot r \langle E_1 , E_2 \rangle : \text{unit} + (B \times [B])}
+	}{
+	\Gamma \vdash fold(inj \cdot r \langle E_1, E_2 \rangle) : [B]
+	}\]
 
 
 \section{Recursive Data Types}
 Rather than specifically use $\mu . X . A$ for fold/unfold, we can instead generalise to fold/unfold any type. This allows us to build recursive data types.
 \[\ninfer{$fold_{\mu X . A}$}{
-    \Gamma \vdash E : A[\mu X . A / X]}{\Gamma \vdash fold_{\mu X . A}(E) : \mu X . A
-} \qquad \ninfer{$unfold_{\mu X . A}$}{
-    \Gamma \vdash E : \mu X . A
-}{
-    \Gamma \vdash unfold_{\mu X . A} (E) : A[\mu X . A / X]
-}\]
+		\Gamma \vdash E : A[\mu X . A / X]}{\Gamma \vdash fold_{\mu X . A}(E) : \mu X . A
+	} \qquad \ninfer{$unfold_{\mu X . A}$}{
+		\Gamma \vdash E : \mu X . A
+	}{
+		\Gamma \vdash unfold_{\mu X . A} (E) : A[\mu X . A / X]
+	}\]
 
 We can hence create some identifier for a recursive type, and then use the relevant fold and unfolds for it.
 \[A = \text{unit} + (B \times A) \qquad \text{with identifier } [A]\]
@@ -185,18 +185,18 @@ More generally a recursive data type is defined as $C \overset{\rightharpoonup}{
 \[E ::= \dots \ | \ fold_C(E) \ | \ unfold_C(E)\]
 We also add the reduction rules as:
 \[unfold_C(fold_C(E)) \to E \qquad E \to E' \Rightarrow \begin{cases}
-    unfold_C(E) & \to unfold_C(E') \\
-    fold_C(E) & \to fold_C(E') \\
-\end{cases}\]
+		unfold_C(E) & \to unfold_C(E') \\
+		fold_C(E)   & \to fold_C(E')   \\
+	\end{cases}\]
 With type assignment rules:
 \[\ninfer{$fold_C$}{
-    \Gamma \vdash E : A_C[\overset{\rightharpoonup}{B}]
-}{
-    \Gamma \vdash fold_C(E) : C \overset{\rightharpoonup}{B}
-} \qquad \ninfer{$unfold_C$}{
-    \Gamma \vdash E : C \overset{\rightharpoonup}{B}
-}{
-    \Gamma \vdash unfold_C(E) : A_C[\overset{\rightharpoonup}{B}]
-}\]
+	\Gamma \vdash E : A_C[\overset{\rightharpoonup}{B}]
+	}{
+	\Gamma \vdash fold_C(E) : C \overset{\rightharpoonup}{B}
+	} \qquad \ninfer{$unfold_C$}{
+	\Gamma \vdash E : C \overset{\rightharpoonup}{B}
+	}{
+	\Gamma \vdash unfold_C(E) : A_C[\overset{\rightharpoonup}{B}]
+	}\]
 for every type definition $C \overset{\rightharpoonup}{\varphi} = A_C[\overset{\rightharpoonup}{\varphi}]$.
 

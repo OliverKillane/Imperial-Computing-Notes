@@ -2,140 +2,140 @@
 
 \section{Introduction to Lambda Calculus}
 \begin{definitionbox}{$\lambda$-Terms}
-    Given the set of term-variables $\mathcal{V} = \{x,y,z, \dots\}$, a $\lambda$-term is defined by the grammar:
-    \[M, N ::= \underset{variable}{x} \quad | \quad \underset{abstraction}{(\lambda x . M)} \quad | \quad \underset{application}{(M \ N)}\]
-    We can also describe this using an \textit{inference system}:
-    \[\infers{}{x \in \Lambda}{x \in \mathcal{V}} \qquad \infers{M \in \Lambda}{(\lambda x . M) \in \Lambda}{(x \in \mathcal{V})} \qquad \infer{M \in \Lambda \quad N \in \Lambda}{(M \ N) \in \Lambda}\]
-    \begin{itemize}
-        \item In a lambda term $M \cdot N$, $M$ is in the \textit{function position} and $N$ is an \textit{argument}
-        \item The leftmost, outer brackets can be ommitted ($M \ N \ (P \ Q) = ((M \ N) \ (P \ Q))$)
-        \item Abstractions can be abbreviated $\lambda x y z . M = (\lambda x . (\lambda y . (\lambda z . M)))$
-        \item Computation is expressed through term substitution.
-    \end{itemize}
+	Given the set of term-variables $\mathcal{V} = \{x,y,z, \dots\}$, a $\lambda$-term is defined by the grammar:
+	\[M, N ::= \underset{variable}{x} \quad | \quad \underset{abstraction}{(\lambda x . M)} \quad | \quad \underset{application}{(M \ N)}\]
+	We can also describe this using an \textit{inference system}:
+	\[\infers{}{x \in \Lambda}{x \in \mathcal{V}} \qquad \infers{M \in \Lambda}{(\lambda x . M) \in \Lambda}{(x \in \mathcal{V})} \qquad \infer{M \in \Lambda \quad N \in \Lambda}{(M \ N) \in \Lambda}\]
+	\begin{itemize}
+		\item In a lambda term $M \cdot N$, $M$ is in the \textit{function position} and $N$ is an \textit{argument}
+		\item The leftmost, outer brackets can be ommitted ($M \ N \ (P \ Q) = ((M \ N) \ (P \ Q))$)
+		\item Abstractions can be abbreviated $\lambda x y z . M = (\lambda x . (\lambda y . (\lambda z . M)))$
+		\item Computation is expressed through term substitution.
+	\end{itemize}
 \end{definitionbox}
 
 \begin{tcbraster}[raster columns=2, raster equal height]
-    \begin{definitionbox}{Free Variables}
-        \[\begin{matrix*}[l]
-            fv(x) & = \{x\} \\
-            fv(\lambda y . M) & = fb(M) \setminus \{y\} \\
-            fb(M \ N) &= fv(M) \cup fv(N) \\
-        \end{matrix*}\]
-        A $\lambda$-term $M$ is closed if $fv(M) = \emptyset$.
-    \end{definitionbox}
-    \begin{definitionbox}{Bound Variables}
-        \[\begin{matrix*}[l]
-            bv(x) &= \emptyset \\
-            bv(\lambda y . M) &= bv(M) \cup y \\
-            bv(M \ N) &= bv(M) \cup bv(N) \\
-        \end{matrix*}\]
-        A term with no free variables is \textit{closed}.
-    \end{definitionbox}
+	\begin{definitionbox}{Free Variables}
+		\[\begin{matrix*}[l]
+				fv(x) & = \{x\} \\
+				fv(\lambda y . M) & = fb(M) \setminus \{y\} \\
+				fb(M \ N) &= fv(M) \cup fv(N) \\
+			\end{matrix*}\]
+		A $\lambda$-term $M$ is closed if $fv(M) = \emptyset$.
+	\end{definitionbox}
+	\begin{definitionbox}{Bound Variables}
+		\[\begin{matrix*}[l]
+				bv(x) &= \emptyset \\
+				bv(\lambda y . M) &= bv(M) \cup y \\
+				bv(M \ N) &= bv(M) \cup bv(N) \\
+			\end{matrix*}\]
+		A term with no free variables is \textit{closed}.
+	\end{definitionbox}
 \end{tcbraster}
 We can define term substitution inductively as:
 \\ \begin{minipage}{.45\textwidth}
-    Where $P[N/x]$ means replace $x$ by $N$ in $\lambda$-term $P$.
-    \[\begin{matrix*}[l]
-        x[N/x] & = N \\
-        y[N/x] & = y \\
-        (P \ Q)[N/x] & = P[N/x] \ Q[N/x] \\
-        (\lambda y . M)[N/x] &= \lambda y.(M[N/x]) \text{ where } y \neq x \\
-        (\lambda x . M)[N/x] &= \lambda x.M \\
-    \end{matrix*}\]
+	Where $P[N/x]$ means replace $x$ by $N$ in $\lambda$-term $P$.
+	\[\begin{matrix*}[l]
+			x[N/x] & = N \\
+			y[N/x] & = y \\
+			(P \ Q)[N/x] & = P[N/x] \ Q[N/x] \\
+			(\lambda y . M)[N/x] &= \lambda y.(M[N/x]) \text{ where } y \neq x \\
+			(\lambda x . M)[N/x] &= \lambda x.M \\
+		\end{matrix*}\]
 \end{minipage}
 \begin{minipage}{.55\textwidth}
-    This definition can result in variable capture, for example:
-    \[(\lambda x . y \ x) [y/x] = \lambda x . x \ x\]
-    Here the free $y$ was substituted for another free variable $x$, however has been captured by the bound $x$ in the abstraction.
+	This definition can result in variable capture, for example:
+	\[(\lambda x . y \ x) [y/x] = \lambda x . x \ x\]
+	Here the free $y$ was substituted for another free variable $x$, however has been captured by the bound $x$ in the abstraction.
 \end{minipage}
 \begin{definitionbox}{Barendregt's convention}
-    Given some $(\lambda x . M) N$ we can assume:
-    \[\begin{split}
-        x \not\in fv(N) & \qquad \text{x is not free in N} \\
-        \forall y \in bv(M) . [y \not\in fv(N)] & \qquad \text{All bound variables in }M\text{ are not free in }N \\
-    \end{split}\]
-    We can always rename the bound variables of a term, this is a fundamental feature to the degree that $\alpha$-conversion rarely plays a role and terms are considered modulo $\alpha$-conversion.
+	Given some $(\lambda x . M) N$ we can assume:
+	\[\begin{split}
+			x \not\in fv(N) & \qquad \text{x is not free in N} \\
+			\forall y \in bv(M) . [y \not\in fv(N)] & \qquad \text{All bound variables in }M\text{ are not free in }N \\
+		\end{split}\]
+	We can always rename the bound variables of a term, this is a fundamental feature to the degree that $\alpha$-conversion rarely plays a role and terms are considered modulo $\alpha$-conversion.
 \end{definitionbox}
 \begin{definitionbox}{Equivalence Relation}
-    A binary relation that is reflexive, symmetric and transitive.
+	A binary relation that is reflexive, symmetric and transitive.
 \end{definitionbox}
 \begin{tcbraster}[raster columns=2, raster equal height]
-    \begin{definitionbox}{$\alpha$-Conversion}
-        \[(\lambda x . M) N \to_\alpha (\lambda z. M[z/x]) N \text{ where }z \text{ is a new} \]
-        Renaming bound variables within a term.
-    \end{definitionbox}
-    \begin{definitionbox}{$\alpha$-Equivalence}
-        \[N \to_\alpha M \land M \to_\alpha N \Leftrightarrow M =_\alpha N\]
-        Terms that can be made equal by $\alpha$-conversion are $\alpha$-Equivalent
-    \end{definitionbox}
+	\begin{definitionbox}{$\alpha$-Conversion}
+		\[(\lambda x . M) N \to_\alpha (\lambda z. M[z/x]) N \text{ where }z \text{ is a new} \]
+		Renaming bound variables within a term.
+	\end{definitionbox}
+	\begin{definitionbox}{$\alpha$-Equivalence}
+		\[N \to_\alpha M \land M \to_\alpha N \Leftrightarrow M =_\alpha N\]
+		Terms that can be made equal by $\alpha$-conversion are $\alpha$-Equivalent
+	\end{definitionbox}
 \end{tcbraster}
 \begin{definitionbox}{$\beta$-Conversion}
-    \[\underset{Reducible Expression/Redex}{(\lambda x . M) N} \to_\beta \underset{Contractum/Reduct}{M[N / x]}\]
-    \begin{minipage}{.5\textwidth}
-        The \textit{one-step} reduction $\to_\beta$ can be defined with 
-        \\ contexual closure rules:
-        \[M \to_\beta N \Rightarrow \begin{cases}
-            \lambda x. M & \to_\beta \lambda x . N \\
-            P \ M & \to_\beta P \ N \\
-            M \ P & \to_\beta N \ P \\
-        \end{cases}\]
-        $\to*_\beta$ or $\twoheadrightarrow_\beta$ is the transitive closure of $\to_\beta$.
-    \end{minipage}
-    \begin{minipage}{.5\textwidth}
-        $=_\beta$ is the equivalence relation generated by $\to^*_\beta$:
-        \[\begin{matrix*}[l]
-            M \to^*_\beta N & \Rightarrow M =_\beta N \\
-        \end{matrix*}\]
-        As $=_\beta$ is an equivalence relation we also have:
-        \[\begin{matrix*}[l]
-            M =_\beta N & \Rightarrow N =_\beta M \\
-            M =_\beta N \land N =_\beta P & \Rightarrow M =_\beta P \\
-        \end{matrix*}\]
-    \end{minipage}
-    We can also define this using an inference system:
-    \[\begin{matrix}
-        \ninfer{$\beta$}{}{(\lambda x . M) N \to_\beta M [N / x]} 
-        & \ninfer{Appl-L}{M \to_\beta N}{M \ P \to_\beta N \ P} 
-        & \ninfer{Appl-R}{M \to_\beta N}{P \ M \to_\beta P \ N} \\
-        \\ 
-        & \ninfer{Abstr}{M \to_\beta N}{\lambda x . M \to_\beta \lambda x . N} \\
-        \\
-        \ninfer{Inherit$_r$}{M \to_\beta N}{M \to^*_\beta N} 
-        & \ninfer{Refl}{}{M \to^*_\beta M} 
-        & \ninfer{Trans$_r$}{M \to^*_\beta N \quad N \to^*_\beta P}{M \to^*_\beta P} \\
-        \\
-        \ninfer{Inherit$_r$}{M \to^*_\beta N}{M =_\beta N}
-        & \ninfer{Symm}{M =_\beta N}{N =_\beta M} 
-        & \ninfer{Trans$_{eq}$}{M =_\beta N \quad N =_\beta P}{M =_\beta P} \\
-    \end{matrix}\]
-    $\beta$-reduction is confluent/satisfies the Church-Rosser property:
-    \[\forall N, M, P . [M \to^*_\beta N \land M \to^*_\beta P \Rightarrow \exists Q . [N \to^*_\beta Q \land P \to^*_\beta Q] ] \]
+	\[\underset{Reducible Expression/Redex}{(\lambda x . M) N} \to_\beta \underset{Contractum/Reduct}{M[N / x]}\]
+	\begin{minipage}{.5\textwidth}
+		The \textit{one-step} reduction $\to_\beta$ can be defined with
+		\\ contexual closure rules:
+		\[M \to_\beta N \Rightarrow \begin{cases}
+				\lambda x. M & \to_\beta \lambda x . N \\
+				P \ M        & \to_\beta P \ N         \\
+				M \ P        & \to_\beta N \ P         \\
+			\end{cases}\]
+		$\to*_\beta$ or $\twoheadrightarrow_\beta$ is the transitive closure of $\to_\beta$.
+	\end{minipage}
+	\begin{minipage}{.5\textwidth}
+		$=_\beta$ is the equivalence relation generated by $\to^*_\beta$:
+		\[\begin{matrix*}[l]
+				M \to^*_\beta N & \Rightarrow M =_\beta N \\
+			\end{matrix*}\]
+		As $=_\beta$ is an equivalence relation we also have:
+		\[\begin{matrix*}[l]
+				M =_\beta N & \Rightarrow N =_\beta M \\
+				M =_\beta N \land N =_\beta P & \Rightarrow M =_\beta P \\
+			\end{matrix*}\]
+	\end{minipage}
+	We can also define this using an inference system:
+	\[\begin{matrix}
+			\ninfer{$\beta$}{}{(\lambda x . M) N \to_\beta M [N / x]}
+			 & \ninfer{Appl-L}{M \to_\beta N}{M \ P \to_\beta N \ P}
+			 & \ninfer{Appl-R}{M \to_\beta N}{P \ M \to_\beta P \ N}                      \\
+			\\
+			 & \ninfer{Abstr}{M \to_\beta N}{\lambda x . M \to_\beta \lambda x . N}       \\
+			\\
+			\ninfer{Inherit$_r$}{M \to_\beta N}{M \to^*_\beta N}
+			 & \ninfer{Refl}{}{M \to^*_\beta M}
+			 & \ninfer{Trans$_r$}{M \to^*_\beta N \quad N \to^*_\beta P}{M \to^*_\beta P} \\
+			\\
+			\ninfer{Inherit$_r$}{M \to^*_\beta N}{M =_\beta N}
+			 & \ninfer{Symm}{M =_\beta N}{N =_\beta M}
+			 & \ninfer{Trans$_{eq}$}{M =_\beta N \quad N =_\beta P}{M =_\beta P}          \\
+		\end{matrix}\]
+	$\beta$-reduction is confluent/satisfies the Church-Rosser property:
+	\[\forall N, M, P . [M \to^*_\beta N \land M \to^*_\beta P \Rightarrow \exists Q . [N \to^*_\beta Q \land P \to^*_\beta Q] ] \]
 \end{definitionbox}
 $\beta$-conversion does not conform to \textit{Barendregt's convention}, for example:
 \[\begin{matrix*}[l]
-    (\lambda xy.x y) (\lambda xy.x y) & \to (\lambda xy.x y)[(\lambda xy.x y)/x] & = \lambda y . (\lambda xy.x y) y \\
-    & \to \lambda y.(\lambda xy.x y)[y/x] & = \lambda y.(\lambda y. y y) \\
-\end{matrix*}\]
+		(\lambda xy.x y) (\lambda xy.x y) & \to (\lambda xy.x y)[(\lambda xy.x y)/x] & = \lambda y . (\lambda xy.x y) y \\
+		& \to \lambda y.(\lambda xy.x y)[y/x] & = \lambda y.(\lambda y. y y) \\
+	\end{matrix*}\]
 We can avoid this by alpha converting the term to $\lambda y . (\lambda x z. x z) y$ before $\beta$-conversion.
 
 \begin{definitionbox}{$\eta$-Reduction}
-    \[\text{Given } x \not\in fv(M) \text{ then } \lambda x. M \ x \to_\eta M\]
-    $\eta$-reduction can be used for eta equivalence. If $f \ x = g \ x$ then we can eta reduce both to $f = g$.
-    \begin{itemize}
-        \item Eta reduction is a common lint provided hy hlint for haskell.
-    \end{itemize}
+	\[\text{Given } x \not\in fv(M) \text{ then } \lambda x. M \ x \to_\eta M\]
+	$\eta$-reduction can be used for eta equivalence. If $f \ x = g \ x$ then we can eta reduce both to $f = g$.
+	\begin{itemize}
+		\item Eta reduction is a common lint provided hy hlint for haskell.
+	\end{itemize}
 \end{definitionbox}
 
 \section{Reduction Strategies}
 \begin{definitionbox}{Evaluation Context}
-    A term with a single hole $\lceil \rfloor$ :
-    \[C ::= \lceil \rfloor \ | \ C \ M \ | \ M \ C \ | \ \lambda x. C\]
-    $C\lceil M \rfloor$ is the term obtained from context $C$ by replacing the \textit{hole} $\lceil \rfloor$ with $M$.
-    \begin{itemize}
-        \item This allows any variables to be captured.
-    \end{itemize}
-    The one step $\beta$-reduction rule can be defined for any evaluation context as:
-    \[C_N\lceil (\lambda x.M) N \rfloor \to C_N \lceil M[N/x] \rfloor\]
+	A term with a single hole $\lceil \rfloor$ :
+	\[C ::= \lceil \rfloor \ | \ C \ M \ | \ M \ C \ | \ \lambda x. C\]
+	$C\lceil M \rfloor$ is the term obtained from context $C$ by replacing the \textit{hole} $\lceil \rfloor$ with $M$.
+	\begin{itemize}
+		\item This allows any variables to be captured.
+	\end{itemize}
+	The one step $\beta$-reduction rule can be defined for any evaluation context as:
+	\[C_N\lceil (\lambda x.M) N \rfloor \to C_N \lceil M[N/x] \rfloor\]
 \end{definitionbox}
 
 \subsection{Head Reduction}
@@ -166,207 +166,207 @@ Reduce the leftmost term until it contains no redexes (then continue to other te
 
 \subsection{Applicative Order}
 \[\begin{matrix}
-    \infers{}{(\lambda x. M) N \to_A M[N/x]}{M, N\text{ contain no redexes}} & \infer{M \to_A N}{M \ P \to_a N \ P} \\
-    \\
-    \infers{M \to_A N}{P \ M \to_A P \ N}{P \text{ contains no redex}} & \infer{M \to_A N}{\lambda x. M \to_A \lambda x.N} \\
-\end{matrix}\]
+		\infers{}{(\lambda x. M) N \to_A M[N/x]}{M, N\text{ contain no redexes}} & \infer{M \to_A N}{M \ P \to_a N \ P}              \\
+		\\
+		\infers{M \to_A N}{P \ M \to_A P \ N}{P \text{ contains no redex}}       & \infer{M \to_A N}{\lambda x. M \to_A \lambda x.N} \\
+	\end{matrix}\]
 
 \subsection{Computability}
 \begin{definitionbox}{SKI Combinator Calculus}
-    \[\mathcal{S}  = \lambda x y z . x z (y z)\qquad \mathcal{K} = \lambda xy.x \qquad \mathcal{I} = \lambda x . x\]
-    Any operation in lambda calculus can be encoded (by \textit{abstraction elimination}) into the SKI calculus as a binary tree with leaves of symbols $\mathcal{S}$, $\mathcal{K}$ \& $\mathcal{I}$.
+	\[\mathcal{S}  = \lambda x y z . x z (y z)\qquad \mathcal{K} = \lambda xy.x \qquad \mathcal{I} = \lambda x . x\]
+	Any operation in lambda calculus can be encoded (by \textit{abstraction elimination}) into the SKI calculus as a binary tree with leaves of symbols $\mathcal{S}$, $\mathcal{K}$ \& $\mathcal{I}$.
 \end{definitionbox}
 
 It is possible to encode all Turing Machines within $lambda$-calculus and vice versa. This makes $\lambda$-calculus (along with Turing Machines) a model for what is computable.
 \begin{sidenotebox}{Church-Turing thesis}
-    The Church-Turing thesis equivocates the computational power of Turing machines and the lambda calculus. (\href{https://en.wikipedia.org/wiki/Church%E2%80%93Turing_thesis}{Wikipedia})
+	The Church-Turing thesis equivocates the computational power of Turing machines and the lambda calculus. (\href{https://en.wikipedia.org/wiki/Church%E2%80%93Turing_thesis}{Wikipedia})
 \end{sidenotebox}
 
 It is possible to write terms that do not terminate under $\beta$-reduction:
 \[(\lambda x . x x) \ (\lambda x . x x) \to_\beta (x x)[(\lambda x . x x)/x] = (\lambda x . x x) \ (\lambda x . x x) \]
 We can also apply functions continuously.
 \[\begin{matrix*}[l]
-    \lambda f.(\lambda x. f (x \ x)) (\lambda x. f (x \ x)) & \to_\beta \lambda f. (f (x \ x)) [(\lambda x. f (x \ x))/x] & = \lambda f.f ((\lambda x. f (x \ x)) (\lambda x. f (x \ x)))\\
-    & \to_\beta \lambda f. f(f ((\lambda x. f (x \ x)) (\lambda x. f (x \ x)))) \\
-    & \to_\beta \lambda f. f(f(f ((\lambda x. f (x \ x)) (\lambda x. f (x \ x))))) \\
-    & \vdots \\
-    & \to_\beta \lambda f. f (f (f ( f(f (\dots))))) \\
-\end{matrix*}\]
+		\lambda f.(\lambda x. f (x \ x)) (\lambda x. f (x \ x)) & \to_\beta \lambda f. (f (x \ x)) [(\lambda x. f (x \ x))/x] & = \lambda f.f ((\lambda x. f (x \ x)) (\lambda x. f (x \ x)))\\
+		& \to_\beta \lambda f. f(f ((\lambda x. f (x \ x)) (\lambda x. f (x \ x)))) \\
+		& \to_\beta \lambda f. f(f(f ((\lambda x. f (x \ x)) (\lambda x. f (x \ x))))) \\
+		& \vdots \\
+		& \to_\beta \lambda f. f (f (f ( f(f (\dots))))) \\
+	\end{matrix*}\]
 This term is a \textit{fixed point constructor}.
 \begin{definitionbox}{Fixed-Point Theorem}
-    \[\forall M . \exists N . [M \ N =_\beta N]\]
-    Take $N = Y \ M$ where $Y = \lambda f . (\lambda x . f (x \ x)) (\lambda x . f (x \ x))$:
-    \[\begin{matrix*}[l]
-        Y \ M & \triangleq & \lambda f . (\lambda x . f (x \ x)) (\lambda x . f (x \ x)) \ M \\
-        & \to_\beta & (\lambda x . M (x \ x)) (\lambda x , M (x \ x)) \\
-        & \to_\beta & (\lambda x . M (x \ x)) (\lambda x , M (x \ x)) \\
-        M (Y \ M) & \triangleq & M (\lambda f . (\lambda x . f (x \ x)) (\lambda x . f (x \ x)) \ M) \\
-        & \to_\beta & M((\lambda x . M (x \ x)) (\lambda x , M (x \ x))) \\
-    \end{matrix*}\]
-    Hence $M (Y \ M) =_\beta Y \ M$ meaning that $Y$ is the fixed point constructor of $M$
+	\[\forall M . \exists N . [M \ N =_\beta N]\]
+	Take $N = Y \ M$ where $Y = \lambda f . (\lambda x . f (x \ x)) (\lambda x . f (x \ x))$:
+	\[\begin{matrix*}[l]
+			Y \ M & \triangleq & \lambda f . (\lambda x . f (x \ x)) (\lambda x . f (x \ x)) \ M \\
+			& \to_\beta & (\lambda x . M (x \ x)) (\lambda x , M (x \ x)) \\
+			& \to_\beta & (\lambda x . M (x \ x)) (\lambda x , M (x \ x)) \\
+			M (Y \ M) & \triangleq & M (\lambda f . (\lambda x . f (x \ x)) (\lambda x . f (x \ x)) \ M) \\
+			& \to_\beta & M((\lambda x . M (x \ x)) (\lambda x , M (x \ x))) \\
+		\end{matrix*}\]
+	Hence $M (Y \ M) =_\beta Y \ M$ meaning that $Y$ is the fixed point constructor of $M$
 \end{definitionbox}
 
 \section{Normal Forms}
 \begin{definitionbox}{Normal Form}
-    A $\lambda$-term is in normal form if it does not contain a \textit{redex}.
-    \[N ::= x \ | \ \lambda x . N \ | \ x N_1 \dots N_n \text{ where }(n \geq 0)\]
-    No $\beta$ or $\eta$ reductions are possible
+	A $\lambda$-term is in normal form if it does not contain a \textit{redex}.
+	\[N ::= x \ | \ \lambda x . N \ | \ x N_1 \dots N_n \text{ where }(n \geq 0)\]
+	No $\beta$ or $\eta$ reductions are possible
 \end{definitionbox}
 
 \begin{definitionbox}{Head Normal Form}
-    A $\lambda$-term is in head normal form if it is an abstraction with a body that is not \textit{reducible}.
-    \[H ::= x \ | \ \lambda x. H \ | \ x M_1 \dots M_n \text{ where } n \geq 1 \land M_i \in \Lambda \]
-    This will mean the term is of the form $x$ or $\lambda x_1 \dots x_n . y M_1 \dots M_m$
-    \begin{itemize}
-        \item $y$ is the \textit{head-variable}
-        \item If a term has a head-normal form, then head-reduction on the term terminates.
-    \end{itemize}
+	A $\lambda$-term is in head normal form if it is an abstraction with a body that is not \textit{reducible}.
+	\[H ::= x \ | \ \lambda x. H \ | \ x M_1 \dots M_n \text{ where } n \geq 1 \land M_i \in \Lambda \]
+	This will mean the term is of the form $x$ or $\lambda x_1 \dots x_n . y M_1 \dots M_m$
+	\begin{itemize}
+		\item $y$ is the \textit{head-variable}
+		\item If a term has a head-normal form, then head-reduction on the term terminates.
+	\end{itemize}
 \end{definitionbox}
 
 \begin{tcbraster}[raster columns=2, raster equal height]
-    \begin{definitionbox}{Head Normalisable}
-        A term $M$ is head normalisable if it has a head-normal form.
-        \[M \to^*_\beta N \text{ where } N \text{ is in head normal form}\]
-    \end{definitionbox}
-    \begin{definitionbox}{Strongly Normalisable}
-        A term $M$ is strongly normalisable if all reduction sequences starting from $M$ are finite.
-    \end{definitionbox}
+	\begin{definitionbox}{Head Normalisable}
+		A term $M$ is head normalisable if it has a head-normal form.
+		\[M \to^*_\beta N \text{ where } N \text{ is in head normal form}\]
+	\end{definitionbox}
+	\begin{definitionbox}{Strongly Normalisable}
+		A term $M$ is strongly normalisable if all reduction sequences starting from $M$ are finite.
+	\end{definitionbox}
 \end{tcbraster}
 \begin{definitionbox}{Meaningless}
-    A term without a head-normal form is meaningless as it can never interact with any context (can never apply it to some argument).
+	A term without a head-normal form is meaningless as it can never interact with any context (can never apply it to some argument).
 \end{definitionbox}
 
 \begin{examplebox}{Normal Forms}
-    Determine the normality of the following terms:
-    \begin{enumerate}
-        \item $\lambda f . (\lambda x . f(x \ x)) \ (\lambda x . f(x \ x))$
-        \item $(\lambda x . x \ x) \ (\lambda x . x \ x)$
-        \item $\mathcal{S} \ \mathcal{K}$
-        \item $(\lambda a b . b) \ ((\lambda x . x \ x) \ (\lambda x . x \ x))$
-    \end{enumerate}
-    \tcblower
-    \begin{enumerate}
-        \item {Not in either head normal form or normal form (contains a redex).
-            \[\begin{split}
-                & \lambda f . (\lambda x . f (x \ x)) (\lambda x . f (x \ x)) \\
-                \to_\beta & \lambda f . f ((\lambda x . f (x \ x)) \ (\lambda x . f (x \ x)))  \\
-            \end{split}\]
-            However the $\beta$-reduction is in head normal form (head-variable is $f$).
-        }
-        \item It is a redex, so its not in a normal form. It does not have a normal form as it reduces to itself, so all reducts contain a redex. It has no head-normal form.
-        \item { Hence the original $\lambda$-term is not normal form, but it can be normalised. 
-            \[\begin{matrix*}[l]
-                & \mathcal{S} \ \mathcal{K} & \text{Must expand }\mathcal{S}\text{ and }\mathcal{K} \\
-                = & (\lambda x y z . x z (y z)) \ (\lambda xy.x) & \text{Is a redex}\\
-                \to_\beta & (\lambda x y z . x z (y z)) \ (\lambda xy.x) & \text{We rename $y$ as per barendregt's convention} \\
-                =_\alpha & (\lambda x y z . x z (y z)) \ (\lambda xa.x) \\
-                \to_\beta & (\lambda y z . (\lambda xa.x) z (y z)) \\
-                \to_\beta & (\lambda y z . (\lambda a. z) (y z)) \\
-                \to_\beta & (\lambda y z . z) \\
-            \end{matrix*}\]
-            As all possible redexes are contracted it is \textit{strongly normalisable}.
-        }
-        \item {
-            Contracting the outermost redex results in normal form ter $\lambda b . b$. However contracting the inner term yields itself. Hence it is normalisable, but not \textit{strongly normalisable}.
-        }
-    \end{enumerate}
+	Determine the normality of the following terms:
+	\begin{enumerate}
+		\item $\lambda f . (\lambda x . f(x \ x)) \ (\lambda x . f(x \ x))$
+		\item $(\lambda x . x \ x) \ (\lambda x . x \ x)$
+		\item $\mathcal{S} \ \mathcal{K}$
+		\item $(\lambda a b . b) \ ((\lambda x . x \ x) \ (\lambda x . x \ x))$
+	\end{enumerate}
+	\tcblower
+	\begin{enumerate}
+		\item {Not in either head normal form or normal form (contains a redex).
+		      \[\begin{split}
+				      & \lambda f . (\lambda x . f (x \ x)) (\lambda x . f (x \ x)) \\
+				      \to_\beta & \lambda f . f ((\lambda x . f (x \ x)) \ (\lambda x . f (x \ x)))  \\
+			      \end{split}\]
+		      However the $\beta$-reduction is in head normal form (head-variable is $f$).
+		      }
+		\item It is a redex, so its not in a normal form. It does not have a normal form as it reduces to itself, so all reducts contain a redex. It has no head-normal form.
+		\item { Hence the original $\lambda$-term is not normal form, but it can be normalised.
+		      \[\begin{matrix*}[l]
+				      & \mathcal{S} \ \mathcal{K} & \text{Must expand }\mathcal{S}\text{ and }\mathcal{K} \\
+				      = & (\lambda x y z . x z (y z)) \ (\lambda xy.x) & \text{Is a redex}\\
+				      \to_\beta & (\lambda x y z . x z (y z)) \ (\lambda xy.x) & \text{We rename $y$ as per barendregt's convention} \\
+				      =_\alpha & (\lambda x y z . x z (y z)) \ (\lambda xa.x) \\
+				      \to_\beta & (\lambda y z . (\lambda xa.x) z (y z)) \\
+				      \to_\beta & (\lambda y z . (\lambda a. z) (y z)) \\
+				      \to_\beta & (\lambda y z . z) \\
+			      \end{matrix*}\]
+		      As all possible redexes are contracted it is \textit{strongly normalisable}.
+		      }
+		\item {
+		      Contracting the outermost redex results in normal form ter $\lambda b . b$. However contracting the inner term yields itself. Hence it is normalisable, but not \textit{strongly normalisable}.
+		      }
+	\end{enumerate}
 \end{examplebox}
 
 \section{Approximation Semantics}
 There are many methods of describing the semantics of the $\lambda$-calculus.
 \begin{itemize}
-    \item Reduction rules with \textit{operational semantics}
-    \item set theory with \textit{denotational semantics}
+	\item Reduction rules with \textit{operational semantics}
+	\item set theory with \textit{denotational semantics}
 \end{itemize}
 The approach studied in this module defines semantics in a denotational style, but using a reduction system for its definition.
 \\
 \\ We introduce an extension to the $\lambda$-calculus syntax by adding the constant $\bot$,
 \begin{itemize}
-    \item $\bot$ means unknown/meaningless/no information
-    \item used to mask sub-terms (typically containing redexes) to allow us to focus on the the \textit{stable} parts of the term that do not change under reduction.
+	\item $\bot$ means unknown/meaningless/no information
+	\item used to mask sub-terms (typically containing redexes) to allow us to focus on the the \textit{stable} parts of the term that do not change under reduction.
 \end{itemize}
 The set of $\Lambda\bot$-terms is defined as:
 \[M, N ::= z \ | \ \bot \ | \ \lambda x . M \ | \ M \ N\]
 \begin{minipage}[t]{.37\textwidth}
-    $\beta$-reduction is extended to $\to_\bot$ to include:
-    \[\lambda x . \bot \to_\bot \bot \quad \text{ and } \quad \bot M \to_\bot \bot\]
-    Note that $\lambda x. \bot$ is considered a redex.
+	$\beta$-reduction is extended to $\to_\bot$ to include:
+	\[\lambda x . \bot \to_\bot \bot \quad \text{ and } \quad \bot M \to_\bot \bot\]
+	Note that $\lambda x. \bot$ is considered a redex.
 \end{minipage}
 \hfill
 \vline
 \hfill
 \begin{minipage}[t]{.6\textwidth}
-    The set of normal forms of $\Lambda\bot$ with respect to $\to_\bot$ is the set $\mathcal{A}$:
-    \[A ::= \bot \ | \ \lambda x. A \ (A \neq \bot) \ | \ x A_1 \dots A_n\]    
+	The set of normal forms of $\Lambda\bot$ with respect to $\to_\bot$ is the set $\mathcal{A}$:
+	\[A ::= \bot \ | \ \lambda x. A \ (A \neq \bot) \ | \ x A_1 \dots A_n\]
 \end{minipage}
 
 \begin{definitionbox}{Approximant}
-    An approximant is a redex-free $\Lambda\bot$-normal forms that can contain $\bot$ and are used to represent finite parts of potentially infinitely large $\lambda$-terms in head-normal form.
-    \\
-    \\ The partial order $\sqsubseteq \ \subseteq (\Lambda\bot)^2$ is defined as the smallest pre-order (reflexive and transitive) such that:
-    \[\begin{matrix*}[l]
-        \bot \sqsubseteq M & M \sqsubseteq M' & \Rightarrow & \lambda x. M \sqsubseteq \lambda x. M' \\
-        x \sqsubseteq x & M_1 \sqsubseteq M_1' \land M_2 \sqsubseteq M_2' & \Rightarrow & M_1 M_2 \sqsubseteq M_1' M_2' \\
-    \end{matrix*}\]
-    \begin{itemize}
-        \item For $A \in \mathcal{A}, M \in \Lambda$, if $A \sqsubseteq M$ then $A$ is the \textit{direct approximant} of $M$
-        \item {The set of \textit{approximants} of $M, \mathcal{A}(M)$ is defined as:
-            \[\mathcal{A}(M) \triangleq \{A \in \mathcal{A} | \exists M' \in \Lambda . [M \to^*_\beta M' \land A \sqsubseteq M']\}\]
-        }
-        \item If $A$ is a \textit{direct approximant} of $M$, then $A$ and $M$ have the same structure, but some parts $A$ contains $\bot$ ($\bot$ masking part of $M$). 
-        \item Redexes in $M$ are masked by $\bot$ in $A$ ($\bot$ masks the redex, or a larger location that contains the redex).
-    \end{itemize}
+	An approximant is a redex-free $\Lambda\bot$-normal forms that can contain $\bot$ and are used to represent finite parts of potentially infinitely large $\lambda$-terms in head-normal form.
+	\\
+	\\ The partial order $\sqsubseteq \ \subseteq (\Lambda\bot)^2$ is defined as the smallest pre-order (reflexive and transitive) such that:
+	\[\begin{matrix*}[l]
+			\bot \sqsubseteq M & M \sqsubseteq M' & \Rightarrow & \lambda x. M \sqsubseteq \lambda x. M' \\
+			x \sqsubseteq x & M_1 \sqsubseteq M_1' \land M_2 \sqsubseteq M_2' & \Rightarrow & M_1 M_2 \sqsubseteq M_1' M_2' \\
+		\end{matrix*}\]
+	\begin{itemize}
+		\item For $A \in \mathcal{A}, M \in \Lambda$, if $A \sqsubseteq M$ then $A$ is the \textit{direct approximant} of $M$
+		\item {The set of \textit{approximants} of $M, \mathcal{A}(M)$ is defined as:
+		      \[\mathcal{A}(M) \triangleq \{A \in \mathcal{A} | \exists M' \in \Lambda . [M \to^*_\beta M' \land A \sqsubseteq M']\}\]
+		      }
+		\item If $A$ is a \textit{direct approximant} of $M$, then $A$ and $M$ have the same structure, but some parts $A$ contains $\bot$ ($\bot$ masking part of $M$).
+		\item Redexes in $M$ are masked by $\bot$ in $A$ ($\bot$ masks the redex, or a larger location that contains the redex).
+	\end{itemize}
 \end{definitionbox}
 
 \begin{examplebox}{Direct Approximants}
-    Show the direct approximants for each reduction step of:
-    \begin{enumerate}
-        \item  $\mathcal{S} \ \mathcal{K}$
-        \item  $\mathcal{S} \ a \ \mathcal{K}$
-    \end{enumerate}
-    \tcblower
-    \begin{enumerate}
-        \item {
-            \[\begin{matrix}
-                \mathcal{S} \ \mathcal{K} = & (\lambda x y z . x z (y z)) \ (\lambda a b . a) & \to_\beta & \lambda y z . (\lambda a b . a) z (y z) & \to_\beta & \lambda y z . (\lambda b. z) (y z) & \to_\beta & \lambda y z . z \\
-                & \{\bot\} && \{\bot\} && \{\bot\} & & \{\bot, \lambda y z. z\} \\
-            \end{matrix} \]
-        }
-        \item {
-            \[
-                \begin{matrix*}[l]
-                    \mathcal{S} \ a \ \mathcal{K} = & (\lambda x y z . x z (y z)) \ a \ (\lambda c d . c) & \{\bot\} \\
-                    \to_\beta & (\lambda y z . a z (y z)) \ (\lambda c d . c) & \{\bot\} \\
-                    \to_\beta & (\lambda z . a z ((\lambda c d . c) z)) & \{\bot, \lambda z. a \bot \bot , \lambda z. a z \bot\} \\
-                    \to_\beta & (\lambda z . a z (\lambda d . z)) & \{\bot, \lambda z. a \bot \bot , \lambda z. a z \bot, \lambda a \bot (\lambda d.z), \lambda a z (\lambda d.z)\} \\
-                \end{matrix*}    
-            \]
-        }
-    \end{enumerate}
+	Show the direct approximants for each reduction step of:
+	\begin{enumerate}
+		\item  $\mathcal{S} \ \mathcal{K}$
+		\item  $\mathcal{S} \ a \ \mathcal{K}$
+	\end{enumerate}
+	\tcblower
+	\begin{enumerate}
+		\item {
+		      \[\begin{matrix}
+				      \mathcal{S} \ \mathcal{K} = & (\lambda x y z . x z (y z)) \ (\lambda a b . a) & \to_\beta & \lambda y z . (\lambda a b . a) z (y z) & \to_\beta & \lambda y z . (\lambda b. z) (y z) & \to_\beta & \lambda y z . z          \\
+				                                  & \{\bot\}                                        &           & \{\bot\}                                &           & \{\bot\}                           &           & \{\bot, \lambda y z. z\} \\
+			      \end{matrix} \]
+		      }
+		\item {
+		      \[
+			      \begin{matrix*}[l]
+				      \mathcal{S} \ a \ \mathcal{K} = & (\lambda x y z . x z (y z)) \ a \ (\lambda c d . c) & \{\bot\} \\
+				      \to_\beta & (\lambda y z . a z (y z)) \ (\lambda c d . c) & \{\bot\} \\
+				      \to_\beta & (\lambda z . a z ((\lambda c d . c) z)) & \{\bot, \lambda z. a \bot \bot , \lambda z. a z \bot\} \\
+				      \to_\beta & (\lambda z . a z (\lambda d . z)) & \{\bot, \lambda z. a \bot \bot , \lambda z. a z \bot, \lambda a \bot (\lambda d.z), \lambda a z (\lambda d.z)\} \\
+			      \end{matrix*}
+		      \]
+		      }
+	\end{enumerate}
 \end{examplebox}
 Some basic approximants are:
 \[
-    \begin{split}
-        \mathcal{A}(\lambda x . x) = & \ \{\bot, \lambda x . x\} \\
-        \mathcal{A}(\lambda x. x \ x) = & \ \{ \bot, \lambda x . x \bot , \lambda x. x \ x \} \\
-        \mathcal{A}(\lambda x . x ((\lambda y . y y) (\lambda y . y y))) = & \ \{ \bot, \lambda x . x \bot \} \\
-        \mathcal{A}(\mathcal{S}) = \mathcal{A}(\lambda x y z . xz (yz)) & \ \{\bot, \lambda x y z . x \bot \bot, \lambda x y z . x \bot (y \bot), \lambda x y z. x \bot (y z), \lambda x y z . x z \bot, \lambda x y z . x z (y \bot), \lambda x y z . x z (yz)\} \\
-        \mathcal{A}(\lambda f . (\lambda x . f(x \ x)) \ (\lambda x . f(x \ x))) & \ \{\bot, \lambda f . f(\bot), \lambda f . f(f (\bot)), \lambda f . f(f (f(\bot))), \dots\} \\
-    \end{split}
+	\begin{split}
+		\mathcal{A}(\lambda x . x) = & \ \{\bot, \lambda x . x\} \\
+		\mathcal{A}(\lambda x. x \ x) = & \ \{ \bot, \lambda x . x \bot , \lambda x. x \ x \} \\
+		\mathcal{A}(\lambda x . x ((\lambda y . y y) (\lambda y . y y))) = & \ \{ \bot, \lambda x . x \bot \} \\
+		\mathcal{A}(\mathcal{S}) = \mathcal{A}(\lambda x y z . xz (yz)) & \ \{\bot, \lambda x y z . x \bot \bot, \lambda x y z . x \bot (y \bot), \lambda x y z. x \bot (y z), \lambda x y z . x z \bot, \lambda x y z . x z (y \bot), \lambda x y z . x z (yz)\} \\
+		\mathcal{A}(\lambda f . (\lambda x . f(x \ x)) \ (\lambda x . f(x \ x))) & \ \{\bot, \lambda f . f(\bot), \lambda f . f(f (\bot)), \lambda f . f(f (f(\bot))), \dots\} \\
+	\end{split}
 \]
 \subsection{Properties of Approximants}
 \[(A \in \mathcal{A}(xM_1\dots M_n) \land A \neq \bot \land A' \in \mathcal{A}(N) ) \Rightarrow A A' \in \mathcal{A}(x M_1 \dots M_n N)\]
 Given $A$ is in the approximants of some variable $x$ are lambda terms $M_1 \dots M_n$, and $A'$ in the approximants of $N$, then $A A'$ is in the approximants of $A \ A'$ (Applying $A$ to $A'$).
 \vspace{5mm}
 \[(A \in \mathcal{A}(Mz) \land z \not\in fv(M) ) \Rightarrow \left( \begin{matrix*}[l]
-    & A = \bot \\
-    \lor & A \equiv A'z \text{ where } z \not\in fv(A') \land A' \in \mathcal{A}(M) \\
-    \lor & \lambda x. A \in \mathcal{A}(M) \\
-\end{matrix*} \right)\]
+			& A = \bot \\
+			\lor & A \equiv A'z \text{ where } z \not\in fv(A') \land A' \in \mathcal{A}(M) \\
+			\lor & \lambda x. A \in \mathcal{A}(M) \\
+		\end{matrix*} \right)\]
 If $A$ is an approximant of $Mz$, and $z$ is not free in $M$, then either:
 \begin{itemize}
-    \item $A$ is $\bot$
-    \item $A$ is some $A'z$, hence be $\eta$-reduction, we can see $A' \in \mathcal{A}(M)$ (the $z$ part can be disregarded, and just look at approximates of $M$).
+	\item $A$ is $\bot$
+	\item $A$ is some $A'z$, hence be $\eta$-reduction, we can see $A' \in \mathcal{A}(M)$ (the $z$ part can be disregarded, and just look at approximates of $M$).
 \end{itemize}
 \vspace{5mm}
 \[A \sqsubseteq M \land M \to^*_\beta N \Rightarrow A \sqsubseteq N\]
@@ -380,53 +380,53 @@ Beta reduction is irrelevant.
 
 
 \begin{definitionbox}{Join ($\sqcup$)}
-    Join is a partial mapping on $\Lambda \bot$ ($\sqcup : \Lambda \bot \times \Lambda \bot \to \Lambda \bot$):
-    \[\begin{split}
-        \bot \sqcup M \equiv M \sqcup \bot & \equiv M \\
-        x \sqcup x & \equiv x \\
-        (\lambda x . M) \sqcup (\lambda x . N) & \equiv \lambda x . (M \sqcup N) \\
-        (M_1 \ M_2) \sqcup (N_1 \ N_2) & \equiv (M_1 \sqcup N_1) \ (M_2 \sqcup N_2) \\
-    \end{split}\]
-    If $M \sqcup N$ is defined, then $M$ and $N$ are compatible.
-    \begin{itemize}
-        \item Compatible terms are equal, but with $\bot$ in some locations.
-        \item It is undefined for terms with different structures, e.g ($x$ and $\lambda x . x$)
-    \end{itemize}
+	Join is a partial mapping on $\Lambda \bot$ ($\sqcup : \Lambda \bot \times \Lambda \bot \to \Lambda \bot$):
+	\[\begin{split}
+			\bot \sqcup M \equiv M \sqcup \bot & \equiv M \\
+			x \sqcup x & \equiv x \\
+			(\lambda x . M) \sqcup (\lambda x . N) & \equiv \lambda x . (M \sqcup N) \\
+			(M_1 \ M_2) \sqcup (N_1 \ N_2) & \equiv (M_1 \sqcup N_1) \ (M_2 \sqcup N_2) \\
+		\end{split}\]
+	If $M \sqcup N$ is defined, then $M$ and $N$ are compatible.
+	\begin{itemize}
+		\item Compatible terms are equal, but with $\bot$ in some locations.
+		\item It is undefined for terms with different structures, e.g ($x$ and $\lambda x . x$)
+	\end{itemize}
 \end{definitionbox}
 
 \section{Explicit Lambda Calculus}
 \begin{itemize}
-    \item Substitution in $\lambda$-calculus is atomic. $M[N/x]$ replaces all $x$ in $M$ in a single step.
-    \item Substitution is not cost-free in some execution models, hence we may want to make substitution explicit so it can be tracked as part of $\beta$-reduction.
+	\item Substitution in $\lambda$-calculus is atomic. $M[N/x]$ replaces all $x$ in $M$ in a single step.
+	\item Substitution is not cost-free in some execution models, hence we may want to make substitution explicit so it can be tracked as part of $\beta$-reduction.
 \end{itemize}
 Explicit $\lambda$-calculus ($\lambda \mathbf{x}$) is defined as:
 \[M,N ::= x \ | \ \lambda x . M \ | \ M \ N \ | \ M \langle x := N \rangle \]
 For $M \langle x := N \rangle$ occurrences of $x$ in $M$ are bound, and by barendregt's convention $x$ cannot occur (free or bound) in $N$.
 \[\begin{split}
-    (\lambda x . M) \ N & \to M \langle x := N \rangle \\
-    (M \ N) \langle x := L \rangle & \to (M \langle x := L \rangle)(N \langle x := L \rangle) \\
-    (\lambda y . M)\langle x := L \rangle & \to \lambda y . (M\langle x := L \rangle) \\
-    x \langle x := L \rangle & \to L \\
-    M \langle x := L \rangle & \to M \text{ given } (x \not\in fv(M)) \\
-\end{split} \qquad M \to N \Rightarrow \begin{cases}
-    \lambda x.M & \to \lambda x.N \\
-    M \ L & \to N \ L \\
-    L \ M & \to L \ N \\
-    M \langle x := L \rangle &\to N \langle x := L \rangle \\
-    L \langle x := M \rangle & \to L\langle x := N \rangle \\
-\end{cases}\]
+		(\lambda x . M) \ N & \to M \langle x := N \rangle \\
+		(M \ N) \langle x := L \rangle & \to (M \langle x := L \rangle)(N \langle x := L \rangle) \\
+		(\lambda y . M)\langle x := L \rangle & \to \lambda y . (M\langle x := L \rangle) \\
+		x \langle x := L \rangle & \to L \\
+		M \langle x := L \rangle & \to M \text{ given } (x \not\in fv(M)) \\
+	\end{split} \qquad M \to N \Rightarrow \begin{cases}
+		\lambda x.M              & \to \lambda x.N              \\
+		M \ L                    & \to N \ L                    \\
+		L \ M                    & \to L \ N                    \\
+		M \langle x := L \rangle & \to N \langle x := L \rangle \\
+		L \langle x := M \rangle & \to L\langle x := N \rangle  \\
+	\end{cases}\]
 If $\to_\beta$ is not applied the $\to_{:=}$ is used. The combination of both reductions for this system is $\to_x$.
 \\\begin{minipage}[t]{.49\textwidth}
-    \[M \to_\beta N \Rightarrow M \to_x^* N\]
-    \begin{center}
-        Can reduce anything $\beta$-reduction can
-    \end{center}
+	\[M \to_\beta N \Rightarrow M \to_x^* N\]
+	\begin{center}
+		Can reduce anything $\beta$-reduction can
+	\end{center}
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.49\textwidth}
-    \[M \in \Lambda \land M \to_x^* N \Rightarrow \exists L \in \Lambda . [N \to_{:=}^* L \land M \to_\beta^* L]\]
-    \begin{center}
-        $\beta$-reduction is equivalent to doing all explicit substitutions, then $\beta$ reducing
-    \end{center}
+	\[M \in \Lambda \land M \to_x^* N \Rightarrow \exists L \in \Lambda . [N \to_{:=}^* L \land M \to_\beta^* L]\]
+	\begin{center}
+		$\beta$-reduction is equivalent to doing all explicit substitutions, then $\beta$ reducing
+	\end{center}
 \end{minipage}
 

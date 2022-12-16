@@ -1,9 +1,9 @@
 \chapter{Concurrency in Haskell}
 Haskell is an exemplar of the functional programming paradigm
 \begin{itemize}
-    \item Rich type system with powerful type inference, higher kinded-types, pattern matching, generalized algebraic datatypes, etc.
-    \item Imperative programming can be performed by binding functions operating on monads (e.g IO), often using \mintinline{Haskell}{do} notation (syntactic sugar)
-    \item Haskell can be easily made parallel with no changes to code (using runtime options for enabling SMP parallelism)
+	\item Rich type system with powerful type inference, higher kinded-types, pattern matching, generalized algebraic datatypes, etc.
+	\item Imperative programming can be performed by binding functions operating on monads (e.g IO), often using \mintinline{Haskell}{do} notation (syntactic sugar)
+	\item Haskell can be easily made parallel with no changes to code (using runtime options for enabling SMP parallelism)
 \end{itemize}
 We are interested in concurrency (specifically threads communicating via shared resources).
 \begin{minted}{Bash}
@@ -37,14 +37,14 @@ forkIO :: IO () -> IO ThreadId
 \end{minted}
 The threads created with \mintinline{Haskell}{forkIO} are user-level threads managed by the \textit{Haskell Runtime System}.
 \begin{itemize}
-    \item Many of these lightweight thread can be scheduled across a smaller number of OS provided threads
-    \item There is functionality provided in Haskell for creating OS managed threads (\mintinline{Haskell}{forkOS :: IO () -> IO ThreadId})
+	\item Many of these lightweight thread can be scheduled across a smaller number of OS provided threads
+	\item There is functionality provided in Haskell for creating OS managed threads (\mintinline{Haskell}{forkOS :: IO () -> IO ThreadId})
 \end{itemize}
 
 \begin{examplebox}{Thready Set Go!}
-    Create a basic haskell program to print "hello world" on $n$ different threads.
-    \tcblower
-    \begin{minted}{Haskell}
+	Create a basic haskell program to print "hello world" on $n$ different threads.
+	\tcblower
+	\begin{minted}{Haskell}
 import Control.Concurrent (MVar, takeMVar, newEmptyMVar, putMVar, forkIO)
 import Control.Monad (replicateM, zipWithM)
 
@@ -70,15 +70,15 @@ main = do
 \end{examplebox}
 
 \begin{sidenotebox}{Map a monad}
-    \begin{minted}{Haskell}
+	\begin{minted}{Haskell}
 import Control.Monad
 
 mapM  :: (Traversable t, Monad m) => (a -> m b) -> t a -> m (t b)
 mapM_ :: (Foldable t, Monad m)    => (a -> m b) -> t a -> m ()
     \end{minted}
-    We can use \mintinline{Haskell}{mapM} to bind together the application of some function to every item in some traversable structure. There are also functions for \mintinline{Haskell}{zipWithM}, \mintinline{Haskell}{foldM} etc.
-    \\
-    \\ The \mintinline{Haskell}{function_} variants discard the final value (equivalent to finally binding \mintinline{Haskell}{return ()}).
+	We can use \mintinline{Haskell}{mapM} to bind together the application of some function to every item in some traversable structure. There are also functions for \mintinline{Haskell}{zipWithM}, \mintinline{Haskell}{foldM} etc.
+	\\
+	\\ The \mintinline{Haskell}{function_} variants discard the final value (equivalent to finally binding \mintinline{Haskell}{return ()}).
 \end{sidenotebox}
 
 \section{MVars}
@@ -99,17 +99,17 @@ takeMVar :: MVar a -> IO a
 putMVar :: MVar a -> a -> IO ()
 \end{minted}
 \begin{itemize}
-    \item Can be accessed by multiple threads.
-    \item Contains another type (\mintinline{Haskell}{Int}, \mintinline{Haskell}{String}, \mintinline{Haskell}{Maybe Bool}, anything of kind \mintinline{Haskell}{*})
-    \item Is either empty, of full, we can create empty variables, put to empty variables \& take from empty variables.
-    \item Taking from an empty variable will wait on the variable being made full, in this way we can wait for threads to create values, or to terminate.
-    \item Internally \mintinline{Haskell}{MVar}s are backed by mutexes.
+	\item Can be accessed by multiple threads.
+	\item Contains another type (\mintinline{Haskell}{Int}, \mintinline{Haskell}{String}, \mintinline{Haskell}{Maybe Bool}, anything of kind \mintinline{Haskell}{*})
+	\item Is either empty, of full, we can create empty variables, put to empty variables \& take from empty variables.
+	\item Taking from an empty variable will wait on the variable being made full, in this way we can wait for threads to create values, or to terminate.
+	\item Internally \mintinline{Haskell}{MVar}s are backed by mutexes.
 \end{itemize}
 
 \begin{examplebox}{Join me!}
-    Send a message from a thread to main, have main join on the result.
-    \tcblower
-    \begin{minted}{Haskell}
+	Send a message from a thread to main, have main join on the result.
+	\tcblower
+	\begin{minted}{Haskell}
 import Control.Concurrent ( forkIO, newEmptyMVar, putMVar, takeMVar, MVar )
 
 childThread :: MVar String -> IO ()
@@ -149,7 +149,7 @@ We could also do this the other way around (with an empty MVar meaning the mutex
 \section{Channels}
 
 \begin{center}
-    \includegraphics[width=.8\textwidth]{concurrency_in_haskell/images/channel.drawio.png}
+	\includegraphics[width=.8\textwidth]{concurrency_in_haskell/images/channel.drawio.png}
 \end{center}
 
 We can represent this using \mintinline{Haskell}{MVar}s.
@@ -235,8 +235,8 @@ atomicModifyIORef' :: IORef a -> (a -> (a, b)) -> IO b
 \end{minted}
 
 \begin{sidenotebox}{Atomic Operations}
-    We will use the \href{https://hackage.haskell.org/package/atomic-primops}{atomic-primops library} here instead of the GHC provided primitives.
-    \begin{minted}{Bash}
+	We will use the \href{https://hackage.haskell.org/package/atomic-primops}{atomic-primops library} here instead of the GHC provided primitives.
+	\begin{minted}{Bash}
 # Assuming you use cabal for haskell packages
 cabal install atomic-primops
 
@@ -267,9 +267,9 @@ writeCounter :: AtomicCounter -> Int -> IO ()
 \end{minted}
 
 \begin{examplebox}{Thread-Safe Increment}
-    Develop a program to run many threads, each atomically incrementing a counter. Use IORefs but do not use the atomic primitives library.
-    \tcblower
-    \begin{minted}{Haskell}
+	Develop a program to run many threads, each atomically incrementing a counter. Use IORefs but do not use the atomic primitives library.
+	\tcblower
+	\begin{minted}{Haskell}
 import Control.Concurrent (MVar, takeMVar, newEmptyMVar, putMVar, forkIO)
 import Control.Monad (replicateM, zipWithM_)
 import Data.IORef ( IORef, atomicModifyIORef, newIORef, readIORef )
