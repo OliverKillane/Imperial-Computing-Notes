@@ -228,8 +228,8 @@ A method call is no longer an atomic event.
         B & p.enq(6) \\
         B & p : void \\
         A & q.enq(7) \\
-        B & q: 7 \\
         B & q.deq() \\
+        B & q: 7 \\
         A & q: void \\
     \end{matrix*}\]
     \tcblower
