@@ -1,0 +1,224 @@
+\chapter{Elixir}
+
+\section{learning Elixir}
+\begin{itemize}
+    \item \textbf{\href{https://elixir-lang.org/getting-started/introduction.html}{Introduction To Elixir \& Installation}}
+    \item \textbf{\href{https://elixir-lang.org/docs.html}{Elixir Documentation}} and \textbf{\href{https://hexdocs.pm/elixir/Kernel.html}{Standard Library}}
+    \item \textbf{\href{https://elixir-lang.org/learning.html}{Elixir Learning Resources}}
+    \item \textbf{\href{https://devhints.io/elixir}{Devhints Exlixir Cheatsheet}}
+    \item \textbf{\href{https://github.com/itsgreggreg/elixir_quick_reference}{Elixir Quick Reference}}
+    \item \textbf{\href{https://learnxinyminutes.com/docs/elixir/}{Learn Elixir in Y Minutes}}
+\end{itemize}
+
+\begin{examplebox}{Two Sum}
+    Write a program to provide the two indexes of numbers in a list that sum to a given target.
+    (This is the famous leetcode problem \href{https://leetcode.com/problems/two-sum/}{two sum}).
+    \tcblower
+    \begin{minted}{elixir}
+defmodule Solution do
+  @spec two_sum(nums :: [integer], target :: integer) :: [integer]
+  def two_sum(nums, target) do
+    nums
+    |> Enum.with_index()
+    |> Enum.reduce_while(%{}, fn {num, idx}, acc ->
+      case Map.get(acc, target - num) do
+        nil ->
+          {:cont, Map.put(acc, num, idx)}
+        val ->
+          {:halt, [idx, val]}
+      end
+    end)
+  end
+end
+    \end{minted}
+    We could also write this recursively with a helper function
+    \begin{minted}{elixir}
+defmodule Solution do
+@spec two_sum(nums :: [integer], target :: integer) :: [integer]
+  def two_sum(nums, target) do
+      two_sum_aux(nums, target, %{}, 0)
+  end
+
+  defp two_sum_aux([next | rest], target, prevs, index) do
+      val = Map.get(prevs, target - next)
+      if val != nil do
+          [val, index]
+      else
+          two_sum_aux(rest, target, Map.put(prevs, next, index), index + 1)
+      end
+  end
+end
+    \end{minted}
+\end{examplebox}
+
+\begin{examplebox}{Add two numbers}
+  Given The following linked list structure, write a program taking two numbers (represented in reverse as linked lists), and produce a linked list of their sum.
+  (This is leetcode problem \href{https://leetcode.com/problems/add-two-numbers/}{add two numbers})
+  \begin{minted}{elixir}
+# Definition for singly-linked list.
+defmodule ListNode do
+  @type t :: %__MODULE__{
+          val: integer,
+          next: ListNode.t() | nil
+        }
+  defstruct val: 0, next: nil
+end
+  \end{minted}
+  \tcblower
+  \begin{minted}{elixir}
+defmodule Solution do
+  @spec add_two_numbers(l1 :: ListNode.t | nil, l2 :: ListNode.t | nil) :: ListNode.t | nil
+  def add_two_numbers(l1, l2) do
+    x = get_list(l1) + get_list(l2)
+    if x == 0 do
+        %ListNode{val: 0, next: nil}
+    else
+        to_list(x)
+    end
+  end
+
+  defp get_list(node) do
+    case node do
+        %ListNode{val: v, next: n} -> v + 10 * get_list(n)
+        nil -> 0
+    end
+  end
+
+  defp to_list(n) do
+    case n do
+        0 -> nil
+        i -> %ListNode{val: rem(i,10), next: to_list(div(i,10))}
+    end
+  end
+end
+  \end{minted}
+\end{examplebox}
+
+\section{The Elixir System}
+\begin{definitionbox}{Elixir}
+  A concurrent (with actors) and functional programming language used for fault tolerant distributed systems.
+  \begin{itemize}
+    \item A modernized successor language to \href{https://www.erlang.org/}{Erlang}
+    \item Runs using BEAM (Erlang's virtual machine) and hence compatible with erlang
+    \item Has many additions over erlang (protocols, streams and metaprogramming)
+  \end{itemize}
+\end{definitionbox}
+
+\begin{definitionbox}{Elixir Processs}
+  A lightweight user level thread (\href{https://en.wikipedia.org/wiki/Green_thread}{green threads}) managed by the runtime.
+  \begin{itemize}
+    \item Everything is a process.
+    \item Processes are strongly isolated, when two processes interact it does not matter which nodes, or even machines they run on.
+    \item Processes share no resources (cannot share variables), they can only interact through message passing.
+    \item Process creation and destruction is fast.
+    \item Processes interact by message passing.
+    \item Processes have unique names, if a name ios known it can be used to pass messages
+    \item Error handling is non-local.
+    \item Processes do what they are supposed to do or fail.
+  \end{itemize}
+\end{definitionbox}
+\begin{definitionbox}{Elixir Node}
+  All elixir processes run within a node, a node can manage many processes (creation, scheduling, and garbage collection).
+  \begin{itemize}
+    \item A node runs as an OS process, potentially with several OS threads scheduled across several cores.
+    \item Multiple nodes can run on a single machine (or virtual machine such as a docker container).
+    \item A node can efficiently manage thousands to millions of elixir processes.
+  \end{itemize}
+\end{definitionbox}
+
+Communication between processes is implemented through shared memory on the same machine and TCP when over a network. However processes are not exposed to this - the same primitives are used for inter and intra node/machine communication.
+
+\section{Message Passing}
+The \mintinline{elixir}{send} and \mintinline{elixir}{receive} statements are used for message passing.
+\begin{minted}{elixir}
+  # send somedata (any type) to process p
+  send p, somedata
+
+  # Wait until a message that matches the pattern is added to the message queue 
+  # (or a timeout occurs), then remove it (potentially skipping over messages 
+  # that do not match)
+  receive do
+    somepattern -> dosomething(somepattern)
+    # ... some other patterns
+  end
+\end{minted}
+\begin{itemize}
+  \item Each process has its own message queue.
+  \item Messages received are appended to the message queue of the receiving process.
+  \item The sender does not wait for the message to be appended, it continues immediately after sending.
+\end{itemize}
+
+We can implement a basic client-server system in this way. Here we are using a component-based approach 
+(split the program into components, each asynchronously message pass), by convention each component is an 
+elixir module, modules can be instantiated in many processes \& (by convention) have a public \mintinline{elixir}{start()} function.
+
+\begin{minted}[bgcolor=threadGrey]{elixir}
+defmodule Cluster do
+  def start do 
+    # Spawn two processes, with the function start
+    # Server.ex and Client.ex are modules containing a public start function
+    # (Assuming we have tarted a client_node and server_node)
+    s = Node.spawn(:'server_node@172.19.0.2', Server, :start, []) 
+    c = Node.spawn(:'client_node@172.19.0.1', Client, :start, [])
+
+    # We send the PIDs of the processes to each other, we can pattern match on 
+    # atoms for convenience in receiving
+    send s, { :bind, c }
+    send c, { :bind, s }
+  end
+end
+\end{minted}
+\noindent
+\begin{minipage}{.5\textwidth}
+  \begin{minted}[bgcolor=threadYellow]{elixir}
+  defmodule Server do
+    def start do
+      receive do
+        { :bind, c } -> next(c) 
+      end
+   end
+  
+    # next is defined as private, here 
+    # recursion is used for iteration. 
+    # To avoid a stack overflow tail 
+    # recursion is required
+    defp next(c) do
+      receive do
+        { :circle, radius } -> 
+          send c, { :result, 3.14 * radius 
+                                  * radius}
+        { :square, side } -> 
+          send c, { :result, side * side}
+      end
+      next(c)
+    end
+  end
+  \end{minted}
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+  \begin{minted}[bgcolor=threadBlue]{elixir}
+  defmodule Client do
+    def start do 
+      receive do 
+        { :bind, s } -> next(s) 
+      end
+    end
+  
+    defp next(s) do
+      send s, { :circle, 1.0 }
+      receive do 
+        { :result, area } -> 
+          IO.puts "Area is #{area}"
+      end
+      Process.sleep(1000) 
+      next(s)
+    end
+  end
+
+
+
+
+
+  \end{minted}  
+\end{minipage}
+
