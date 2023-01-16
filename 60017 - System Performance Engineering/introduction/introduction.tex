@@ -1,0 +1,194 @@
+\chapter{introduction}
+
+\section{Logistics}
+% Systems not algos
+% Hardware Efficiency
+
+
+
+\section{What is System Performance Engineering}
+\begin{definitionbox}{System}
+    A collection of components interacting to achieve a greater goal.
+    \begin{itemize}
+        \item Usually applicable to many domains (e.g a database, operating system, webserver). The goal is domain-agnostic
+        \item Designed to be flexible at runtime (deal with other interacting systems, real conditions) (e.g OS with user input, database with varying query volume and type)
+        \item Operating conditions are unknown at development time (Database does not know schema prior, OS does not know number of users prior, Tensorflow does not know matrix dimensionality prior)
+    \end{itemize}
+    Large \& complex systems are typically developed over years by multiple teams.
+\end{definitionbox}
+
+The challenge with \textit{system performance engineering} is to make systems maintainable, widely applicable and fast.
+\begin{center}
+    \includegraphics[width=.6\textwidth]{introduction/images/holy_triangle.drawio}
+\end{center} 
+
+\begin{definitionbox}{System Performance Engineering}
+    Performance engineering encompasses the techniques applied during a systems development life cycle to ensure the non-functional
+    requirements for performance will be met.
+    \begin{itemize}
+        \item Functional requirements (correctness, features) are assumed to be met.
+        \item 
+    \end{itemize} 
+\end{definitionbox}
+
+\begin{definitionbox}{High Performance Computing}
+    High performance programming uses highly distributed \& parallel computer systems (e.g supercomputers, clusters) to solve advanced problems.
+    \begin{itemize}
+        \item Focuses on solving a single computationally difficult problem.
+        \item Workloads are well defined and known at development time.
+        \item Sometimes supported by custom hardware (e.g FPGAs, ASICs, custom CPU extensions)
+    \end{itemize}
+\end{definitionbox}
+
+\section{Performance Engineering Process}
+\subsection{Metrics}
+A \textit{target metric} is used to quantitatively measure any improvement in \textit{performance} (e.g for use in a \textit{SLA}).
+The metric needs to be wel defined:
+\begin{itemize}
+    \item When measuring starts (e.g when to measure latency from)
+    \item Where measuring is done (is server response time measured on server, on a client, under what conditions?)    
+\end{itemize}
+
+\begin{examplebox}{Imperials}
+    Provide some example of metrics regarding a database.
+    \tcblower
+    \begin{center}
+        \begin{tabular}{l p{.7\textwidth}}
+            \textbf{Latency} & Measuring time to query, planning time, the whole systems response time over a network. \\
+            \textbf{Throughput} & Measure the maximum request/second possible (often used to compare webservers) \\
+            \textbf{Memory Usage} & measurable, but must be careful (e.g os interaction) \\
+            \textbf{scalability} & Can define a metric regarding how quickly some metric (e.g throughput) increases with scale (e.g instances of a distributed system) \\
+        \end{tabular}
+    \end{center}
+\end{examplebox}    
+
+It is also important to define when a requirement is satisfied.
+\begin{itemize}
+    \item Setting an optimisation budget (e.g in developer hours)
+    \item Setting a target or threshold (e.g $x\%$ over baseline implementation)
+    \item Combination of both
+\end{itemize}
+
+\subsection{Quality of Service (QoS) Objectives}
+\begin{definitionbox}{Quality of Service Objectives}
+    A set of statistical properties of a metric that must hold for a system.
+    \begin{itemize}
+        \item Can include preconditions (e.g to define the environment/setup)
+        \item Can be in conflict with functional requirements (e.g framerate vs realism in graphics)
+    \end{itemize}
+\end{definitionbox}
+\begin{examplebox}{Game On}
+    Give an example of a basic QoS Objective for a game's framerate. 
+    \tcblower
+    The game's framerate will be on average (over \textit{\dots preconditions \dots}) $60fps$ if run on a GPU rated at $50GFlops$ or higher. 
+\end{examplebox}
+
+\subsection{Service Level Agreements}
+\begin{definitionbox}{Service Level Agreements (SLAs)}
+    Legal contracts specifying \textit{QoS objectives} and penalties for violation.
+    \begin{itemize}
+        \item Non-functional requirements (not about system correctness)
+        \item Can be legally enforced
+    \end{itemize}
+\end{definitionbox}
+
+\begin{sidenotebox}{Amazon}
+    Amazon Web Services (AWS) provides a set of \textit{service level agreements} relating to performance and availability. Violations are resolved by providing customers with service credits.
+    \href{https://aws.amazon.com/compute/sla/}{Amazon SLAs}
+\end{sidenotebox}
+
+When defining requirements for an SLA:
+\begin{center}
+    \begin{tabular}{l p{.7\textwidth}}
+        \textbf{Specific} & State exact acceptance criteria (numerical terms). \\
+        \textbf{Measurable} & Ensure the metrics used can actually be measured. \\
+        \textbf{Acceptable} & Requirements should be rigorous such that meeting them is a meaningful success. \\
+        \textbf{Realisable} & Counter to \textbf{Acceptable} - need to be lenient enough to allow implementation. \\
+        \textbf{Thorough} & All necessary aspects of the system are specified. \\
+    \end{tabular}
+\end{center}
+
+\section{Performance Evaluation Techniques}
+\subsection{Measuring}
+\begin{itemize}
+    \item Performed on the actual system (can be prototype or production/final).
+    \item Can be difficult and costly (need to mitigate any impact of the measuring system on the system itself).
+    \item As it is on the actual system, it can (if done properly) yield accurate results.
+\end{itemize}
+
+The two main types of measurement are:
+\begin{tcbraster}[raster columns=2,raster equal height]
+\begin{definitionbox}{Monitoring}
+    Measuring in production to get real usage performance metrics.
+    \begin{itemize}
+        \item Observe the system in its production environment
+        \item Collect usage statistics and analyse data (e.g user's preferred query types/structure, schema designs for databases)
+        \item Can monitor for and report SLA violations.
+    \end{itemize}
+\end{definitionbox}
+\begin{definitionbox}{Benchmarking}
+    Measuring system performance in a controlled setting (e.g lab).
+    \begin{itemize}
+        \item The system to set into a predefined (or steady/hot) state
+        \item Perform some workload while measuring performance metrics.
+    \end{itemize}
+\end{definitionbox}
+\end{tcbraster}
+Benchmarking requires representative workloads in order to get metrics likely to be representative of a production environment.
+\begin{definitionbox}{Batch Workload}
+    Program has access to entire batch at start of the benchmark.
+    \begin{itemize}
+        \item Useful when a throughput metric is being measured
+        \item Simple to generate, and can even be recorded from a production environment.
+    \end{itemize}
+\end{definitionbox}
+\begin{definitionbox}{Interactive Workload}
+    A program generates requests to pass to the system being benchmarked.
+    \begin{itemize}
+        \item Useful when a latency metric is being measured.
+        \item Workload generator needs to fast enough to saturate system being benchmarked.
+        \item Often more representative of a production environment (e.g an operating system receives a workload over time)
+    \end{itemize}
+\end{definitionbox}
+\begin{definitionbox}{Hybrid}
+    A common setup combining batch and interactive workload strategies (e.g sample random queries from a predefined work set).
+\end{definitionbox}
+
+In order to get useful results from which 
+
+\section{Optimisation Loop}
+\begin{center}
+    \includegraphics[width=.6\textwidth]{introduction/images/optimisation_loop.drawio.pdf}
+\end{center}
+
+\subsection{Parameters}
+\begin{definitionbox}{Performance Parameters}
+    System and workload characteristics that affect performance.
+     \\
+     \\ \begin{tabular}{l p{.8\textwidth}}
+        \textbf{System Parameters} & Do not change as the system runs (instruction costs, caches) \\
+        \textbf{Workload Parameters} & Change as he system runs (available memory, users) \\
+        \textbf{Numeric Parameters} & Quantitative (e.g CPU frequency, available memory, number of user) \\
+        \textbf{Nominal Parameters} & Qualitative parameters (Runs on battery, has a GPU, runs in a VM) \\
+    \end{tabular}
+    \\ 
+    \\ The term \textit{resource Parameters/Resources} refers to the parameters of the underlying platform (e.g CPU, memory).
+\end{definitionbox}
+
+\unfinished
+
+\subsection{Utilisation}
+\begin{definitionbox}{Utilisation}
+\end{definitionbox}
+\begin{definitionbox}{Bottleneck}
+\end{definitionbox}
+
+\subsection{performance-Dominating Coe Paths}
+
+
+\subsection{parameter Tuning}
+
+\subsection{Analytical Performance Models}
+
+\subsection{Simulation}
+
