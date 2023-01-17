@@ -1,0 +1,371 @@
+\chapter{Joint Random Distributions}
+
+\subsection{CDF}
+Suppose we have random variables $X$ and $Y$ such that:
+\[X: S_X \to \mathbb{R} \ \text{ and } \ Y: S_Y \to \mathbb{R}\]
+We can define $Z$ operating on sample space $S$ such that:
+\[\begin{matrix}
+		S = S_1 \times S_2 & S = \{(s_X, s_Y) | s_X \in S_X \land s_Y \in S_Y\} & Z = (X, Y): S \to \mathbb{R}^2
+	\end{matrix}\]
+Hence we have a mapping from joint random variable $Z(s)$ onto $(X(s), Y(s))$.
+\\
+\\ We can consider this using a graph of the sample space:
+\centerimage{width=\textwidth}{joint_random_distributions/images/joint_sample_space.drawio.png}
+Hence the induced probability function for $Z$ will be:
+\[F(x,y) = P_Z(X \leq x, Y \leq y) = P_Z((-\infty, x], (- \infty, y]) = P(S_{XY})\]
+Hence we can use the marginals of the joint distribution to get the distribution of the two random variables:
+\[F_X(x) = F(x, \infty) \ \text{ and } \ F_Y(y) = F(\infty, y)\]
+To be a valid \keyword{joint cumulative distribution function}:
+\begin{itemize}
+\item $\forall x,y \in \mathbb{R}. \ 0 \leq F(x,y) \leq 1$
+\bullpara{Monotonicity}{\[\forall x_1,x_2,y_1,y_2 \in \mathbb{R}. \ [x_1 < x_2 \Rightarrow F(x_1,y_1) \leq F(x_2, y_1) \land y_1 < y_2 \Rightarrow F(x_1,y_1) \leq F(x_1, y_2)]\]}
+\item $\forall x,y \in \mathbb{R}. \ F(x, -\infty) = F(-\infty, y) = 0$
+\item $F(\infty, \infty) = 1$
+\end{itemize}
+
+For the probability of intervals we can use the graph mapping concept again:
+\centerimage{width=0.4\textwidth}{joint_random_distributions/images/joint_interval.drawio.png}
+\[P_Z(x_1 < X \leq x_2, Y \leq y) = F(x_2, y) - F(x_1, y)\]
+Hence we can get the interval:
+\[P_Z(x_1 < X \leq x_2, y_1 < Y \leq y_2) = F(x_2, y_2) - F(x_1, y_2) -F(x_2,y_1) + F(x_1,y_1)\]
+
+\subsection{PMF}
+\begin{definitionbox}{Joint Probability Mass Function}
+	\[p(x,y) = P_Z(X = x, Y = y) \ \text{where } x,y \in \mathbb{R}\]
+	We can get the original \keyword{pmfs} of the two variables as:
+	\[p_X(x) = \sum_y p(x,y) \ \text{ and } \ p_Y(y) = \sum_x p(x,y)\]
+	To be a valid \keyword{pmf}:
+	\begin{itemize}
+		\item $\forall x,y \in \mathbb{R}. \ 0 \leq p(x,y) \leq 1$
+		\item $\sum_y \sum_x p(x,y) = 1$
+	\end{itemize}
+\end{definitionbox}
+
+\subsection{PDF}
+\begin{sidenotebox}{Fundamental Theorem of Caculus}
+	The fundamental law that integration and differentiation and the inverse of each other (except for constant added in integration $c$, which does not affect definite integrals).
+\end{sidenotebox}
+
+\begin{definitionbox}{Joint Probability Density Function}
+	When the variables being \textit{joined} are continuous we have $\mathbb{R} \times \mathbb{R} \to \mathbb{R}$, in this case:
+	\[F(x,y) = \int_{a=-\infty}^y \int_{b=-\infty}^x f(b,a) \ db \ da\]
+	The sum of the probability density function from $(x,y) \to (-\infty, -\infty)$
+	\\
+	\\ Hence by the fundamental theorem of calculus:
+	\[f(x,y) = \cfrac{\sigma^2}{\sigma x \sigma y }F(x,y)\]
+	We can differentiate to go get the PMF from the PDF.
+	\\
+	\\ To be valid:
+	\begin{itemize}
+		\item $\forall x, y \in \mathbb{R}. f(x,y) \geq 0\ $
+		\item $\int_{y=-\infty}^{\infty} \int_{x=-\infty}^{\infty} f(x,y) \ dx \ dy = 1$
+	\end{itemize}
+\end{definitionbox}
+
+\begin{definitionbox}{Marginal Density Functions}
+	\[\begin{split}
+			f_X(x) & = \cfrac{d}{dx} F_X(x) = \cfrac{d}{dx}F(x, \infty) \\
+			& = \cfrac{d}{dx} \int_{y=-\infty}^{\infty} \int_{s = -\infty}^x f(s,y) \ ds \ dy \\
+		\end{split}\]
+	And likewise for y:
+	\[f_Y(y) = \cfrac{d}{dy} \int_{x = -\infty}^{\infty} \int_{s = -\infty}^y f(x,s) \ ds \ dx\]
+	Hence by applying the fundamental theorem of calculus:
+	\[f_X(x) = \int_{y=-\infty}^{\infty} f(x,y) \ dy\]
+	\[f_Y(y) = \int_{x=-\infty}^{\infty} f(x,y) \ dx\]
+\end{definitionbox}
+\begin{examplebox}{Marginal pdf}
+	Given continuous variables $(X, Y) \in \mathbb{R}^2$:
+	\[f(x,y) = \begin{cases}
+			1 & |x| + |y| < \cfrac{1}{\sqrt{2}} \\
+			0 & otherwise                       \\
+		\end{cases}\]
+	To determine the marginal \keyword{pdf}s for $X$ and $Y$:
+	\\
+	\\ First notice that: $|x| + |y| < \cfrac{1}{\sqrt{2}} \Leftrightarrow |y| < \cfrac{1}{\sqrt{2}} - |x|$.
+	\\
+	\\ Hence given an $x$ we can see that for the first case of the probability density function to match, $y$ must be between:
+	\[\cfrac{1}{- \sqrt{2}} + |x| < y < \sqrt{2} - |x|\]
+	\[\begin{split}
+			f_X(x) & = \int_{y=-\infty}^{\infty} f(x,y) \ dy \\
+			& = \int_{y=- \sqrt{2} + |x|}^{\sqrt{2} - |x|} 1 \ dy \\
+			& = \left[ y \right]_{-\sqrt{2} + |x|}^{\sqrt{2} - |x|} \\
+			& = \left( \sqrt{2} - |x| \right) - \left( -\sqrt{2} + |x| \right) \\
+			& = 2 \sqrt{2} - 2|x|  \\
+		\end{split}\]
+	Similarly for $y$:
+	\[f_Y(y) = 2 \sqrt{2} - 2|y|\]
+\end{examplebox}
+
+\begin{definitionbox}{Multinomial Distribution}
+Given:
+\begin{itemize}
+	\item sequence of $n$ independent and identical experiments (all same distribution, same parameters).
+	\item $r$ possible outcomes for each experiment.
+	\item Each probability $q_i$ is the probability of outcome $i$.
+	\item The sum of all probabilities for the outcomes is 1: $\sum_{i=1}^r q_i = 1$
+\end{itemize}
+We can have a set of random variables where each $X_i$ represents the number of experiments resulting in outcome $i$.
+
+\[P(X_1 = n_1, X_2 = n_2, \dots, X_r = n_r) = \cfrac{n!}{n_1! \times n_2! \times \dots \times n_r!} \times q_1^{n_1} \times q_2^{n_2} \times \dots \times  q_r^{n_r}\]
+
+We know this as any sequence will have the probability $q_1^{n_1} \times q_2^{n_2} \times \dots \times q_r^{n_r}$ where $n_1 + n_2 + \dots + n_r = n$ (multiplying the probabilities in a sequence).
+\\
+\\ For a given number of outcomes, there are many different sequences like the above. We can determine the number of sequences as:
+\[\begin{pmatrix}
+		n \\ n_1
+	\end{pmatrix} \begin{pmatrix}
+		n - n_1 \\ n_2
+	\end{pmatrix} \dots \begin{pmatrix}
+		n - \sum_{i=1}^{r-1} n_i \\ n_r
+	\end{pmatrix} = \cfrac{n!}{n_1! \times n_2! \times \dots \times n_r!}\]
+\end{definitionbox}
+
+\begin{examplebox}{Party Politics}
+	Given 4 different political parties with popularities:
+	\begin{center}
+		\begin{tabular}{l l}
+			\textbf{Party} & \textbf{Polling Percentage} \\
+			Ingsoc         & 40\%                        \\
+			Techno Union   & 20\%                        \\
+			Norsefire      & 15\%                        \\
+			Birthday Party & 25\%                        \\
+		\end{tabular}
+	\end{center}
+	If asking 10 people of what party they prefer, what is the probability that:
+	\begin{itemize}
+		\item 2 support Ingsoc
+		\item 4 support the Techno Union
+		\item 1 supports Norsefire
+		\item 3 support the Birthday Party
+	\end{itemize}
+	\[P(X_{ingsoc} = 2, X_{techno-union} = 4, X_{norsefire} = 1, X_{birthday} = 3)\]
+	\[\cfrac{10!}{2! \times 4! \times 1! \times 3!} \times (0.4)^2 \times (0.2)^4 \times (0.15)^1 \times (0.25)^3\]
+	\[\cfrac{189}{25000} = 0.00756 = 0.756\%\]
+\end{examplebox}
+
+\section{Joint Conditional Random Variables}
+Given random variables $X$ and $Y$:
+\[\text{variables independent} \ \Leftrightarrow F(x,y) = F_X(x)F_Y(y)\]
+(For both continuous and discrete)
+\\
+\\ More specifically:
+\begin{center}
+	\begin{tabular}{r c l}
+		For Discrete Variables   & $p(x,y) = p_X(x)p_Y(y)$ & (probability mass function)    \\
+		For Continuous Variables & $f(x,y) = f_X(x)f_Y(y)$ & (Probability density function) \\
+	\end{tabular}
+\end{center}
+\begin{examplebox}{Diamond at origin}
+	Consider \keyword{pdf}:
+	\[f(x,y) = \begin{cases}
+			1 & |x| + |y| < \cfrac{1}{\sqrt{2}} \\
+			0 & otherwise                       \\
+		\end{cases}\]
+	By the previous example:
+	\[\begin{split}
+			f_X(x) & = 2 \sqrt{2} - 2|x| \\
+			f_Y(y) & = 2 \sqrt{2} - 2|y| \\
+		\end{split}\]
+	Hence as $f(x,y) \neq f_X(x)f_Y(y)$ and hence $X$ and $Y$ are not independent.
+\end{examplebox}
+
+\begin{examplebox}{Independent variables}
+	Given two continuous random variables $X$ and $Y$:
+	\[f(x,y) = \lambda_1\lambda_2 e^{-\lambda_1 x - \lambda_2 y} \ \text{ given } x,y > 0\]
+	We can get the marginal \keyword{pdf} by integrating over all of y:
+	\[\begin{split}
+			f(x) & = \int_{y = -\infty}^{\infty} f(x,y) dy \\
+			& = \int_{y = 0}^{\infty} f(x,y) dy \\
+			& = \lim_{t \to \infty}\int_{y = 0}^{t} \lambda_1 \lambda_2 e^{- \lambda_1 x - \lambda_2 y} dy \\
+			& = \lim_{t \to \infty}\int_{y = 0}^{t} \lambda_1 \lambda_2 e^{- \lambda_1 x} \times e^{- \lambda_2 y} dy \\
+			& = \lim_{t \to \infty}\left[ -\lambda_1e^{-\lambda_1 x - \lambda_2 y} \right]_{y=0}^{y=t} \\
+			& = \lim_{t \to \infty}\left( -\lambda_1e^{-\lambda_1 x - \lambda_2 t} \right) - \left( -\lambda_1e^{-\lambda_1 x - \lambda_2 0} \right)\\
+			& = \lim_{t \to \infty}\left( -\lambda_1e^{-\lambda_1 x - \lambda_2 t} \right) - \left( -\lambda_1e^{-\lambda_1 x - \lambda_2 0} \right)\\
+			& = 0 - \left( -\lambda_1e^{-\lambda_1 x} \right)\\
+			& = \lambda_1e^{-\lambda_1 x}\\
+		\end{split}\]
+	We can do the same for $f_Y(y)$ to get $ \lambda_2e^{-\lambda_2 y}$.
+	\\
+	\\ Hence the events are independent as:
+	\[\lambda_1\lambda_2 e^{-\lambda_1 x - \lambda_2 y} = \lambda_1e^{-\lambda_1 x} \times \lambda_2e^{-\lambda_2 y} \]
+\end{examplebox}
+
+\subsection{Conditional PMF}
+For discrete random variables we can define the joint \keyword{pmf} as:
+\[p_{X | Y}(x | y) = \cfrac{p(x,y)}{p_Y(y)} \ \text{ where } \forall y. p_Y(y) > 0\]
+\begin{definitionbox}{Baye's Theorem}
+	\keyword{Baye's theorem} states that on some partition of the sample space $S$, $P_1, \dots P_k$:
+	\[P(X) = \sum_{i = 1}^k P(X|E_i)P(E_i)\]
+	Given each partition the probability of some $X$ occurring sums to the total probability of $X$ occurring.
+	\\
+	\\ Using the conditional joint \keyword{pmf} we can also express this theorem (over a single partition) as:
+	\[p_{X|Y}(x|y) \times p_Y(y)= p_{Y|X}(y|x) \times p_X(x)\]
+\end{definitionbox}
+
+\begin{definitionbox}{Conditional PMF Marginal Joint Probabilities}
+	\[p(x) = \sum_yp_{X|Y}(x|y)p_Y(y)\]
+	(Go through every y, summing the probability of x occurring with that y, multiplied by the probability of that y)
+\end{definitionbox}
+\subsection{Conditional PDF}
+For continuous random variables we can define the joint \keyword{pdf} as:
+\[f_{X|Y}(x|y) = \cfrac{f(x,y)}{f_Y(y)}\]
+\[\text{$X$ and $Y$ independent } \Leftrightarrow \forall x,y \in \mathbb{R}. \ f_{X|Y}(x,y) = f_X(x)\]
+And we can now have \keyword{bayes theorem} as:
+\[f_{X|Y}(x|y) = \cfrac{f_{Y|X} f_X(x)}{f_Y(y)}\]
+
+\begin{definitionbox}{Conditional PDF Marginal Joint Probabilities}
+	\[f_X(x) = \int_{y = -\infty}^{\infty} f_{X|Y}(x|y)f_Y(y) \ dy\]
+	and with the cumulative distribution:
+	\[F_X(x) = \int_{y = -\infty}^{\infty} F_{X|Y}(x|y)f_Y(y) \ dy\]
+\end{definitionbox}
+
+\begin{examplebox}{Independent exponential random variables}
+	Given $X \thicksim Exp(\lambda)$ and $Y \thicksim Exp(\mu)$ what is $P(X < Y)$.
+	\[\begin{split}
+			P(X < Y) & = \int_{x<y} f(x,y) \ dx \ dy \\
+			& = \int_{y = -\infty}^{\infty} \int_{x = -\infty}^{y} f(x,y) \ dx \ dy \ \text{(go over all $y$s, for each take the $x$s that are less)} \\
+			& = \int_{y = -\infty}^{\infty} \int_{x = -\infty}^{y} f_X(x)f_Y(y) \ dx \ dy \ \text{($X$ and $Y$ are independent)} \\
+			& = \int_{y = -\infty}^{\infty} \int_{x = -\infty}^{y} f_X(x)f_Y(y) \ dx \ dy \ \text{($X$ and $Y$ are independent)} \\
+			& = \int_{y = -\infty}^{\infty} F_X(y) \times (\mu e^{- \mu y}) \ dx \ dy \ \text{(Integrate $f_X$ to get $F_X$ and then get all below $y$)}\\
+			& = \int_{y = -\infty}^{\infty} (1 - e^{- \lambda y}) \times (\mu e^{- \mu y}) \ dx \ dy  \ \text{(Substitute definitions)}\\
+			& = \int_{y = 0}^{\infty} (1 - e^{- \lambda y}) \times (\mu e^{- \mu y}) \ dx \ dy \ \text{(exponential cut at 0)}\\
+			& = \lim_{t \to \infty} \int_{y = 0}^{t} (1 - e^{- \lambda y}) \times (\mu e^{- \mu y}) \ dx \ dy\\
+			& = \lim_{t \to \infty} \int_{y = 0}^{t} (\mu e^{- \mu y}) - e^{- \lambda y} \times (\mu e^{- \mu y})  \ dx \ dy \\
+			& = \lim_{t \to \infty} \int_{y = 0}^{t} (\mu e^{- \mu y}) - \mu e^{(- \lambda - \mu) y}  \ dx \ dy \\
+			& = \lim_{t \to \infty} \left[  -e^{-\mu y} + \cfrac{- \mu}{- \lambda - \mu}e^{(-\lambda -\mu)y} \right]_{y=0}^{y=t} \\
+			& = \lim_{t \to \infty} \left[  -e^{-\mu y} + \cfrac{\mu}{\lambda + \mu}e^{(-\lambda -\mu)y} \right]_{y=0}^{y=t} \\
+			& = \lim_{t \to \infty} \left(  -e^{-\mu t} + \cfrac{\mu}{\lambda + \mu}e^{(-\lambda -\mu)t} \right) - \left(  -e^{\mu 0} + \cfrac{\mu}{\lambda + \mu}e^{(-\lambda -\mu)0} \right) \\
+			& = \left(  0 - 0 \right) - \left(  -1 + \cfrac{\mu}{\lambda + \mu} \right) \\
+			& = 1 - \cfrac{\mu}{\lambda + \mu} = \cfrac{\lambda}{\lambda + \mu} \\
+		\end{split}\]
+    \end{examplebox}
+\section{Expectation and Variance for Joint Random Variables}
+\begin{definitionbox}{Joint Expectation}
+	Where $g$ is a \keyword{bivariat function} on the random variables $X$ and $Y$:
+	\\
+	\\ For \keyword{discrete variables}:
+	\[E(g(X,Y)) = \sum_{y}\sum_{x}g(x,y)p(x,y)\]
+	For \keyword{continuous variables}:
+	\[E(g(X,Y)) = \int_{y = -\infty}^{\infty} \int_{x=-\infty}^{\infty} g(x,y) f(x,y) \ dx \ dy\]
+	Hence we have the following:
+	\begin{itemize}
+		\bullpara{For all}{$g(X,Y) = g_1(X) + g_2(Y) \Rightarrow E(g_1(X) + g_2(Y)) = E_X(g_1(X)) + E_Y(g_2(Y))$}
+		\bullpara{If $X$ and $Y$ are independent}{$E(g_1(X) \times g_2(Y)) = E_X(g_1(X))) \times E_Y(g_2(Y))$
+			\\ Hence where $g(X,Y) = X \times Y$ we have $E(XY) = E_X(X) \times E_Y(Y)$}
+    \end{itemize}Q
+\end{definitionbox}
+
+\begin{definitionbox}{Covariance}
+Covariance measures how two random variables change with respect to one another.
+\\
+\\ For a single random variable we consider expected value of the difference between the mean and the value, squared.
+\[\text{Expectation of } g(X) = (X - \mu_X)^2 = \sigma_X^2\]
+\\
+\\ For a bivariate we consider the expectation:
+\[\text{Expectation of } g(X, Y) = (X - \mu_X)(Y - \mu_Y)\]
+We can then defined the covariance as:
+\[\begin{split}
+		\sigma_{XY} = Cov(X, Y) & = E[(X - \mu_X)(Y - \mu_Y)] \\
+		& = E[XY] - E_X[X] \times E_Y[Y] \\
+		& = E[XY] - \mu_X\mu_Y \\
+	\end{split}\]
+When $X$ and $Y$ are independent so:
+\[\sigma_{XY} = Cov(X, Y) = E[XY] - E_X[X] \times E_Y[Y] = E[XY] - E[XY] = 0\]
+\end{definitionbox}
+
+\begin{definitionbox}{Correlation}
+	Much like covariance, however is invariant to the scale of $X$ and $Y$.
+	\[\rho_{XY} = Cor(X,Y) = \cfrac{\sigma_{XY}}{\sigma_X \times \sigma_Y}\]
+	If the variables are independent then $\rho_{XY} = \sigma_{XY} = 0$.
+\end{definitionbox}
+
+\section{Multivariate Normal Distribution}
+\begin{definitionbox}{Multivariate Normal Distribution}
+	Given a random vector $X = (X_1, \dots, X_n)$ with means $\mu = (\mu_1, \dots, \mu_n)$ has joint \keyword{pdf}:
+	\[f_X = \cfrac{1}{\sqrt{(2 \pi)^n det \sum}}exp(-\sfrac{1}{2}(x - \mu)^T \sum^{-1}(x - \mu))\]
+	Where $\sum$ is the covariance matrix:
+	\[\sum_{(i,j)} = Cov(X_i, X_j) \ \text{ where } 1 \leq i, j \leq n\]
+	The covariance matrix must be \keyword{positive-definite} for a \keyword{pdf} to exist
+	Note that the random variables do not need to be independent.
+\end{definitionbox}
+
+\begin{sidenotebox}{Positive Definite real Matrices}
+	\[M \text{ is positive-definite} \Leftrightarrow \forall x \in \mathbb{R^n} \backslash \{0\}. \ x^TMx > 0\]
+\end{sidenotebox}
+
+\section{Conditional Expectation}
+\begin{definitionbox}{Conditional Expectation}
+	In general $E(XY) \neq E_X(X)E_Y(Y)$
+
+	For discrete random variables the \keyword{conditional expectation} of $Y$ given that $X = x$ is:
+	\[E_{Y|X}(Y|x) = \sum_y y p_{y|X}(y|x)\]
+
+	For continuous random variables:
+	\[E_{Y|X}(Y|x) = \int_{y = -\infty}^{\infty} y f_{Y|X}(y|x) \ dy\]
+
+	In both cases the conditional expectation is a function of $x$ and not $Y$. We are getting the weighted sum over all $Y$s, for a single value ($x$) of $X$.
+\end{definitionbox}
+
+\begin{definitionbox}{Expectation of a Conditional Expectation}
+	We can define random variable $W$ such that:
+	\[W = E_{Y|X}(Y|X)\]
+	$W$ is effectively a function of the random variable $X: S \to \mathbb{R}$ by $W(s) = E_{Y|X}(Y|x)$ where $X(s) = x$.
+	\\
+	\\ Using this we can determine that:
+	\[E_Y(Y) = E_X(E_{Y|X}(Y|X))\]
+	(Expectation of Y is the same as the expectation function of X, of the expected value of Y given X)
+	\\
+	\\ This holds for both discrete and continuous.
+	\[\int_y \int_x yf_{Y|X}(y|x)f_X(x) \ dx \ dy = \int_y \int_x yf(x,y) \ dx \ dy = \int_y y f_Y(y) \ dy \]
+\end{definitionbox}
+
+\begin{definitionbox}{Tower Rule}
+	The expectation of a conditional expectation rule extends to chains of expectations:
+	\[\begin{split}
+			E(Y) & = E_{X_1}(E_Y(Y | X_1)) \\
+			& = E_{X_2}(E_{X_1}(E_Y(Y | X_1, X_2) | X_2)) \\
+			& = \dots \\
+			& = E_{X_n}(E_{X_{n-1}} ( \dots E_{X_1}(E_Y(Y | X_1 , \dots, X_n)| X_2 , \dots, X_n) \dots | X_n)) \\
+		\end{split}\]
+	This is a generalisation of the \keyword{partition rule} for conditional expectations.
+\end{definitionbox}
+
+
+\section{Markov Chains}
+\begin{definitionbox}{Discrete Time Markov Chain (DTMC)}
+\begin{itemize}
+	\item A series of random variable modelling the state at a time step: $X_0, X_1, X_2, \dots$
+	\item The state space $J$ (all states), where $J = sipp(X_i)$ (contains all states that we can be in at any step)
+	\item We can take a sequence (sample path) through the states ($X_0, X_1, X_2, \dots$)
+	\item We denote the state taken at step $n$ as state $J_n$
+\end{itemize}
+
+We use an initial probability vector $\pi$ to determine the start state:
+\[\pi_0 = [\dots \text{ probability of starting in state i } \dots ]\]
+We determine the probability of each next state through the transition probability matrix $r$:
+\[r_{ij} = P(X_{n+1} = j | X_n = i)\]
+
+For a markov chain the probability of being in any next state is \textbf{only} dependent on the current state (memoryless, history of previous states does not matter).
+\[P(X_{i+1} = J_{n+1} | X_i = J_i) = P(X_{i+1} = J_{n+1} | X_i = J_i) = P(X_{i+1} = J_{n+1} | X_0 = J_0, \dots, X_i = J_i)\]
+
+To get the probability we can use power of the matrix:
+\[P(X_n = j | X_0 = i) = (R^n)_{ij}\]
+
+If we have the initial probability vector we can calculate:
+\[\begin{split}
+		P(X_n = j) &= \sum_{i \in J}P(X_0 = i) \times P(X_n = j | X_0 = i) \\
+		& = \sum_{i \in j}\pi_{0_i}(R^n)_{ij} \\
+		&= (\pi_0R^n)_{ij} \\
+	\end{split}\]
+
+We can obtain the long term probabilities by using the $\infty$th step:
+\[\lim_{t \to +\infty} \pi_0R^n = \pi_{\infty}\]
+Note that since $\pi_{\infty}R = \pi_{\infty}$ we have eigenvector $\pi_{\infty}$ and eigenvalue $1$.
+\end{definitionbox}
+
+\begin{examplebox}{Probabilistic Finite State Machine}
+	\centerimage{width=0.8\textwidth}{joint_random_distributions/images/markov_chain.drawio.png}
+\end{examplebox}
+\begin{examplebox}{Modelling Climate}
+	\centerimage{width=0.8\textwidth}{joint_random_distributions/images/climate_markov_chain.drawio.png}
+\end{examplebox}

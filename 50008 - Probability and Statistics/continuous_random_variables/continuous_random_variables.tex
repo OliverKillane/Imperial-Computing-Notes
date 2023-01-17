@@ -1,0 +1,307 @@
+\chapter{Continuous Random Variables}
+
+For continuous random variables we want to track quantities in $\mathbb{R}$ (e.g temperature, volume, other probabilities).
+\begin{sidenotebox}{Induced Probability Terms}
+	\[S_x = \{s \in S | X(s) \leq x\}\]
+	\[P_X(X \leq x) = P(S_x) = F_X(x)\]
+	$S_x$ is the elements of the sample space up to and including $x$. Hence the probability of getting $S_x$ is the cumulative probability.
+	\centerimage{width=0.5\textwidth}{continuous_random_variables/images/cumulative_sx.drawio.png}
+\end{sidenotebox}
+\begin{definitionbox}{Probability Density Function}
+	For a random variable $X : S \to \mathbb{R}$ the induced probability is defined as:
+	\[P_X((-\infty, x]) = P(S_X) = F_X(x)\]
+	A variable $X$ is \keyword{absolutely continuous} if $\exists f_X : \mathbb{R} \to \mathbb{R}$ such that:
+	\[F_X(x) = \int_{u = -\infty}^xf_X(u)du\]
+	\[f_x(x) = F'(x) = \cfrac{d}{dx}F_X(x)\]
+	Where $f_X$ is the \keyword{probability density function} (\keyword{pdf}).
+	\\
+	\\ To find probability that $X \in (a,b]$:
+	\[P_X(a < X \leq b) = P_X(X \leq b) - P_X(X \leq a) = F_X(b) - F_X(a) = \int_a^bf_X(x)dx\]
+	\centerimage{width=0.7\textwidth}{continuous_random_variables/images/probability_density_function.drawio.png}
+	\begin{itemize}
+		\item We can use $<$ and $\leq$ interchangeably as $P(X = x) = 0 \Leftrightarrow P(X \leq x) \equiv P(X < x)$.
+		\item Probability of any event is zero: $P_X(X = y) = 0$, any elementary event $\{x\}$ where $x \in \mathbb{R}$ has zero probability.
+		\item However the sum of a range of events probabilities is not zero.
+		\item Hence the range of a continuous random variable is uncountable (i.e as $\mathbb{R}$ is also).
+	\end{itemize}
+	\[\forall x \in \mathbb{R}. f_X(x)>= 0 \ \text{ and } \ \int_{-\infty}^{\infty}f_X(x)d_x = 1\]
+\end{definitionbox}
+\begin{examplebox}{Defining a continuous random variable}
+	Given some continuous random variable $x$ with a probability density function given as:
+	\[f(x) = \begin{cases}
+			cx^2 & 0 < x < 3 \\
+			0    & otherwise \\
+		\end{cases}\]
+	For some unknown constant $c$
+	\\
+	\\ To find the value of $c$ we use the requirement that the cumulative distribution must sum to $1$:
+	\[\int_0^3 cx^2 = 1 \leadsto [\cfrac{cx^3}{3}]^3_0 = 1 \leadsto (9c) - 0 = 1 \leadsto c = \sfrac{1}{9}\]
+	Hence:
+	\[f(x) = \begin{cases}
+			\cfrac{x^2}{9} & 0 < x < 3 \\
+			0              & otherwise \\
+		\end{cases}\]
+	Hence we can specify the cumulative probability distribution as:
+	\[F(x) = \begin{cases}
+			0               & x \leq 0  \\
+			\cfrac{x^3}{27} & 0 < x < 3 \\
+			1               & x \geq 0  \\
+		\end{cases}\]
+	We can then calculate probabilities using the cumulative distribution:
+	\[P(1 < X < 2) = F(2) - F(1) = \cfrac{2^3}{27} - \cfrac{1^3}{27} = \cfrac{7}{27} \approx 0.259\]
+\end{examplebox}
+
+\section{Mean, Variance and Quantiles}
+\begin{definitionbox}{Expected (Continuous)}
+	The \keyword{mean} or \keyword{expected} of a continuous random variable $X$:
+	\[\mu_X = E_X(X) = \int_{-\infty}^{\infty}xf_X(x)dx\]
+	For a function of interest that is applied to the random variable $g : \mathbb{R} \to \mathbb{R}$:
+	\[E_X(g(X))  \int_{-\infty}^{\infty}g(x)f_X(x)dx\]
+	\begin{itemize}
+		\item $E(aX + b) = aE(X) + b$
+		\item $E(g(X) + h(X)) = E(g(X)) + E(h(X))$
+    \end{itemize}
+\end{definitionbox}
+\begin{definitionbox}{Variance (Continuous)}
+	The variance of a continuous random variable $X$:
+	\[\sigma^2_X = Var_X(X) = E((X - \mu_X)^2) = \int_{-\infty}^{\infty}(x - \mu_X)^2f_X(x)dx\]
+	We can show this as:
+	\[
+		\begin{split}
+			Var_X(X) & = \int_{-\infty}^{\infty}x^2f_X(x)ds - \mu_X^2 \\
+			& = E(X^2) - (E(X))^2
+		\end{split}\]
+	For a linear transformation:
+	\[Var(aX + b) = a^2Var(X)\]
+\end{definitionbox}
+\begin{definitionbox}{Quartiles}
+The lower, upper quartiles and median are points
+\\
+\\ For a continuous random variable $X$, we define the \keyword{$\alpha$-Quantile} $Q_X(\alpha)$ where $0 \leq \alpha \leq 1$ as the lowest $X$ such that:
+\[P(X \leq Q_X(\alpha)) = \alpha \ \text{ or in other words } \ Q_X(\alpha) = F_X^{-1}(\alpha)\]
+\centerimage{width=0.9\textwidth}{continuous_random_variables/images/quantiles.drawio.png}
+Using $Q_X$ we can define some standard quantiles:
+\begin{itemize}
+	\bullpara{Quartiles}{Lower Quartile ($\alpha = \sfrac{1}{4}$), Median ($\alpha = \sfrac{1}{2}$) and Upper Quartile ($\alpha = \sfrac{3}{4}$)}
+	\bullpara{Percentiles}{The $n$th percentile: $\alpha = \cfrac{n}{100}$}
+\end{itemize}
+\end{definitionbox}
+\begin{examplebox}{Basic continuous random variable}
+	Given continuous random variable $X$:
+	\[f(x) = \begin{cases}
+			\cfrac{x^2}{9} & 0 < x < 3 \\
+			0              & otherwise \\
+		\end{cases}\]
+	We can calculate the expected:
+	\[\begin{split}
+			E(X) & = \int_{-\infty}^{\infty}xf(x)dx \\
+			& = \int_{-\infty}^{0}xf(x)dx + \int_{0}^{3}xf(x)dx + \int_{3}^{\infty}xf(x)dx \\
+			& = \int_{-\infty}^{0}x \times 0 dx + \int_{0}^{3}xf(x)dx + \int_{3}^{\infty}x \times 0 dx \\
+			& = \int_{0}^{3}xf(x)dx = \int_{0}^{3}\cfrac{x^3}{9}dx = \begin{bmatrix}
+				\cfrac{x^4}{36}
+			\end{bmatrix}^3_0 \\
+			& = \cfrac{9}{4} = 2.25\\
+		\end{split}\]
+	We can calculate the variance:
+	\[\begin{split}
+			Var(X) & = \int_{-\infty}^{\infty}x^2f(x)dx - \mu_X^2 \\
+			& = \int_{-\infty}^{0}x^2f_(x)dx + \int_{0}^{3}x^2f(x)dx + \int_{3}^{\infty}x^2f(x)dx - \mu_X^2 \\
+			& = \int_{0}^{3}x^2f(x)dx - \mu_X^2 = \int_{0}^{3}\cfrac{x^5}{9}dx - \mu_X^2\\
+			& = 27 - \mu_X^2 = 27 - 2.25 = 24.75 \\
+		\end{split}\]
+	we can calculate the median, we ignore the range $x > 3$ as the median must be below this.
+	\[\begin{split}
+			0.5 &= \int_{-\infty}^{x}f(y)dy = \int_{-\infty}^{0}f(y)dy + \int_{0}^{x}f(y)dy = \int_{0}^{x}f(y)dy\\
+			0.5 &= \int_{0}^{x}\cfrac{y^2}{9} = \begin{bmatrix}
+				\cfrac{y^3}{27}
+			\end{bmatrix}_0^x = \cfrac{x^3}{27}\\
+			x &= \sqrt[3]{0.5 \times 27} \approx 2.38 \\
+		\end{split}\]
+\end{examplebox}
+\section{Notable Continuous Distributions}
+\begin{definitionbox}{Continuous Uniform Distribution}
+	A continuous random variable with equal probability of being any value within a range:
+	\\
+	\\ For $X \thicksim U(a,b)$:
+	\begin{center}
+		\begin{tabular}{c | c | c | c}
+			\textbf{PDF}                         & \textbf{CDF}                          & \textbf{Expected}      & \textbf{Variance}                \\
+			$f_X(x) = \begin{cases}
+					\cfrac{1}{b - a} & a < x < b \\
+					0                & otherwise \\
+				\end{cases}$ & $F_X(x) = \begin{cases}
+					0                    & x \leq a  \\
+					\cfrac{x - a}{b - a} & a < x < b \\
+					1                    & x \geq b  \\
+				\end{cases}$ & $\mu = \cfrac{a+b}{2}$ & $\sigma^2 = \cfrac{(b-a)^2}{12}$ \\
+		\end{tabular}
+	\end{center}
+	The standard uniform distribution is defined as $X \thicksim U(0,1)$:
+	\begin{center}
+		\begin{tabular}{c | c | c | c}
+			\textbf{PDF}                          & \textbf{CDF}                          & \textbf{Expected}    & \textbf{Variance}          \\
+			$f_X(x) = \begin{cases}
+					1 & 0 < x < 1 \\
+					0 & otherwise \\
+				\end{cases}$ & $F_X(x) = \begin{cases}
+					0 & x \leq a  \\
+					x & a < x < b \\
+					1 & x \geq b  \\
+				\end{cases}$ & $\mu = \sfrac{1}{2}$ & $\sigma^2 = \sfrac{1}{12}$ \\
+		\end{tabular}
+	\end{center}
+	Other uniform distributions can be mapped linearly to the standard uniform.
+	\begin{examplebox}{Mapping to Standard Uniform}
+		Given $X \thicksim U(2,5)$ find the expected, variance and median.
+		\\
+		\\ Take $Y \thicksim U(0,1)$, $X = 3 \times Y + 2$.
+		\begin{center}
+			\begin{tabular}{l c c c}
+				\textbf{Distribution} & \textbf{Expected} & \textbf{Variance} & \textbf{Median} \\
+				$Y$                   & $0.5$             & $\sfrac{1}{12}$   & $0.5$           \\
+				$X$                   & $3.5$             & $\sfrac{3}{4}$    & $3.5$           \\
+			\end{tabular}
+		\end{center}
+	\end{examplebox}
+\end{definitionbox}
+\begin{definitionbox}{Exponential Distribution}
+	Given a rate of events $\lambda$, what is the probability of waiting $X$ time for the event to occur.
+	\\
+	\\ For $X \thicksim Exponential(\lambda)$ or $X \thicksim Exp(\lambda)$ where $\lambda > 0$:
+	\begin{center}
+		\begin{tabular}{c | c | c | c}
+			\textbf{PDF}                                        & \textbf{CDF}                                    & \textbf{Expected}            & \textbf{Variance}                 \\
+			$f_X(x) = \lambda e^{- \lambda x}$ where $x \geq 0$ & $F_X(x) = 1 - e^{- \lambda x}$ where $x \geq 0$ & $\mu_X = \cfrac{1}{\lambda}$ & $\sigma^2 = \cfrac{1}{\lambda^2}$ \\
+		\end{tabular}
+	\end{center}
+	The distribution has the \keyword{Lack of memory property}, namely the time waited already does not affect the next part of the distribution (same shape).
+	\[P(X > x + t | X > t) = \cfrac{P(X > x + t \cap X > t)}{P(X > t)} = \cfrac{P(X > x + t)}{P(X > t)} = \cfrac{e^{-\lambda(x+t)}}{e^{-\lambda t}} = e^{-\lambda x} = P(X > x)\]
+	\[P(X > x + t | X > t) =  P(X > x)\]
+	This distribution can be combined with Poisson. Given $X \thicksim Poisson(\lambda)$ (events occurring in a given time frame), the time between events is modelled by $X \thicksim Exponential(\lambda)$ (interval time for one event).
+	\\
+	\\ There is a variant with $\theta$ as the parameter for the distribution where $\theta = \cfrac{1}{\lambda}$.
+\end{definitionbox}
+\begin{definitionbox}{Normal Distribution}
+	Given a mean value ($\mu$) and a variance ($\sigma^2$) from the mean the symmetrical distribution is a \keyword{Normal Distribution}.
+	\\
+	\\ For $X \thicksim Normal(\mu, \sigma^2)$ or $X \thicksim N(\mu, \sigma^2)$ where $\sigma > 0$:
+	\begin{center}
+		\begin{tabular}{c | c }
+			\textbf{PDF}                                                            & \textbf{CDF}                                                                                \\
+			$f_X(x) = \cfrac{1}{\sigma \sqrt{2 \pi}}exp \begin{Bmatrix}
+					-\cfrac{(x - \mu)^2}{2\sigma^2} \\
+				\end{Bmatrix}$ & $F_X(x) = \cfrac{1}{\sigma \sqrt{2 \pi}} \int_{-\infty}^x exp\begin{Bmatrix}
+					- \cfrac{(t - \mu)^2}{2 \sigma^2}
+				\end{Bmatrix} dt$ \\
+		\end{tabular}
+	\end{center}
+	The \keyword{Standard/Unit Normal Distribution} is $X \thicksim N(0, 1)$:
+	\begin{center}
+		\begin{tabular}{c | c }
+			\textbf{PDF}                                                      & \textbf{CDF}                                                                \\
+			$\phi(x) = \cfrac{1}{\sqrt{2 \pi}}exp \begin{Bmatrix}
+					- \cfrac{1}{2}x^2
+				\end{Bmatrix}$ & $\Phi(x) =  \cfrac{1}{\sqrt{2 \pi}} \int_{-\infty}^xe^{-\cfrac{t^2}{2}} dt$ \\
+		\end{tabular}
+	\end{center}
+	We can apply linear functions:
+	\[X \thicksim N(\mu, \sigma^2) \rightarrow \text{ and } aX + b \thicksim N(a \mu + b, a^2\sigma^2)\]
+	Hence we can use the \keyword{Standard Normal Distribution}:
+	\[X \thicksim N{\mu, \sigma^2} \Rightarrow \cfrac{X - \mu}{\sigma} \thicksim N(0,1) \text{ and hence } P(X \leq x) = \Phi(\cfrac{x - \mu}{\sigma})\]
+\end{definitionbox}
+\begin{definitionbox}{Lognormal Distribution}
+	Given $X \thicksim N(\mu, \sigma^2)$ and $Y = e^X$ we can compute the \keyword{PDF} of $Y$:
+	\[f_Y(y) = \cfrac{1}{\sigma y \sqrt{2 \pi}} exp \begin{bmatrix}
+			- \cfrac{(\log y - \mu)^2}{2 \sigma^2}
+		\end{bmatrix}\]
+\end{definitionbox}
+\section{Central Limit Theorem}
+\begin{definitionbox}{Moment Generating Function}
+The moment generating function $M_X$ for a continuous random variable $X$ is:
+\[M_X(t) = E(e^{tX}) = \int_{-\infty}^{\infty}e^{tx}f_X(x)dx\]
+Assuming the calculus within the $E(\dots)$ is valid, the $n$th moment is given by:
+\[E[X^n] = \left.\cfrac{d^nM_x(t)}{dt^n}\right|_{t=0}\]
+If the integral does not exist, the \keyword{characteristic function} $\phi_X(t) = M_X(\iota t)$ can be used ($\iota$ is imaginary unit).
+\end{definitionbox}
+
+\begin{examplebox}{Expected and Variance}
+	\[\begin{split}
+			E[X] & = \left.\cfrac{dM_x(t)}{dt}\right|_{t=0} \\
+			& = \left.\cfrac{dE[e^{tX}]}{dt}\right|_{t=0} \\
+			& = \left.\cfrac{d \int_{-\infty}^{\infty}e^{tx}f_X(x)dx}{dt}\right|_{t=0} \\
+			& = \left.\int_{-\infty}^{\infty}xe^{tx}f_X(x)dx\right|_{t=0} \\
+			& = \int_{-\infty}^{\infty}xe^{0x}f_X(x)dx \\
+			& = \int_{-\infty}^{\infty} x f_X(x) dx\\
+		\end{split}\]
+
+	\[\begin{split}
+			E[X^2] & = \left.\cfrac{d^2M_x(t)}{dt^2}\right|_{t=0} \\
+			& = \left.\cfrac{d^2E(e^{tX})}{dt^2}\right|_{t=0} \\
+			& = \left.\cfrac{d^2 \int_{-\infty}^{\infty}e^{tx}f_X(x)dx}{dt^2}\right|_{t=0} \\
+			& = \left.\cfrac{d \int_{-\infty}^{\infty}xe^{tx}f_X(x)dx}{dt}\right|_{t=0} \\
+			& = \left.\int_{-\infty}^{\infty}x^2e^{tx}f_X(x)dx\right|_{t=0} \\
+			& = \int_{-\infty}^{\infty}x^2e^{0x}f_X(x)dx \\
+			& = \int_{-\infty}^{\infty}x^2f_X(x)dx \\
+		\end{split}\]
+
+	\[Var[X] =  E[X^2] - (E[X])^2\]
+\end{examplebox}
+
+\section{Product of Random Variables}
+Given independent random variables $Z_1, Z_2, \dots, Z_n$:
+\[E[\prod_{i=1}^nZ_i] = \prod_{i=1}^nE[Z_i]\]
+The sum of the random variables is the products of their \keyword{Moment Generating Functions}.
+\[M_{Z_1 + Z_2}(t) = E[e^{t(Z_1 + Z_2)}] = E[e^{tZ_1}e^{tZ_2}] = E[e^{tZ_1}]E[e^{tZ_2}] = M_{Z_1}(t)M_{Z_2}(t)\]
+\[S_n = \sum_{i=1}^nZ_i \Rightarrow M_{S_n}(t) = \prod_{j=1}^nM{X_j}(t)\]
+
+\section{Central Limit Theorem}
+\begin{definitionbox}{Central Limit Theorem}
+	Given $X_1, X_2, \dots, X_n$ are independent and identically distributed random variables from any distribution with mean $\mu$ and finite variance $\sigma^2$.
+	\[S_n = \sum_{i=1}^nX_i\]
+	Hence we have a distribution with a known expected and variance, so can form a \keyword{Normal Distribution}.
+	\[\begin{matrix}
+			Y = S_n                                 & E(Y) = n \mu & Var(Y) = n \sigma^2 \\
+			Y = S_n - n \mu                         & E(Y) = 0     & Var(Y) = n \sigma^2 \\
+			Y = \cfrac{S_n - n \mu}{\sqrt{n}\sigma} & E(X) = 0     & Var(X) = 1          \\
+		\end{matrix}\]
+	$Y$ can now be used to approximate a \keyword{Standard Normal Distribution}.
+	\[\lim_{n \to \infty}\cfrac{S_n - n \mu}{\sqrt{n}\sigma} \thicksim N(0,1)\]
+	This implies that for large (but finite n):
+	\[\overline{X} \approx N(\mu, \cfrac{\sigma^2}{n}) \ \text{ and } \ \sum_{i=1}^n X_i \approx N(n \mu, n \sigma^2)\]
+	Where $\overline{X}$ is the average value of the random variables $\cfrac{\sum_{i=0}^n X_i}{n}$.
+	\\
+	\\ The approximation holds for all distributions (including discrete), and is exact when the random variables are from the same \keyword{normal distribution}.
+\end{definitionbox}
+\subsection{An attempt at CLT proof}
+Given the random variables $X_1, X_2, \dots, X_n$ we can standardize and get their sum:
+\[Z_n = \cfrac{S_n - n \mu}{\sqrt{n} \sigma} = \cfrac{\sum_{i=1}^nX_i - n\mu}{\sqrt{n} \sigma} = \cfrac{\sum_{i=1}^n(X_i - \mu)}{\sqrt{n} \sigma} = \sum_{i=1}^n \cfrac{Y_i}{\sqrt{n}\sigma} \ \text{ where } \ Y_i = X_i - \mu\]
+The moment generating function of $Z_n$ is the product of the \keyword{moment generating functions} of the $Y$ (all identically distributed, so identical \keyword{MGFs}).
+\[M_{Z_n}(t) = \begin{pmatrix}
+		M_Y \begin{pmatrix}
+			\cfrac{t}{\sqrt{n}\sigma}
+		\end{pmatrix}
+	\end{pmatrix} \ \text{ where } M_y \text{ is the moment generating function for all } Y_i\]
+We can then expand the $M_Y$ around 0 using Taylor's Theorem:
+\[M_Y(t) = M_Y(0) + M'_Y(0)t + \sfrac{1}{2}M''_Y(0)t^2 + O(t^3)\]
+$O(t^3)$ is the error term of our approximation, as this is for higher powers, it has a small effect so can be ignored
+\\
+\\ The derivatives of the \keyword{MFG} are:
+\[M'_Y(0) = E(Y_i) = 0 \text{ due to shift performed earlier and } M''_Y(0) = E(Y_i^2) = \sigma^2 + E(Y_i)^2 = = \sigma^2 + 0 = \sigma^2\]
+Hence we can derive:
+\[M_Y(t) = 1 + \cfrac{\sigma^2t^2}{2} + O(t^3)\]
+Hence we can scale $t$, and ignore the error term for simplicity:
+\[M_Y \begin{pmatrix}
+		\cfrac{t}{\sqrt{n}\sigma}
+	\end{pmatrix} = 1 + \cfrac{t^2}{2n}\]
+As the error term gets very small, we can use limits to get an approximation for $M_{Z_n}(t)$.
+\[lim_{n \to \infty} M_{Z_n}(t) = \lim_{n \to \infty}(1 + \cfrac{t^2}{2n} + O(n^{-\sfrac{3}{2}}))^n = e^{\sfrac{t^2}{2}}\]
+Note that $\lim_{m \to \infty}(1 + \cfrac{x}{m})^m = e^x$.
+\begin{examplebox}{Coin Tossing}
+	Consider a set of count tosses, each are Bernoulli discrete random variables (take values 0 or 1).
+	\[X_1, X_2, X_3, \dots, X_n \text{ where } \mu = p \text{ and } \sigma^2 = p(1-p)\]
+	The total score of toin tosses can be modelled as a binomail distribution:
+	\[\sum_{i=1}^nX_i \text{ is } X \thicksim Binomial(n,p) \text{ with } E(X) = np \text{ and } Var(X) = np(1-p)\]
+	For large $n$ can also model it as a normal distribution:
+	\[\sum_{i=1}^nX_i \text{ is } X \thicksim N(n \mu, n \sigma^2) \equiv N(np, n p(1-p)) \]
+	As the number of events (coin tosses) tends to infinity, the distributions tend to look identical.
+\end{examplebox}
