@@ -1,0 +1,223 @@
+\chapter{Hypothesis Testing}
+
+\begin{definitionbox}{Hypothesis Test}
+	Given two samples, determine if the difference is significant enough to suggest the parameters are different.
+	\begin{itemize}
+		\bullpara{Null Hypothesis}{No statistical relation, there is no evidence for a claim. ($H_0$)}
+		\bullpara{Alternative Hypothesis}{There is a statistical relation. ($H_1$)}
+	\end{itemize}
+	We can partition the parameter space $\Theta$ into two disjoint sets $\Theta_0$ and $\Theta_1$ for the null and alternative hypotheses, which can be expressed as:
+	\[H_0 \ : \ \theta \in \Theta_0 \ \text{  and  } \ H_1 \ : \ \theta \in \Theta_1\]
+	(We are testing if based on a given sample, based onm the estimated parameter, if it is plausible the sample distribution is from another distribution)
+	\begin{itemize}
+		\bullpara{Simple Hypothesis}{Test that $\theta = \theta_0$}
+		\bullpara{Composite Hypothesis}{Test that $\theta > \theta_0$ or $\theta < \theta_0$}
+	\end{itemize}
+\end{definitionbox}
+	Typically a test is of the form:
+	\[H_0 \ : \ \theta = \theta_0 \ \text{  versus   } H_1 \ : \ \theta \neq \theta_0\]
+	Some tests are one-sided, for example:
+	\[H_0 \ : \ \theta > \theta_0 \ \text{  versus   } H_1 \ : \ \theta < \theta_0\]
+	To test the validity of $H_0$:
+	\begin{enumerate}
+		\item Choose a \keyword{test statistic} $T(\underline{X})$ to use on the data.
+		\item Find a distribution $P_T$ under $H_0$ from the \keyword{test statistic}.
+		\item Determine the rejection region (the region in which a result would invalidate $H_0$).
+		\item Calculate the observed \keyword{test statistics} $t(\underline{x})$.
+		\item If $t(\underline{x})$ is in the rejection region, reject $H_0$ and accept $H_1$, else retain $H_0$.
+    \end{enumerate}
+	\centerimage{width=0.6\textwidth}{hypothesis_testing/images/rejection_regions.drawio.png}
+	The \keyword{significance level/Type 1 Error Rate} $\alpha \in (0,1) $ of as hypothesis test determines the size of the rejection regions.
+	\begin{itemize}
+		\bullpara{$\alpha \to 0$}{Less and less likely to reject $H_0$, rejection region samller, confidence in our result is lower - easier test.}
+		\bullpara{$\alpha \to 1$}{More and more likely to reject $H_0$, rejection region larger, confidence higher - stricter test.}
+	\end{itemize}
+	The \keyword{p-value} of a test is the significance level threshold between rejection/acceptance of $H_0$ for a given test.
+
+\begin{definitionbox}{Test Errors}
+	\begin{itemize}
+		\bullpara{Type 1}{Reject $H_0$ when it is actually true. $\alpha = P(T \in R|H_0)$
+			\\ (significance is the probability of incorrectly rejecting the null hypothesis)}
+		\bullpara{Type 2}{Accepting $H_0$ when $H_1$ is true. $\beta = P(T \not\in R | H_1)$
+			\\ Probability a test statistic is not in the rejecting region, when $H_1$ is true.}
+    \end{itemize}
+\end{definitionbox}
+\begin{definitionbox}{Test Power}
+	The probability of correctly rejecting the null hypothesis
+	\[Power = 1 - \beta = 1 - P(T \not\in R|H_1) = P(T \in R|H_1)\]
+	For a given significance level:
+	\[\alpha = P(T \in R| H_0)\]
+	A good \keyword{test statistic} $T$ and \keyword{rejection region} $R$ will have a high \keyword{power}, the highest \keyword{power} test under $H_1$ is called the \keyword{most powerful}.
+\end{definitionbox}
+Given a control group (placebo) and a test group (given some pharmaceutical), we can test the hypotheis that the drug has an effect on survival rates.
+\[\begin{split}
+        H_0: & \text{ The drug has no effect - survival rates are the same.} \\
+        H_1: & \text{ The drug has an effect - survival rates are different.} \\
+    \end{split}\]
+\section{Testing For Population Mean}
+Sample mean belongs to a normal distribution (\keyword{Central Limit Theorem}):
+\[\overline{X} \thicksim N\left( \mu, \cfrac{\sigma^2}{n}\right)\]
+We have our two hypotheses:
+\[H_0 \ : \ \mu = \mu_0 \ \ \text{  versus  } \ \ H_1 \ : \ \mu \neq \mu_0\]
+We can derive a new distribution in terms of the standard normal:
+\[Z = \cfrac{\overline{X} - \mu_0}{\sfrac{\sigma}{\sqrt{n}}} \thicksim N(0,1)\]
+Hence for significance $\alpha$ (or confidence interval $1 - \alpha$) we can get the rejection/acceptance regions.
+\[\Phi(1 - \alpha) = threshold \ \ \text{   results in acceptance region: } [-threshold, threshold] \]
+Hence we can calculate $z$ for a given sample, and then determine if it is in the region, if it is then accept $H_0$, else rejected $H_0$ and accept $H_1$.
+\begin{examplebox}{Weight of Crisp Packets (Known Variance)}
+	A crisp manufacturer sells packets listed as having weight $454g$. From a sample size of 50, we get the mean weight of a bag as $451.22g$.
+	\\
+	\\ Assume the variance of bag weights is $70$. Is the observed sample consistent with the claim made by the company at the 5\% significance.
+	\[\begin{split}
+			H_0 &: \ \mu = 454g \\
+			H_1 &: \ \mu \neq 454g \\
+		\end{split}\]
+	We have the following information:
+	\[\begin{matrix}
+			\overline{x} = 451.22g & \sigma^2 = 70 & n = 50 & \alpha = 0.05 \\
+		\end{matrix}\]
+	Hence we can state the hypothesized distribution of the sample mean:
+	\[\overline{X} \thicksim N\left(454g, \cfrac{70}{50}\right)\]
+	We can get this in terms of the standard normal distribution:
+	\[Z = \cfrac{\overline{X} - 454}{\sfrac{\sqrt{35}}{5}} \thicksim N(0,1)\]
+	At the $5\%$ significance, we have $2.5\%$ are each tail. Hence we get our critical value as $z(critical) = 0.975$, where $1.96$.
+	\\
+	\\ Hence the rejection region is:
+	\[\begin{split}
+			\cfrac{\overline{X} - 454}{\sfrac{\sqrt{35}}{5}} & < -1.96 \\
+			\cfrac{\overline{X} - 454}{\sfrac{\sqrt{35}}{5}} & > 1.96 \\
+		\end{split}\]
+	Hence in order to accept $H_0$, $\overline{X}$ must be in the interval:
+	\[451.6809 < \overline{X} < 456.3191\]
+	As $\overline{x} = 451.22$ it is in the rejection region, hence at the $95\%$ significance there is sufficient evidence to reject the company's claim.
+\end{examplebox}
+\begin{examplebox}{Weight of Crisp Packets (UnKnown Variance)}
+	A Crisp manufacturer sells packets listed as having weight $454g$. From a sample size of 50, we get the mean weight of a bag as $451.22g$.
+	\\
+	\\ Assume the variance of bag weights is $70$. Is the observed sample consistent with the claim made by the company at the 5\% significance?
+	\tcblower
+    \[\begin{split}
+			H_0 &: \ \mu = 454g \\
+			H_1 &: \ \mu \neq 454g \\
+		\end{split}\]
+	We have the following information:
+	\[\begin{matrix}
+			\overline{x} = 451.22g & n = 50 & \alpha = 0.05 \\
+		\end{matrix}\]
+	We first calculate the bias corrected sample variance:
+	\[\begin{split}
+			s_{n-1} &= \sqrt{
+				\cfrac{1}{n-1}\sum_{i=1}^n(x_i - \overline{x})^2
+			} \\
+			&= \sqrt{70.502} \ (\text{Need to calculate from each observation in the sample})
+		\end{split}\]
+	Hence we can now use the \keyword{student's t distribution} with degrees of freedom $n - 1 = 49$.
+	\[\cfrac{\overline{x} - \mu_0}{\sfrac{s_{n-1}}{\sqrt{n}}} \thicksim t_{49}\]
+	For $\alpha = 5\%$ we take the tails as $0.025$, so use $t_{49, \ 0.975} \approx 2.01$.
+	Hence will reject the regions:
+	\[\begin{split}
+			\cfrac{\overline{X} - 454}{\sfrac{\sqrt{70.502}}{5\sqrt{2}}} & < -2.01 \\
+			\cfrac{\overline{X} - 454}{\sfrac{\sqrt{70.502}}{5\sqrt{2}}} & > 2.01 \\
+		\end{split}\]
+	Hence to accept $H_0$, $\overline{X}$ must be:
+	\[451.6123 < \overline{x} < 456.3868\]
+	Hence at the $5\%$ significance there is sufficient evidence to reject $H_0$ and accept $H_1$.
+\end{examplebox}
+\begin{examplebox}{Optimising Code}
+	The previous code had a mean run time of $6s$. Following an optimisation a sample of runs is taken, with sample of size $16$, mean $5.8s$ and bias corrected sample standard deviation of $1.2s$. Is the new code faster?
+	\tcblower
+    Our test is as follows:
+	\[H_0 \ : \ \mu \geq 6s \ (\text{mean time is same or larger}) \ \ \text{  versus  } \ \ H_1 \ : \ \mu < 6s \ (\text{mean time is lower})\]
+	We have the following information:
+	\[\begin{matrix}
+			\overline{x} = 5.8 & s_{n-1} = 1.2s & n = 16 \\
+		\end{matrix}\]
+	Hence we have the distribution:
+	\[\cfrac{\overline{X} - \mu}{\sfrac{s_{n-1}}{\sqrt{n}}} \thicksim t_{15}\]
+	Hence we can use the significance (one ended/top tail) of $5\%$ to find $t_{15, 0.95} \approx 1.75$.
+	\\
+	\\ Hence will reject the regions:
+	\[\begin{split}
+			\cfrac{\overline{X} - 6}{\sfrac{1.2}{4}} & < -1.75 \\
+			\cfrac{\overline{X} - 6}{\sfrac{1.2}{4}} & > 1.75 \\
+		\end{split}\]
+	Hence to accept $H_0$, $\overline{X}$ must be:
+	\[5.475 < \overline{X} < 6.525\]
+	Hence as $\overline{x} = 5.8$ this is within the acceptable region, so at the $95\%$ significance we have insufficient evidence to reject $H_0$.
+\end{examplebox}
+\section{Samples from Two Populations}
+When given two random samples:
+\[\underline{X} = (X_1, \dots, X_n) \ \text{from }P_X \ \text{   and   } \ \ \underline{Y} = (Y_1, \dots, Y_n) \ \text{from } P_Y\]
+We may want to determine the similarity of the distributions of $P_X$ and $P_Y$.
+\\
+\\ Typically this involves testing to see if the means of the populations are equal:
+\[H_0 \ : \ \mu_X = \mu_Y \ \ \text{  versus  } \ \ H_1 \ : \ \mu_X \neq \mu_Y\]
+\begin{definitionbox}{Paired Data}
+	A special case when $\underline{X}$ and $\underline{Y}$ are pairs $(X_1, Y_1), \dots, (X_n, Y_n)$ (each $X_i$ and $Y_i$ are possibly dependent on each-other).
+	\\
+	\\ For example, where for a person $i$, $X_i$ is the heart rate before exercise, and $Y_i$ the rate afterwards.
+	\\
+	\\ We can consider a sample of the differences, if this has mean $0$:
+	\[Z_i = X_i - Y_i \ \text{  testing  } H_0 \ : \ \mu_Z = 0 \ \ \text{  versus  } \ \ H_1 \ : \ \mu_Z \neq 0\]
+\end{definitionbox}
+\subsection{Known Variance, $X$ and $Y$ are Independent}
+Given that:
+\[\begin{matrix}
+		\underline{X} = (X_1, \dots, X_{n_1}) & X_i \thicksim N(\mu_X, \sigma^2_X) & \overline{X} \thicksim N\left(\mu_X, \cfrac{\sigma^2_X}{n_1}\right) \\
+		\underline{Y} = (Y_1, \dots, Y_{n_2}) & Y_i \thicksim N(\mu_Y, \sigma^2_Y) & \overline{Y} \thicksim N\left(\mu_Y, \cfrac{\sigma^2_Y}{n_2}\right) \\
+	\end{matrix}\]
+We can therefore get the distribution of the difference in sample means:
+\[\overline{X} - \overline{Y} \thicksim N\left(\mu_X - \mu_Y, \cfrac{\sigma_X^2}{n_1} + \cfrac{\sigma_Y^2}{n_2}\right)\]
+And hence:
+\[\cfrac{(\overline{X} - \overline{Y}) - (\mu_x - \mu_Y)}{\sqrt{\cfrac{\sigma^2_X}{n_1} + \cfrac{\sigma^2_Y}{n_2}}} \thicksim N(0, 1)\]
+As we assume for $H_0$ that $\mu_x = \mu_Y$ we have:
+\[\cfrac{\overline{X} - \overline{Y}}{\sqrt{\cfrac{\sigma^2_X}{n_1} + \cfrac{\sigma^2_Y}{n_2}}} \thicksim N(0, 1)\]
+So we can calculate the \keyword{test statistic}:
+\[z = \cfrac{\overline{x} - \overline{y}}{\sqrt{\cfrac{\sigma^2_X}{n_1} + \cfrac{\sigma^2_Y}{n_2}}}\]
+And use this to determine if $H_0$ is rejected.
+\subsection{Unknown Variance, $X$ and $Y$ are Independent, Variances Equal}
+\begin{definitionbox}{Bias-Corrected Pooled Sample Variance}
+If the variance of two samples is the same, given:
+\[\underline{X} = (X_1, \dots, X_{n_1}) \ \text{  and  } \ \underline{Y} = (Y_1, \dots, Y_{n_2})\]
+We can get an unbiased estimator of the variance as:
+\[S^2_{N_1 + n_2 - 2}\cfrac{(n_1 - 1)S^2_{n_1 - 1, \ X} + (n_2 - 1)S^2_{n_2 - 1, \ Y}}{(n_1 - 1) + (n_2 - 1)}\]
+Which is equivalent to:
+\[S^2_{n_1 + n_2 - 2} = \cfrac{\sum_{i=1}^{n_1}(X_i - \overline{X})^2 + \sum_{i=1}^{n_2}(Y_i - \overline{Y})^2}{n_1 + n_2 - 2}\]
+\end{definitionbox}
+If $\sigma^2_X$ and $\sigma^2_Y$ are unknown, but it is know that $\sigma^2 = \sigma^2_X = \sigma^2_Y$ we can use an estimator to get an estimate of the variance $\sigma^2$ using the samples from the two populations.
+\[\cfrac{(\overline{X} - \overline{Y}) - (\mu_x - \mu_Y)}{\sigma \sqrt{\sfrac{1}{n_1} + \sfrac{1}{n_2}}} \thicksim N(0,1)\]
+Hence if the $H_0 \ : \ \mu_X = \mu_Y$ then:
+\[\cfrac{\overline{X} - \overline{Y}}{\sigma \sqrt{\sfrac{1}{n_1} + \sfrac{1}{n_2}}}\thicksim N(0,1)\]
+To get an estimate for the variance we can use the \keyword{Bias-Corrected Pooled Sample Variance}
+
+\begin{examplebox}{Compiler Comparison}
+	Given two compilers, attempt to determine if compiler 2 produces is faster code (to $5\%$ significance).
+	\[\begin{matrix}
+			\text{\textbf{Compiler 1}} & \text{\textbf{Compiler 2}} \\
+			n_1 = 15                   & n_2 = 15                   \\
+			\overline{x} = 114s        & \overline{y} = 94s         \\
+			s_{14}^2 = 310             & s_{14}^2 = 290             \\
+			\mu_1                      & \mu_2                      \\
+		\end{matrix}\]
+	\[H_0 \ : \ \mu_1 \leq \mu_2 \ \text{  versus  } \ H_1 \ : \ \mu_1 > \mu_2\]
+	We assume that the variances of the population variances are the same for both compilers.
+	\\
+	\\ We can get the \keyword{Bias-Corrected Pooled Sample Variance}:
+	\[S_{28} = \cfrac{14 \times 310 + 14 \times 290}{14 + 14} = 300\]
+	Hence our \keyword{test statistic} is:
+	\[\cfrac{\overline{x} - \overline{y}}{\sigma \sqrt{\sfrac{1}{n_1} + \sfrac{1}{n_2}}} = \cfrac{20}{\sqrt{300}\sqrt{\cfrac{2}{15}}} = \sqrt{10} \approx 3.162\]
+	We can now use the \keyword{student's t distribution} to get the rejection region (one-sided):
+	\[t_{28, 0.95} = 1.701\]
+	Hence as $3.162 > 1.701$ we have sufficient evidence at the $5\%$ significance to reject $H_0$ and accept $H_1$. The second compiler produces faster code.
+\end{examplebox}
+
+
+\begin{sidenotebox}{Welch's t-test}
+	If the variances are unknwon, and not equal, we can use \keyword{Welch's t test}.
+	\\
+	\\ The \keyword{test statistic} is:
+	\[\cfrac{(\overline{x} - \overline{y}) - (\mu_X - \mu_Y)}{\sqrt{\cfrac{S_{n_1, X}^2}{n_1} + \cfrac{S_{n_1, Y}^2}{n_1}}}\]
+	We then use a t distribution $t_\nu$ with the $\nu$ degrees of freedom determined by rounding the following to the nearest whole number:
+	\[\nu = \cfrac{\left(\left(\cfrac{S^2_{n_1, \ X}}{n_1}\right)+ \left(\cfrac{S^2_{n_1, \ X}}{n_1}\right) \right)^2}{\left(\cfrac{1}{n_1 - 1}\right)\left(\cfrac{S^2_{n_1, \ X}}{n_1}\right)^2 + \left(\cfrac{1}{n_2 - 1}\right)\left(\cfrac{S^2_{n_2, \ Y}}{n_2}\right)^2}\]
+	The we proceed as normal, checking the test statistic is within the rejection regions.
+\end{sidenotebox}
