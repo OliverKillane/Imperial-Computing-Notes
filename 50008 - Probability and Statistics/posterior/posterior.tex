@@ -1,0 +1,226 @@
+\chapter{posterior}
+
+\section{MLE Sensitivity}
+There are several shortcomings of \keyword{MLE}:
+\begin{itemize}
+	\bullpara{Sensitive to Sample Size}{
+		\\ In a small sample, small fluctuations can change the \keyword{MLE} considerably.
+	}
+	\bullpara{Does not use any Prior Information}{
+		\\ Only uses the given sample.
+	}
+	\bullpara{Returns a single value}{
+		\\ Only returns the single and specific value $\hat{\theta}$, not a distribution $P(\theta|\underline{x})$ for some sample $\underline{x}$.
+		\\
+		\\ Hence we cannot know how close other $\theta$ are, how strong our estimate is.
+	}
+	\bullpara{Cannot Assess}{
+		\\ Can only assess using confidence intervals, however these are also dependent on the sample.
+	}
+\end{itemize}
+
+\section{Bayes \& Posterior}
+\begin{definitionbox}{Baye's Theorem}
+	Given two events $A$ and $B$, where $P(B) \neq 0$:
+	\[P(A|B) = \cfrac{P(B|A) \times P(A)}{P(B)}\]
+	Note that we can use the law of total probability to re-express this without knowing $P(B)$:
+	\[P(A|B) = \cfrac{P(B|A) \times P(A)}{P(B|A) \times P(A) + P(B|\overline{A})(1 - P(A))}\]
+\end{definitionbox}
+\centerimage{width=0.9\textwidth}{posterior/images/prior_table.drawio.png}
+By law of total probability:
+\[\text{Given } j \in [1,m]. \ \sum_{i=1}^nP(x_i|\theta_j) = 1 \ \text{ and given} \ i \in [1,n] \sum{j = 1}^mP(\theta_j|x_i) = 1\]
+When calculating the \keyword{MLE} using a sample $\underline{x}$ we calculated:
+\[\hat{\theta}_{MLE} = arg \max_{\theta} L(\theta|\underline{x}) = arg \max_{\theta} \left[ \prod_{i=1}^n P(x_i|\theta) \right]\]
+(The $\theta$ most likely to give the sample $\underline{x}$)
+\\
+\\ We can apply this to the distributions $X$ and $\theta$ to get a joint distribution:
+\[P(\theta|X) = \cfrac{P(X|\theta)\times P(\theta)}{P(X)}\]
+Where the \keyword{evidence} ($X$), acts as a normalizer (does not alter the shape of the distribution, just stretches/compresses it to normalize so that the distribution of $\theta|X$ has total probability $1$)
+\[\int_{-\infty}^{\infty}P(\theta|X)d\theta = 1\]
+Hence we can say that the likelihood, and the posterior are directly proportional:
+\[P(\theta|X) \varpropto P(X|\theta)P(\theta)\]
+\section{Maximum a Posteriori (MAP) Estimate}
+\begin{definitionbox}{Maximum a Posteriori Estimate (MAP Estimate)}
+	Given some prior information ($P(\theta)$)  we can effectively get the \keyword{MLE}, but each probability is weighted by the prior information.
+	\[\begin{split}
+			\hat{\theta}_{MAP} &= arg \max_{\theta} \left[ \prod_{i=1}^n P(\theta|X = x_i) \right] \\
+			&= arg \max_{\theta} \left[ \prod_{i=1}^n \cfrac{P(X = x_i|\theta) \times P(\theta)}{P(X = x_i)} \right] \\
+			&= arg \max_{\theta} \left[ \prod_{i=1}^n P(X = x_i|\theta) \times P(\theta) \right] \\
+		\end{split}\]
+	Using the uniform distribution as $P(\theta)$ yields the \keyword{MLE} as each $P(X = x_i|\theta)$ is equally weighted.
+\end{definitionbox}
+
+\section{Conjugate Priors}
+
+We can continually use the \keyword{MAP} to get new prior information, to use with new evidence to refine the \keyword{MAP}. This process of continually using the previous estimate and new evidence to refine the estimate is called \keyword{Baysian Inference}
+\centerimage{width=0.9\textwidth}{posterior/images/map_estimate_flow.drawio.png}
+\[\text{where } P(\theta|X) = \cfrac{P(X|\theta) \times P(\theta)}{P(X)} = \cfrac{P(X|\theta) \times P(\theta)}{\int_{-\infty}^\infty P(X|\theta)P(\theta) \ d\theta}\]
+\begin{definitionbox}{Conjugate Prior}
+	When continually inferring new prior distributions, if the prior distribution is in the same family of distributions (i.e parameters can be different, but same distribution) as the posterior, then it is a \keyword{conjugate prior}.
+	\centerimage{width=0.7\textwidth}{posterior/images/conjugate_prior.drawio.png}
+	\begin{center}
+		\begin{tabular}{l | l}
+			\textbf{Likelihood} & \textbf{Conjugate Prior} \\
+			\hline
+			Bernoulli           & \multirow{3}{*}{Beta}    \\
+			Binomial            &                          \\
+			Geometric           &                          \\
+			\hline
+			Poisson             & \multirow{2}{*}{Gamma}   \\
+			Exponential         &                          \\
+			\hline
+			Normal              & Normal                   \\
+		\end{tabular}
+	\end{center}
+\end{definitionbox}
+
+\begin{definitionbox}{Beta Prior Distribution}
+	Where $\alpha, \beta > 0$ are \keyword{hyper-parameters} that determine the shape of the distribution, the parameter is $\theta$:
+	\[Beta(\theta; \alpha, \beta) = \cfrac{\theta^{\alpha - 1}(1 - \theta)^{\beta - 1}}{B(\alpha, \beta)}\]
+	Where the normalising value (ensures total integral sums to $1$ so it is a valid \keyword{pdf}) is:
+	\[B(\alpha, \beta) = \int_{0}^1\theta^{\alpha - 1}(1 - \theta)^{\beta - 1} \ d\theta\]
+	\begin{center}
+		\begin{tabular}{c | c | c}
+			\textbf{maximal value/$\theta_{MAP}$}                        & \textbf{mean/bayesian estimate $\theta_B$}             & \textbf{variance}                                                                         \\
+			$argmax_\theta[Beta(\theta; \alpha, \beta)]$                 & $E[\theta]$                                            & $E[\theta^2] - (E[\theta])^2$                                                             \\
+			$m_{\alpha, \beta} = \cfrac{\alpha - 1}{\alpha + \beta - 2}$ & $\mu_{\alpha, \beta} = \cfrac{\alpha}{\alpha + \beta}$ & $\sigma^2_{\alpha, \beta} = \cfrac{\alpha \beta}{(\alpha + \beta)^2(\alpha + \beta + 1)}$ \\
+		\end{tabular}
+	\end{center}
+	\centerimage{width=0.7\textwidth}{posterior/images/beta_distribution}
+	\begin{itemize}
+		\item When $\alpha = \beta$ it is symmetrical about $0.5$
+		\item higher values result in steeper/narrower distribution
+		\item The $MAP$ estimate pulls the estimate towards the prior.
+		\item As $\alpha \to 1$ and $\beta \to 1$ $Beta(\theta; \alpha, \beta) \to U(0,1)$ and $\hat{\theta}_{MAP} \to \hat{\theta}_{MLE}$.
+    \end{itemize}
+\end{definitionbox}
+
+\section{Computing Terms}
+\subsection{Bernoulli Distribution}
+\centerimage{width=0.9\textwidth}{posterior/images/bernoulli_beta.drawio.png}
+Given some $x_i|\theta \thicksim Bernoulli(\theta)$ we choose the conjugate pair as $\theta \thicksim Beta(\theta; \alpha, \beta)$ where $\alpha> 1$ and $\beta > 1$.
+\\
+\\ We have a sample from the distribution: $\underline{x} = x_1, x_2, \dots, x_n$
+\\
+\\ \textbf{Step 1.} Given $\theta \thicksim Beta(\theta; \alpha, \beta)$, the sample $\underline{x} = x_1, x_2, \dots, x_n$ and sample mean $\overline{x}$
+we need to calculate:
+\[P(\theta|\underline{x}) = \cfrac{P(\underline{x}|\theta)P(\theta)}{P(\underline{x})} = \cfrac{P(\underline{x}|\theta)P(\theta)}{\int_{-\infty}^\infty P(\underline{x}|\theta)P(\theta) \ d\theta}\]
+We know that the number of $1$s in the sample is $\overline{x}n$.
+\\
+\\ \textbf{Step 2.} First we calculate $P(\underline{x}|\theta)P(\theta)$ using the bernoulli \keyword{PMF}:
+\[\begin{split}
+		P(\underline{x}|\theta) &= \prod_{i=1}^n P(x_i|\theta) \\
+		&= \theta^{\overline{x}n}(1-\theta)^{n - \overline{x}n} \\
+		&= \theta^{\overline{x}n}(1-\theta)^{n(1 - \overline{x})} \\
+	\end{split}\]
+By the pdf of the \keyword{Beta} distribution:
+\[P(\theta) = \cfrac{\theta^{\alpha - 1}(1 - \theta)^{\beta - 1}}{B(\alpha,\beta)}\]
+Where $B$ is the beta distribution normalization.
+\\
+\\ Hence we can multiply to get $P(\underline{x}|\theta)P(\theta)$:
+\[\begin{split}
+		P(\underline{x}|\theta)P(\theta) &= \theta^{\overline{x}n}(1-\theta)^{n(1 - \overline{x})}\cfrac{\theta^{\alpha - 1}(1 - \theta)^{\beta - 1}}{B(\alpha,\beta)} \\
+		&= \cfrac{\theta^{\overline{x}n + \alpha - 1}(1 - \theta)^{n(1 - \overline{x}) + \beta - 1}}{B(\alpha,\beta)} \\
+	\end{split}\]
+\textbf{Step 3.} We derive $P(\theta|\underline{x})$:
+\[\begin{split}
+		P(\theta|\underline{x}) &= \cfrac{P(X|\theta)P(\theta)}{P(\int_{-\infty}^\infty P(X|\theta)P(\theta)) \ d\theta} \\
+		\\
+		&= \cfrac{\cfrac{\theta^{\overline{x}n + \alpha - 1}(1 - \theta)^{n(1 - \overline{x}) + \beta - 1}}{B(\alpha,\beta)}}{\int_{-\infty}^\infty \cfrac{\theta^{\overline{x}n + \alpha - 1}(1 - \theta)^{n(1 - \overline{x}) + \beta - 1}}{B(\alpha,\beta)} \ d\theta} \\
+		\\
+		&= \cfrac{\cfrac{\theta^{\overline{x}n + \alpha - 1}(1 - \theta)^{n(1 - \overline{x}) + \beta - 1}}{B(\alpha,\beta)}}{\cfrac{1}{B(\alpha,\beta)}\int_{-\infty}^\infty \theta^{\overline{x}n + \alpha - 1}(1 - \theta)^{n(1 - \overline{x}) + \beta - 1} \ d\theta} \\
+		\\
+		&= \cfrac{\theta^{\overline{x}n + \alpha - 1}(1 - \theta)^{n(1 - \overline{x}) + \beta - 1}}{\int_{-\infty}^\infty \theta^{\overline{x}n + \alpha - 1}(1 - \theta)^{n(1 - \overline{x}) + \beta - 1} \ d\theta} \\
+		\\
+		&= P(\theta) \ \text{ given } \ \theta \thicksim Beta(\theta; \overline{x}n + \alpha, n(1 - \overline{x}) + \beta)
+	\end{split}\]
+Hence we have the posterior distribution:
+\[\theta \thicksim Beta(\theta; \overline{x}n + \alpha, n(1 - \overline{x}) + \beta)\]
+\begin{sidenotebox}{New Bayesian Estimate}
+	The new bayesian estimate is a \keyword{convex combination} of the \keyword{sample mean} $\overline{x}$ and the prior mean (prior bayesian estimate).
+	\[\begin{split}
+			\hat{\theta}_B &= \cfrac{\overline{x}n + \alpha}{\overline{x}n + \alpha + n(1 - \overline{x}) + \beta} \\
+			&= \cfrac{\overline{x}n + \alpha}{\alpha + n + \beta} \\
+			&= \left( \underbrace{\overline{x}}_{\hat{\theta}_{MLE}} \times \cfrac{n}{n + \alpha + \beta} \right) + \left( \underbrace{\cfrac{\alpha}{\alpha+\beta}}_\text{old $\hat{\theta}_B = \mu_{\alpha,\beta}$} \times \cfrac{\alpha+\beta}{n + \alpha + \beta}\right)
+		\end{split}\]
+\end{sidenotebox}
+
+\subsection{Normal Distribution - Single DataPoint Sample}
+Given some $x|\mu \thicksim N(\mu, \sigma^2)$ where $\sigma^2$ is known and $\mu$ is unknown. Using a sample of a single datapoint $x$.
+\\
+\\ \textbf{Step 1.} The likelihood can be found using the \keyword{Normal Distribution PDF}:
+\[\begin{split}
+		P(x|\mu) &= f(x|\mu) \\
+		&= \cfrac{1}{\sigma \sqrt{2 \pi}} \times exp \left\{ -\cfrac{(x - \mu)^2}{2 \sigma^2} \right\} \text{  where  $exp\{n\} = e^n$}\\
+	\end{split}\]
+Hence we now need to calculate the prior (the previous $\mu$ value that we will update with our estimate, using the sample):
+\[\mu \thicksim N(\mu_0, \sigma^2_0)\]
+Hence we can now calculate the \keyword{posterior distribution}.
+\\
+\\ \textbf{Step 2.} We calculate the \keyword{posterior distribution}
+\[\begin{split}
+		P(\mu|x) &= f(\mu|x) = \cfrac{f(x|\mu)f(\mu)}{f(x)} = \cfrac{f(x|\mu)f(\mu)}{\int_{-\infty}^\infty f(x|\mu)f(\mu) \ d \mu} \\
+		& \vdots \\
+		&= \text{(some constant)} \times exp\left\{ -\cfrac{\left( \mu - \cfrac{\mu_0\sigma^2 + x \sigma_0^2}{\sigma^2 + \sigma_0^2} \right)^2}{2 \times \cfrac{\sigma^2\sigma_0^2}{\sigma^2 + \sigma_0^2}} \right\} \\
+	\end{split}\]
+We can express the new variance as:
+\[\begin{matrix}
+		\sigma^2_1 = \left( \cfrac{1}{\sigma^2} + \cfrac{1}{\sigma_0^2} \right)^{-1} & \text{  and  } & \mu_1 = \sigma_1^2 \left( \cfrac{\mu_0}{\sigma_0^2} + \cfrac{x}{\sigma^2} \right) \\
+	\end{matrix}\]
+With the new posterior density function as:
+\[\mu|X \thicksim N(\mu_1, \sigma^2_1)\]
+\subsection{Normal Distribution - Sample Size $n$}
+We extend the previous proof for a sample $\underline{x} = x_1, \dots, x_n$ and distribution $x_i|\mu \thicksim N(\mu, \sigma^2)$ where $\sigma$ is known.
+\\
+\\ \textbf{Step 1.} We calculate the likelihood:
+\[\begin{split}
+		P(\underline{x}|\mu) &= f(\underline{x}|\mu) = f(x_1|\mu)f(x_2|\mu) \dots f(x_n|\mu)\\
+		&= \prod_{i=1}^n \cfrac{1}{\sigma \sqrt{2 \pi}} exp\left\{ -\cfrac{(x_i - \mu)^2}{2\sigma^2}\right\} \\
+		&= \left( \cfrac{1}{\sigma \sqrt{2 \pi}} \right)^n \times  \prod_{i=1}^n  exp\left\{ -\cfrac{(x_i - \mu)^2}{2\sigma^2}\right\} \\
+		&= \left( \cfrac{1}{\sigma \sqrt{2 \pi}} \right)^n \times  exp\left\{ \sum_{i=1}^n -\cfrac{(x_i - \mu)^2}{2\sigma^2}\right\} \\
+		&= \cfrac{1}{\sigma^n (2 \pi)^{\sfrac{n}{2}}} \times  exp\left\{ \sum_{i=1}^n -\cfrac{(x_i - \mu)^2}{2\sigma^2}\right\} \\
+	\end{split}\]
+And then the prior probability which is distributed by $\mu \thicksim N(\mu_0, \sigma^2_0)$.
+\[P(\mu) = f(\mu) = \cfrac{1}{\sigma_0 \sqrt{2 \pi}} exp \left\{ -\cfrac{(\mu - \mu_0)^2}{2\sigma_0^2} \right\}\]
+\textbf{Step 2.} We can then calculate the posterior using \keyword{baye's theorem} .
+\[\begin{split}
+		P(\mu|\underline{x}) &= \cfrac{1}{\sigma_0 \sqrt{2 \pi}} exp \left\{ -\cfrac{(\mu - \mu_0)^2}{2\sigma_0^2} \right\} \times \cfrac{1}{\sigma^n (2 \pi)^{\sfrac{n}{2}}} \times  expr\left\{ \sum_{i=1}^n -\cfrac{(x_i - \mu)^2}{2\sigma^2}\right\} \\
+		&= \cfrac{1}{(2 \pi)^{(\sfrac{n+1}{2})} \sigma_0 \sigma^n } exp \left\{ \cfrac{-\mu^2 + 2 \mu\mu_0 - \mu_0^2}{2\sigma^2_0} - \sum_{i=1}^n \cfrac{x_i^2 - 2\mu x_i + \mu^2}{2 \sigma^2} \right\} \\
+		& \vdots \\
+		& \varpropto exp \left\{ - \cfrac{\left(\mu - \cfrac{\mu_0 \sigma^2 + \sum_{i=1}^n \sigma_0^2x_i}{\sigma^2 + n \sigma^2_0}\right)^2}{2 \cfrac{\sigma_0^2\sigma^2}{\sigma^2 + n\sigma^2_0}} \right\}
+	\end{split}\]
+Hence we have:
+\[\mu|\underline{x} \thicksim N(\mu_1, \sigma_1^2)\]
+\[\begin{matrix}
+		\sigma_1^2 = \cfrac{\sigma^2\sigma_0^2}{\sigma^2 + n \sigma_0^2} = \left( \cfrac{1}{\sigma_0^2} + \cfrac{n}{\sigma^2} \right)^{-1} & \text{  and  } & \mu_1 = \cfrac{\mu_0\sigma^2 + \sum_{i=1}^n\sigma^2_0x_i}{\sigma^2 + n\sigma_0^2} = \sigma_1^2\left( \cfrac{\mu_0}{\sigma_0^2} + \sum_{i=1}^n \cfrac{x_i}{\sigma^2} \right)
+	\end{matrix}\]
+\subsection{Normal Distribution - Sufficient Statistic}
+\begin{definitionbox}{Sufficient Statistic}
+	A statistic is \keyword{sufficient} for a given model (our chosen distribution) and its associated parameter if no other statistic can be calculated from a sample that provides additional information in computing the value/estimate of the unknown parameter.
+\end{definitionbox}
+
+For a \keyword{normal distribution} the sufficient statistic is the sample mean:
+\[T(\underline{x}) = \overline{x} = \cfrac{1}{n}\sum_{i=1}^n x_i\]
+Hence we will use the sample mean in calculating our posterior distribution.
+\\
+\\ \textbf{Step 1.} We can directly calculate the posterior distribution using the likelihood and prior.
+\[\begin{split}
+		P(\mu|\underline{x}) &= f(\mu|\underline{x}) = \cfrac{f(\mu)f(\underline{x}|\mu)}{\int_{-\infty}^\infty f(\mu)f(\underline{x}|\mu) \ d \mu} \\
+		\\
+		&\varpropto  \cfrac{f(\mu)f(T(\underline{x})|\mu)}{\int_{-\infty}^\infty f(\mu)f(\underline{x}|\mu) \ d \mu} \\
+		\\
+		&\varpropto f(\mu)f(T(\underline{x})| \mu) \\
+		\\
+		&= f(\mu)f(\overline{x}| \mu) \\
+		\\
+		&= \cfrac{1}{\sigma_0 \sqrt{2 \pi}} exp \left\{ -\cfrac{(\mu - \mu_0)^2}{2 \sigma^2_0} \right\} \times \cfrac{1}{\sqrt{2 \pi \cfrac{\sigma^2}{n}}} exp \left\{ -\cfrac{n(\overline{x} - \mu)^2}{2 \sigma^2} \right\} \\
+		& \vdots \\
+		&\varpropto exp \left\{ \cfrac{-\left( \mu - \cfrac{\mu_0\sfrac{\sigma^2}{n} + \overline{x}\sigma^2_0}{\sfrac{\sigma^2}{n} + \sigma^2_0} \right)^2}{2 \cfrac{\sigma^2_0\sfrac{\sigma^2}{n}}{\sfrac{\sigma^2}{n} + \sigma_0^2}} \right\}
+	\end{split}\]
+Hence we have the exponential part of the pdf for a normal distribution.
+\\
+\\ \textbf{Step 2.} We can now compute the posterior distribution.
+\[\mu|\underline{x} \thicksim N(\mu_1, \sigma_1^2)\]
+\[\begin{matrix}
+		\sigma_1^2 = \cfrac{\sigma_0^2\sfrac{\sigma^2}{n}}{\sfrac{\sigma^2}{n} + \sigma_0^2} = \left( \cfrac{1}{\sigma^2_0} + \cfrac{n}{\sigma^2} \right)^{-1} & \text{  and  } & \mu_1 = \cfrac{\mu_0 \sfrac{\sigma^2}{n} + \overline{x}\sigma_0^2}{\sfrac{\sigma^2}{n} + \sigma^2_0} = \sigma_1^2 \left( \cfrac{\mu_0}{\sigma_0^2} + \cfrac{\overline{x}n}{\sigma^2} \right)
+	\end{matrix}\]

@@ -1,0 +1,58 @@
+<mxfile host="65bd71144e">
+    <diagram id="a_r-6IHx3a1RcHBTBilK" name="Page-1">
+        <mxGraphModel dx="1141" dy="1477" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="1" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="$$\theta \thicksim Beta(&lt;br&gt;$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="70" y="100" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="$$\theta;$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="230" y="100" width="40" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontSize=30;endArrow=open;endFill=0;endSize=20;" edge="1" parent="1" source="4" target="12">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="$$)$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="340" y="100" width="30" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="$$a,$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="270" y="100" width="40" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="$$b$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="310" y="100" width="35" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="$$\theta \thicksim Beta(&lt;br&gt;$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="610" y="100" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="$$\theta;$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="770" y="100" width="40" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="$$)$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="1140" y="100" width="30" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="$$\overline{x}n+a,$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="810" y="100" width="130" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="$$n(1-\overline{x}) + b$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="940" y="100" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="$$\text{sample }\underline{x} = x_1, \dots, x_n \text{ where the mean is } \overline{x}$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="150" y="190" width="680" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" style="edgeStyle=none;html=1;fontSize=30;endArrow=open;endFill=0;endSize=20;" edge="1" parent="1" source="12">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="380" y="140" as="sourcePoint"/>
+                        <mxPoint x="590" y="130" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="17" value="$$\text{Prior}$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="190" y="50" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="$$\text{Posterior}$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="845" y="50" width="60" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
