@@ -1,0 +1,50 @@
+
+\documentclass{report}
+    \title{50008 - Probability and Statistics}
+    \author{Oliver Killane}
+    \date{17/01/23}
+
+\usepackage[a4paper, total={7in, 10in}]{geometry}
+\input{../common/common.tex}
+
+% As this is a port from the old tex, some commands have been added (very 
+% common and takes time to remove/amend)
+
+% Used to highlight keywords, here we use italics
+\newcommand{\keyword}[1]{\textit{#1}}
+
+% Creates an item in an itemize or enumerate, with a paragraph after
+% \begin{itemize}
+%     \bullpara{title}{contents}
+% \end{itemize}
+\newcommand{\bullpara}[2]{\item \textbf{#1} \ #2}
+
+% \centerimage{options}{image}
+\newcommand{\centerimage}[2]{\begin{center}
+    \includegraphics[#1]{#2}
+\end{center}}
+
+%For ease in writing stylized proofs with numbers
+\newcommand{\stepno}[1]{\textcolor{red}{\textbf{#1}}}
+
+\newenvironment{proof}
+{\begin{center}\begin{tabular}{r l l }}
+			{\end{tabular}\end{center}}
+
+%\proofstep{step}{workings}{description}
+\newcommand{\proofstep}[3]{\stepno{(#1)} & #2 & #3 \\}
+
+\begin{document}
+\include{titlepage/titlepage}
+
+\tableofcontents
+\newpage
+
+\addchapter{introduction}
+
+\addchapter{elementary_probability_theory}
+
+\addchapter{credit}
+
+\end{document}
+
