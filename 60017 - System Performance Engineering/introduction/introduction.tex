@@ -1,10 +1,36 @@
 \chapter{introduction}
 
 \section{Logistics}
-% Systems not algos
-% Hardware Efficiency
+\twosplit{
+	\begin{center}
+		\begin{tikzpicture}
+			\clip (0,0)  circle (2cm) ;
+			\node[anchor=center] at (0,-0.5) {\includegraphics[width=4.5cm]{introduction/images/holger_pirk.jpg}};
+		\end{tikzpicture}
+		\centerline{\textbf{Dr Holger Pirk}}
+	\end{center}
+	\textbf{First Half}
+	\begin{itemize}
+		\item Hardware efficiency in complex systems
+		\item Scaling up
+		\item \textit{"getting the most bang for buck"}
+	\end{itemize}
+}{
+	\begin{center}
+		\begin{tikzpicture}
+			\clip (0,0)  circle (2cm) ;
+			\node[anchor=center] at (-.1,0.0) {\includegraphics[width=4.5cm]{introduction/images/luis_vilanova.jpg}};
+		\end{tikzpicture}
+		\centerline{\textbf{Dr Luis Vilanova}}
+	\end{center}
+	\textbf{Second Half}
+	\begin{itemize}
+		\item Scale out Processing
+	\end{itemize}
+}
 
-
+\subsection{Extra Resources}
+\unfinished
 
 \section{What is System Performance Engineering}
 \begin{definitionbox}{System}
@@ -161,7 +187,6 @@ In order to get useful results from which
     \includegraphics[width=.6\textwidth]{introduction/images/optimisation_loop.drawio.pdf}
 \end{center}
 
-\subsection{Parameters}
 \begin{definitionbox}{Performance Parameters}
     System and workload characteristics that affect performance.
      \\
@@ -175,20 +200,69 @@ In order to get useful results from which
     \\ The term \textit{resource Parameters/Resources} refers to the parameters of the underlying platform (e.g CPU, memory).
 \end{definitionbox}
 
-\unfinished
 
-\subsection{Utilisation}
+\begin{tcbraster}[raster columns=2,raster equal height]
 \begin{definitionbox}{Utilisation}
+    The proportion of a resource used by a to perform a service by a system.
+    \begin{itemize}
+        \item A service has limited resources available (e.g CPU time, memory capacity, network bandwidth etc)
+        \item Total available resources/resource budget available to a service is a parameter
+    \end{itemize}
 \end{definitionbox}
 \begin{definitionbox}{Bottleneck}
+    The resource with the highest utilisation.
+    \begin{itemize}
+        \item The limiting factor in performance of a system
+        \item given some resource $x$ is the bottleneck, the system is $x$-bound (e.g CPU-bound). 
+        \item Not always a resource, and performance may be bottlenecked by some other factor (e.g latency-bound $\to$ the system is dominated by waiting for some operation)
+    \end{itemize}
+\end{definitionbox}
+\end{tcbraster}
+It is typically infeasible to identify all bottlenecks for an entire complex software system.
+
+To limit optimisation complexity efforts should be restricted to optimising code paths that have particularly large effect on performance.
+\begin{tcbraster}[raster columns=2,raster equal height]
+    \begin{definitionbox}{Critical Path}
+        The sequence of activities which contribute the larges overall duration.
+    \end{definitionbox}
+    \begin{definitionbox}{Hot Path}
+        A code path where most of the execution time is spent (e.g very commonly executed subroutine)
+    \end{definitionbox}
+\end{tcbraster}
+
+In order to optimise we require:
+\begin{itemize}
+    \item Ability to quickly compare alternative designs
+    \item Ability to select a near optimal value for platform parameters
+\end{itemize}
+While workload parameters are not typically controllable at this stage, some system parameters are.
+
+\begin{definitionbox}{Parameter Tuning}
+    Finding the vector within the parameter space that minimises resource usage, or maximises performance.
+    \begin{itemize}
+        \item Exploring the parameter space is expensive (even with non-linear optimisation)
+        \item Analytical models can be used to accelerate search.
+        \item Tuning needs to consider tradeoffs (e.g much of a cheap resource versus little of an expensive one)
+    \end{itemize}
 \end{definitionbox}
 
-\subsection{performance-Dominating Coe Paths}
+\begin{definitionbox}{Analytical Performance Model}
+    A model describing the relationship between system parameters and performance metrics.
+    \begin{itemize}
+        \item Having an accurate analytical model for the system is analogous to \textit{understanding} the performance of the system.
+        \item Models can be stateless (e.g an equation) or stateful (e.g using markov chains).
+        \item Need to model dynamic systems with (ideally small) static models.
+        \item Very fast (faster than search parameter space)
+        \item Allow for \textit{what-if analysis} of system and workload parameters.
+    \end{itemize}
+\end{definitionbox}
 
-
-\subsection{parameter Tuning}
-
-\subsection{Analytical Performance Models}
-
-\subsection{Simulation}
+\begin{definitionbox}{Simulation}
+    A single observed run of a stateful model
+    \begin{itemize}
+        \item Can see all interactions within the system in perfect detail
+        \item Extremely expensive to run (limiting number of simulations and the speed of the optimisation workflow)
+        \item Much more rarely used than other techniques described
+    \end{itemize}
+\end{definitionbox}
 
