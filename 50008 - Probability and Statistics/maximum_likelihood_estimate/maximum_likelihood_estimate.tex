@@ -1,0 +1,121 @@
+\chapter{Maximum Likelihood Estimate}
+
+Given some distribution with an unknown parameter $\theta$:
+\[X \thicksim Distribution(\dots \theta \dots)\]
+And a sample taken from the distribution $\underline{X}$:
+\[\underline{X} = (X_1, X_2, \dots, X_n)\]
+We want to know the value of $\theta$ for which the likelihood of the sample occurring is highest.
+\begin{definitionbox}{Likelihood Function}
+	The likelihood of some observations $x_1, x_2, \dots, X_n$ occurring given some $\theta$ are:
+	\[\begin{split}
+			L(\theta) &= P(x_1, x_2, \dots, x_n|\theta) \\
+			&= \prod_{i=1}^n f(x_i|\theta)
+		\end{split}\]
+	This is as $f$ is the \keyword{probability mass function}, and as each observation is independent we can multiply their probabilities.
+\end{definitionbox}
+\begin{definitionbox}{Log Likelihood Function}
+	Used more often than likelihood (easier to work with, and converts decimal small values to large negative values - avoids floating point errors)
+	\[l(\theta) = \ln L(\theta)\]
+\end{definitionbox}
+To do this, we construct the likelihood (or log likelihood) function from the distribution and sample in term of $\theta$.
+\\
+\\ Then we can differentiate the function to determine the value of $\theta$ for the maximum.
+\\
+\\ This value of $\theta$ is the \keyword{Maximum Likelihood Estimate} ($\hat{\theta}$).
+
+\section{Common Maximum Likelihood Estimates}
+Given a sample $\underline{x} = (x_1, x_2, \dots, x_n)$, we can use formulas for the maximum likelihood.
+
+\subsection{Exponential Distribution}
+\[X \thicksim Exp(\theta) \Rightarrow f(x) = \theta e^{-\theta x}\]
+First we determine the \keyword{likelihood} in terms of $\theta$.
+\[\begin{split}
+		L(\theta) &= \prod_{i=1}^n f(x_i) \\
+		&= \prod_{i=1}^n \theta e^{-\theta x_i} \\
+		&= \theta^n\prod_{i=1}^n e^{-\theta x_i} \\
+		&= \theta^n e^{-\theta\sum_{i=1}^n x_i} \\
+	\end{split}\]
+Next we can derive the \keyword{log likelihood}
+\[\begin{split}
+		l(\theta) &= \ln L(\theta) \\
+		&= \ln \left(\theta^n e^{-\theta \sum_{i=1}^nx_i} \right)\\
+		&= n\ln \theta -\theta\sum_{i=1}^n x_i \\
+	\end{split}\]
+Next we can differentiate and set equal to zero:
+\[\begin{split}
+		\cfrac{dl(\theta)}{d\theta} &= n\cfrac{1}{\theta} - \sum_{i=1}^nx_i = 0\\
+		0 &= \cfrac{n}{\theta} - \sum_{i=1}^nx_i \\
+		\sum_{i=1}^nx_i &= \cfrac{n}{\theta} \\
+		\theta &= \cfrac{n}{\sum_{i=1}^nx_i} \\
+	\end{split}\]
+Hence the maximum likelihood estimator is the reciprocal of the mean of the sample.
+\[\hat{\theta} = \sfrac{1}{\overline{x}}\]
+\subsection{Geometric Distribution}
+\[X \thicksim Geo(\theta) \Rightarrow f(x) =\theta(1-\theta)^{x - 1}\]
+\[\begin{split}
+		L(\theta) &= \prod_{i=1}^n f(x_i) \\
+		& \prod_{i=1}^n \theta(1-\theta)^{x_i - 1} \\
+		& \theta^n \prod_{i=1}^n (1-\theta)^{x_i - 1} \\
+		& \theta^n (1 - \theta)^{\sum_{i=1}^n(x_i - 1)} \\
+		& \theta^n (1 - \theta)^{\left(\sum_{i=1}^nx_i\right) - n} \\
+	\end{split}\]
+Now we find the \keyword{log likelihood}.
+\[\begin{split}
+		l(\theta) &= \ln L(\theta) \\
+		&= \ln \left( \theta^n (1 - \theta)^{\left(\sum_{i=1}^nx_i\right) - n} \right) \\
+		&= n\ln\theta +\left(\left(\sum_{i=1}^nx_i\right) - n\right)\ln\left(1 - \theta\right) \\
+	\end{split}\]
+Now we differentiate, and set equal to zero to find $\hat{\theta}$.
+\[\begin{split}
+		\cfrac{dl(\theta)}{d\theta} &= \cfrac{n}{\theta} + \left(\left(\sum_{i=1}^nx_i\right) - n\right)\cfrac{1}{\theta - 1} = 0 \\
+		0 &=\cfrac{n(\theta - 1)}{\theta(\theta - 1)} + \left(\left(\sum_{i=1}^nx_i\right) - n\right)\cfrac{\theta}{\theta(\theta - 1)} \\
+		0 &=n(\theta - 1)+ \left(\left(\sum_{i=1}^nx_i\right) - n\right)\theta \\
+		0 &=n\theta - n + \left(\left(\sum_{i=1}^nx_i\right) - n\right)\theta \\
+		n &=\left(\sum_{i=1}^nx_i\right)\theta \\
+		\cfrac{n}{\sum_{i=1}^nx_i} &=\theta \\
+	\end{split}\]
+Hence the maximum likelihood estimator is the reciprocal of the mean of the sample.
+\[\hat{\theta} = \sfrac{1}{\overline{x}}\]
+\subsection{Binomial Distribution}
+\[X \thicksim Binomial(m, \theta) \Rightarrow f(x) =\begin{pmatrix}
+		m \\ x
+	\end{pmatrix}\theta^x(1 - \theta)^{m-x}\]
+\[\begin{split}
+		L(\theta) &= \prod_{i=1}^n f(x_i) \\
+		&= \prod_{i=1}^n \begin{pmatrix}
+			m \\ x_i
+		\end{pmatrix}\theta^{x_i}(1 - \theta)^{m-x_i} \\
+		&= \prod_{i=1}^n \begin{pmatrix}
+			m \\ x_i
+		\end{pmatrix} \times \prod_{i=1}^n\theta^{x_i} \times \prod_{i=1}^n(1 - \theta)^{m-x_i} \\
+		&= \prod_{i=1}^n \begin{pmatrix}
+			m \\ x_i
+		\end{pmatrix} \times \theta^{\sum_{i=1}^nx_i} \times (1 - \theta)^{\sum_{i=1}^n m - x_i} \\
+		&= \prod_{i=1}^n \begin{pmatrix}
+			m \\ x_i
+		\end{pmatrix} \times \theta^{\sum_{i=1}^nx_i} \times (1 - \theta)^{mn - \sum_{i=1}^n x_i} \\
+	\end{split}\]
+Now we find the \keyword{log likelihood}.
+\[\begin{split}
+		l(\theta) &= \ln L(\theta) \\
+		&= \ln \left( \prod_{i=1}^n \begin{pmatrix}
+			m \\ x_i
+		\end{pmatrix} \times \theta^{\sum_{i=1}^nx_i} \times (1 - \theta)^{mn - \sum_{i=1}^n x_i} \right) \\
+		&= \ln \prod_{i=1}^n \begin{pmatrix}
+			m \\ x_i
+		\end{pmatrix} + \ln \theta^{\sum_{i=1}^nx_i} + \ln (1 - \theta)^{mn - \sum_{i=1}^n x_i} \\
+		&= \ln \prod_{i=1}^n \begin{pmatrix}
+			m \\ x_i
+		\end{pmatrix} + \sum_{i=1}^nx_i\ln \theta + \left( mn - \sum_{i=1}^n x_i \right)\ln (1 - \theta) \\
+	\end{split}\]
+Now we differentiate, and set equal to zero to find $\hat{\theta}$.
+\[\begin{split}
+		\cfrac{dl(\theta)}{d\theta} &= 0 + \sum_{i=1}^nx_i\cfrac{1}{\theta} + \left( mn - \sum_{i=1}^n x_i \right)\cfrac{1}{\theta - 1}= 0 \\
+		0 & = \sum_{i=1}^nx_i\cfrac{\theta - 1}{\theta(\theta - 1)} + \left( mn - \sum_{i=1}^n x_i \right)\cfrac{\theta}{\theta(\theta - 1)} \\
+		0 & = \sum_{i=1}^nx_i (\theta - 1) + \left( mn - \sum_{i=1}^n x_i \right)\theta \\
+		0 & = \theta\sum_{i=1}^nx_i - \sum_{i=1}^nx_i + mn\theta - \theta\sum_{i=1}^n x_i  \\
+		0 & = - \sum_{i=1}^nx_i + mn\theta  \\
+		\cfrac{\sum_{i=1}^nx_i}{mn} & =\theta  \\
+	\end{split}\]
+Hence the maximum likelihood estimator is the sample mean divided by the number of trials (for binomial):
+\[\hat{\theta} = \cfrac{\overline{x}}{m}\]
