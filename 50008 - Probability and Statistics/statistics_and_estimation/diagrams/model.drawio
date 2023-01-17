@@ -1,0 +1,64 @@
+<mxfile host="65bd71144e">
+    <diagram id="kgYHwlR-ZTjTTA-wWZJg" name="Page-1">
+        <mxGraphModel dx="1793" dy="1258" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="&amp;nbsp; Parametric Model" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;align=left;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="-80" y="140" width="820" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="Predicts" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontSize=22;endArrow=open;endFill=0;endSize=20;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="4" target="8">
+                    <mxGeometry x="0.3846" relative="1" as="geometry">
+                        <mxPoint x="160" y="240" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="4" value="(θ&lt;sub&gt;1&lt;/sub&gt;, θ&lt;sub&gt;2&lt;/sub&gt;, ..., θ&lt;sub&gt;k&lt;/sub&gt;) =&amp;nbsp;θ" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fillColor=#e51400;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="110" y="50" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="(θ&lt;sub&gt;1&lt;/sub&gt;, θ&lt;sub&gt;2&lt;/sub&gt;, ..., θ&lt;sub&gt;k&lt;/sub&gt;) =&amp;nbsp;θ" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fillColor=#60a917;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="330" y="50" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="Predicts" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;fontSize=22;endArrow=open;endFill=0;endSize=20;" edge="1" parent="1" source="6" target="9">
+                    <mxGeometry x="0.3846" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="6" value="(θ&lt;sub&gt;1&lt;/sub&gt;, θ&lt;sub&gt;2&lt;/sub&gt;, ..., θ&lt;sub&gt;k&lt;/sub&gt;) =&amp;nbsp;θ" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="550" y="50" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="Predicted Population" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fillColor=#e51400;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="110" y="260" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="Population&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;arcSize=6;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#000000;align=right;" vertex="1" parent="1">
+                    <mxGeometry x="320" y="260" width="440" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="Estimate" style="edgeStyle=none;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;fontSize=22;endArrow=open;endFill=0;endSize=20;" edge="1" parent="1" source="10" target="5">
+                    <mxGeometry x="0.0526" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="10" value="Sample&lt;br&gt;&lt;u&gt;x&lt;/u&gt; = x&lt;sub&gt;1&lt;/sub&gt;, x&lt;sub&gt;2&lt;/sub&gt;, ... , x&lt;sub&gt;n&lt;/sub&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;arcSize=21;fillColor=#60a917;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="330" y="320" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="Predicts" style="edgeStyle=none;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;fontSize=22;endArrow=open;endFill=0;endSize=20;" edge="1" parent="1" source="5" target="10">
+                    <mxGeometry x="-0.0476" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="14" value="Possible Parameters" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry y="65" width="80" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontSize=22;endArrow=open;endFill=0;endSize=20;" edge="1" parent="1" source="16" target="10">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="Random Variables&lt;br&gt;&lt;u&gt;X&lt;/u&gt; = X&lt;sub&gt;1&lt;/sub&gt;, X&lt;sub&gt;2&lt;/sub&gt;, ... , X&lt;sub&gt;n&lt;/sub&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;arcSize=21;fillColor=#008a00;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="160" y="470" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="We consider the sample values as being realisations of some random variables" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="440" y="470" width="310" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

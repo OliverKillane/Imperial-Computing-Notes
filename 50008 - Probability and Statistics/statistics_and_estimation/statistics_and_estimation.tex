@@ -1,0 +1,177 @@
+\chapter{Statistics and Estimation}
+
+\section{Statistics Terms}
+\begin{definitionbox}{Probability}
+	\centerimage{width=0.6\textwidth}{statistics_and_estimation/images/probability.drawio.png}
+	Deducing likelihood, and predicting events based on a known probability distribution.
+\end{definitionbox}
+\begin{definitionbox}{Statistics}
+	\centerimage{width=0.6\textwidth}{statistics_and_estimation/images/statistics.drawio.png}
+	Using empirical data/observations from an experiment to determine a probability distribution (and estimate its parameters) that models the observed distribution of results.
+\end{definitionbox}
+\begin{definitionbox}{Sample}
+	\centerimage{width=0.6\textwidth}{statistics_and_estimation/images/sample.drawio.png}
+	A subset of the population, from which we can use \keyword{statistical methods} to make inferences about the characteristics of an entire population.
+	\begin{itemize}
+		\item In vaccine trials, we can take a random sample as participants, and use there results to infer the possible efficacy of the vaccine over an entire population.
+		\item In manufacturing we may want to test durability, but doing so may destroy the product. Hence we can take a small representative sample, and tests these to gain knowledge about the durability of all products from a given production line, without having to test all to destruction.
+		\item In politics, we can use the political persuasions of a sample to reason about an entire population (such as electorate, or a given group) (polling).
+	\end{itemize}
+\end{definitionbox}
+\begin{definitionbox}{Statistical Models}
+	Models are a structure (e.g distribution) often developed from a sample that can be used to make inferences about a population.
+	\begin{itemize}
+		\item Models are usually \keyword{parametric}, meaning the models can be described entirely by its parameters.
+		\item Models have a finite set of parameters.
+	\end{itemize}
+	\centerimage{width=0.8\textwidth}{statistics_and_estimation/images/model.drawio.png}
+	\begin{itemize}
+		\item We can use distributions such as \keyword{Normal}, \keyword{Poisson}, \keyword{Bernoulli} etc. as parametric models.
+		\item If the population is such that the probability of each outcome is $P_{X|\theta}(.|\theta)$ (probability of each is only dependent on parameters) we can assume the random variables $\underline{X}$ are independent and identically distributed.
+		\item $X_1, X_2, \dots, X_n \thicksim Model(\theta_1, \theta_2, \dots, \theta_k)$ given all are identically \& independently distributed.
+	\end{itemize}
+\end{definitionbox}
+\section{Central Limit Theorem for Statistics}
+\begin{definitionbox}{Central Limit Theorem}
+	Given some distribution random variable $X$ belonging to some distribution. The mean value of a sample of size $n$ from $X$ is:
+	\[Y \thicksim N(\mu, \cfrac{\sigma^2}{n})\]
+	Where $\mu$ is the expected/mean value of $X$ and $\sigma^2$ is its variance.
+	\\
+	\\ As the sample size increases, the variance in mean between different samples reduces.
+	\\
+	\\ At an infinite sample size, we can use the \keyword{standard normal distribution}:
+	\[\lim_{n \to \infty} \left( \cfrac{Y - \mu}{\cfrac{\sigma}{\sqrt{n}}} \right) \thicksim N(0,1)\]
+\end{definitionbox}
+\begin{examplebox}{Ages of a class}
+	Given a class of $20$ students, we can calculate the mean and variance:
+	\[\overline{x} = \cfrac{1}{20} \sum_{i = 1}^{20}x_i \ \text{ and } \ \overline{\sigma}^2 = \cfrac{1}{20} \sum_{i = 1}^{20} (x_i - \overline{x})^2\]
+	There is some unknown distribution of students ages in a class.
+	\\
+	\\ If sampling is done with replacement (not students removed from the population after being questioned) we can use the central limit theorem to model the mean and variance of this distribution's mean (the mean age of the class) without needing to know the distribution itself.
+	\[\overline{x} \ \text{is distributed according to } \ N(\mu, \cfrac{\sigma^2}{20})\]
+	Meaning  the mean age of any group of $20$ students will be distributed normally with parameters:
+	\begin{itemize}
+		\item $\mu$ (The average age of all students/ avergae of all possible groups of 20)
+		\item $\sigma^2$ (The variance of means, how different two groups of $20$ stuident's means may be expected to be).
+    \end{itemize}
+	As we increase sample size, the variance decreases (larger groups of student $\Rightarrow$ means closer together).
+	\\
+	\\ We will use this later in tests, e.g to see if a given mean that occurs is so unlikely it is likely our distribution is wrong, or our sampling biased in some way.
+\end{examplebox}
+\section{Estimators}
+\begin{definitionbox}{Statistic}
+	A \keyword{statistic} is a function operating on the random variables of a sample:
+	\[T = T(X_1, X_2, \dots, X_n) = T(\underline{X})\]
+	As it is a function of random variables, it is itself a random variable. Hence if distribution $X$'s parameters are known, we can use it:
+	\begin{itemize}
+		\item if $T$ is the sum of ages of a class of $10$, and we know the mean age, variance we can calculate porbabilities for $T$.
+		\item $T$ may be many useful statistics, e.g the lower quartile of a cohort of $100$'s GCSE results, or the range of distances flown by birds in a flock.
+	\end{itemize}
+	When given some sample $\underline{x} = (x_1, x_2, \dots, x_n)$ we have:
+	\[t = t(\underline{x}) = t(x_1, x_2, \dots, x_n)\]
+\end{definitionbox}
+\begin{definitionbox}{Estimator}
+	A statistic used to approximate the parameter of the distribution of its arguments.
+	\begin{itemize}
+		\item Given a sample $\underline{x}$ the value of the estimator $t = t(\underline{x})$ is called an estimate.
+		\item If we can approximately identify the sampling distribution of the statistic ($P_{T | \theta}$) we can find the expectation, variance (and more) related to our statistic.
+	\end{itemize}
+	If the sample size $n$ is large, \keyword{central limit theorem} can be used to approximate the distribution $P_{T|\theta}$
+	\[T = \overline{X} = \cfrac{\sum_{i=1}^{n}X_i}{n}\]
+	And hence we know approximately that:
+	\[\overline{X} \thicksim N(\mu_X, \cfrac{\sigma_X^2}{n})\]
+\end{definitionbox}
+
+For a given unknown distribution we could use several estimators to approximate its parameter.
+\subsubsection*{Using the first/any $X_i$ as the estimator}
+\[T[X_1, X_2, \dots , X_n] = X_1 \thicksim P_{X | \theta}\]
+Likewise if we use the median with $T$:
+\[T_{median} [X_1, X_2, \dots, X_n] = X_{\left| \cfrac{n+1}{2} \right|} \thicksim P_{X | \theta} \]
+However this does not work as we do not know the parameters of the distribution $X$.
+\subsubsection*{Using the mean as an estimator}
+\[T_{\overline{X}}[X_1, X_2, \dots , X_n] = \cfrac{\sum_{i = 1}^nX_i}{n} \thicksim N(\mu, \cfrac{\sigma^2}{n})\]
+This is a good estimator for the mean of many distributions, while we do not know $\mu$ or $\sigma$, we do know the type of distribution.
+
+\begin{definitionbox}{Estimator Bias}
+We define the bias of an estimator $T$ as estimating the parameter $\theta$ is:
+\[bias(T) = E[T | \theta] - \theta\]
+If bias is $0$ we call it an unbiased estimator.
+\\
+\\ \textbf{For the mean:}
+\[E(\overline{X}) = E \left( \cfrac{\sum_{i=1}^nX_i}{n} \right) = \cfrac{\sum_{i=1}^nE[X_i]}{n} = \cfrac{n \times \mu}{n} = \mu\]
+For any distribution the sample mean $\overline{x}$ is an unbiased estimate for the population mean $\mu$.
+\\
+\\ \textbf{For the variance:}
+If we know the population mean $\mu$ we can also use the unbiased estimator:
+\[S_\mu^2 = \cfrac{1}{n}\sum_{i=1}^n(X_i - \mu)^2\]
+The sample variance is a biased estimator and is defined as:
+\[S^2 = \cfrac{1}{n}\sum_{i=1}^n(X_i - \overline{X})^2\]
+We have too few degrees of freedom, that is based on the mean and $x_{1 \to n-1}$ we can determine $x_n$, hence we apply \keyword{bessel's correction} (wikipedia article on source of bias \href{https://en.wikipedia.org/wiki/Bessel\%27s_correction}{here}) to account for what is effectively a missing variance.
+\\
+\\ After applying bessel's correction, we get the unbiased estimator of \keyword{bias-corrected sample variance}:
+\[S_{n-1}^2 = \cfrac{1}{n - 1}\sum_{i=1}^n(X_i - \overline{X})^2\]
+\end{definitionbox}
+
+\subsection{Bessel's Correction Proof}
+First we attempt to prove that $S_\mu^2$ is an unbiased estimator for variance.
+\\
+\\ \textbf{1.} We first define $S_\mu^2$.
+\[S_\mu^2 = \cfrac{1}{n}\sum_{i=1}^n(X_i - \mu)^2\]
+\textbf{2. } We get the expected value of the estimator, to be an unbiased estimator of variance, this should be equal to the variance.
+\[\begin{split}
+		E[S_\mu^2] &= E\left[ \cfrac{1}{n} \sum_{i = 1}^n \left( X_i - \mu \right)^2 \right] \\
+		&= \cfrac{1}{n}\sum_{i = 1}^n E\left[X_i^2 - 2X_i\mu + \mu^2 \right] \\
+		&= \cfrac{1}{n}\sum_{i = 1}^n \left( E[X_i^2] - 2E[X_i]\mu + \mu^2 \right) \\
+	\end{split}\]
+\textbf{3. } We can substitute $\mu$ for $E[X_i]$:
+\[\begin{split}
+		E[S_\mu^2] &= \cfrac{1}{n}\sum_{i = 1}^n \left( E[X_i^2] - 2E[X_i]E[X_i] + (E[x_i])^2 \right) \\
+		&= \cfrac{1}{n}\sum_{i = 1}^n \left( E[X_i^2] - (E[x_i])^2 \right) \\
+		&= \cfrac{1}{n}\sum_{i = 1}^n Var[X_i] \\
+	\end{split} \]
+\textbf{4. } As all $X_i$ are identically distributed, $Var[X_i] = Var[X] = \sigma^2$.
+\[\begin{split}
+		E[S_\mu^2] &= \cfrac{1}{n}\sum_{i = 1}^n \sigma^2 \\
+		&= \cfrac{n \times \sigma^2}{n} \\
+		&= \sigma^2 \\
+	\end{split}\]
+Hence we can see that $S^2_\mu$ is an unbiased estimator of $\sigma^2$.
+\\
+\\ Next we prove the correction:
+\\ \textbf{1. } We get the expected of:
+\[E\left[ \sum_{i = 1}^n ( X_i - \overline{x} )^2 \right]\]
+\textbf{2. } We can add and subtract $\mu$ (keeping the same value)
+\[E\left[ \sum_{i = 1}^n ( X_i - \overline{x} )^2 \right] = E\left[ \sum_{i = 1}^n ( (X_i - \mu) - (\overline{x} - \mu) )^2 \right]\]
+\textbf{3. } Now we can split the expected up (all distributions are independent (the normal for $\overline{x}$ and we assume independence for $X_i$)).
+\[E\left[ \sum_{i = 1}^n ( X_i - \overline{x} )^2 \right] = E\left[ \left( \sum_{i = 1}^n (X_i - \mu)^2 \right) - 2(\overline{x} - \mu)\left( \sum_{i = 1}^n (X_i - \mu) \right) + \left( \sum_{i = 1}^n(\overline{x} - \mu)^2 \right) \right]\]
+\textbf{4. } We can substitute using $\sum_{i = 1}^n (X_i - \mu) = n \times (\overline{x} - \mu)$.
+\[\begin{split}
+		E\left[ \sum_{i = 1}^n ( X_i - \overline{x} )^2 \right] &= E\left[ \left( \sum_{i = 1}^n (X_i - \mu)^2 \right) - 2(\overline{x} - \mu) \times n \times (\overline{x} - \mu) + \left( \sum_{i = 1}^n(\overline{x} - \mu)^2 \right) \right] \\
+		&= E\left[ \left( \sum_{i = 1}^n (X_i - \mu)^2 \right) - 2n(\overline{x} - \mu)^2 + \left( \sum_{i = 1}^n(\overline{x} - \mu)^2 \right) \right] \\
+		&= E\left[ \left( \sum_{i = 1}^n (X_i - \mu)^2 \right) - 2n(\overline{x} - \mu)^2 + n(\overline{x} - \mu)^2 \right] \\
+		&= E\left[ \left( \sum_{i = 1}^n (X_i - \mu)^2 \right) - n(\overline{x} - \mu)^2 \right] \\
+	\end{split}\]
+\textbf{5. } We can split the expected (independent distributions) substitute in the variance $X$.
+\[\begin{split}
+		E\left[ \sum_{i = 1}^n ( X_i - \overline{x} )^2 \right] &= E\left[ \left( \sum_{i = 1}^n (X_i - \mu)^2 \right) - n(\overline{x} - \mu)^2 \right] \\
+		&= E \left[ \sum_{i = 1}^n (X_i - \mu)^2 \right] - n \times E\left[ \left( \overline{x} - \mu \right)^2 \right]\\
+		&= \sum_{i = 1}^n E\left[ (X_i - \mu)^2 \right] - n \times E\left[ \left( \overline{x} - \mu \right)^2 \right]\\
+	\end{split}\]
+\textbf{5. } As $\overline{x}$ is distributed by a normal distribution $N(\mu, \cfrac{\sigma^2}{n})$, the expected of it shifted by $\mu$ and squared is the variance.
+\[\begin{split}
+		E\left[ \sum_{i = 1}^n ( X_i - \overline{x} )^2 \right] &= \sum_{i = 1}^n E\left[ (X_i - \mu)^2 \right] - n \times \cfrac{\sigma^2}{n}\\
+		&= \sum_{i = 1}^n E\left[ (X_i - \mu)^2 \right] - \sigma^2\\
+	\end{split}\]
+\textbf{6. } We can then use the variance of the distribution of $X$:
+\[\begin{split}
+		E\left[ \sum_{i = 1}^n ( X_i - \overline{x} )^2 \right] &= \sum_{i = 1}^n E\left[ (X_i - \mu)^2 \right] - \sigma^2\\
+		&= n \sigma^2 - \sigma^2\\
+		&= (n - 1) \sigma^2\\
+	\end{split}\]
+\textbf{7. } Hence to get an unbiased estimator, we need to divide this by $(n-1)$ (apply correction).
+\[\begin{split}
+		E\left[ \sum_{i = 1}^n ( X_i - \overline{x} )^2 \right] &= (n - 1) \sigma^2\\
+		\cfrac{1}{n-1} E\left[ \sum_{i = 1}^n ( X_i - \overline{x} )^2 \right] &= \sigma^2 \\
+		E\left[\cfrac{1}{n-1} \sum_{i = 1}^n ( X_i - \overline{x} )^2 \right] &= \sigma^2 \\
+	\end{split}\]
+Hence $\cfrac{1}{n-1} \sum_{i = 1}^n ( X_i - \overline{x} )^2 $ is an unbiased estimator of $\sigma^2$.
