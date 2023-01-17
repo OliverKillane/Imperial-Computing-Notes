@@ -221,3 +221,168 @@ To get an estimate for the variance we can use the \keyword{Bias-Corrected Poole
 	\[\nu = \cfrac{\left(\left(\cfrac{S^2_{n_1, \ X}}{n_1}\right)+ \left(\cfrac{S^2_{n_1, \ X}}{n_1}\right) \right)^2}{\left(\cfrac{1}{n_1 - 1}\right)\left(\cfrac{S^2_{n_1, \ X}}{n_1}\right)^2 + \left(\cfrac{1}{n_2 - 1}\right)\left(\cfrac{S^2_{n_2, \ Y}}{n_2}\right)^2}\]
 	The we proceed as normal, checking the test statistic is within the rejection regions.
 \end{sidenotebox}
+
+\section{Chi Squared Testing}
+
+\subsection{Goodness of Fit}
+\begin{definitionbox}{Binning}
+	Given a distribution, we can partition it into several disjoint \keyword{bins}. Essentially we are creating a pesudo-\keyword{PMF} (potentially with ranges instead of just discrete values) describing how many datapoints/the frequency we would expect to find from a distribution.
+	\\
+	\\ As a result, we can directly compare the expected values $E_i$ (from a distribution we are checking a sample against), with the observations $O_i$ from a sample.
+	\centerimage{width=0.75\textwidth}{hypothesis_testing/images/binning.drawio.png}
+\end{definitionbox}
+\begin{definitionbox}{Goodness of Fit/Chi-Square Statistic }
+	Denotes the difference between some expected values, and some observed.
+	\\
+	\\ For $n$ bins we have:
+	\[X^2 = \sum_{i=1}^n\cfrac{(O_i-E_i)^2}{E_i}\]
+\end{definitionbox}
+\subsection{Chi-Squared Test for Model Checking}
+
+Used to determine if an observed sample matches a given distribution to some significance.
+\begin{enumerate}
+	\item Determine expected distribution (can use parameters estimated from the sample).
+	\item Create a hypotheses based some parameters $\theta$: {
+	      \[H_0 \ : \ \theta = \theta_0 \ \text{  versus  } \ H_1 \ : \ \theta \neq \theta_0\]
+	      }
+	\item Bin the expected distribution (for comparison with the observed).
+	\item Calculate the \keyword{Goodness of Fit/Chi-Square Test Statistic} $X^2$.
+	\item Calculate the degrees of freedom as: {
+	      \[\nu = (\text{number of possible values $X$ can take}) - (\text{number of parameters being estimated}) - 1\]}
+	\item Determine the critical value using the \keyword{Chi Squared Distribution} $\chi^2_\nu$ and the significance $\alpha$ (typically using a table).
+	\item If $X^2 > \chi^2_{\nu, \ 1 - \alpha}$ (test statistic larger than critical value)
+\end{enumerate}
+Note that:
+\begin{itemize}
+	\item All expected values must be larger than $5$ for a good test. Hence some bins may have to be merged.
+	\item The number of values $X$ can take is typically the number of bins.
+\end{itemize}
+
+\centerimage{width=0.6\textwidth}{hypothesis_testing/images/chi_squared.drawio.png}
+
+\begin{examplebox}{Adverse Drug Effects}
+A study in the journal of the American Medical Association gives the causes of a sample of $95$ adverse drug effects as:
+\begin{center}
+	\begin{tabular}{l l}
+		\textbf{Reason}   & \textbf{No. Adverse Effects} \\
+		\hline
+		Lack of Knowledge & $29$                         \\
+		Rule Violation    & $17$                         \\
+		Faulty Dose Check & $13$                         \\
+		Slips             & $9$                          \\
+		Other Cause       & $27$                         \\
+	\end{tabular}
+\end{center}
+Test if the true percentages of causes of adverse effects are different at the $5\%$ significance.
+\\
+\\ As we are checking the percentages are the same, we effectively have a discrete uniform distribution:
+\[X \thicksim U(1,5)\]
+Hence we can calculate our \keyword{null and alternative hypotheses}:
+\[H_0 \ : \ X \thicksim U(1,5) \ \text{  versus  } \ H_1 \ : \ X \not\thicksim U(1,5)\]
+Now we can bin the distribution, (no merging is required as all expected values are larger than $5$):
+\centerimage{width=0.6\textwidth}{hypothesis_testing/images/ade_example.drawio.png}
+It is now possible to compute goodness of fit.
+\[\begin{split}
+		X^2 &= \sum_{i=1}^n\cfrac{(O_i-E_i)^2}{E_i} \\
+		&= \cfrac{(29 - 19)^2}{19} + \cfrac{(17 - 19)^2}{19} + \cfrac{(13 - 19)^2}{19} + \cfrac{(9 - 19)^2}{19} + \cfrac{(27 - 19)^2}{19} \\
+		&= 16 \\
+	\end{split}\]
+We have $\nu = 4$ as there are $5$ possible values, and no parameters were estimated from the data.
+\\
+\\ Hence we get the critical value from the chi-squared table: $\chi^2_{4, \ 0.95} = 9.49$
+\\
+\\ As $16 > 9.49$ there is sufficient evidence at the $5\%$ significance level to reject $H_0$, the percentages differ.
+\end{examplebox}
+\begin{examplebox}{Football Games}
+Given the total number of goals for $2608$ football matches, determine if the number of goals scored in a match can be modelled by $X \thicksim Poisson(3.870)$ at the $5\%$ significance.
+\begin{center}
+	\begin{tabular}{l | c c c c c c c c c c c c}
+		Goals Scored ($x$) & 0  & 1   & 2   & 3   & 4   & 5   & 6   & 7   & 8   & 9  & $\geq 10$      \\
+		\hline
+		Matches ($n_x$)    & 57 & 203 & 383 & 525 & 532 & 408 & 273 & 139 & 139 & 45 & 27        & 16 \\
+	\end{tabular}
+\end{center}
+Hence as we already have a distribution, we can create our hypotheses:
+\[H_0 \ : \ X \thicksim Poisson(3.870) \ \text{  versus  } \ H_1 \ : \ X \not\thicksim Poisson(3.87)\]
+We can then use the poisson distribution to calculate the expected for $2608$ football matches, for the final ($\geq 10$) we use the cumulative to get the remaining probability.
+\begin{center}
+	\begin{tabular}{l | c c c c c c c c c c c c}
+		Goals                  & 0     & 1     & 2     & 3     & 4     & 5     & 6     & 7     & 8     & 9     & $\geq 10$ \\
+		\hline
+		$O$                    & 57    & 203   & 383   & 525   & 532   & 408   & 273   & 139   & 45    & 27    & 16        \\
+		$E$                    & 54.4  & 210.5 & 407.4 & 525.5 & 508.4 & 393.5 & 253.8 & 140.3 & 67.9  & 29.2  & 17.1      \\
+		$\cfrac{(O - E)^2}{E}$ & 0.124 & 0.267 & 1.461 & 0.000 & 1.096 & 0.534 & 1.452 & 0.012 & 7.723 & 0.166 & 0.071     \\
+	\end{tabular}
+\end{center}
+Hence we get our test statistic as: $X^2 = 12.906$.
+\\
+\\ As we did not estimate any parameters from the sample, the degrees of freedom are $\nu = 11 - 1 = 10$.
+\\
+\\ The critical value is: $\chi^2_{10, \ 0.95} = 16.91$.
+\\
+\\ Hence as $12.906 < 16.91$ we there is insufficient evidence as the $5\%$ significance to reject $H_0$, the goals can be modelled as $Poisson(3.87)$.
+\end{examplebox}
+\subsection{Chi-Squared Test for Independence}
+\begin{definitionbox}{Contingency Table}
+	A table denoting the frequency of each combination of values for $X$ and $Y$.
+	\begin{center}
+		\begin{tabular}{l c | c c c c | c}
+			                              &          & \multicolumn{4}{c|}{Possible values of $y$} & Marginal                                                          \\
+			                              &          & $y_1$                                       & $y_2$            & $\dots$  & $y_l$            &                  \\
+			\hline
+			\multirow{4}{*}{Possible $x$} & $x_1$    & $n_{1,1}$                                   & $n_{1,2}$        & $\dots$  & $n_{1,l}$        & $n_{1, \bullet}$ \\
+			                              & $x_2$    & $n_{2,1}$                                   & $n_{2,2}$        & $\dots$  & $n_{2,l}$        & $n_{2, \bullet}$ \\
+			                              & $\vdots$ & $\vdots$                                    & $\vdots$         & $\ddots$ & $\vdots$         & $\vdots$         \\
+			                              & $x_k$    & $n_{k,1}$                                   & $n_{k,2}$        & $\dots$  & $n_{k,l}$        & $n_{k, \bullet}$ \\
+			\hline
+			Marginal                      &          & $n_{\bullet, 1}$                            & $n_{\bullet, 2}$ & $\dots$  & $n_{\bullet, l}$ & $n$              \\
+		\end{tabular}
+	\end{center}
+	We can use the marginal values to determine the expected value, if the two distributions were independent.
+\end{definitionbox}
+Given a dataset of points $(x,y)_1, (x,y)_2, \dots, (x,y)_n$, we can consider it the joint distribution $P_{XY}$ of the distributions $P_X$ and $P_Y$.
+\\
+\\ To test if the distributions $P_X$ and $P_Y$ are independent from the sample (without knowing the actual distributions themselves) we can use a \keyword{contingency table}.
+\\
+\\ For the contingency table entry coordinates $0 < i \leq l$, $0 < j \leq k$:
+\[O_{i,j} = n_{i,j} \ \text{ and } E_{i,j} = \cfrac{n_{i, \bullet} \times n_{\bullet, j}}{n}\]
+Hence we can now compute the $X^2$ (\keyword{Chi Squared test statistic}) using these observed and expected values.
+\\
+\\ We compute the degrees of freedom as $\nu = (rows - 1) \times (columns - 1)$ (each row and column alone has degrees of freedom $n-1$ as they must sum to the row/column total), and can then do the \keyword{Chi-Squared Test} normally.
+\begin{examplebox}{Fitness and Stress}
+\begin{center}
+	\begin{tabular}{l | c c c | c}
+		          & Poor Fitness & Average Fitness & Good Fitness &     \\
+		\hline
+		Stress    & 206          & 184             & 85           & 475 \\
+		No Stress & 36           & 28              & 10           & 74  \\
+		\hline
+		          & 242          & 212             & 95           & 549 \\
+	\end{tabular}
+\end{center}
+Determine at the $5\%$ significance if there is a link between fitness and stress.
+\\
+\\ For this test the null hypothesis will be that fitness and stress are independent.
+\[H_0 \ : \ \text{Stress and fitness are independent} \ \text{  versus  } \ H_1 \ : \ \text{Stress and Fitness re not independent}\]
+Next we can calculate the expected values:
+\begin{center}
+	\begin{tabular}{l | c c c c c c | c}
+		          & \multicolumn{2}{c}{Poor Fitness} & \multicolumn{2}{c}{Average Fitness} & \multicolumn{2}{c}{Good Fitness} &                                                                             \\
+		          & $O$                              & $E$                                 & $O$                              & $E$                    & $O$                  & $E$                   &     \\
+		\hline
+		Stress    & \textcolor{blue}{206}            & \textcolor{red}{209.4}              & \textcolor{blue}{184}            & \textcolor{red}{183.4} & \textcolor{blue}{85} & \textcolor{red}{82.2} & 475 \\
+		No Stress & \textcolor{blue}{36}             & \textcolor{red}{32.6}               & \textcolor{blue}{28}             & \textcolor{red}{28.6}  & \textcolor{blue}{10} & \textcolor{red}{12.8} & 74  \\
+		\hline
+		          & \multicolumn{2}{c}{242}          & \multicolumn{2}{c}{212}             & \multicolumn{2}{c}{95}           & 549                                                                         \\
+	\end{tabular}
+\end{center}
+We can then calculate our test statistic to be $X^2 = 1.133$.
+\\
+\\ To compute the degrees of freedom $\nu = (2 - 1) \times (3 - 1) = 2$.
+\\
+\\ Hence we can get our critical value $\chi^2_{2, \ 0.95} = 5.99$.
+\\
+\\ As $5.99 > 1.133$, there is insufficient evidence to reject $H_0$ at the $5\%$ significance level. Stress and fitness are not linked.
+\end{examplebox}
+
+
