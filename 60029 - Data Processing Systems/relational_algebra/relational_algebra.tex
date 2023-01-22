@@ -19,6 +19,21 @@ ALTER TABLE foo ADD CONSTRAINT foo_key UNIQUE(bing);
     \end{itemize}
 \end{definitionbox}
 
+\begin{examplebox}{Foreign Key}
+  What is a foreign key constraint? Is it \textit{like a pointer}?
+  \tcblower
+  \begin{center}
+    \includegraphics[width=.7\textwidth]{relational_algebra/images/example_answer_foreign_key.drawio.png}
+  \end{center}
+  It adds the invariant that there is a record referenced by the foreign key.
+  \\
+  \\ It is not really \textit{like a pointer} as:
+  \begin{itemize}
+    \item Not in memory (e.g on disk, different machine etc)
+    \item No constant lookup (a pointer can be dereferenced in constant time, but looking up a key in a table is not necessarily)
+  \end{itemize}
+\end{examplebox}
+
 Data structures used include:
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}
@@ -62,6 +77,49 @@ Relational algebra is closed:
   \item Operators are unary or binary
 \end{itemize}
 
+\begin{examplebox}{Query This!}
+  Given the below structure, write a query.
+  \unfinished
+  \tcblower
+  \[\Pi_{title}(\sigma_{OrderItem.BookID = Book.BookID}(\sigma_{\text{OrderedItem.OrderId = Order.OrderID}}((\sigma_{Order.CustomerID = Customer.CustomerID}(\sigma_{\text{customerID=Holger}}(Customer) \times Order)) \times OrderedItem) \times Book))\]
+  \begin{minted}{sql}
+SELECT Book.title
+FROM (
+  (
+    Customer NATURAL JOIN Order
+  ) NATURAL JOIN OrderedItem
+) NATURAL JOIN Book
+  \end{minted}
+  Here a natural join is:
+  \[\text{natural join}(R_1, R_2) \triangleq \sigma_{R_1.x_1 = R_2.x_1 \land \dots R_1.x_n = R_2.x_n} (R_1 \times R_2) \text{ where the }x\text{s are in both tables}\]
+\end{examplebox}
+
+\begin{examplebox}{Unique Addresses}
+  \unfinished
+  \[\Pi_{Book.Author}(
+    \sigma_{count=1}(
+      \Gamma_{(Customer.ShippingAddress),(Book.Author, count)}(
+        \Pi_{Book.Author, Customer.ShippingAddress} (
+          \text{natural join}(Customer, Order, orderItem, Book)
+        )
+      )
+    )
+  )\]
+  \begin{minted}{sql}
+SELECT Book.Author
+FROM (
+  SELECT Book.Author, Customer.ShippingAddress
+  FROM (
+      (
+        Customer NATURAL JOIN Order
+        ) NATURAL JOIN OrderedItem
+    ) NATURAL JOIN Book
+)
+GROUP BY Book.Author
+WHERE COUNT(*) = 1;
+  \end{minted}
+\end{examplebox}
+
 \subsection{Nomenclatures}
 \begin{center}
   \begin{tabular}{l p{.8\textwidth}}
@@ -93,6 +151,23 @@ We will also create an operator to inherit from for all operator types:
 template <typename... types> struct Operator : public Relation<types...> {};
 \end{minted}
 
+Finally when concatenating lists of types in templates, we will make use of the following:
+\begin{minted}{cpp}
+// declare the empty struct used to bind types
+template <typename, typename> struct ConcatStruct;
+
+// Table both types, create a type alias within the scope of ConcatStruct that 
+// concatenates the lists of types 
+template <typename... First, typename... Second>
+struct ConcatStruct<std::tuple<First...>, std::tuple<Second...>> {
+  using type = std::tuple<First..., Second...>;
+};
+
+// expose the type alias outside of the scope of concatStruct 
+template <typename L, typename R>
+using Concat = typename ConcatStruct<L, R>::type;
+\end{minted}
+
 \subsection{Relation}
 \begin{minted}{cpp}
 template <typename... types> struct Relation {
@@ -106,7 +181,7 @@ template <typename... types> struct Relation {
       : schema(schema), data(data) {}
 };
 \end{minted}
-
+\noindent
 We can hence create a relation using the \mintinline{cpp}{Relation} constructor.
 \begin{minted}{cpp}
 Relation<string, int, int> rel(
@@ -194,11 +269,111 @@ struct Condition {
 \[R_1 \times R_2\]
 Creates a new schema concatenating the columns and with the cartesian product of records.
 
+\begin{minted}{cpp}
+// Concat<> is used to concatenate the types from both input relations to 
+// produce a new schema
+template <typename LeftInputOperator, typename RightInputOperator>
+struct CrossProduct
+    : public Operator<Concat<typename LeftInputOperator::OutputType,
+                             typename RightInputOperator::OutputType>> {
+  // The input relations
+  LeftInputOperator leftInput;
+  RightInputOperator rightInput;
+
+  CrossProduct(LeftInputOperator leftInput, RightInputOperator rightInput)
+      : leftInput(leftInput), rightInput(rightInput){};
+};
+\end{minted}
+
 \subsection{Union}
+\[R_1 \cup R_2\]
+The union of both relations, duplicates are eliminated.
+\begin{minted}{cpp}
+template <typename LeftInputOperator, typename RightInputOperator>
+struct Union : public Operator<typename LeftInputOperator::outputType> {
+  
+  LeftInputOperator leftInput;
+  RightInputOperator rightInput;
+
+  Union(LeftInputOperator leftInput, RightInputOperator rightInput)
+      : leftInput(leftInput), rightInput(rightInput){};
+};
+\end{minted}
 
 \subsection{Difference}
+\[R_1 - R_2\]
+Get the set difference between two relations.
+
+\begin{minted}{cpp}
+template <typename LeftInputOperator, typename RightInputOperator>
+struct Difference : public Operator<typename LeftInputOperator::outputType> {
+
+  LeftInputOperator leftInput;
+  RightInputOperator rightInput;
+  
+  Difference(LeftInputOperator leftInput, RightInputOperator rightInput)
+      : leftInput(leftInput), rightInput(rightInput){};
+};
+\end{minted}
 
 \subsection{Group Aggregation}
+\[\Gamma_{(\text{grouping attributes}),(\text{aggregates})}(R)\]
+\begin{itemize}
+  \item Records are grouped by equality on the \textit{grouping attributes}
+  \item A set of \textit{aggregates} are produced (either a grouping attribute, the result of an aggregate function, or output attribute (e.g constants))
+\end{itemize}
+
+This is implemented by \mintinline{sql}{GROUP BY} in SQL:
+\begin{minted}{sql}
+SELECT -- aggregates
+FROM -- R
+GROUP BY -- grouping attributes
+\end{minted}
+
+\begin{minted}{cpp}
+// Aggregate functions to apply, 'agg' is for using groupAttributes
+enum class AggregationFunction { min, max, sum, avg, count, agg };
+
+template <typename InputOperator, typename... Output>
+struct GroupedAggregation : public Operator<Output...> {  
+  InputOperator input;
+
+  // the attributes to group by (column names)
+  set<string> groupAttributes;
+
+  // (column, aggregate function, new column name)
+  set<tuple<string, AggregationFunction, string>> aggregations;
+
+  GroupedAggregation(
+      InputOperator input, set<string> groupAttributes,
+      set<tuple<string, AggregationFunction, string>> aggregations)
+      : input(input), groupAttributes(groupAttributes),
+        aggregations(aggregations){};
+};
+\end{minted}
 
 \subsection{Top-N}
-\unfinished
+\[TopN_{(n, attribute)}(R)\]
+Get the top $n$ records from a table, given the ordering of $attribute$
+\\
+\\ This is implemented with \mintinline{sql}{LIMIT} and \mintinline{sql}{ORDER BY} in SQL:
+\begin{minted}{sql}
+SELECT -- ...
+FROM -- R
+ORDER BY 
+\end{minted}
+
+\begin{minted}{cpp}
+// note that here we include N in the type (know at compile time), we could also
+// take it as a parameter constructor (known at runtime)
+template <typename InputOperator, size_t N>
+struct TopN : public Operator<typename InputOperator::OutputType> {
+  InputOperator input;
+  string predicate;
+
+  TopN(InputOperator input, string predicate)
+      : input(input), predicate(predicate){};
+};
+\end{minted}
+
+

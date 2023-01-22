@@ -67,6 +67,14 @@ struct Condition {
         rightHandSide(rightHandSide) {}
 };
 
+template <typename, typename> struct ConcatStruct;
+template <typename... First, typename... Second>
+struct ConcatStruct<std::tuple<First...>, std::tuple<Second...>> {
+  using type = std::tuple<First..., Second...>;
+};
+template <typename L, typename R>
+using Concat = typename ConcatStruct<L, R>::type;
+
 template <typename LeftInputOperator, typename RightInputOperator>
 struct CrossProduct
     : public Operator<Concat<typename LeftInputOperator::OutputType,
@@ -75,4 +83,65 @@ struct CrossProduct
   RightInputOperator rightInput;
   CrossProduct(LeftInputOperator leftInput, RightInputOperator rightInput)
       : leftInput(leftInput), rightInput(rightInput){};
+};
+
+template <typename LeftInputOperator, typename RightInputOperator>
+struct Union : public Operator<typename LeftInputOperator::outputType> {
+
+  LeftInputOperator leftInput;
+  RightInputOperator rightInput;
+
+  Union(LeftInputOperator leftInput, RightInputOperator rightInput)
+      : leftInput(leftInput), rightInput(rightInput){};
+};
+
+template <typename LeftInputOperator, typename RightInputOperator>
+struct Difference : public Operator<typename LeftInputOperator::outputType> {
+
+  LeftInputOperator leftInput;
+  RightInputOperator rightInput;
+
+  Difference(LeftInputOperator leftInput, RightInputOperator rightInput)
+      : leftInput(leftInput), rightInput(rightInput){};
+};
+
+template <typename LeftInputOperator, typename RightInputOperator>
+struct Difference : public Operator<typename LeftInputOperator::outputType> {
+
+  LeftInputOperator leftInput;
+  RightInputOperator rightInput;
+
+  Difference(LeftInputOperator leftInput, RightInputOperator rightInput)
+      : leftInput(leftInput), rightInput(rightInput){};
+};
+
+// Aggregate functions to apply, 'agg' is for using groupAttributes
+enum class AggregationFunction { min, max, sum, avg, count, agg };
+
+template <typename InputOperator, typename... Output>
+struct GroupedAggregation : public Operator<Output...> {
+  InputOperator input;
+
+  // the attributes to group by (column names)
+  set<string> groupAttributes;
+
+  // (column, aggregate function, new column name)
+  set<tuple<string, AggregationFunction, string>> aggregations;
+
+  GroupedAggregation(
+      InputOperator input, set<string> groupAttributes,
+      set<tuple<string, AggregationFunction, string>> aggregations)
+      : input(input), groupAttributes(groupAttributes),
+        aggregations(aggregations){};
+};
+
+// note that here we include N in the type (know at compile time), we could also
+// take it as a parameter constructor (known at runtime)
+template <typename InputOperator, size_t N>
+struct TopN : public Operator<typename InputOperator::OutputType> {
+  InputOperator input;
+  string predicate;
+  
+  TopN(InputOperator input, string predicate)
+      : input(input), predicate(predicate){};
 };
