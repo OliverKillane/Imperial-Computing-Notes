@@ -12,6 +12,7 @@ user='Oliver Killane'
 date=$(date +'%d/%m/%y')
 help='
 Creates a skeleton for notes for a new module
+new_module -m "module name" -c "module code" -u "user" -d "date"
  ...
  ├── {module code} - {module name}
  │   ├── titlepage
