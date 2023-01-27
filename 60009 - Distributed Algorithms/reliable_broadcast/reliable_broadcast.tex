@@ -65,10 +65,29 @@ A failure detector provides a process with a list of \textit{suspected processes
   \begin{center}
     \begin{tabular}{l l p{.6\textwidth}}
       \textbf{Strong Completeness} & Liveness & Eventually every process that crashes is permanently detected as crashed by every correct process. \\
-      \textbf{Strong Accuracy} & Safety & $p$ detected $\Rightarrow$ $p$ has crashed. \\
+      \textbf{Strong Accuracy} & Safety & $p$ detected $\Rightarrow$ $p$ has crashed. No process is suspected before it crashed. \\
     \end{tabular}
 \end{center}
 \end{definitionbox}
+
+We can implement a failure detector using timeouts and a heartbeat.
+\begin{itemize}
+  \item Perfect links used to send requests for heartbeat.
+  \item If reply is not received before timeout, the process is suspected to have crashed.
+  \item \textbf{perfect links} are only reliable for correct processes.
+  \item Timeout period has to be long enough to send the heartbeat to all processes and for the receiving processes to respond. 
+\end{itemize} 
+\inputminted{elixir}{reliable_broadcast/code/perfect_failure_detector.ex}
+
+This implementation meets the properties of a \textit{perfect failure detector} as:
+\begin{center}
+  \begin{tabular}{l p{.8\textwidth}}
+    \textbf{Strong Completeness} & {If a process crashes it will no longer reply to heartbeat messages, 
+    hence by \textit{perfect links} \textbf{no-creation} property, no correct process will receive 
+    a heartbeat. So every correct process will detect a crash. } \\
+    \textbf{Strong Accuracy} & A process can only miss the timeout if it has crashed under out timing assumption.
+  \end{tabular}
+\end{center}
 
 \begin{definitionbox}{Eventually Perfect Failure Detector}
   A failure detector that is not entirely accurate.
@@ -84,10 +103,7 @@ A failure detector provides a process with a list of \textit{suspected processes
 \end{center}
 \end{definitionbox}
 
-\section{One-Shot Communication}
-
-
-\subsection{Best Effort Broadcast}
+\section{Best Effort Broadcast}
 \begin{definitionbox}{Best Effort Broadcast}
     A non-reliable, single-shot broadcast.
     \begin{itemize}
@@ -104,32 +120,10 @@ A failure detector provides a process with a list of \textit{suspected processes
     \end{center}
 \end{definitionbox}
 We can implement this in elixir using the send and receive primitives as \textit{Perfect Point-to-Point Link}.
-\begin{minted}{elixir}
-# Broadcast using perfect point-to-point links
-# processes <- the list of processes in the broadcast space
-# pl        <- the perfect links process to use
-# c         <- the object broadcasting & being delivered
-defmodule Best_Effort_Broadcast do
-  def start(processes) do
-    receive do {:bind, pl, c} -> next(processes, pl, c)
-  end
 
-  defp next(processes, pl, c) do
-    receive do
-      {:beb_broadcast, msg} -> 
-        for dest <- processes do
-            send pl, {:pl_send, dest, msg}
-        end
-      {:pl_deliver, src, msg} ->
-        send c, {:beb_deliver, src, msg}
-    end
-    next (processes, pl, c)
-  end
-end
-\end{minted}
+\inputminted{elixir}{reliable_broadcast/code/perfect_point_to_point_links.ex}
 
-
-\subsection{Reliable Broadcast}
+\section{Reliable Broadcast}
 \begin{definitionbox}{Reliable Broadcast}
     Adds a delivery guarantee to \textit{best effort broadcast}  
     \begin{center}
@@ -140,7 +134,9 @@ end
     \end{center}
     The combination of \textbf{Validity} and \textbf{Agreement} form a \textit{termination property} (system reaches agreement in finite time).
 \end{definitionbox}
-\includegraphics[width=.8\textwidth]{reliable_broadcast/images/reliable_broadcast.drawio.png}
+\begin{center}
+  \includegraphics[width=.8\textwidth]{reliable_broadcast/images/reliable_broadcast.drawio.png}
+\end{center}
 
 \subsection{Eagre Reliable Broadcast}
 \begin{definitionbox}{Eagre Reliable Broadcast}
@@ -158,38 +154,9 @@ end
     \end{center}
 \end{definitionbox}
 
-\begin{minted}{elixir}
-# Eagre reliable broadcast implemented using Best Effort Broadcast
-# beb <- the best effort broadcast process
-# c   <- the object broadcasting & being delivered
-defmodule Eagre_Reliable_Broadcast do
+\inputminted{elixir}{reliable_broadcast/code/eagre_reliable_broadcast.ex}
 
-  def start do
-    receive do { :bind, c, beb } -> next(c, beb, MapSet.new) end
-  end
-
-  defp next(c, beb, delivered) do
-    receive do
-      { :rb_broadcast, msg } ->
-        send beb, { :beb_broadcast, { :rb_data, our_id(), msg } }
-        next(c, beb, delivered)
-      { :beb_deliver, from, { :rb_data, sender, msg } = rb_m } ->
-        if msg in delivered do
-          # Message was already delivered, so can be ignored
-          next(c, beb, delivered)
-        else
-          # Message is new, so add to delivered, deliver to c & rebroadcast
-          send c, { :rb_deliver, sender, msg }
-          send beb, { :beb_broadcast, rb_m }
-          next(c, beb, MapSet.put(delivered, msg))
-        end
-    end
-  end
-
-end
-\end{minted}
-
-\subsubsection{Lazy Reliable Broadcast}
+\subsection{Lazy Reliable Broadcast}
 \begin{definitionbox}{Lazy Reliable Broadcast}
     A \textit{reliable broadcast} using \textit{Best Effort Broadcast} with a \textit{Failure Detector} to enforce agreement.
     \begin{itemize}
@@ -203,63 +170,34 @@ end
   \includegraphics[width=.8\textwidth]{reliable_broadcast/images/lazy_reliable_broadcast.drawio.png}
 \end{center}
 
-\begin{minted}{elixir}
-# Lazy Reliable Broadcast implemented using best effort broadcast
-# beb    <- the best effort broadcast process
-# client <- the object broadcasting & being delivered
-defmodule Lazy_Reliable_Broadcast do
-  def start do
-    receive do
-      { :bind, processes, client, beb } ->
-        delivered = Map.new(processes, fn p -> {p, MapSet.new} end)
-        next(client, beb, processes, delivered)
-    end
-  end
+\inputminted{elixir}{reliable_broadcast/code/lazy_reliable_broadcast.ex}
 
-  defp next(client, beb, correct, delivered) do
-    receive do
-      { :rb_broadcast, msg } ->
-        # broadcast a message with our id
-        send beb, { :beb_broadcast, { :rb_data, our_id(), msg } }
-        next(client, beb, correct, delivered)
+\section{Uniform Reliable Broadcast}
+\begin{definitionbox}{Uniform Reliable Broadcast}
+    \begin{center}
+        \includegraphics[width=.6\textwidth]{reliable_broadcast/images/uniform_reliable_broadcast.drawio.png}
+    \end{center}
+    \begin{center}
+        \begin{tabular}{l l p{.6\textwidth}}
+            \textbf{Uniform Agreement} & Liveness & If a non-correct process delivers message $m$ then all correct processes deliver $m$ \\
+            \multicolumn{3}{c}{\textbf{All Properties from Best Effort Broadcast}} \\
+        \end{tabular}
+    \end{center}
+    \begin{itemize}
+        \item Implies that faulty processes deliver a subset of messages delivered to correct processes (stronger than \textbf{agreement} - only for correct processes).
+        \item Avoids any scenario where a crashed process broadcasts and only a crashed process delivers (correct processes miss message).
+    \end{itemize}
+\end{definitionbox}
 
-      { :pfd_crash, crashedP } ->
-        # Failure detector has detected a crashed process
-        # For each message delivered by the crashed process,
-        # rebroadcast (from them)
-        for msg <- delivered[crashedP] do
-          send beb, { :beb_broadcast, { :rb_data, CrashedP, msg } }
-        end
-        next(c, beb, MapSet.delete(correct, crashedP), delivered) # cont
-
-      { :beb_deliver, from, { :rb_data, sender, msg } = rb_m } ->
-        # A message is delivered, if already received do nothing,
-        # otherwise record the delivered message,
-        if msg in delivered[sender] do
-          next(c, beb, correct, delivered)
-        else
-          send c, { :rb_deliver, sender, msg }
-          # add msg to the set of messages received from sender
-          sender_msgs = MapSet.put(delivered[sender], msg)
-          delivered = Map.put(delivered, sender, sender_msgs)
-
-          # The sender may have since crashed, so may need to
-          # rebroadcast
-          if sender not in correct do
-            send beb, { :beb_broadcast, rb_m }
-          end
-
-          next(c, beb, correct, delivered)
-      end
-    end
-  end
-
-end
-\end{minted}
-
-\subsection{Uniform Reliable Broadcast}
-
-
-
-\section{Multi-Shot Communication}
+\begin{definitionbox}{Majority Ack Uniform Reliable Broadcast}
+    A \textit{uniform reliable broadcast} implementation that assumes a majority of processes are correct.
+    \begin{center}
+        \includegraphics[width=.8\textwidth]{reliable_broadcast/images/majority_ack_uniform_reliable_broadcast.drawio.png}
+    \end{center}
+    \begin{itemize}
+        \item \textit{Fail-silent} and does not use a \textit{failure detector}.
+        \item If $n$ processes may crash, then $2n+1$ processes are needed with at least $n+1$ (majority) being correct
+    \end{itemize}
+\end{definitionbox}
+\unfinished
 
