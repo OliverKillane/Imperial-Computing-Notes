@@ -79,13 +79,14 @@ Multi-dimensional data must be stored in a 1-dimensional memory.
 \end{definitionbox}
 
     
-\subsection{Catalogue}
-    % Motivation
-    % Metadata
-        % Dense vs sorted
+\subsection{Catalog}
+\begin{definitionbox}{Catalog}
+    Keeps track of database structure (tables, view, indexes etc) and metadata (e.g which tables are sorted, dense)
+\end{definitionbox}
 
-\subsection{Variable Size Data}
-% Variable Size / out of place
+\begin{definitionbox}{Dense}
+    Records are both sorted and consecutive (e.g $3,4,5$) in some field. Given fixed-size records and the minimum value, records can be looked up in constant time. 
+\end{definitionbox}
 
 \subsection{Disk Storage}
 \begin{definitionbox}{Buffer Manager}
@@ -123,14 +124,41 @@ Multi-dimensional data must be stored in a 1-dimensional memory.
 \end{definitionbox}
 
 \begin{definitionbox}{Slotted Pages}
+    To allow faster/constant time lookup for variable size records.
     \begin{center}
         \includegraphics[width=.8\textwidth]{storage/images/slotted_pages.drawio.png}
     \end{center}
+    Header stores number of records, index of record used to look-up pointers at the end of the page which are dereferenced to get the record.
 \end{definitionbox}
 
+\begin{definitionbox}{Dictionaries}
+    Rather than store data (particularly variable-size) in-place it is allocated elsewhere, and a pointer used.
+    \begin{center}
+        \includegraphics[width=.8\textwidth]{storage/images/dictionary_layout.drawio.png}
+    \end{center}
+    \begin{itemize}
+        \item Can eliminate duplication (duplicate attributes point to the same data)
+        \item Need to be careful about managing space (e.g periodically removing unused dictionary entries / garbage collection)
+        \item Can reduce spatial locality (record points to non-adjacent dictionary entry), but can (sometimes) improve temporal (same dictionary value accessed many times from many records) 
+    \end{itemize}
+    \begin{center}
+        \begin{tabular}{l p{.8\textwidth}}
+            \textbf{In-Page} & Dictionary accesses from within the page do not require other pages to be loaded. Globally more duplicates may exist \& fewer records can be held per page. \\
+            \textbf{Global} & A large global dictionary is used (access from other pages require loading). \\
+        \end{tabular}
+    \end{center}
+\end{definitionbox}
 
-    % in page dictionaries
+\begin{examplebox}{Lookups}
+    Access latencies to elements in a table are modelled as follows:
+    \[\begin{matrix*}[l]
+        n & \text{Access a (32 bit) word for the first time} \\
+        m & \text{Access an adjacent word to the last accessed word} \\
+        p & \text{Access a previously accessed value} \\
+    \end{matrix*} \text{ where } n > m > p\]
+    \unfinished
+\end{examplebox}
 
 \section{Example Sketch Implementation}
-
+\unfinished
 
