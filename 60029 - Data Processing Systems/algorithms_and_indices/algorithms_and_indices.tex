@@ -456,7 +456,7 @@ private:
     \textbf{Simple} & Easy to reason about memory access pattern. \\
     \textbf{Locality} & Can alter \mintinline{cpp}{DISTANCE} to place values as \textit{adjacently} as we need. \\
 \end{tabbox}
-\begin{tabbox}{consbox}
+\begin{tabbox}[.7\textwidth]{consbox}
     \textbf{Long Probe-Chains} & From too much locality on adversarial input data (can input data to the table to create worse case conflicts (and hence probe chain length) scenario) \\
 \end{tabbox}
 
@@ -614,7 +614,7 @@ DROP INDEX index_name;
 \end{itemize}
 The standard has been extended by SQL implementations to allow for finer control.
 \begin{sidenotebox}{The elephant in the room}
-    Among other DBMS Postgres supports many types of index (\href{https://www.postgresql.org/docs/current/indexes.html}{documentation here})
+    Among other DBMS, Postgres supports many types of index (\href{https://www.postgresql.org/docs/current/indexes.html}{documentation here})
     \begin{minted}{psql}
 /* By default CREATE INDEX uses a B-Tree */
 CREATE INDEX name ON table USING HASH (column);
@@ -675,6 +675,33 @@ SELECT * FROM table_name WHERE column1 = some_value;
 On some systems we can create an index of arbitrary predicates, and to scan multiple bitmaps (using boolean operators on them).
 \\
 \\ The CPU operates in word size chunks of the bitvector. Hence we can easily check if all bits in a word size chunk (e.g 32 bits) are zero. We only need to iterate through this chunk if the chunk is non-zero.
+\begin{minted}{cpp}
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// scans a vector of 32 bit ints:
+// - indexes each integer from LSB(0) to MSB(31)
+// - does not consider endian-ness
+// 100... 100... <=> [1,1]
+vector<size_t> scan_bitmap(const vector<uint32_t> &bitvector) {
+  vector<size_t> positions;
+  size_t index = 0;
+  for (auto elem : bitvector) {
+    for (size_t small_index = 0; elem; small_index++, elem >>= 1) {
+      if (elem & 1) {
+        positions.push_back(index + small_index);
+      }
+    }
+    index += 32;
+  }
+  return positions;
+}
+\end{minted}
+
 \begin{tabbox}{prosbox}
     \textbf{Bandwidth} & Can scan a column with reduce memory bandwidth (e.g integers $\to$ bitmap index is $32$ times less). \\
     \textbf{Flexibility} & Can often use arbitrary predicates (e.g $< x$) to either turn a filter into a bitmap scan, or reduce time to scan (if $x < y$ an index $< x$ and help with a $< y$ filter). \\
@@ -723,12 +750,20 @@ Typical balanced tree data structures such as red/black trees, AVL trees are uns
     A high fan-out, balanced tree.
     \begin{itemize}
         \item Each non-root node must contain at least $\left\lfloor \cfrac{n-1}{2} \right\rfloor$ key/value pairs.
+        \item The tree is kept balanced (all leaves at same depth)
+        \item Time complexity for search, insert and delete is $O(\log n)$
     \end{itemize}
 \end{definitionbox}
+
+\subsection{B* Trees}
 
 \subsubsection{Maintaining Balance}
 When a node overflows (full but value needs to be inserted), choose a splitting element and split values one either side into new nodes.
 \unfinished
 
 \subsection{Foreign Key Indices}
-\unfinished
+Most joins are using a foreign key relation.
+\begin{itemize}
+    \item Constraint implies the number of matching tuples is 1 (foreign key $\to$ unique primary key)
+    \item A foreign key indices effectively cache/save a join.
+\end{itemize}
