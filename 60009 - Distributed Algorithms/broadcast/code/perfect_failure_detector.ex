@@ -1,4 +1,3 @@
-#
 defmodule Perfect_Failure_Detector do
   def start do
     receive do
