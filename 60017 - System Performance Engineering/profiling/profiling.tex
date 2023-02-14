@@ -110,7 +110,7 @@ A generalisation of time-based intervals (as a clock tick $\to$ time is an event
 \begin{definitionbox}{Indirect Tracing}
     We can sample from parts of a program, and infer traces from the structure of the program.
     \\
-    \\ For example control flow instructions dominate non-control flow instructions, we could sample from control flow instructions, and then infer event between (non-control flow instructions), effectively indirectly tracing them.
+    \\ For example control flow instructions dominate non-control flow instructions, we could sample from control flow instructions, and then infer event between (non-control flow instructions) (called \textit{basic block counting}), effectively indirectly tracing them.
     \begin{itemize}
         \item Can be used to reduce overhead from tracing
         \item fidelity and accuracy good (depending on the events traced and the indirection used)
