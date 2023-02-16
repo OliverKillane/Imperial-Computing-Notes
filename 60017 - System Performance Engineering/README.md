@@ -1,4 +1,6 @@
 # 60017 - Systems Performance Engineering
+
+## [Course Notes](60017%20-%20System%20Performance%20Engineering.pdf)
 ## Module Description
 [From the college website...](https://www.imperial.ac.uk/computing/current-students/courses/60017/)
 
@@ -28,3 +30,5 @@ Second Half: [Dr Luis Vilanova](https://www.doc.ic.ac.uk/~lvilanov/)
 ## Resources
 - [College Site](https://www.imperial.ac.uk/computing/current-students/courses/60017/)
 - [Year 3 Tar](https://gitlab.doc.ic.ac.uk/ok220/year-three-tar/-/tree/master/60017%20-%20System%20Performance%20Engineering) [Imperial Students Only]
+
+[Back to main notes](../README.md)

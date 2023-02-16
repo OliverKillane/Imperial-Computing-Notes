@@ -1,4 +1,6 @@
 # 60023 - Type Systems for programming Languages
+
+## [Course Notes](60023%20-%20Type%20Systems%20for%20Programming%20Languages.pdf)
 ## Module Description
 [From the college website...](https://www.imperial.ac.uk/computing/current-students/courses/60023/)
 
@@ -25,3 +27,5 @@ Taught by [Professor Steffen van Bakel](https://www.doc.ic.ac.uk/~svb/)
 - [College Site](https://www.imperial.ac.uk/computing/current-students/courses/60023/)
 - [Module Site](https://www.doc.ic.ac.uk/~svb/TSfPL/)
 - [Course Notes](https://www.doc.ic.ac.uk/~svb/TSfPL/notes.pdf)
+
+[Back to main notes](../README.md)

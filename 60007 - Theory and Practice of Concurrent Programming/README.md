@@ -1,4 +1,6 @@
 # 60007 - The Theory and Practice of Concurrent Programming
+
+## [Course Notes](60007%20-%20Theory%20and%20Practice%20of%20Concurrent%20Programming.pdf)
 ## Module Description
 [From the college website...](https://www.imperial.ac.uk/computing/current-students/courses/60007/)
 
@@ -26,3 +28,5 @@ Practice: [Dr Alastair Donaldson](https://www.imperial.ac.uk/people/alastair.don
 ## Resources
 - [College Site](https://www.imperial.ac.uk/computing/current-students/courses/60007/)
 - [Year 3 Tar](https://gitlab.doc.ic.ac.uk/ok220/year-three-tar/-/tree/master/60007%20-%20The%20Theory%20and%20Practice%20of%20Concurrent%20Programming) [Imperial Students Only]
+
+[Back to main notes](../README.md)

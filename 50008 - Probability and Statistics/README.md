@@ -1,5 +1,7 @@
 
 # 50008 - Probability and Statistics
+
+## [Course Notes](50008%20-%20Probability%20and%20Statistics.pdf)
 ## Module Description
 
 [From the college website...](https://www.imperial.ac.uk/computing/current-students/courses/50008/)
@@ -27,3 +29,5 @@ This module covers the following topics:
 Probability (First Half): Professor Giuliano Casale  Statistics (Second Half): Professor Chiraag Lala.
 ## Resources
 - [College Site](https://www.imperial.ac.uk/computing/current-students/courses/50008/)
+
+[Back to main notes](../README.md)

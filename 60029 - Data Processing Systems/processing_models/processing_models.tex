@@ -518,10 +518,11 @@ auto cross = make_unique<CrossProduct<Row, Row>>(move(scan1), move(scan2));
 
 Project<Row, tuple<Row, Row>> proj(move(cross), [](tuple<Row, Row> t)
                                     {
-auto vec2 = get<1>(t);
-auto vec1 = get<0>(t);
-vec1.insert(vec1.end(), vec2.begin(), vec2.end());
-return vec1; });
+  auto vec2 = get<1>(t);
+  auto vec1 = get<0>(t);
+  vec1.insert(vec1.end(), vec2.begin(), vec2.end());
+  return vec1; 
+});
 
 GroupBy<Row, Row, Value, nextSlotLinear, hashValue>
     groupby(move(scan), groupBySecondCol, aggregateSecondCol);
