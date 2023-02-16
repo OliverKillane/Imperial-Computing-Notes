@@ -6,13 +6,13 @@ This repo is the collection of notes for my chosen third year modules.
 It is designed as an improvement in quality over the [second year repo](https://github.com/OliverKillane/Imperial-Computing-Year-2-Notes).
 
 ## Where are the notes!
-- [50008 - Probability and Statistics](50008%20-%20Probability%20and%20Statistics/README.md)
-- [60001 - Advanced Computer Architecture](60001%20-%20Advanced%20Computer%20Architecture/README.md)
-- [60007 - Theory and Practice of Concurrent Programming](60007%20-%20Theory%20and%20Practice%20of%20Concurrent%20Programming/README.md)
-- [60009 - Distributed Algorithms](60009%20-%20Distributed%20Algorithms/README.md)
-- [60017 - System Performance Engineering](60017%20-%20System%20Performance%20Engineering/README.md)
-- [60023 - Type Systems for Programming Languages](60023%20-%20Type%20Systems%20for%20Programming%20Languages/README.md)
-- [60029 - Data Processing Systems](60029%20-%20Data%20Processing%20Systems/README.md)
+- [50008 - Probability and Statistics](50008%20-%20Probability%20and%20Statistics)
+- [60001 - Advanced Computer Architecture](60001%20-%20Advanced%20Computer%20Architecture)
+- [60007 - Theory and Practice of Concurrent Programming](60007%20-%20Theory%20and%20Practice%20of%20Concurrent%20Programming)
+- [60009 - Distributed Algorithms](60009%20-%20Distributed%20Algorithms)
+- [60017 - System Performance Engineering](60017%20-%20System%20Performance%20Engineering)
+- [60023 - Type Systems for Programming Languages](60023%20-%20Type%20Systems%20for%20Programming%20Languages)
+- [60029 - Data Processing Systems](60029%20-%20Data%20Processing%20Systems)
 
 ## How do I build this?
 ### Dependencies
