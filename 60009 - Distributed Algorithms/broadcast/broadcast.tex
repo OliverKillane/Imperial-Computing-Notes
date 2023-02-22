@@ -297,7 +297,9 @@ Past will grow large over time as the set of preceding messages grows.
     \item When sending a message, the  the vector clock and the \textit{RB Broadcasts} count are sent.
     \item A message is only delivered if the sender's vector clock is $\leq$ the receiver's vector clock (the current process has seen all the messages the sender had seen, when it sent this message)
 \end{itemize}
-
+\begin{center}
+    \includegraphics[width=.9\textwidth]{broadcast/images/causal_broadcast_vector_clocks.drawio.png}
+\end{center}
 \inputminted{elixir}{broadcast/code/causal_reliable_broadcast_vector_clock.ex}
 
 \subsection{Total Order Message Delivery}
