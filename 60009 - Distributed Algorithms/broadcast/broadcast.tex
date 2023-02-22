@@ -290,16 +290,29 @@ Past will grow large over time as the set of preceding messages grows.
 
 \subsubsection{Vector Clock Implementation}
 \begin{sidenotebox}{Dynamic Deadlock Detection}
-    \unfinished
+    Vector clocks can also be used in dynamically detecting data races in programs, as discussed in 60007 - Theory and practice of Concurrent Programming.
 \end{sidenotebox}
-\unfinished
+\begin{itemize}
+    \item Each process maintains a vector clock of (processes $\to$ messages \textit{CRB delivered}) and a count of messages that it has \textit{RB broadcast}.
+    \item When sending a message, the  the vector clock and the \textit{RB Broadcasts} count are sent.
+    \item A message is only delivered if the sender's vector clock is $\leq$ the receiver's vector clock (the current process has seen all the messages the sender had seen, when it sent this message)
+\end{itemize}
+
 \inputminted{elixir}{broadcast/code/causal_reliable_broadcast_vector_clock.ex}
 
 \subsection{Total Order Message Delivery}
 \begin{definitionbox}{Total Order/TO Message Delivery}
-    All correct messages deliver the same global sequence of messages.
+    All correct messages deliver the same global order of messages.
     \begin{itemize}
         \item Impossible in an asynchronous system as there is no shared clock, so no way to determine a shared ordering. 
+        \item Does not need to be \textit{FIFO} but is usually implemented so.
+        \item Sometimes called \textit{atomic broadcast}.
     \end{itemize}
+    \begin{center}
+        \begin{tabular}{l l p{.6\textwidth}}
+            \textbf{Uniform Total Order} & Safety & If a correct or crashed process delivers $M_1 \prec M_2$, then no correct process delivers $M_2 \prec M_1$. \\
+            \multicolumn{3}{c}{\textbf{All Properties from Uniform Reliable Broadcast}} \\
+        \end{tabular}
+    \end{center}
+    In order to have a total order, processes must reach a consensus on the global order.
 \end{definitionbox}
-\unfinished
