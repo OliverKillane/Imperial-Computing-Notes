@@ -39,19 +39,93 @@ A simple consensus algorithm between two servers.
 \end{itemize}
 
 \section{FLP Impossibility Result}
-% FLP Impossibility Result Lecture
-% In a purely asynchronous system we cannot use message timings to determine if a process has crashed (no guarentee on timings)
-% 
-% Applies even when:
-% Single bit
-% Reliable message passing
-% Only one process crashes
-%
-% Can be side stepped with synchronous systems or unreliable failure detectors
-% 
+\begin{sidenotebox}{Fisher Lynch \& Paterson}
+    From the paper \href{https://groups.csail.mit.edu/tds/papers/Lynch/jacm85.pdf}{Impossibility of Distributed Consensus with One Faulty Process}:
+    \begin{quote}
+        \textit{"The consensus problem involves an asynchronous system of processes, 
+        some of which may be unreliable. The problem is for the reliable
+        processes to agree on a binary value. In this paper, it is shown that 
+        every protocol for the problem has the possibility of non-termination, 
+        even with only one faulty process."}
+    \end{quote}
+    Michael \textbf{F}ischer, Nancy \textbf{L}ynch, Mike \textbf{P}aterson
+\end{sidenotebox}
+
+\begin{definitionbox}{FLP Impossibility Result}
+    In a purely asynchronous system we cannot use message timings to determine if a process has crashed (no guarantee on timings), this even applies when:
+    \begin{itemize}
+        \item Agreeing on a single bit
+        \item Reliable message passing is used
+        \item Only one process crashes
+    \end{itemize}
+\end{definitionbox}
+
+\subsection{FLP Model}
+\begin{center}
+    \includegraphics[width=.8\textwidth]{consensus/images/flp_model.drawio.png}
+\end{center}
+\begin{itemize}
+    \item $receieve$ can return empty even if messages are present for $P$.
+    \item Messages are delivered non-deterministically and can be received in any order with any arbitrary delay
+    \item If receive is called infinitely many times, then every message will eventually be delivered. 
+    \item A message takes finite (but unbounded) time.
+    \item Message buffer is a multiset, so can contain duplicates.
+\end{itemize}
+\begin{center}
+    \begin{tabular}{l p{.8\textwidth}}
+        \textbf{Configuration} & $([P_1 : S_1, \dots], \{(P, M), \dots\})$ All process states and the global message buffer. \\
+        \textbf{Initial Configuration} & Input bit of each process is set, message buffer is empty. \\
+    \end{tabular}
+\end{center}
+\[C_1 \to C_2\]
+A step occur when a single process $P$:
+\begin{itemize}
+    \item Performs $receive(P)$ to get a message $M$ or $\emptyset$
+    \item Executes some code and changes its internal state
+    \item Sends a finite number of messages to the global message buffer with $send$.
+\end{itemize}
+\begin{center}
+    \begin{tabular}{l p{.8\textwidth}}
+        $E = (P,M)$ & Recepit of message $M$ by process $P$ is an event $E$. \\
+        $C_2 = E(C_1)$ & Applying event $E$ to configuration $C_1$ to get new configuration $C_2$. \\
+        $E_1 \circ E_2 \circ \dots \circ E_n \triangleq \sigma$ & A \textit{schedule} is a series of events composed. \\
+        $\sigma (C)$ & A \textit{schedule} is an \textit{execution} if applied to the initial configuration. \\
+        $\sigma(C) = C \to C' \to \dots$ & A sequence of steps corresponding to a schedule is called a \textit{run}. \\
+        $\sigma(C) = C'$ & $C'$ is reachable from $C$, and accessible if $C$ is the initial configuration. \\
+    \end{tabular}
+\end{center}
+A process can take infinitely many steps to run. \textit{Runs} can be categorised as:
+\begin{center}
+    \begin{tabular}{l p{.8\textwidth}}
+        \textbf{Deciding Run} & A \textit{run} resulting in some process making a decision (writing to output bit). \\
+        \textbf{Admissable Run} & A \textit{run} where at least one process is faulty and every message is eventually $received$ (every process can $receive$ infinitely many times). \\
+    \end{tabular}
+\end{center}
+A consensus protocol is \textit{totally correct} if every \textit{admissable run} is a \textit{deciding run}. 
+
+\subsection{Valent Configurations}
+\begin{center}
+    \includegraphics[width=\textwidth]{consensus/images/valent_configurations.drawio.png}
+\end{center}
+
+Proof is done by contradiction.
+\begin{itemize}
+    \item Assume there is an algorithm $\mathcal{A}$ that solves consensus.
+    \item Construct an \textit{execution} in which $\mathcal{A}$ never reaches a decision (indecisive forever).
+    \item Hence $\mathcal{A}$ cannot solve consensus, so by contradiction there can be no $\mathcal{A}$. 
+\end{itemize}
+By showing it is possible to start in a \textit{bivalent configuration} and continue doing steps without reaching a \textit{decisive configuration} (\textit{univalent}) we demonstrate it is impossible to certainly reach consensus.
+
+\subsection{Lemmas}
+\subsubsection{Confluence}
+\begin{center}
+    \includegraphics[width=.6\textwidth]{consensus/images/lemma_confluence.drawio.png}
+\end{center}
+Given configuration $C$ and \textit{schedules} $\sigma_1$ and $\sigma_2$ such that set of processes with steps in $\sigma_1$ and $\sigma_2$ are disjoint:
+\[\sigma_1(\sigma_2(C)) \equiv \sigma_2(\sigma_1(C))\]
+
+\subsubsection{Initial Bivalent Configuration}
 \unfinished
-
-
 
 \section{Common Consensus Algorithms}
 \begin{center}
