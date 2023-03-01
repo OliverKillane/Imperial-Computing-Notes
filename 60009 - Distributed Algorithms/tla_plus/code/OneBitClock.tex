@@ -1,0 +1,12 @@
+\tlatex
+\@x{}\moduleLeftDash\@xx{ {\MODULE} OneBitClock}\moduleRightDash\@xx{}%
+\@x{ {\VARIABLE} b}%
+\@x{ Type \.{\defeq} b \.{\in} \{ 0 ,\, 1 \}}%
+\@x{}\midbar\@xx{}%
+\@x{ Init\@s{4.12} \.{\defeq} b \.{=} 0 \.{\lor} b \.{=} 1}%
+ \@x{ Next \.{\defeq} ( ( b \.{=} 0 ) \.{\land} ( b \.{'} \.{=} 1 ) ) \.{\lor}
+ ( ( b \.{=} 1 ) \.{\land} ( b \.{'} \.{=} 0 ) )}%
+\@x{ Spec\@s{1.46} \.{\defeq} Init \.{\land} {\Box} [ Next ]_{ b}}%
+\@x{}\midbar\@xx{}%
+\@x{ Typed \.{\defeq} {\Box} Type}%
+\@x{}\bottombar\@xx{}%

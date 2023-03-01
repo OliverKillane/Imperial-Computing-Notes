@@ -1,0 +1,20 @@
+\tlatex
+\@x{}\moduleLeftDash\@xx{ {\MODULE} 24HourClock}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} Naturals ,\, TLC}%
+\@x{ {\VARIABLE} hour}%
+\@x{}\midbar\@xx{}%
+\@x{ Init\@s{4.12} \.{\defeq} hour \.{\in} 0 \.{\dotdot} 23}%
+\@x{ Next \.{\defeq} hour \.{'} \.{=} ( hour \.{+} 1 ) \.{\%} 24}%
+\@x{\@s{39.83} \.{\land} (}%
+ \@x{\@s{55.04} ( hour \.{\leq} 12 \.{\land} PrintT ( {\langle}\@w{[Morning]\
+ time:} ,\, hour {\rangle} ) )}%
+ \@x{\@s{43.93} \.{\lor} ( hour \.{>} 12 \.{\land} hour \.{<} 18 \.{\land}
+ PrintT ( {\langle}\@w{[Afternoon]\ time:} ,\, hour {\rangle} ) )}%
+ \@x{\@s{43.93} \.{\lor} ( hour \.{\geq} 18 \.{\land} PrintT (
+ {\langle}\@w{[Evening]\ time:} ,\, hour {\rangle} ) )}%
+\@x{\@s{39.83} )}%
+ \@x{ Spec\@s{1.46} \.{\defeq} Init \.{\land} {\langle} Next {\rangle}_{
+ hour}}%
+\@x{}\midbar\@xx{}%
+\@x{ Typed \.{\defeq} {\Box} Init}%
+\@x{}\bottombar\@xx{}%

@@ -1,0 +1,11 @@
+\tlatex
+\@x{}\moduleLeftDash\@xx{ {\MODULE} TwelveHourClock}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} Naturals}%
+\@x{ {\VARIABLE} hour}%
+\@x{}\midbar\@xx{}%
+\@x{ Init\@s{4.12} \.{\defeq} hour \.{\in} 0 \.{\dotdot} 11}%
+\@x{ Next \.{\defeq} hour \.{'} \.{=} ( hour \.{+} 1 ) \.{\%} 12}%
+\@x{ Spec\@s{1.46} \.{\defeq} Init \.{\land} {\Box} [ Next ]_{ hour}}%
+\@x{}\midbar\@xx{}%
+\@x{ Typed \.{\defeq} {\Box} Init}%
+\@x{}\bottombar\@xx{}%
