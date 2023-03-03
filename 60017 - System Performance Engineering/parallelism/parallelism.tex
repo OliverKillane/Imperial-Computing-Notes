@@ -1,0 +1,284 @@
+\chapter{Parallelism}
+\section{Motivation}
+\begin{definitionbox}{Denbard/MOSFET Scaling}
+    A scaling/power law stating that as transistors get smaller:
+    \begin{itemize}
+        \item Power density is constant, hence power $\varpropto$ area.
+        \item Voltage and current decrease with transistor length.
+    \end{itemize}
+    Hence as transistor size decreases they become faster, more energy efficient and cheaper.
+    \begin{itemize}
+        \item Part of a \href{https://ieeexplore.ieee.org/document/1050511}{paper} (1974) on MOSFETs (metal-oxide-semiconductor field-effect transistors) co-authored by Robert Dennard
+        \item Scaling becomes limited by transistor leakage, which grows as a proportion of power consumed by the transistor as scale is decreased.
+        \item Leakage converts to heat which must be dissipated to prevent damage to the chip. This presents a limiting factor on scaling.
+    \end{itemize}
+\end{definitionbox}
+\noindent
+Slow end of \textit{Dennard scaling} limit single threaded performance improvements $\Rightarrow$ Increase parallelism to attain higher performance.
+
+\begin{definitionbox}{Ambdahl's Law}
+    Where $S$ is speedup, and each $p_i, s_i$ is the speedup for a proportion of the program.
+    \[S = \left(\cfrac{p_1}{s_1} + \cfrac{p_2}{s_2} + \dots + \cfrac{p_n}{s_n}\right)^{-1}\]
+    We can simplify this for the basic case of proportion $p$ of a program perfectly parallelised over $n$ threads:
+    \[S = \cfrac{1}{(1-p) + \cfrac{p}{n}}\]
+\end{definitionbox}
+
+\subsection{Types of Parallelism}
+\begin{definitionbox}{Data-Level Parallelism}
+    Increasing throughput by operating on multiple elements of data in parallel.
+    \\
+    \\ Typically this in the form of \textbf{S}ingle-\textbf{I}nstruction \textbf{M}ultiple-\textbf{D}ata 
+    (\textbf{SIMD}) instruction-set extension (instructions that operate a single simple instruction on several 
+    (typically adjacent) data elements. 
+    \\
+    \\ Some such extensions include:
+    \vspace{2mm}
+    \\ \begin{tabular}{l p{.9\textwidth}}
+        \textbf{MMX} & An early \textbf{SIMD} instruction set extension for IA32 developed by Intel for the Pentium P5 microarchitecture (1997), only supports integer arithmetic. \\
+        \textbf{SSE} & (\textbf{S}treaming \textbf{S}IMD \textbf{E}xtensions) developed by Intel that support floating point arithmetic. \\
+        \textbf{AVX} & (\textbf{A}dvanced \textbf{V}ector \textbf{E}xtensions) developed by Intel and AMD for x86-64 (Sandy bridge \& AMD Bulldozer IN 2011). \\
+    \end{tabular}
+    \vspace{2mm}
+    \\ Another form is \textbf{S}ingle-\textbf{I}nstruction \textbf{M}ultiple-\textbf{T}hreads (\textbf{SIMT}) where each thread operates on some data, and many threads execute the same instructions in lockstep. This is the programming model used by most GPUs (e.g see Nvidia's CUDA).
+\end{definitionbox}
+
+\begin{definitionbox}{Instruction Level Parallelism}
+    Systems where multiple instructions can be executed in the same step (e.g instructions per cycle $> 1$). Many techniques are used to achieve this:
+    \vspace{2mm}
+    \\ \begin{tabular}{l p{.8\textwidth}}
+        \textbf{Pipelining} & Allows higher throughput by splitting an instruction pipeline into stages that can be executed in parallel. \\
+        \textbf{VLIW} \& \textbf{EPIC} & (\textbf{V}ery-\textbf{L}ong \textbf{I}nstruction \textbf{W}ord \& \textbf{E}xplicitly \textbf{P}arallel \textbf{I}nstruction \textbf{C}omputing) architectures where instructions contain bundles of operations and explicitly determine which operations can be run in parallel (e.g Intel's Itanium/IA64). It is a way for statically scheduled processors to take advantage of ILP, but is not common. \\
+        \textbf{Superscalar} & Dynamically scheduled processors that can inspect instruction dependencies at runtime in order to dispatch fetched instructions for execution out-of-order and in parallel. Many other techniques can be used here such as speculative execution and register renaming. \\
+    \end{tabular}
+    Nearly all modern processors are pipelined \& superscalar.
+\end{definitionbox}
+
+\begin{sidenotebox}{Flynn's Taxonomy}
+    A classification scheme for computer architectures that neatly describes the type of parallelism they use (see wikipedia \href{https://en.wikipedia.org/wiki/Flynn%27s_taxonomy}{here}).
+\end{sidenotebox}
+
+\begin{definitionbox}{Task-Level Parallelism}
+    Splitting an algorithm into sections that can be run in parallel.
+    \begin{itemize}
+        \item Parallelism must be extracted by the programmer.
+        \item Tasks run in separate processes or threads, potentially on different cores, or processors. 
+        \item Each task being run in parallel can be different (different instructions and either different data or shared data accessed)
+    \end{itemize}
+\end{definitionbox}
+
+\begin{sidenotebox}{Crazy Fast IPC}
+    The L4 microkernel implements \textit{short IPC} where a sending process places the message in registers, and a fast context switch to the receiving thread without clearing registers (explained \href{https://os.itec.kit.edu/downloads/sa_2002_wenske-horst_fast-local-ipc.pdf}{here}).
+    \\
+    \\ The L4ka project at Karlsruher University's Operating Systems group has an Itanium implementation that takes advantage of this (and Itanium specifics $\to$ lots of registers) to complete short IPC in as few as \href{https://www.cs.hs-rm.de/~kaiser/2020_aos/05b-ukx6.pdf}{$36$ cycles}.
+\end{sidenotebox}
+
+\subsection{Concurrency}
+\begin{center}
+    \includegraphics[width=.8\textwidth]{parallelism/images/concurrent_vs_parallel.drawio.png}
+\end{center}
+\begin{tcbraster}[raster columns=2,raster equal height]
+\begin{definitionbox}{Parallel}
+    \textit{"Decomposing a problem into smaller tasks executed at the same time on different compute resources"}
+\end{definitionbox}
+\begin{definitionbox}{Concurrent}
+    \textit{"Decomposing a problem into smaller tasks executed during overlapping time periods"}
+\end{definitionbox}
+\end{tcbraster}
+\begin{center}
+    \begin{tabular}{r r p{.7\textwidth}}
+        $\mathcal{C}$ & $\neg \mathcal{P}$ & An OS scheduler interleaving the execution of two threads on a core. \\
+        $\mathcal{C}$ & $\mathcal{P}$      & Threads switching cores (OS scheduler typically tries to avoid this). \\
+        $\neg \mathcal{C}$ & $\mathcal{P}$ & Two threads executed entirely on separate cores. \\
+    \end{tabular}
+\end{center}
+
+\subsection{Cost Efficiency}
+\begin{examplebox}{What is it good for!}
+    What are the main advantages of parallelism?
+    \tcblower
+    \begin{itemize}
+        \item Better performance through parallelism
+        \item Better cost-efficiency (can share RAW, disk, network cards between several cores, rather than needing separate machines)
+    \end{itemize}
+    Much of this is workload and algorithm specific $\to$ a user needs to analyze their specific use case to determine the appropriate hardware.
+\end{examplebox}
+Datacenters optimise for \textit{total cost of ownership}:
+\begin{itemize}
+    \item Entire hardware lifecycle (purchase, expected maintenance, mean time-to-failure).
+    \item Energy consumption \& cooling requirements.
+    \item land, building \& even security costs.
+    \item Existing hardware compatibility.
+\end{itemize}
+
+\begin{examplebox}{CPU provisioning}
+    Given the following specifications:
+    \begin{itemize}
+        \item 1 Gbps network
+        \item Requests are 1KB
+        \item Each requet takes 50$\mu$s to process
+    \end{itemize}
+    \tcblower
+    \[\underbrace{2^{30}}_{\text{1 Gbps Network}}  \div \underbrace{2^3}_{8 \ bits = 1 \ byte} \div \underbrace{2^10}_{\text{1 KB request}} = 2^{17} \ \text{ requests per second}\]
+    Each core can process a request in $50\mu s$ so:
+    \[(50 \times 10^{-6})^{-1} = (5 \times 10^{-5})^{-1} = 2 \times 10^4 \ \text{ requests per second}\]
+    Hence to saturate the flow of incoming requests:
+    \[cores = \left\lceil \cfrac{requests / sec}{requests / sec / core} \right\rceil = \left\lceil \cfrac{2^{17}}{2 \times 10^4} \right\rceil \approx \lceil 6.5 \rceil = 7\]
+\end{examplebox}
+
+\subsection{Critical Path Analysis}
+\begin{definitionbox}{Critical Path}
+    A sequence of tasks determining the minimum time for an operation.
+    \begin{center}
+        \includegraphics[width=.8\textwidth]{parallelism/images/critical_path.drawio.png}
+    \end{center}
+    \begin{itemize}
+        \item The profiler is unaware of the critical path across threads (open area of research)
+        \item Optimising outside of the critical path will often not improve time.
+    \end{itemize}
+\end{definitionbox}
+
+
+\section{Cache Coherency}
+CPUs contain multiple levels of data caches (L1, L2, L3/LLC) which need to be coherent (same cached location $\Rightarrow$ same value).
+\\
+\\ A cache coherency protocol determines how a CPU achieves this. Typically each cache line has some state, with the protocol determining how and when cache lines transition state depending on issues reads and writes.
+\\
+\\ MSI is a simple cache coherency algorithm.
+
+% Slides dont show entire MSI => wikipedia is good, but is it assessed?
+
+\unfinished
+
+In order to add support for atomics and additional \textbf{Locked} state is included
+
+\section{Atomics}
+Atomic read, modify and write operations require hardware support and are exposed
+ to programmers through compiler supported libraries (e.g stdatomic for C11, C++ \href{https://en.cppreference.com/w/cpp/atomic}{atomic} and Rust \href{https://doc.rust-lang.org/std/sync/atomic/}{\mintinline{rust}{std::sync::atomic}}).
+
+\begin{sidenotebox}{Lock Prefix}
+    The IA32 \& x86-64 support a \mintinline{asm}{lock} prefix for some instructions to specify they should be run atomically. 
+
+\begin{minipage}[t]{.55\textwidth}
+    \inputminted{c}{parallelism/code/cmpxchg.c}
+\end{minipage}
+\begin{minipage}[t]{.45\textwidth}
+    \inputminted{asm}{parallelism/code/cmpxchg.s}
+\end{minipage}
+\end{sidenotebox}
+
+Atomic methods often allow the programmer to specify the memory order (order of memory accesses around the atomic access).
+\begin{minted}{cpp}
+enum class memory_order : /* unspecified */ {
+    relaxed, // relaxed ordering - no guarantee on ordering
+    consume, // release-consume ordering
+    acquire, // release-acquire ordering
+    release, // release-acquire and release-consume ordering 
+    acq_rel, // both release and acquire
+    seq_cst  // sequentially consistent ordering
+};
+\end{minted}
+These orders are well-documented \href{https://en.cppreference.com/w/cpp/atomic/memory_order}{here on cppreference}. 
+
+\section{Synchronisation}
+\subsection{Synchronisation Primitives}
+\begin{tcbraster}[raster columns=2,raster equal height]
+    \begin{definitionbox}{Mutex/Lock}
+        Can only be held by one thread, blocks otherwise. Single thread in critical region.
+        \tcblower
+        \mintinline{cpp}{std::mutex}
+    \end{definitionbox}
+    \begin{definitionbox}{Shared Mutex/RW Lock}
+        A mutex with a shared and exclusive lock.
+        Allows any number of \textit{readers} or single \textit{writer} into a critical region.
+        \tcblower
+        \mintinline{cpp}{std::shared_mutex}
+    \end{definitionbox}
+    \begin{definitionbox}{Semaphore}
+        Can be incremented/decremented, waits until value is $> 0$. 
+        Allows $n$ threads into a critical region.
+        \tcblower
+        \mintinline{cpp}{std::counting_semaphore}
+        \\ \mintinline{cpp}{std::binary_semaphore}
+    \end{definitionbox}
+    \begin{definitionbox}{Condition Variable}
+        Set threads to wait until a condition is signalled as true (can use predicates, or have threads signal to wake up $n$ waiting threads).
+        \tcblower
+        \mintinline{cpp}{std::condition_variable} 
+    \end{definitionbox}
+\end{tcbraster}
+\begin{definitionbox}{Barrier}
+    Forces $n$ threads reaching the barrier to wait, until $n$ have arrived, at which point all are unblocked.
+    \tcblower
+    \mintinline{cpp}{std::barrier}
+\end{definitionbox}
+
+\subsection{Lock Implementation}
+\subsubsection{User-Space}
+Must make use of atomics to create spinlocks.
+\begin{itemize}
+    \item Basic locks just use CAS to wait on a flag.
+    \item Intrinstics such as \mintinline{cpp}{_mm_pause()} can be used to wait efficiently (produces no-ops)
+    \item Backoff (fixed \& exponential) can be used to decrease contention in access to the lock's flag.
+    \item Other spinlock types such as ticket locks can add guarantees in order of acquisition by threads. 
+\end{itemize}
+
+\begin{tabbox}{prosbox}
+    \textbf{No Kernel} & No kernel involvement means potentially less overhead when contention is low. \\
+\end{tabbox}
+
+\begin{tabbox}{consbox}
+    \textbf{Spinning} & Waiting threads consume valuable CPU resources while spinning. This can become a severe issue if the spinning thread has higher priority than the thread holding the lock. \\
+    \textbf{Starvation} & For a basic thread implementation there is no ordering on acquisition, so a thread may be constantly skipped/other threads that more recently attempted acquire the lock.  (Note: ticket locks guarantee this ordering) \\ 
+\end{tabbox}
+
+\subsubsection{Kernel Level Lock}
+Lock and unlock via a syscall, with logic implemented in kernel space. If a thread cannot acquire the lock, thens schedule another thread.  
+\begin{itemize}
+    \item Can implement same CAS based acquisition attempt within the kernel (multiple threads on multiple cores may be servicing a syscall simultaneously)
+    \item In systems with a single hardware thread, mutual exclusion within the kernel can be achieved by disabling interrupts (e.g as in Pintos, not possible on modern systems)
+\end{itemize}
+
+\begin{tabbox}{prosbox}
+    \textbf{Fairness} & Can keep a queue of blocked/waiting threads and wake them in order. \\ 
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{Expensive} & If the lock is released/available, then acquisition has the additional overhead of a syscall when compared to a user level implementation. \\ 
+\end{tabbox}
+
+\subsubsection{Hybrid Level Lock}
+A user level lock that bails out to a kernel level list of blocked waiters when contention is high.
+\begin{itemize}
+    \item Most popular implementation is the linux \textit{futex} (\textit{fast userspace mutex}).
+    \item \mintinline{c}{pthread_mutex_lock} uses a futex internally
+\end{itemize}
+
+\begin{tabbox}{prosbox}
+    \textbf{Adaptable} & Can dynamically adapt to spin in userspace, or block from kernel based on contention at runtime. \\  
+\end{tabbox}
+
+\section{False Sharing}
+\begin{center}
+    \includegraphics[width=.7\textwidth]{parallelism/images/false_sharing.drawio.png}
+\end{center}
+Cache coherency protocols store state per line. Multiple threads may not access shared data, but may access locations in that map to the same cache lines and if any threads write the line may be continually invalidated.
+\begin{itemize}
+    \item We can use hardware counters (e.g profiling with perf, using the HITM (hit modified) counter on x86-64 CPUs) to find false sharing occuring.
+\end{itemize}
+
+\section{Distributing Work}
+\subsection{Sequential}
+\subsection{On Demand}
+\subsection{Fork \& Join}
+\subsection{Work Dispatching}
+\subsection{Work Stealing}
+\subsection{Streaming}
+
+\section{Allocators}
+A single global allocator is a source of contention in a multithreaded system.
+\begin{itemize}
+    \item Use a cache of blocks per-thread, this cache can be accessed without contention.
+    \item Does global allocation \& free in batches. 
+\end{itemize}
+
+\section{Multiprocessing}
+\unfinished

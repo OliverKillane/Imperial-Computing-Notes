@@ -1,0 +1,153 @@
+\chapter{Tools}
+
+\section{Motivation}
+C++ is a very complex language, that combines:
+\begin{itemize}
+    \item High level abstractions (templates, constructors \& destructors (to RAII), macros, polymorphism from inheritance/virtuals)
+    \item Fine grained, manual control over memory (can use malloc, new, other allocators, in heap, or even on the stack) and memory access (all the power of C's pointer arithmetic)
+    \item Undefined behaviour, to allow compilers leverage to optimise (e.g signed integer overflow is undefined in the C++ standard, so that compilers can implement it based on the target architecture)  
+\end{itemize}
+These provided abstractions are powerful, but can be difficult to check correctness for.
+
+\begin{sidenotebox}{What about Rust?}
+    Rust was largely invented as an attempt to solve the correctness issues encountered by C++, without the performance tradeoff made by many other languages with more memory safety (e.g swift, go).
+    \\
+    \\ The language is split into safe and unsafe, with necessarily unsafe (but high performance) code being written in unsafe to provide safe abstractions. Safe rust has several advantages over C++:
+    \begin{itemize}
+        \item No undefined behaviour.
+        \item Any program with data races cannot compile (ownership \& borrow checker)
+        \item Complete memory safety (no pointers, borrow checker)
+        \item Sanitary macros (very powerful metaprogramming abstraction - comparable with languages such as Scala)
+        \item Traits and generics (much better error messages than with templates, C++ is attempting this with concepts)
+    \end{itemize}
+    For unsafe rust sanitizer-like tools are available using \href{https://github.com/rust-lang/miri}{MIRI}.
+    Performance is \href{https://programming-language-benchmarks.vercel.app/cpp-vs-rust}{comparable with C++}.
+\end{sidenotebox}
+
+\section{Correctness}
+
+\subsection{Patterns}
+\begin{definitionbox}{Resource Aquisition is Initialisation (RAII)}
+    \unfinished
+\end{definitionbox}
+
+% for locks, file handles and smart pointers
+% include std::move (not on slides)
+
+\subsection{Compiler Warnings}
+Compilers already provide a large number of warnings.
+\begin{itemize}
+    \item \href{https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html}{GCC provided warnings}
+    \item \href{https://clang.llvm.org/docs/DiagnosticsReference.html}{Clang provided warnings}
+    \item Linters can also be used to catch code quality issues, that could potentially result in correctness issues in future (hard to understand code leads to misunderstandings).
+\end{itemize}
+\begin{minted}{bash}
+# Use all warnings and error on warnings (e.g to fail CI)
+g++ ... -Wall -Werror ...
+\end{minted}
+It is possible to enable and disable compiler warnings from the code.
+\begin{minted}{cpp}
+// Selecting levels for -Wformat
+#pragma GCC diagnostic warning "-Wformat"
+#pragma GCC diagnostic error "-Wformat"
+#pragma GCC diagnostic ignored "-Wformat
+\end{minted}
+More can be found in \href{https://gcc.gnu.org/onlinedocs/gcc/Diagnostic-Pragmas.html}{GCC's diagnostic pragmas documentation}, they can also be specified as attributes (see \href{https://en.cppreference.com/w/cpp/language/attributes}{attribute specifiers}).
+
+\subsection{Sanitisers}
+Sanitisers instrument code at compile time to detect errors at runtime.
+\begin{itemize}
+    \item Typically take large performance reduction
+    \item Known bugs are present in sanitisers (though these are typically very rare edge cases)
+    \item GCC provides several that can be found \href{https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html}{here}
+\end{itemize}
+
+\begin{tcbraster}[raster columns=2,raster equal height]
+\begin{definitionbox}{Address Sanitizer (Asan)}
+    Detects out of bounds, use after free and other memory access related bugs.
+    \begin{minted}{bash}
+
+g++ ... -fsanitize=address
+    \end{minted}
+\end{definitionbox}
+\begin{definitionbox}{Undefined Behaviour Sanitizer (Ubsan)}
+    Checks for a large number of undefined behaviours in C++
+    \begin{minted}{bash}
+g++ ... -fsanitize=undefined
+    \end{minted}
+\end{definitionbox}
+\end{tcbraster}
+\begin{definitionbox}{Thread Sanitizer}
+    A data-race detector, uses a vector clock algorithm to detect data races at runtime.
+    \begin{minted}{bash}
+g++ ... -fsanitize=thread
+    \end{minted}
+\end{definitionbox}
+\begin{examplebox}{Malloc weirdness}
+    Does the following code segfault? Use Asan to determine if the following code has any memory related bugs.
+    \inputminted{cpp}{tools/code/memory_example.cpp}
+    \tcblower
+    \begin{minted}{bash}
+g++ memory_example.cpp -o memory_example
+./memory_example
+
+# result of code
+here
+    \end{minted}
+    There is no segfault (this is due to how malloc chunks work as explained \href{https://sourceware.org/glibc/wiki/MallocInternals}{here}), however we are accessing outside the bounds of the memory allocated.
+    \\
+    \\ When running with asan we see the warning:
+    \begin{minted}{bash}
+g++ memory_example.cpp -o memory_example -fsanitize=address
+./memory_example
+
+# asan output
+==1094==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x60b0000000ec at ...
+# The error originates in "main"
+    \end{minted}
+\end{examplebox}
+
+\subsection{Valgrind}
+Valgrind provides tools to detect memory issues and data races.
+\subsubsection{Memcheck}
+\begin{minted}{bash}
+valgrind --tool=memcheck program # place args on end
+\end{minted}
+\begin{itemize}
+    \item Should include debugging symbols when compiling
+    \item Much slower than sanitizers, but can take any binary.
+    \item Memcheck documented \href{https://valgrind.org/docs/manual/mc-manual.html}{here}
+\end{itemize}
+
+\begin{examplebox}{Memcheck this!}
+    Use Valgrind Memcheck to find the incorrect index in the previously checked program.
+    \tcblower
+    \begin{minted}{bash}
+# include debug symbols
+g++ memory_example.cpp -g -o memory_example
+valgrind --tool=memcheck ./memory_example
+
+# valgrind output:
+==2375== Invalid write of size 4
+==2375==    at 0x1091EB: main (memory_example.cpp:6)
+==2375==  Address 0x4db2c7c is 4 bytes before a block of size 100 alloc'd
+==2375==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/ ...
+==2375==    by 0x1091DE: main (memory_example.cpp:5)
+    \end{minted}
+\end{examplebox}
+
+\subsubsection{Helgrind}
+\begin{minted}{bash}
+valgrind --tool=helgrind program # place args on end
+\end{minted}
+Data race detection using valgrind.
+
+\section{Performance}
+\subsection{VTune}
+\unfinished
+
+\subsection{Perf}
+\unfinished
+
+\subsection{Coz}
+\unfinished
