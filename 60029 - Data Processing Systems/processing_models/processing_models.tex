@@ -34,6 +34,15 @@ std::function<int(int, int)> add = [ /* captures */ ](int a, int b) { return a +
     \end{itemize}
 \end{definitionbox}
 
+\begin{tabbox}{prosbox}
+  \textbf{Easy to Implement} & Implementation is simple, adding new operators is easy (using operator interface provided). Clean Object-Oriented Design. \\
+  \textbf{I/O Behaviour} & As tuples are consumed as soon as they are produced, no waiting for I/O to create and buffer the next tuple. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+  \textbf{Poor Locality} & Each tuple is processed through all stages in a pipeline fragment (no \textit{pipeline breakers}) before the next tuple, so data is accessed across many locations. Code locality (for I-Cache) is also poor. \\
+  \textbf{Lots of Calls!} & CPU spends much time loading and calling function pointers to operators, predicates and aggregate functions. \\
+\end{tabbox}
+
 \subsection{Operators}
 A basic interface for operators can be devised as:
 \begin{minted}{cpp}
@@ -544,3 +553,261 @@ groupby.close();
 \begin{sidenotebox}{Run it!}
     The above code is provided with examples in the associated notes repository!
 \end{sidenotebox}
+
+\subsection{Pipelining}
+\subsubsection{IO Operations}
+\begin{center}
+  \includegraphics[width=.7\textwidth]{processing_models/images/pipeline_fragments.drawio.png}
+\end{center}
+As some operations require buffering, we need to determine how much buffer is required, if this can fit in memory (or disk I/O required), and in which operators.
+\begin{itemize}
+  \item If all buffers in a fragment fit in memory, there is no I/O
+  \item Otherwise: sequential access $\to$ number of occupied pages, random access/out of order $\to$ one page I/O per access (an upper bound \& almost certainly an over estimate)
+\end{itemize}
+Buffer size depends on the operator, we assume \textit{spanned pages} are used:
+\begin{itemize}
+  \item Sorted relations, nested loop buffers $\to$ same size as input
+  \item Hashtables have an over-allocation factor (if not known $\to$ assume $2$)
+\end{itemize}
+Finally we assume we know the cardinality of operator inputs and outputs, and the buffer pool size.
+
+\begin{examplebox}{Basic GroupBy}
+  \begin{minipage}{.2\textwidth}
+    \includegraphics[width=\textwidth]{processing_models/images/example_buffer_io_1.drawio.png}
+  \end{minipage} \hfill \begin{minipage}{.79\textwidth}
+    \begin{minted}{sql}
+CREATE TABLE Customer (
+  id      i32,
+  name    STRING, -- Key into compressed dictionary
+  address STRING, -- Key into compressed dictionary
+  nation  i32,
+  phone   i32,
+  accNum  i32
+);
+    \end{minted}
+    \begin{itemize}
+      \item Customer has $10,000$ tuples
+      \item Strings are represented by a 32 bit integer key into a compressed dictionary. 
+      \item $\sigma_{id > 250}$ has $30\%$ selectivity.
+      \item $\Gamma_{(id), (count)}$ has grouping cardinality of $9$
+      \item Page size is $64 \ B$
+      \item Buffer pool is $512 \ KB$
+    \end{itemize}
+  \end{minipage}
+  \tcblower
+  \begin{enumerate}
+    \item { $Scan(Customer)$:
+      \[size(Customer) = (6 \times 4) \times 10,000 = 240,000 \Rightarrow pages(Customer) = \left\lceil \cfrac{240,000}{64} \right\rceil = 3,750\]
+      \begin{itemize}
+        \item Scan reads sequentially, so $cost(Scan(Customer)) = 3,750$ I/O operations. 
+        \item Not a pipeline-breaker, so only needs 1 tuple at a time, so no buffer allocation required.
+      \end{itemize}
+    }
+    \item { $\sigma_{id < 250}(\dots)$
+      \begin{itemize}
+        \item Not a pipeline breaker, so no need to buffer.
+        \item No IO costs as child $Scan$ operation passes tuple in memory.
+      \end{itemize}
+    }
+    \item { $\Gamma_{(id),(count)}$
+      \\ For the grouping we assume a hashtable overallocation factor of $2$, the table contains $count$ and grouping attribute ($id$).
+      \[size(\text{GroupBy hashtable}) = 2 \times ((2 \times 4) \times 9) = 144\]
+    }
+  \end{enumerate}
+\end{examplebox}
+
+\subsubsection{CPU Efficiency}
+\begin{sidenotebox}{Slow Jumps}
+  A jump to a function pointer (e.g a \mintinline{cpp}{std::function}, \mintinline{cpp}{virtual} method or \mintinline{cpp}{OUT (*function_ptr)(A, B, ...)}) is expensive.
+  \begin{center}
+    \includegraphics[width=.8\textwidth]{processing_models/images/jump_to_register.drawio.png}
+  \end{center}
+  \begin{itemize}
+    \item A combined data \& control hazard. The address must be known in order to jump, the next instruction after the jump cannot be known until the jump is done.
+    \item There are ways to reduce the stall in hardware (reducing length of pipeline frontend to reduce possible stall cycles, jump target prediction \& speculation, delayed jump (allow other work to be done in what would have been stall cycles))
+    \item In software we could load the address to a register many instructions before the jump, and do other useful work between, but often there is little other work to be done.
+  \end{itemize}
+  To avoid this cost:
+  \begin{itemize}
+    \item Jump to an immediate value (typically pc-relative immediate offset in the jump instruction), as the jump location is part of the instruction, there is no hazard. But the function to jump to must be known at compile time. Still affects returns (jump to link register/return address register) (though this should be very fast due to return-address stack branch predictors).
+    \item Inline a function (must be known at compile time)
+    \item Do fewer of these calls to function pointers/virtuals.
+  \end{itemize}
+\end{sidenotebox}
+For each operation we can count the function calls per tuple
+\begin{center}
+  \begin{tabular}{l l p{.6\textwidth}}
+    Scan & 0 & Tuples read straight from buffer. \\
+    Select/$\sigma$ & 2 & Call to read input, call to apply predicate. \\
+    Project/$\sigma$ & 2 & Call to read input, call to projection. \\
+    Cross Product (Inner \& Outer) & 1 & Call to read input. \\
+    Join & 1 & Call to read input (comparison and hash can be inlined). \\
+    Group-By & 2 & Read input and call aggregation function. \\
+    Output & 1 & Call to read input and extract to output. \\
+   \end{tabular}
+\end{center}
+
+\section{Bulk Processing}
+\begin{definitionbox}{Bulk Processing}
+  Queries are processed in batches.
+  \begin{itemize}
+    \item Turn \textit{control dependencies} to \textit{data dependencies} \& buffer.
+    \item Pass references to buffers between operators.
+    \item Better locality for code (I-cache) \& data.
+  \end{itemize}
+\end{definitionbox}
+For example a basic select operator could be implemented on an Nary Table:
+\begin{itemize}
+  \item Rather than calling select predicate, provide operators for common predicates (e.g equality)
+  \item Can implement for decomposed storage layout.
+\end{itemize}
+\begin{minted}{cpp}
+template <typename V> using Row = vector<V>;
+template <typename V> using Table = vector<Row<V>>;
+
+template <typename V>
+size_t select_eq(Table<V> &outputBuffer, const Table<V> &inputBuffer, V eq_value, size_t attribOffset) {
+  for (const Row<V> &r : inputBuffer) {
+    if (r[attribOffset] == eq_value) {
+      outputBuffer.push_back(r);
+    }
+  }
+  return outputBuffer.size();
+}
+\end{minted}
+\begin{examplebox}{Bulking up}
+  Translate the following to use the \mintinline{cpp}{select_eq} implementation above.
+  \begin{minted}{sql}
+CREATE TABLE Orders (orderId int, status int, urgency int);
+
+SELECT PendingOrders.* FROM (
+  SELECT *
+  FROM Orders
+  WHERE status = PENDING
+) AS PendingOrders
+WHERE PendingOrders.urgency = URGENT;
+  \end{minted}
+  \tcblower
+  \begin{minted}{cpp}
+enum Urgency { URGENT, NOT_URGENT, IGNORE };
+enum Status { COMPLETE, IN_PROCESS, PENDING };
+
+Table<int> Orders{
+    {1, COMPLETE, IGNORE},
+    {2, PENDING, IN_PROCESS},
+    {3, PENDING, URGENT},
+    {4, PENDING, URGENT},
+};
+
+Table<int> PendingOrders, UrgentAndPendingOrders;
+
+select_eq<int>(PendingOrders, Orders, PENDING, 1);
+select_eq<int>(UrgentAndPendingOrders, PendingOrders, URGENT, 2);
+  \end{minted}
+\end{examplebox}
+\noindent
+For determining the number of IO operations, bulk operators read all input pages sequentially, and writes to output sequentially.
+
+\begin{examplebox}{Bulk Selection}
+  \begin{minipage}{.2\textwidth}
+    \includegraphics[width=\textwidth]{processing_models/images/example_bulk_processing.drawio.png}
+  \end{minipage} \hfill \begin{minipage}{.79\textwidth}
+    Compute an estimate of the IO operations for the previous example's query.
+    \begin{itemize}
+      \item Selectivity of both $\sigma$ is $25\%$
+      \item $1,000,000$ tuples
+      \item Each tuple contains $3$ $32$ bit integers
+      \item $512 \ KB$ cache with $64 \ B$ pages
+    \end{itemize}
+  \end{minipage}
+  \tcblower
+  \begin{enumerate}
+    \item { Load Page
+      \[size(Orders) = 1,000,000 \times (3 \times 4) = 12,000,000 \Rightarrow pages(Orders) = \left\lceil \cfrac{12,000,000}{64} \right\rceil = 187,500 \]
+      Hence $187,500$ IO actions
+    }
+    \item { $\sigma_{status=PENDING}$
+      \[size(PendingOrders) = 250,000 \times (3 \times 4) = 3,000,000 \]
+      \[\Rightarrow pages(PendingOrders) = \left\lceil \cfrac{3,000,000}{64} \right\rceil = 46,875\]
+      Hence given the input buffer, there are $46,875$ output IO actions.
+    }
+    \item { $\sigma_{urgency=URGENT}$
+      \[size(PendingAndUrgentOrders) = 62,500 \times (3 \times 4) = 750,000 \]
+      \[\Rightarrow pages(PendingAndUrgentOrders) = \left\lceil \cfrac{750,000}{64} \right\rceil = \lceil 11,718.75 \rceil = 11,719\]
+      Hence given the input buffer, there are $11,719$ output IO actions.
+    }
+  \end{enumerate}
+  Hence in total there are $187,500 + 46,875 + 11,719 = 246094$ IO actions.
+\end{examplebox}
+
+\subsection{By-Reference Bulk Processing}
+\begin{definitionbox}{By-Reference Bulk Processing}
+  Copying is expensive, so instead of copying rows an identifier/reference is used.
+  \begin{itemize}
+    \item There is overhead associated with indirection of a reference
+    \item Produced tables can contain many ids out of order \& lookups result in random access pattern.
+  \end{itemize}
+\end{definitionbox}
+
+\begin{minted}{cpp}
+// Candidates are indexes into an underlying table
+using Candidates = vector<uint32_t>;
+
+// To add all rows of a table to some candidates.
+template<typename V>
+size_t add_candidates(const Table<V>& underlyingBuffer, Candidates& outputRows) {
+    for (uint32_t i = 0; i < underlyingBuffer.size(); i++) {
+        outputRows.push_back(i);
+    }
+    return outputRows.size();
+}
+
+// An by-reference bulk processing implementation of select
+template<typename V>
+size_t select_eq(const Table<V>& underlyingBuffer, Candidates& outputRows, 
+                 const Candidates& inputRows, V eq_value, size_t attribOffset) {
+    for (const uint32_t index : inputRows) {
+        if (underlyingBuffer[index][attribOffset] == eq_value) {
+            outputRows.push_back(index);
+        }
+    }
+    return outputRows.size();
+}
+\end{minted}
+We can then demonstrate the previous example with the following query
+\begin{minted}{cpp}
+Candidates OrdersCandidates, PendingOrders, UrgentAndPendingOrders;
+add_candidates(Orders, OrdersCandidates);
+select_eq<int>(Orders, PendingOrders, OrdersCandidates, PENDING, 1);
+select_eq<int>(Orders, UrgentAndPendingOrders, PendingOrders, URGENT, 2);
+\end{minted}
+
+\subsubsection{Page Access Probability}
+When estimating page IO we must consider access to candidates:
+\begin{itemize}
+  \item Access to candidate vectors can result in page IO.
+  \item Indexes from candidate vectors are ordered, but may be spread across the underlying table's pages.
+\end{itemize}
+Probability of a page being touched, given $s$ selectivity of tuples and $n$ tuples per page.
+\[p(s,n) = 1 - \underbrace{(1-s)^n}_{\text{no tuples accessed}}\]
+Hence for a selection:
+\[PageFault = p(s,n) \times pages(underlying) where \begin{cases}
+  s & = \text{ selection selectivity} \\
+  n & = \cfrac{\text{page size}}{\text{tuple size}} \\
+\end{cases}\]
+
+\subsection{Decomposed Bulk Processing}
+Decomposed storage was introduced as a consequence of bulk processing:
+\begin{itemize}
+  \item By storing columns contiguously, page faults are reduced by accessing a column.
+  \item Reduces pressure on space occupied by underlying table in buffer pool/cache (only need relevant columns loaded).
+\end{itemize}
+
+\subsubsection{IO Operations}
+We must adapt the scheme used for by-reference bulk processing to account of decomposed storage.
+\begin{itemize}
+  \item Only need to consider the size of the data in the column being accessed.
+\end{itemize}
+\begin{examplebox}{Bulk Columns}
+  \unfinished
+\end{examplebox}
