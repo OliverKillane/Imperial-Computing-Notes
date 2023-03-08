@@ -266,12 +266,329 @@ Cache coherency protocols store state per line. Multiple threads may not access 
 \end{itemize}
 
 \section{Distributing Work}
+We can implement some basic work distribution schemes using a Task.
+\begin{minted}{cpp}
+struct Task {
+  virtual void run() = 0;
+};
+
+// We can make use of std::reference_wrapper to pass references to a polymorphic task type
+using TaskRef = std::reference_wrapper<Task>;
+using TaskQueue = std::vector<TaskRef>;
+\end{minted}
+\begin{itemize}
+    \item Virtual method allows for polymorphism in tasks
+    \item Task can store state, and return values.
+\end{itemize}
+We will make use of some example tasks:
+\\ \begin{minipage}[t]{.49\textwidth}
+    \begin{minted}{cpp}
+struct PrintTask : Task {
+  int id;
+
+  PrintTask(int id) : id(id) {
+    std::cout << "Created PrintTask: " 
+              << id 
+              << std::endl;
+  }
+
+  void run() override { 
+    std::cout << "PrintTask: " 
+              << id 
+              << std::endl;
+  }
+};
+    \end{minted}
+\end{minipage}
+\hfill \begin{minipage}[t]{.49\textwidth}
+    \begin{minted}{cpp}
+struct WaitTask : Task {
+  int id;
+  std::chrono::milliseconds wait_ms;
+
+  WaitTask(int id, int waitfor) 
+    : id(id), wait_ms(waitfor) {
+    std::cout << "Created WaitTask: " 
+              << id 
+              << std::endl;
+  }
+
+  void run() override {
+    std::cout << "started WaitTask: " 
+              << id 
+              << std::endl;
+    std::this_thread::sleep_for(wait_ms);
+    std::cout << "Ended WaitTask: " 
+              << id 
+              << std::endl;
+  }
+};
+    \end{minted}
+\end{minipage}
+Runnable through a function for each work distribution:
+\begin{minted}{cpp}
+int main() {
+  /* Can allocate tasks on stack, in a vector, etc */
+  PrintTask a(0); PrintTask b(1); PrintTask c(2); PrintTask d(3);
+
+  /* Create a task Queue to pass to method */
+  TaskQueue tasks{a, b, c, d};
+
+  auto start = std::chrono::steady_clock::now();
+
+  /* Run tasks (comment out all but one method) */
+  process_sequential   (tasks);
+  process_on_demand    (tasks);
+  process_fork_and_join(tasks);
+  process_dispatch     (tasks);
+  process_jobsteal     (tasks);
+
+  auto end = std::chrono::steady_clock::now();
+  
+  /* Display time */
+  std::cout << "Time: " << (end - start).count() << std::endl;
+}
+\end{minted}
 \subsection{Sequential}
+\begin{minted}{cpp}
+void process_sequential(TaskQueue &tasks) {
+  for (auto &task : tasks) {
+    task.get().run();
+  }
+}   
+\end{minted}
+\begin{tabbox}{prosbox}
+    \textbf{Simple} & No reasoning about concurrency required, easy to implement \& understand performance. \\
+    \textbf{Low Overhead} & No overhead for using synchronisation primitives, as required by concurrent schemes. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{No Parallelism}
+\end{tabbox}
+
 \subsection{On Demand}
+\begin{minted}{cpp}
+// Invariant: tasks' lifetime > threads (threads reference tasks)
+void process_on_demand(TaskQueue &tasks) {
+  std::vector<std::thread> threads;
+  for (auto &task : tasks) {
+    std::thread([&]() { task.get().run(); }).detach();
+  }
+}
+\end{minted}
+\begin{tabbox}{prosbox}
+    \textbf{Simple} & Each thread only accesses task once, all synchronisation after is part of the task. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{Performance} & Spawning threads is expensive, and when there is a large number of threads (e.g when os threads $>$ hardware threads) scheduling and contention on locks protecting shared data accessed by tasks reduce performance. \\
+\end{tabbox}
+
 \subsection{Fork \& Join}
+For each batch of tasks, spawn new threads.
+\begin{minted}{cpp}
+void process_fork_and_join(TaskQueue &tasks) {
+  std::vector<std::thread> threads;
+  for (auto &task : tasks) {
+    threads.emplace_back(std::thread([&]() { task.get().run(); }));
+  }
+  for (auto &thread : threads) {
+    thread.join();
+  }
+}
+\end{minted}
+\begin{sidenotebox}{OpenMP}
+    OpenMP is a set of standards for adding high-level parallelism directives into multiple languages (Fortran, C and C++).
+    \href{https://www.openmp.org/wp-content/uploads/OpenMPRefCard-5-2-web.pdf}{OpenMP references}
+    \begin{minted}{cpp}
+#pragma omp for
+for ( /* ... */ ) { 
+    /* block executed in parallel  with other iterations */ 
+}
+    \end{minted}
+\end{sidenotebox}
+
 \subsection{Work Dispatching}
+Each worker has its own queue, tasks are dispatched to each queue.
+\begin{itemize}
+    \item Queue is accessed by a main thread and a single worker
+    \item Fixed number of workers
+\end{itemize}
+\begin{minted}{cpp}
+struct WorkerQueue {
+  WorkerQueue() : finish_(false), worker_([&]() {
+    while (!finish_.load()) {
+      auto task = get_task();
+      if (task.has_value()) task.value().get().run();
+    }
+  }) {}
+
+  void add_task(TaskRef task) {
+    const std::lock_guard<std::mutex> lock(tasks_mutex_);
+    tasks_.push_front(task);
+  }
+
+  std::optional<TaskRef> get_task() {
+    const std::lock_guard<std::mutex> lock(tasks_mutex_);
+    if (!tasks_.empty()) {
+      auto task = tasks_.back();
+      tasks_.pop_back();
+      return task;
+    } else { return {}; }
+  }
+
+  size_t size() const {
+    const std::lock_guard<std::mutex> lock(tasks_mutex_);
+    return tasks_.size();
+  }
+
+  void finish() {
+    finish_.store(true);
+    worker_.join();
+  }
+
+private:
+  mutable std::mutex tasks_mutex_;
+  std::deque<TaskRef> tasks_;
+  std::atomic<bool> finish_;
+  std::thread worker_;
+};
+\end{minted}
+We can then create a pool of \mintinline{cpp}{WorkerQueue}s and allocate tasks in a round-robin scheme.
+\begin{minted}{cpp}
+template <size_t THREADS> struct WorkerPool {
+  WorkerPool() : task_number_(0) {}
+
+  void push_task(TaskRef task) {
+    size_t index = task_number_.fetch_add(1) % THREADS;
+    queues_[index].add_task(task);
+  }
+
+  void finish() {
+    for (auto &q : queues_)
+      q.finish();
+  }
+
+private:
+  std::array<WorkerQueue, THREADS> queues_;
+  std::atomic<size_t> task_number_;
+};
+\end{minted}
+
+\begin{minted}{cpp}
+void process_dispatch(TaskQueue &tasks) {
+  WorkerPool<5> workerPool;
+  for (auto t : tasks) {
+    workerPool.push_task(t);
+  }
+  workerPool.finish();
+}
+\end{minted}
+\begin{sidenotebox}{Improve these examples!}
+    These examples have threads spin until a job is found, to improve efficiency we could suspend threads while no tasks are present.
+    \begin{itemize}
+        \item Could use a semaphore (\mintinline{cpp}{#include <semaphore>} from C++20 (only available in newer versions of GCC)).
+        \item Need to ensure that suspended threads are still ended when \mintinline{cpp}{WorkerQueue::finish} is called.
+        \item Could use a condition variable to implement producer-consumer pattern with finish.
+    \end{itemize}
+\end{sidenotebox}
+
+\begin{tabbox}{prosbox}
+    \textbf{Contention} & Each thread has its own queue, and hence can only contend for access with the thread/threads adding to the queue, not other workers. \\
+\end{tabbox}
+\begin{tabbox}[.7\textwidth]{consbox}
+    \textbf{Consumer Balancing} & Some threads may finish jobs quickly and idle, while others are still completing work, but the tasks may still be allocated to busy threads.
+\end{tabbox}
 \subsection{Work Stealing}
+Many threads contend to take tasks from a queue.
+\begin{minted}{cpp}
+template <size_t THREADS> struct TaskPool {
+  TaskPool() : finish_(false) {
+    for (auto &t : threads_)
+      t = std::thread([&]() {
+        while (!finish_.load()) {
+          tasks_mutex_.lock();
+          if (!tasks_.empty()) {
+            TaskRef task = tasks_.back();
+            tasks_.pop_back();
+            tasks_mutex_.unlock();
+            task.get().run();
+          } else {
+            tasks_mutex_.unlock();
+          }
+        }
+      });
+  }
+
+  void submit_task(TaskRef task) {
+    const std::lock_guard<std::mutex> lock(tasks_mutex_);
+    tasks_.push_front(task);
+  }
+
+  size_t size() const {
+    const std::lock_guard<std::mutex> lock(tasks_mutex_);
+    return tasks_.size();
+  }
+
+  void finish() {
+    finish_.store(true);
+    for (auto &t : threads_)
+      t.join();
+  }
+
+private:
+  std::mutex tasks_mutex_;
+  std::deque<TaskRef> tasks_;
+  std::array<std::thread, THREADS> threads_;
+  std::atomic<bool> finish_;
+};
+\end{minted}
+\begin{minted}{cpp}
+void process_jobsteal(TaskQueue &tasks) {
+  TaskPool<5> taskpool;
+  for (auto t : tasks) {
+    taskpool.submit_task(t);
+  }
+  taskpool.finish();
+}
+\end{minted}
+
+\begin{tabbox}{prosbox}
+    \textbf{Consumer Balancing} & Tasks are \textit{stolen} by idle threads, busy threads are not overloaded with tasks. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{Contention} & All threads waiting for new jobs contend for access to the same queue. \\
+\end{tabbox}
+
 \subsection{Streaming}
+\begin{center}
+    \includegraphics[width=.8\textwidth]{parallelism/images/streaming.drawio.png}
+\end{center}
+Rather than executing tasks in parallel, execute each stage of a task in a pipeline.
+\begin{itemize}
+    \item Data needs to be communicated between threads (shared memory between cores)
+    \item Temporary data for each stage is not shared.
+\end{itemize}
+\begin{tabbox}{prosbox}
+    \textbf{I-Cache Locality} & Running the same code many times for better temporal locality in instruction cache. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{D-Cache Locality} & Data must be input and output from stages. Hence we necessarily get slower initial access times due to sharing data \& cache coherency protocol. \\
+    \textbf{Pipeline Woes} & Get common issues related to unbalanced pipeline stages/pipeline fragmentation. \\
+    \textbf{Flexibility} & If the number of tasks increases of decreases, we cannot just spawn or remove a thread (as with work stealing, dispatch etc), we need to add/remove an entire pipeline. \\ 
+\end{tabbox}
+
+\begin{definitionbox}{Staged Event Diven Architecture (SEDA)}
+    A combination of streaming and worker-pool based systems.
+    \begin{itemize}
+        \item Each stage has an input queue, as well as its own thread pool.
+        \item When a bottleneck occurs (e.g a queue becomes full) a stage can make a decision (e.g drop a request)
+        \item Flexible/can react to load (i.e stages can spawn or remove threads from their pools)
+        \item Queues mean stages can be inspected to see contents \& size to optimise for load.
+    \end{itemize}
+    The \href{https://web.archive.org/web/20120704004128/http://www.eecs.harvard.edu/~mdw/papers/mdw-phdthesis.pdf}{paper behind SEDA} provides a webserver example:
+    \begin{center}
+        \includegraphics[width=.9\textwidth]{parallelism/images/SEDA.png}
+    \end{center}
+\end{definitionbox}
 
 \section{Allocators}
 A single global allocator is a source of contention in a multithreaded system.
@@ -282,3 +599,15 @@ A single global allocator is a source of contention in a multithreaded system.
 
 \section{Multiprocessing}
 \unfinished
+
+\section{Programming Models}
+\unfinished
+% Thread per task
+
+% Worker Pools
+
+
+% Event based
+% Callbacks
+% Futures
+% Coroutines
