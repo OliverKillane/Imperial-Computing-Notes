@@ -639,7 +639,7 @@ For each operation we can count the function calls per tuple
   \begin{tabular}{l l p{.6\textwidth}}
     Scan & 0 & Tuples read straight from buffer. \\
     Select/$\sigma$ & 2 & Call to read input, call to apply predicate. \\
-    Project/$\sigma$ & 2 & Call to read input, call to projection. \\
+    Project/$\Pi$ & 2 & Call to read input, call to projection. \\
     Cross Product (Inner \& Outer) & 1 & Call to read input. \\
     Join & 1 & Call to read input (comparison and hash can be inlined). \\
     Group-By & 2 & Read input and call aggregation function. \\
