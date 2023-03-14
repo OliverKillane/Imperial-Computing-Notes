@@ -1,0 +1,53 @@
+\tlatex
+\@x{}\moduleLeftDash\@xx{ {\MODULE} Channel}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} Naturals}%
+\@x{ {\CONSTANT} Data}%
+\@x{ {\VARIABLE} channel}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Check whether channel is in the set (created by use of
+ \ensuremath{\.{\dotdot}}) of valid records
+}%
+\@xx{}%
+ \@x{ Type \.{\defeq} channel \.{\in} [ value \.{:} Data ,\, ready \.{:} 0
+ \.{\dotdot} 1 ,\, ack \.{:} 0 \.{\dotdot} 1 ]}%
+\@pvspace{8.0pt}%
+\@x{}\midbar\@xx{}%
+\@x{ Init \.{\defeq} Type \.{\land} channel . ack \.{=} channel . ready}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Set value to \ensuremath{d} and flip ready
+}%
+\@xx{}%
+ \@x{ Send ( d ) \.{\defeq} channel . ready \.{=} channel . ack \.{\land}
+ channel \.{'} \.{=} [ channel {\EXCEPT} {\bang} . value \.{=} d ,\, {\bang}
+ . ready \.{=} 1 \.{-} @ ]}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Flip \ensuremath{ack}, otherwise leave channel the same
+}%
+\@xx{}%
+ \@x{ Receive \.{\defeq} channel . ready \.{\neq} channel . ack \.{\land}
+ channel \.{'} \.{=} [ channel {\EXCEPT} {\bang} . ack \.{=} 1 \.{-} @ ]}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Can only send valuesa that are in \ensuremath{Data
+}}%
+\@xx{}%
+\@x{ SendSome \.{\defeq} \E\, d \.{\in} Data \.{:} Send ( d )}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Either send or receieve (note can both send and recieve at the same time)
+}%
+\@xx{}%
+\@x{ Next \.{\defeq} SendSome \.{\lor} Receive}%
+\@pvspace{8.0pt}%
+\@x{ Spec\@s{1.46} \.{\defeq} Init \.{\land} {\Box} [ Next ]_{ channel}}%
+\@x{}\midbar\@xx{}%
+\@x{ Typed \.{\defeq} {\Box} Type}%
+\@x{}\bottombar\@xx{}%

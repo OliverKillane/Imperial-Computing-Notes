@@ -29,14 +29,25 @@
 \subsection{TLA+ Constructs}
 Based on an excellent cheat sheet created by professor Narankar Dulay, based on \href{https://mbt.informal.systems/docs/tla_basics_tutorials/tla+cheatsheet.html}{Model Based Testing \@ Informal Systems's own}.
 
+\subsubsection{File Structure}
+\begin{minipage}{.48\textwidth}
+    \input{tla_plus/code/ExampleFile.tex}
+\end{minipage}
+\hfill
+\begin{minipage}{.48\textwidth}
+    \inputminted{text}{tla_plus/code/ExampleFile.tla}
+\end{minipage}
+\vspace{.3cm}
+
 \newcommand{\TLAset}[1]{\textcolor{blue}{\mintinline{text}{#1}}}
 \newcommand{\TLAbool}[1]{\textcolor{red}{\mintinline{text}{#1}}}
-\newcommand{\TLAinteger}[1]{\textcolor{yellow}{\mintinline{text}{#1}}}
-\newcommand{\TLAfunction}[1]{\textcolor{green}{\mintinline{text}{#1}}}
+\newcommand{\TLAinteger}[1]{\textcolor{orange}{\mintinline{text}{#1}}}
+\newcommand{\TLAfunction}[1]{\textcolor{ForestGreen}{\mintinline{text}{#1}}}
 \newcommand{\TLAtuple}[1]{\textcolor{purple}{\mintinline{text}{#1}}}
 \newcommand{\TLAother}[1]{\textcolor{black}{\mintinline{text}{#1}}}
 
-\centerline{\TLAbool{Booleans} \TLAfunction{Functions} \TLAinteger{Integers} \TLAset{Sets} \TLAtuple{Tuples \& Sequences}}
+For the language definitions, the following key is used:
+\\ \centerline{\TLAbool{Booleans} \ \TLAfunction{Functions} \ \TLAinteger{Integers} \ \TLAset{Sets} \ \TLAtuple{Tuples \& Sequences}}
 
 \subsubsection{Logic}
     \begin{tabular}{l l p{.8\textwidth}}
@@ -47,7 +58,7 @@ Based on an excellent cheat sheet created by professor Narankar Dulay, based on 
         $a \land b$ & \TLAbool{a /\ b} & Logical and \\
         $a \lor b$ & \TLAbool{a \/ b} & Logical or \\
         $a = b$ & \TLAbool{a = b} & Equality \\
-        $a \neq b$ & \TLAbool{a # b} & Not equal \\
+        $a \neq b$ & \textcolor{red}{a \# b} & Not equal \\
         $a \implies b$ & \TLAbool{a => b} & Logical Implication ($b \lor \neg a$) or \TLAbool{IF a THEN b ELSE TRUE}\\
         $a \equiv b$ & \TLAbool{a <=> b} & Equivalence \\
     \end{tabular}
@@ -121,7 +132,7 @@ Based on an excellent cheat sheet created by professor Narankar Dulay, based on 
 
     \begin{tabular}{l l p{.5\textwidth}}
         $\langle e1, e2, e3 \rangle$ & \TLAtuple{<<e1, e2, e3>>} & Construct a sequence (list) from expressions (all the same type) \\
-        $mySeq[i]$ & \TLAother{mySeq[i]} & Get index $i$ of sequence $mySeq$ \\
+        $mySeq[i]$ & \TLAother{mySeq[i]} & Get index $i$ of sequence $mySeq$ (indexed from 1) \\
         $seq1 \circ seq2$ & \TLAtuple{seq1 \o seq2} & Concatenation of sequences \\
         $Len(mySeq)$ & \TLAinteger{Len(mySeq)} & Length of a given sequence \\
         $Append(mySeq, e)$ & \TLAtuple{Append(mySeq, e)} & Add to end of a sequence \\
@@ -166,7 +177,6 @@ Based on an excellent cheat sheet created by professor Narankar Dulay, based on 
         $F1 \leadsto F2$ & \TLAset{F1 ~> F2} & $F1$ leads to $F2$ \\
         $WF_v(A), SF_v(A)$ & \TLAset{WF_v(A), SF_v(A)} & Strong and weak fairness for action $A$ \\ 
     \end{tabular}
-
 
 \section{Examples}
 \subsection{One Bit Clock}
@@ -241,5 +251,55 @@ We can see the short-circuiting of $\lor$ resulting in messages being printed, $
 \end{minted}
 \end{minipage}
 
+\section{Model Checking with TLC}
+TLC uses a \mintinline{bash}{.cfg} file to configure the parameters for running the model checker.
+\begin{minted}{text}
+\* Defines a state machine 
+SPECIFICATION Spec
 
+\* Properties that must be true for every state
+PROPERTY NotDeadlock Typed   \* Note TLC checks for absence of deadlock by default
 
+\* Specifying invariants
+INVARIANT Type   \* equivalent to PROPERTY []Type
+
+\* Define constant values
+CONSTANT Data = {1,2}
+
+\* Specifying the init and next states
+INIT Init
+NEXT Next
+\end{minted}
+The TLC model checker performs a breadth-first search of all possible states to check properties hold, or the reachable state in which a violation takes place.
+\begin{itemize}
+    \item Safety properties can be encoded (if violated in any state at any time, property is violated)
+    \item Liveness is encoded as determining that for times $\exists t' . \forall t. [satisified(state(t')) \land t' \geq t]$.
+\end{itemize}
+
+\subsection{Asynchronous Messages}
+\begin{center}
+    \includegraphics[width=.5\textwidth]{tla_plus/images/async_msg.drawio.png}
+\end{center}
+\subsubsection{TLA+}
+\input{tla_plus/code/AsyncMessage.tex}
+\subsubsection{Code}
+\inputminted{text}{tla_plus/code/AsyncMessage.tla}
+\subsubsection{Configuration}
+\inputminted{text}{tla_plus/code/AsyncMessage.cfg}
+
+\subsection{Channel}
+\begin{center}
+    \includegraphics[width=.5\textwidth]{tla_plus/images/channel.drawio.png}
+\end{center}
+\subsubsection{TLA+}
+\input{tla_plus/code/Channel.tex}
+\subsubsection{Code}
+\inputminted{text}{tla_plus/code/Channel.tla}
+\subsubsection{Configuration}
+\inputminted{text}{tla_plus/code/Channel.cfg}
+
+\subsection{Unbounded FIFO}
+\begin{center}
+    \includegraphics[width=.5\textwidth]{tla_plus/images/unbounded_FIFO.drawio.png}
+\end{center}
+\unfinished

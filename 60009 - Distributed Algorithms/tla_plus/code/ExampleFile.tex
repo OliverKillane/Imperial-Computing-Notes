@@ -1,0 +1,57 @@
+\tlatex
+\@x{}\moduleLeftDash\@xx{ {\MODULE} name}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} m1 ,\, \.{\dots} ,\, mN\@s{8.2}}%
+\@y{\@s{0}%
+ extends multiple modules
+}%
+\@xx{}%
+\@x{ {\CONSTANTS} c1 ,\, \.{\dots} ,\, cN\@s{4.73}}%
+\@y{\@s{0}%
+ constants are defined in the \ensuremath{.cfg} file
+}%
+\@xx{}%
+\@x{ {\VARIABLES} v1 ,\, \.{\dots} ,\, vN}%
+\@x{ Vars\@s{0.29} \.{\defeq} {\langle} v1 ,\, \.{\dots} ,\, vN {\rangle}}%
+\@x{ Type \.{\defeq} v1\_formula \.{\land} \.{\dots} \.{\land} vN\_formula}%
+\@x{}\midbar\@xx{}%
+\@x{}%
+\@y{\@s{0}%
+ Specification for state machine
+}%
+\@xx{}%
+\@pvspace{8.0pt}%
+\@x{ Init\@s{5.52} \.{\defeq} formula}%
+\@y{\@s{0}%
+ Initial state
+}%
+\@xx{}%
+\@x{ Def1 \.{\defeq} formula}%
+\@y{\@s{0}%
+ Definitions (any number of)
+}%
+\@xx{}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Can have any number of subactions of \ensuremath{Next
+}}%
+\@xx{}%
+\@x{ Action1 \.{\defeq} action\_formula}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Determine \ensuremath{Next} State
+}%
+\@xx{}%
+\@x{ Next \.{\defeq} Action1 \.{\lor} \.{\dots} \.{\lor} ActionN}%
+\@x{}\midbar\@xx{}%
+\@x{ Fair\@s{0.24} \.{\defeq} fairness\_formula \.{\land} \.{\dots}}%
+\@x{ Spec \.{\defeq} Init \.{\land} {\Box} [ Next ]_{ Vars} \.{\land} Fair}%
+\@x{}\midbar\@xx{}%
+\@x{ NotDeadlock \.{\defeq} {\Box} ( {\ENABLED} Next )}%
+\@y{\@s{0}%
+ Properties
+}%
+\@xx{}%
+\@x{ Typed \.{=} {\Box} Type}%
+\@x{}\bottombar\@xx{}%

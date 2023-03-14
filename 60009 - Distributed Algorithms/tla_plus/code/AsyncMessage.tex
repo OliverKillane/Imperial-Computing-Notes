@@ -1,0 +1,64 @@
+\tlatex
+\@x{}\moduleLeftDash\@xx{ {\MODULE} AsyncMessage}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} Naturals}%
+\@x{ {\CONSTANT} Data}%
+\@pvspace{8.0pt}%
+\@x{ {\VARIABLES} value ,\, ready ,\, ack}%
+\@x{ Vars\@s{0.29} \.{\defeq} {\langle} value ,\, ready ,\, ack {\rangle}}%
+\@y{\@s{0}%
+ Collection of variables values
+}%
+\@xx{}%
+ \@x{ Type \.{\defeq} value \.{\in} Data \.{\land} ready \.{\in} \{ 0 ,\, 1 \}
+ \.{\land} ack \.{\in} \{ 0 ,\, 1 \}}%
+\@x{}\midbar\@xx{}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Initial state
+}%
+\@xx{}%
+ \@x{ Init \.{\defeq} value \.{\in} Data \.{\land} ready \.{\in} \{ 0 ,\, 1 \}
+ \.{\land} ack \.{=} ready}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Action to send a message (not yet acknowledged)
+}%
+\@xx{}%
+ \@x{ Send \.{\defeq} ready \.{=} ack \.{\land} value \.{'} \.{\in} Data
+ \.{\land} ready \.{'} \.{=} 1 \.{-} ready \.{\land} {\UNCHANGED} {\langle}
+ ack {\rangle}}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Action to recieve a message with acknowledgement
+}%
+\@xx{}%
+ \@x{ Receive \.{\defeq} ready \.{\neq} ack \.{\land} ack \.{'} \.{=} 1 \.{-}
+ ack \.{\land} {\UNCHANGED} {\langle} value ,\, ready {\rangle}}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Module can either send or recieve (cannot do both due to unchanged in both
+ actions)
+}%
+\@xx{}%
+\@x{ Next \.{\defeq} Send \.{\lor} Receive}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ \ensuremath{Init} is true, and next is always true with \ensuremath{Vars}
+ potentially changed
+}%
+\@xx{}%
+\@x{ Spec \.{\defeq} Init \.{\land} {\Box} [ Next ]_{ Vars}}%
+\@x{}\midbar\@xx{}%
+\@x{}%
+\@y{\@s{0}%
+ Constraints: Value is always in data, ready \& \ensuremath{ack} are always 0
+ or 1
+}%
+\@xx{}%
+\@x{ Typed \.{\defeq} {\Box} Type}%
+\@x{}\bottombar\@xx{}%
