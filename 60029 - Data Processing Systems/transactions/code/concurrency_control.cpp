@@ -5,13 +5,21 @@
 #include <atomic>
 #include <functional>
 #include <stdexcept>
+#include <iomanip>
+#include <functional>
 
 using namespace std;
-/* UNFINISHED */
 
+// Exception for aborting transactions
 class AbortTransaction : public std::exception {
 public:
-    char * what () override {return "Transaction Aborted";}
+    const char* what() const noexcept override {return "Transaction Aborted";}
+};
+
+// Exception for getting transaction data (not yet run)
+class TransactionNotStarted : public std::exception {
+public:
+    const char* what() const noexcept override {return "Transaction Not Yet Started";}
 };
 
 using TimeStamp = chrono::time_point<std::chrono::system_clock>;
@@ -30,47 +38,83 @@ class Table {
     friend ostream& operator<<(ostream &os, const Table<Row> &table) {
         return table.printInternals(os);
     }
+
 public:
     /* The table name  */
     const string name;
+
+    Table(string&& name) : name(name) {}
 
     /* transaction operations (accessible by transaction)
      * - Throw AbortTransaction exception to abort a transaction
      * - Write to the transaction log with t.log("something happened")
      */
-    virtual void write(Transaction<Row>& t, size_t index, Row&& data) = 0;
-    virtual Row  read(Transaction<Row>& t, size_t index) = 0;
-    virtual void append(Transaction<Row>& t, Row&& data) = 0;
+    virtual void write(Transaction<Table<Row>>& t, size_t index, Row&& data) = 0;
+    virtual Row  read(Transaction<Table<Row>>& t, size_t index) const = 0;
+    virtual void append(Transaction<Table<Row>>& t, Row&& data) = 0;
 };
 
-template<typename Row>
-using TableGroup = unordered_map<string, Table<Row>>;
 
-template<typename Row>
+// Group of tables
+// - Not thread-safe
+template <typename TableType>
+class TableManager {
+    unordered_map<string, reference_wrapper<TableType>> tables_;
+public:
+    // insert a new table, override a table with the same name.
+    void insertTable(TableType& table) {
+        tables_.insert_or_assign(table.name, table);
+    }
+
+    TableType& getTable(string&& tablename) {
+        return tables_.at(tablename);
+    }
+};
+
+
+template<typename TableType>
 class Transaction {
-    using TransFn = std::function<bool(Transaction<Row>&, TableGroup<Row>&)>;
+    using TransFn = std::function<bool(Transaction<TableType>&, TableManager<TableType>&)>;
 
     // For unique IDs
     static atomic<size_t> current_id_;
 
-    vector<string> log_; // Recorded actions by all tables
+    vector<string> log_;             // Recorded actions by all tables
     const TransFn function_;         // The transaction function to apply
     const size_t id_;                // The transaction's ID
-    const TableGroup<Row>& tables_;  // Tables the trasaction can access
+    const TableManager<TableType>& tables_;  // Tables the transaction can access
+    optional<TimeStamp> start_ts_;
+
+    friend ostream& operator<<(ostream &os, const Transaction<TableType> &trans) {
+        os << "transaction T" << trans.id_ << endl << "Log: " << endl;
+        for (size_t i = 0; i < trans.log_.size(); i++) {
+            os << "\t" << i << ": " << trans.log_[i];
+        }
+        return os;
+    }
 
 public:
-    Transaction(TransFn function, TableGroup<Row>& tables) : 
+    Transaction(TransFn function, TableManager<TableType>& tables) : 
         function_(function), 
         id_(current_id_++), 
-        tables_(tables) {}
+        tables_(tables), start_ts_() {}
 
     void log(string&& msg) {
-        log.emplace_back(msg);
+        log_.emplace_back(msg);
+    }
+
+    TimeStamp getStart() const {
+        if (start_ts_.has_value()) {
+            return start_ts_.value();
+        } else {
+            throw TransactionNotStarted();
+        }
     }
 
     void run() {
         try {
-            function_(, tables_);
+            start_ts_ = chrono::system_clock::now();
+            function_(*this, tables_);
             cout << "Committed transaction T" << id_;
         } catch (AbortTransaction abort) {
             cout << "Aborted transaction T" << id_ << ":" << endl << abort.what() << endl;
@@ -83,22 +127,22 @@ template<typename Row>
 class TimeStampOrderTable : public Table<Row> {
     struct TimeStampedRow {
         Row data;
-        TimeStamp read;
-        TimeStamp write;
+        mutable TimeStamp read;
+        mutable TimeStamp write;
     };
 
     vector<TimeStampedRow> rows_;
-    mutex internal_m_;
+    mutable mutex internal_m_;
 
-    void printInternals(ostream &os) override {
+    ostream& printInternals(ostream& os) override {
         auto printtime = [&](TimeStamp ts) {
             const time_t ts_local = chrono::system_clock::to_time_t(ts);
             os << put_time(localtime(&ts_local), "%F %T");
         };
 
         const lock_guard<mutex> lock(internal_m_);
-        os << "Table " name << ":" << endl;
-        for (size_t index = 0; index < rows_.size(); rows++) {
+        os << "Table " << Table<Row>::name << ":" << endl;
+        for (size_t index = 0; index < rows_.size(); index++) {
             os << index << ": " << "R[";
             printtime(rows_[index].read);
             os << "] W[";
@@ -108,34 +152,38 @@ class TimeStampOrderTable : public Table<Row> {
         return os;
     }
 
-
 public:
-    void write(Transaction& ts, size_t index, Row&& data) override {
-        const lock_guard<mutex> lock(internal_m_);
-        TimeStampedRow& row = rows_[index]; // throws on index out of range
+    TimeStampOrderTable(string&& name) : Table<Row>(move(name)) {}
 
+    void write(Transaction<Row>& t, size_t index, Row&& data) override {
+        const lock_guard<mutex> lock(internal_m_);
+        auto& row = rows_[index]; // throws on index out of range
+        auto ts = t.getStart();
         if (row.write > ts) {
-            return false;
+            throw AbortTransaction();
         } else {
+            row.write = ts;
             row.data = data;
-            return true;
         }
     }
 
-    optional<Row> read(TimeStamp ts, size_t index) override {
+    Row read(Transaction<Row>& t, size_t index) const override {
         const lock_guard<mutex> lock(internal_m_);
-        TimeStampedRow& row = rows_[index]; // throws on index out of range
+        auto& row = rows_[index]; // throws on index out of range
+        auto ts = t.getStart();
 
         if (row.read > ts) {
-            return {};
+            throw AbortTransaction();
         } else {
+            row.read = ts;
             return row.data;
         }
     }
 
-    void append(TimeStamp ts, Row&& data) override {
+    void append(Transaction<Row>& t, Row&& data) override {
         const lock_guard<mutex> lock(internal_m_);
-        rows_.emplace_back({.read = ts, .write = ts, .data = data});
+        auto ts = t.getStart();
+        rows_.emplace_back(TimeStampedRow {.data = data, .read = ts, .write = ts});
     }
 };
 
@@ -143,20 +191,26 @@ public:
 
 
 int main() {
-    TableGroup<int> tables();
-    tables["table 1"] = TimeStampOrderTable<int>();
-    tables["table 2"] = TimeStampOrderTable<int>();
+    using TableType = TimeStampOrderTable<int>;
 
-    Transaction<int> T1([](ts, tgp){
-        tgp["table 1"].append(ts, 20);
-        tgp["table 1"].append(ts, 21);
-        tgp["table 1"].append(ts, 22);
+    TableType table1("table1");
+    TableType table2("table2");
 
-        tgp["table 1"].write(ts, 1, 13) &&
-        tgp["table 1"].write(ts, 1, 13);
-    });
+    TableManager<TableType> tables;
+    tables.insertTable(table1);
+    tables.insertTable(table2);
 
-    T1.run();
-    T2.run();
+
+    Transaction<TableType> T1([](auto t, auto tm){
+        auto& table1 = tm.getTable("table1");
+        table1.append(t, 3);
+        table1.append(t, 45);
+        table1.append(t, 66);
+        t.log("here!");
+        table1.write(t, 0, 33);
+    }, tables);
+
+    // T1.run();
+    // T2.run();
 }
 

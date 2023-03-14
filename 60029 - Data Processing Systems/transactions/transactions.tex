@@ -361,9 +361,13 @@ END TRANSACTION
 
 \section{Concurrency Schemes}
 
-Serializability is required -> Use 2PL
-Conflicts expected to be Low -> Use OCC lowest overhead
-Conflicts expected to be high -> Use MVCC
+\begin{center}
+    \begin{tabular}{l c l}
+        Serializability is required & $\to$ & Use 2PL \\
+        Conflicts expected to be Low & $\to$ & Use OCC lowest overhead \\
+        Conflicts expected to be high & $\to$ & Use MVCC \\
+    \end{tabular}
+\end{center}
 
 
 \subsection{Serial Execution}
