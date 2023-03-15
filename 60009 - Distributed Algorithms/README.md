@@ -1,5 +1,4 @@
-readme unfinished
-
+# 60009 - Distributed Algorithms
 ## [Course Notes](60009%20-%20Distributed%20Algorithms.pdf)
 
 ## Module Description
