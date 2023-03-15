@@ -1,0 +1,26 @@
+\tlatex
+\@x{}\moduleLeftDash\@xx{ {\MODULE} LiveClock12}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} Clock12}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{}%
+\@xx{}%
+\@x{ Fairness\@s{0.63} \.{\defeq} {\WF}_{ hour} ( Next )}%
+\@x{ LiveSpec \.{\defeq} Spec \.{\land} Fairness}%
+\@x{}\midbar\@xx{}%
+\@x{}%
+\@y{\@s{0}%
+ There is always another hour
+}%
+\@xx{}%
+ \@x{ AlwaysTick \.{\defeq} {\Box} {\Diamond} {\langle} Next {\rangle}_{
+ hour}}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ All hour states are always used in the future
+}%
+\@xx{}%
+ \@x{ AllTimes \.{\defeq} \A\, hr \.{\in} 1 \.{\dotdot} 12 \.{:} {\Box}
+ {\Diamond} ( hour \.{=} hr )}%
+\@x{}\bottombar\@xx{}%

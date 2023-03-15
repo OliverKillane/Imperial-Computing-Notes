@@ -1,0 +1,25 @@
+\tlatex
+\@x{}\moduleLeftDash\@xx{ {\MODULE} Clock12}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} Naturals}%
+\@x{ {\VARIABLE} hour}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ 12 hour clock state constraint
+}%
+\@xx{}%
+\@x{ Type \.{\defeq} hour \.{\in} 1 \.{\dotdot} 12}%
+\@x{}\midbar\@xx{}%
+\@x{}%
+\@y{\@s{0}%
+ Initial and \ensuremath{Next} Action
+}%
+\@xx{}%
+\@x{ Init\@s{4.12} \.{\defeq} Type}%
+\@x{ Next \.{\defeq} hour \.{'} \.{=} ( hour \.{\%} 12 ) \.{+} 1}%
+\@pvspace{8.0pt}%
+\@x{ Spec\@s{1.46} \.{\defeq} Init \.{\land} {\Box} [ Next ]_{ hour}}%
+\@x{}\midbar\@xx{}%
+\@pvspace{8.0pt}%
+\@x{ Typed \.{\defeq} {\Box} Type}%
+\@x{}\bottombar\@xx{}%

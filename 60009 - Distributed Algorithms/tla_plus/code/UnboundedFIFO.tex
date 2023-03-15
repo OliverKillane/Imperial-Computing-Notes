@@ -1,0 +1,83 @@
+\tlatex
+\@x{}\moduleLeftDash\@xx{ {\MODULE} UnboundedFIFO}\moduleRightDash\@xx{}%
+\@x{ {\EXTENDS} Naturals ,\, Sequences}%
+\@x{ {\CONSTANT} Messages}%
+\@x{ {\VARIABLES} in ,\, out ,\, buffer}%
+\@x{ Vars \.{\defeq} {\langle} in ,\, out ,\, buffer {\rangle}}%
+\@pvspace{8.0pt}%
+ \@x{ In \.{\defeq} {\INSTANCE} Channel {\WITH} Data \.{\leftarrow} Messages
+ ,\, channel \.{\leftarrow} in}%
+ \@x{ Out \.{\defeq} {\INSTANCE} Channel {\WITH} Data \.{\leftarrow} Messages
+ ,\, channel \.{\leftarrow} out}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ In and out invariants hold, and the buffer is within the infinite set of
+ sequences that only contain items in \ensuremath{Messages
+}}%
+\@xx{}%
+ \@x{ Type \.{\defeq} In {\bang} Type \.{\land} Out {\bang} Type \.{\land}
+ buffer \.{\in} Seq ( Messages )}%
+\@x{}\midbar\@xx{}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ \ensuremath{Init} requires init for in and out channels and an empty buffer
+}%
+\@xx{}%
+ \@x{ Init \.{\defeq} In {\bang} Init \.{\land} Out {\bang} Init \.{\land}
+ buffer \.{=} {\langle} {\rangle}}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Sending to in does not change buffer or out, uses \ensuremath{In}
+ channel\mbox{'}s receive
+}%
+\@xx{}%
+ \@x{ SendIn \.{\defeq} \.{\LET} Send ( msg ) \.{\defeq} In {\bang} Send ( msg
+ ) \.{\land} {\UNCHANGED} {\langle} out ,\, buffer {\rangle} \.{\IN} \E\, msg
+ \.{\in} Messages \.{:} Send ( msg )}%
+\@x{}%
+\@y{\@s{0}%
+ Receiving from in appends to the buffer, but does not changed the output
+ (buffered)
+}%
+\@xx{}%
+ \@x{ ReceiveIn \.{\defeq} In {\bang} Receive \.{\land} buffer \.{'} \.{=}
+ Append ( buffer ,\, in . value ) \.{\land} {\UNCHANGED} out}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Sending to out requires the buffer be non-empty, and takes from the head of
+ the buffer. In is unchanged
+}%
+\@xx{}%
+ \@x{ SendOut \.{\defeq} buffer \.{\neq} {\langle} {\rangle} \.{\land} Out
+ {\bang} Send ( Head ( buffer ) ) \.{\land} buffer \.{'} \.{=} Tail ( buffer
+ ) \.{\land} {\UNCHANGED} in}%
+\@x{}%
+\@y{\@s{0}%
+ Receiving from out does not changed buffer or in, but does require
+ \ensuremath{Out}\mbox{'}s receive
+}%
+\@xx{}%
+ \@x{ ReceiveOut \.{\defeq} Out {\bang} Receive \.{\land} {\UNCHANGED}
+ {\langle} in ,\, buffer {\rangle}}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Can do one of four actions in each step
+}%
+\@xx{}%
+ \@x{ Next \.{\defeq} SendIn \.{\lor} ReceiveIn \.{\lor} SendOut \.{\lor}
+ ReceiveOut}%
+\@pvspace{8.0pt}%
+\@x{}%
+\@y{\@s{0}%
+ Next is a stuttering action
+}%
+\@xx{}%
+\@x{ Spec \.{\defeq} Init \.{\land} {\Box} [ Next ]_{ Vars}}%
+\@x{}\midbar\@xx{}%
+\@x{ Typed \.{\defeq} {\Box} Type}%
+\@x{}\bottombar\@xx{}%

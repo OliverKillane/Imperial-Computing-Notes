@@ -9,10 +9,7 @@
 % TLA learning resources
 \begin{itemize}
     \item \href{https://lamport.azurewebsites.net/tla/summary-standalone.pdf}{A summary of TLA}
-    \item 
 \end{itemize}
-
-
 \unfinished
 
 \section{Terminology}
@@ -300,6 +297,24 @@ The TLC model checker performs a breadth-first search of all possible states to 
 
 \subsection{Unbounded FIFO}
 \begin{center}
-    \includegraphics[width=.5\textwidth]{tla_plus/images/unbounded_FIFO.drawio.png}
+    \includegraphics[width=.8\textwidth]{tla_plus/images/unbounded_FIFO.drawio.png}
 \end{center}
-\unfinished
+\subsubsection{TLA+}
+\input{tla_plus/code/UnboundedFIFO.tex}
+\subsubsection{Code}
+\inputminted{text}{tla_plus/code/UnboundedFIFO.tla}
+\subsubsection{Configuration}
+\inputminted{text}{tla_plus/code/UnboundedFIFO.cfg}
+\subsubsection{TLC Check}
+The TLC check will hang as the unbounded fifo has an unbounded number of states to check (as the buffer can be any size). We can add a constraint to bound it to allow for checking a smaller buffer capacity (reduces possible states).
+
+\subsection{Bounded FIFO}
+\begin{center}
+    \includegraphics[width=.5\textwidth]{tla_plus/images/bounded_FIFO.drawio.png}
+\end{center}
+\subsubsection{TLA+}
+\input{tla_plus/code/BoundedFIFO.tex}
+\subsubsection{Code}
+\inputminted{text}{tla_plus/code/BoundedFIFO.tla}
+\subsubsection{Configuration}
+\inputminted{text}{tla_plus/code/BoundedFIFO.cfg}
