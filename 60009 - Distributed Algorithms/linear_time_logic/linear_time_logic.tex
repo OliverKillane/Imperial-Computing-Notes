@@ -231,7 +231,7 @@ Fairness properties are constraints assumed to be enforced by the system (e.g fa
         \[\Box \Diamond \underline{A} \Rightarrow \Box \Diamond A\]
         If action $A$ is \textit{enabled} infinitely often then it is executed infinitely often.
         \[\textit{Strong Fairness} \Rightarrow \textit{Weak Fairness}\]
-        \[SF_v(A) \triangleq \Box \Diamond (\ENABLED \langle A \rangle _V) \Rightarrow \Box \Diamond \langle A \rangle_v\]    
+        \[SF_v(A) \triangleq \Box \Diamond (\ENABLED \langle A \rangle_v) \Rightarrow \Box \Diamond \langle A \rangle_v\]    
         \begin{minted}{text}
     SF_v(A) == []<>(ENABLED <<A>>_v) 
             => []<><<A>>_V
