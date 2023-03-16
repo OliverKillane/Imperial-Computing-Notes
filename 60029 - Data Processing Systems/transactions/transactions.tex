@@ -224,7 +224,7 @@ END TRANSACTION
 \end{definitionbox}
 
 \begin{definitionbox}{Write Skew}
-    Concurrent write operations violate a constraint / validity.
+    Concurrent transactions read an overlapping range of rows and commit disjoint updates without seeing the other's update.
     \tcblower
     \begin{minipage}[t]{.49\textwidth}
         \begin{minted}{sql}
