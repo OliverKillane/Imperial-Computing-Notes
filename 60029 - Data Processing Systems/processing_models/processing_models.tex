@@ -652,6 +652,28 @@ For each operation we can count the function calls per tuple
   \includegraphics[width=\textwidth]{processing_models/images/spanned_pages_volcano_processing_calcs.drawio.png}
 \end{center}
 
+\begin{examplebox}{Selective}
+  \begin{minted}{SQL}
+CREATE TABLE table (
+  a INTEGER,
+  b INTEGER,
+  c INTEGER
+);
+
+-- note a, b and c are uniform randomly distributed [1-16] inclusive 
+INSERT INTO table VALUES /* ...10 million rows*/ ;
+
+
+-- Evaluate the following query for pageIO and function calls under volcano processing.
+SELECT sum(c) FROM  table WHERE a = 11 and b = 7;
+  \end{minted}
+  \tcblower
+  If we assume the \mintinline{sql}{WHERE} can be done with a single selection, and selection predicate. 
+  \begin{center}
+    \includegraphics[width=\textwidth]{processing_models/images/example_basic_selection.drawio.png}
+  \end{center}
+\end{examplebox}
+
 \section{Bulk Processing}
 \begin{definitionbox}{Bulk Processing}
   Queries are processed in batches.
