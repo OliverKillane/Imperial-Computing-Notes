@@ -141,7 +141,7 @@ END TRANSACTION
 \end{definitionbox}
 
 \begin{definitionbox}{Non-Repeatable Read}
-    Reads within the same transaction of the same rows contain different values.
+    Reads within the same transaction, of the same rows, contain different values.
     \tcblower
     \begin{minipage}[t]{.49\textwidth}
         \begin{minted}{sql}
@@ -247,17 +247,15 @@ END TRANSACTION
 \end{definitionbox}
 
 \begin{definitionbox}{Inconsistent Analysis}
-    A transactions reads an \textit{inconsistent} (constraints not satisfied) snapshot of the database state.
-    \[r_1[o_a] \prec r_2[o_a],  w_2[o_b] \prec r_1[o_b]\]
-    \begin{itemize}
-        \item Occurs when a transaction reads from data as an update is run on it.
-        \item e.g reading rows of a table, as they are updated.
-        \item e.g reading keys before a foreign key constraint is fully satisfied by an insertion.
-    \end{itemize}
+    A transactions reads an \textit{inconsistent} view of the database state.
+    \[r_1[o_a] \prec w_2[o_a] ,  w_2[o_b] \prec r_1[o_b]\]
+    \unfinished
     \tcblower
     \begin{minipage}[t]{.49\textwidth}
     \begin{minted}{sql}
 BEGIN TRANSACTION T1
+
+SELECT sum(a) FROM table;
 
 SELECT sum(a) FROM table;
 -- sum reads some a = 9 and some a = 17
@@ -267,7 +265,9 @@ END TRANSACTION
        \begin{minted}{sql}
 BEGIN TRANSACTION T2
 UPDATE table SET a = 9 WHERE  b = 1;
+
 UPDATE table SET a = 17 WHERE  b = 3;
+
 
 END TRANSACTION
        \end{minted}
