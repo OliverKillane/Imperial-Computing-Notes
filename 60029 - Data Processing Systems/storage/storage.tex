@@ -106,7 +106,8 @@ Multi-dimensional data must be stored in a 1-dimensional memory.
     \begin{itemize}
         \item Space wasted (larger as tuple size increases)
         \item If the record size $>$ page size, it is not possible to use this strategy
-        \item If records are variable size, no constant time random access.
+        \item Assuming there is a know fill factor (number of tuples allocated to each page) we can get fast random lookup for the page a variable size tuple is on.
+        \item If records are variable size, no constant time random access within a page.
     \end{itemize}
 \end{definitionbox}
 
@@ -118,8 +119,8 @@ Multi-dimensional data must be stored in a 1-dimensional memory.
     \begin{itemize}
         \item Minimises wasted space
         \item Supports very large record sizes (larger than a page)
-        \item Complex to implement, and reduced random access performance
-        \item No in-page random access for variable size records
+        \item Complex to implement, and reduced random access performance (with variable size tuples we cannot determine the page a tuple is on in constant time)
+        \item If records are variable size, no constant time random access within a page.
     \end{itemize}
 \end{definitionbox}
 
