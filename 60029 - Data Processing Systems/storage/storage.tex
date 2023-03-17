@@ -127,7 +127,7 @@ Multi-dimensional data must be stored in a 1-dimensional memory.
 \begin{definitionbox}{Slotted Pages}
     To allow faster/constant time lookup for variable size records.
     \begin{center}
-        \includegraphics[width=.8\textwidth]{storage/images/slotted_pages.drawio.png}
+        \includegraphics[width=\textwidth]{storage/images/slotted_pages.drawio.png}
     \end{center}
     Header stores number of records, index of record used to look-up pointers at the end of the page which are dereferenced to get the record.
 \end{definitionbox}
@@ -135,7 +135,7 @@ Multi-dimensional data must be stored in a 1-dimensional memory.
 \begin{definitionbox}{Dictionaries}
     Rather than store data (particularly variable-size) in-place it is allocated elsewhere, and a pointer used.
     \begin{center}
-        \includegraphics[width=.8\textwidth]{storage/images/dictionary_layout.drawio.png}
+        \includegraphics[width=\textwidth]{storage/images/dictionary_layout.drawio.png}
     \end{center}
     \begin{itemize}
         \item Can eliminate duplication (duplicate attributes point to the same data)
