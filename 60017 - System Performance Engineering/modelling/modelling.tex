@@ -120,9 +120,7 @@ Some parameters can be taken from documentation, others may be derived from expe
 \begin{center}
     \includegraphics[width=.8\textwidth]{modelling/images/memory_region.drawio.png}
 \end{center}
-\begin{itemize}
-    \item The number of words skipped over between each access is $R.w - u$
-\end{itemize}
+\noindent The number of words skipped over between each access is $R.w - u$
 
 \subsection{Sequential}
 \begin{center}
@@ -258,7 +256,7 @@ We can represent the branch predictor state for a given instruction by a finite 
     \includegraphics[width=.9\textwidth]{modelling/images/bimodal.drawio.png}
 \end{center}
 Hence we can also model the branch predictor state as a \textit{markov chain}.
-\begin{definitionbox}{Stationary Diustribution}
+\begin{definitionbox}{Stationary Distribution}
     A probability distribution for a specific \textit{markov chain} that remains the same (stationary) as time progresses.
     \\
     \\ Given the transition matrix $\mathbf{P}$ of a chain, the stationary distribution can be represented by a vector of probabilities for being in any given state $\pi_\infty$ such that:

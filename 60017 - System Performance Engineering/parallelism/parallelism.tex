@@ -598,7 +598,48 @@ A single global allocator is a source of contention in a multithreaded system.
 \end{itemize}
 
 \section{Multiprocessing}
-\unfinished
+\begin{definitionbox}{Multiprocessing}
+A process can contain several threads (multi threading). Multiprocessing involves using multiple processes.
+\begin{itemize}
+  \item Synchronisation achieved with structures shared between processes (e.g a \textit{futex} can be shared between processes)
+  \item There is no shared memory by default (shared pages can be used to allow shared memory between processes), hence processes cannot interfere/are separated
+  \item Communication between processes is explicit and expensive (requires a syscall)
+\end{itemize}
+Processes can even be run on separate machines, and explicit communication implemented using a network (e.g Apache Beam, Hadoop).
+\end{definitionbox}
+Multiprocessing is best used when a system executes independent tasks with simple, explicitly expressed communication.
+\begin{itemize}
+  \item A common pattern is to assign processes to groups of independent tasks
+  \item UNIX systems allow for easy multiprocessing through pipes (\mintinline{Bash}{process1 | process2})
+\end{itemize}
+\subsection{Communication}
+Common interprocess-communication mechanisms include:
+\subsubsection{Explicit Shared Memory}
+\begin{tabbox}{prosbox}
+  \textbf{Zero-Copy} & Just as with multithreading, large data can be communicated without copying. \\
+  \textbf{No Syscalls} & Once shared memory is setup between processes, communication can occur entirely in userspace. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+  \textbf{No Interface} & There is no standard interface, operating systems (e.g Linux, Windows, Fuschia) have their own shared-memory implementation and interface (syscalls). \\
+  \textbf{Local-Only} & Requires the processes to run on the same machine. \\
+\end{tabbox}
+\subsubsection{Sockets}
+\begin{tabbox}[0.7\textwidth]{prosbox}
+  \textbf{Uniform Interface} & Across operating systems, allowing the programmer to write without considering the system to deploy on, or even if the communicating processes are on the same machine. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+  \textbf{Copies} & Needs to copy communicated data, even if communication is machine-local. \\
+  \textbf{Overhead} & Needs to use the provided network stack. \\
+\end{tabbox}
+\subsubsection{Pipes}
+\begin{tabbox}{prosbox}
+  \textbf{Common Interface} & Supported by many unix-style operating systems, and used by many applications. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+  \textbf{Copies} & Must copy communicated data to a buffer (producer-consumer pattern). \\
+  \textbf{Local-Only} & Cannot distribute processes over multiple machines. \\
+\end{tabbox}
+
 
 \section{Programming Models}
 \unfinished

@@ -78,11 +78,11 @@ A common trace is to capture and inspect the stack of a thread.
 \section{Sampling}
 Rather than recording all events, we can reduce overhead by sampling some events.
 \begin{tabbox}{prosbox}
-    Performance & Fidelity traded against pertubation for reduced overhead in recording events. \\
-    Less Pertubation & Fewer interactions with program $\to$ less effect on performance $\to$ less pertubation. \\
+    \textbf{Performance} & Fidelity traded against pertubation for reduced overhead in recording events. \\
+    \textbf{Less Pertubation} & Fewer interactions with program $\to$ less effect on performance $\to$ less pertubation. \\
 \end{tabbox}
 \begin{tabbox}{consbox}
-    Imperfect & May skip sampling some events (e.g very small functions), but more expensive functions are more likely to be sampled, and we generally care about these more. \\
+    \textbf{Imperfect} & May skip sampling some events (e.g very small functions), but more expensive functions are more likely to be sampled, and we generally care about these more. \\
 \end{tabbox}
 
 \subsection{Time-Base Intervals}
@@ -137,24 +137,24 @@ A generalisation of time-based intervals (as a clock tick $\to$ time is an event
 \begin{definitionbox}{Instrumentation}
     Adding event logging code to a program.
     \begin{tabbox}{prosbox}
-        Easily Applicable & No need to extra hardware or OS support. \\
-        Flexible & Can implement any kind of logging required. \\
+        \textbf{Easily Applicable} & No need to extra hardware or OS support. \\
+        \textbf{Flexible} & Can implement any kind of logging required. \\
     \end{tabbox}
     \begin{tabbox}{consbox}
-        High Overhead & \\
-        Perturbation & As part of the program can effect performance \\
+        \textbf{High Overhead} & \\
+        \textbf{Perturbation} & As part of the program can effect performance \\
     \end{tabbox}
 \end{definitionbox}
 
 \subsection{Manual Instrumentation}
 Logging using a library (e.g \mintinline{C}{printf} logging)
 \begin{tabbox}{prosbox}
-    Fine control & Programmer can easily specify exactly where to log what. \\
-    Supportless & No need for compiler or hardware support. \\
+    \textbf{Fine control} & Programmer can easily specify exactly where to log what. \\
+    \textbf{Supportless} & No need for compiler or hardware support. \\
 \end{tabbox}
 \begin{tabbox}{consbox}
-    High Overhead & \\
-    Disable & Need to disable for release builds (recompile without any logging) \\
+    \textbf{High Overhead} & \\
+    \textbf{Disable} & Need to disable for release builds (recompile without any logging) \\
 \end{tabbox}
 
 \subsection{Automatic Instrumentation}
