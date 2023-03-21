@@ -1,6 +1,6 @@
 # Imperial College year 3 Notes
-
 ## What is this repo?
+
 This repo is the collection of notes for my chosen third year modules. 
 
 It is designed as an improvement in quality over the [second year repo](https://github.com/OliverKillane/Imperial-Computing-Year-2-Notes).
