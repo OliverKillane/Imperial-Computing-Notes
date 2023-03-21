@@ -165,7 +165,20 @@ For the language definitions, the following key is used:
         $\ENABLED A$ & \TLAset{ENABLED A} & $true$ if action $A$ is enabled \\
     \end{tabular}
 
-
+\begin{sidenotebox}{Formatting}
+    Operators on new lines affect precedence (rest of line is bracketed).
+    \\ \begin{minipage}{.3\textwidth}
+        \begin{minted}{text}
+something == /\ A..
+             /\ B..
+             /\ C..
+        \end{minted}
+    \end{minipage} \begin{minipage}{.49\textwidth}
+        \begin{minted}{text}
+something == (A.. ) /\ (B.. ) /\ (C.. )
+        \end{minted}
+    \end{minipage}
+\end{sidenotebox}
 \subsubsection{Temporal Logic}
 
     \begin{tabular}{l l p{.5\textwidth}}

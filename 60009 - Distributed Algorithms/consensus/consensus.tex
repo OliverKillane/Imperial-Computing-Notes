@@ -28,6 +28,18 @@ Many algorithms require a set of processes running in a distributed system to ag
     \end{center}
 \end{definitionbox}
 
+\noindent The FLP Impossibility result means that:
+\begin{center}
+    \begin{tabular}{l l}
+        \textbf{System} & \textbf{Consensus} \\
+        Synchronous System & \textcolor{ForestGreen}{Possible} \\
+        $\Diamond$ Synchronous System & \textcolor{ForestGreen}{Possible} \\
+        Asynchronous System & \textcolor{red}{Impossible} \\
+    \end{tabular}
+\end{center}
+\begin{definitionbox}{Eventually Synchronous System}
+    Messages take up to $mT$ most of the time, sometimes longer. \\ \toimprove
+\end{definitionbox}
 \section{Primary Backup}
 A simple consensus algorithm between two servers.
 \begin{center}
@@ -117,15 +129,49 @@ Proof is done by contradiction.
 By showing it is possible to start in a \textit{bivalent configuration} and continue doing steps without reaching a \textit{decisive configuration} (\textit{univalent}) we demonstrate it is impossible to certainly reach consensus.
 
 \subsection{Lemmas}
-\subsubsection{Confluence}
+\subsubsection{Lemma 1: Confluence}
 \begin{center}
-    \includegraphics[width=.3\textwidth]{consensus/images/lemma_confluence.drawio.png}
+    \includegraphics[width=.2\textwidth]{consensus/images/lemma_confluence.drawio.png}
 \end{center}
 Given configuration $C$ and \textit{schedules} $\sigma_1$ and $\sigma_2$ such that set of processes with steps in $\sigma_1$ and $\sigma_2$ are disjoint:
 \[\sigma_1(\sigma_2(C)) \equiv \sigma_2(\sigma_1(C))\]
 
-\subsubsection{Initial Bivalent Configuration}
+\subsubsection{Lemma 2: Initial Bivalent Configuration}
+We show that $\mathcal{A}$ has at least one initial bivalent configuration.
 \unfinished
+% Assume all initial configurations are univalent
+% for all the configs, they all go to a set of end configurations that decide the same thing.
+
+% We can take two input configurations that are different by 1 value, and go to different univalent configurations
+%
+% Hence if we have one 'failure' then the config equals the other, so decides on a different value.
+% 
+% Hence the configuration cannot be univalent (if fail => 1, if no fail => 0, set of decided has 0 and 1)
+% Hence we have a contradiction
+
+% basic example with ordering
+
+\subsubsection{Lemma 3: Neighbouring Configurations}
+Given the following:
+\[\begin{split}
+    C & = \text{Bivalent configuration for algorithms } \mathcal{A} \\
+    E & = (P, M)  \text{ An event applicable to } C \\
+    \mathcal{C} & = \text{Set of all configurations reachable from } C \text{ \textbf{when} applying } E \\
+    \mathcal{D} & = \{E(C_n) | C_n \in \mathcal{C}\}  \text{ Set of all configurations reachable from } C \text{ \textbf{without} applying } E \\
+\end{split}\]
+Then $\mathcal{D}$ contains a bivalent configuration. 
+% diagram of C -> (C1..N) =E= (D1..N)
+\\ \toimprove
+% use \sigma /schedule in the above split?
+\\ \unfinished
+
+\subsection{Theorem}
+\centerline{\textit{There is an execution in which $\mathcal{A}$ never terminates}}
+We can now show any deciding run allows for the construction of an infinite non-deciding run.
+\begin{enumerate}
+    \item By \textbf{Lemma 2} there is an initial bivalent configuration
+    \item Repeatedly apply \textbf{Lemma 3}, after each application, we can apply again - thus never reaching a decision. 
+\end{enumerate}
 
 \section{Common Consensus Algorithms}
 \begin{center}
@@ -138,6 +184,9 @@ Given configuration $C$ and \textit{schedules} $\sigma_1$ and $\sigma_2$ such th
         \textbf{CRDTs} & (\textbf{C}onflict-\textbf{F}ree \textbf{R}eplicated \textbf{D}atatypes) A data structure that can be updated independently \& across a distributed system and can resolve any inconsistencies itself, with all eventually converging to the same value. \\
     \end{tabular}
 \end{center}
+\begin{sidenotebox}{Faster Code Editing}
+    The in-development zed code editor uses CRDTs to represent text buffers in order to allow for performant multiplayer editing. See their blog post \href{https://zed.dev/blog/crdts}{here}.
+\end{sidenotebox}
 
 \section{Paxos}
 \begin{definitionbox}{Paxos}
@@ -159,10 +208,25 @@ Given configuration $C$ and \textit{schedules} $\sigma_1$ and $\sigma_2$ such th
 \end{center}
 \unfinished
 
-\subsection{leadership Based Paxos}
-The algorithm is split into rounds, in each round there is a \textbf{leader}.
+% include paxos cases here
+% include leadership based paxos as a solution to livelock
+
+\subsection{Leadership Based Paxos}
+Using a distinguished proposer as a leader to prevent livelock.
+\\
+\\ The algorithm is split into rounds, in each round there is a \textbf{leader}.
 \begin{itemize}
-    \item The leader requests the last accepted value from each acceptor
-    \item  
+    \item The \textbf{leader} requests the last accepted value from each acceptor
+    \item The \textbf{leader} determines which value to decide on.
+    \item Each round can have a different duration.
+    \item As messages have round number, servers can move onto the next round by ignoring older round's messages. Rounds can be \textit{de-synchronised} 
+    \item Hence if the \textbf{leader} crashes, the acceptors can move just move onto the next round.
 \end{itemize}
 \unfinished
+
+% leadership based paxos diagram
+% Desynced rounds
+
+
+
+
