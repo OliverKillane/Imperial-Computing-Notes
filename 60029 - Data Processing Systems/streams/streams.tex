@@ -268,14 +268,16 @@ The user sends a specific \textit{punctuation} event to inform the system that a
 ON IncomingEventWatermark e DELETE FROM event_backing_table WHERE timestamp < e.up_to_time;
 \end{minted}
 \begin{tabbox}[.7\textwidth]{prosbox}
-    \textbf{user Configurable} & The user can specify when events should be dropped. \\
+    \textbf{User Configurable} & The user can specify when events should be dropped. \\
 \end{tabbox}
 
 \subsection{Windows}
 \begin{center}
     \includegraphics[width=.9\textwidth]{streams/images/window_types.drawio.png}
 \end{center}
-\textit{Lateness bounds} are an implementation detail for ordering streams
+There are also \textit{Session Windows} open and closed by an event (e.g user loggin in \& out).
+\\
+\\ \textit{Lateness bounds} are an implementation detail for ordering streams
 \\ 
 \\ \textit{Windows} are SQL supported abstractions for viewing a slice of a stream, and are part of the language semantics.
 \begin{sidenotebox}{SQL Windows}

@@ -39,7 +39,6 @@ std::function<int(int, int)> add = [ /* captures */ ](int a, int b) { return a +
   \textbf{I/O Behaviour} & As tuples are consumed as soon as they are produced, no waiting for I/O to create and buffer the next tuple. \\
 \end{tabbox}
 \begin{tabbox}{consbox}
-  \textbf{Poor Locality} & Each tuple is processed through all stages in a pipeline fragment (no \textit{pipeline breakers}) before the next tuple, so data is accessed across many locations. Code locality (for I-Cache) is also poor. \\
   \textbf{Lots of Calls!} & CPU spends much time loading and calling function pointers to operators, predicates and aggregate functions. \\
 \end{tabbox}
 
