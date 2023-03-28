@@ -12,6 +12,17 @@
 \usepackage{utf8}
 \setcode{utf8}
 
+% More newcommands (legacy from old tex common)
+\newcommand{\trisplit}[3]{
+    \begin{minipage}{.33\textwidth}
+        #1
+    \end{minipage} \hfill \begin{minipage}{.33\textwidth}
+        #2
+    \end{minipage} \hfill \begin{minipage}{.33\textwidth}
+        #3
+    \end{minipage}
+}
+
 %================================CONFIGURATIONS================================
 \newcommand{\config}[2]{\langle #1, #2 \rangle}
 %==============================================================================
@@ -73,6 +84,8 @@
 \addchapter{while_language}
 
 \addchapter{structural_induction}
+
+\addchapter{register_machines}
 
 \addchapter{credit}
 
