@@ -5,26 +5,26 @@
 	\DeclareFixedFont{\moduletitlefontb}{T1}{ppl}{b}{n}{0.32in}
 	\DeclareFixedFont{\imperialfont}{T1}{ppl}{b}{n}{0.31in}
 
-	\resizebox{.9\textwidth}{.9\textwidth}{%
-		\begin{tikzpicture}[x=1ex,y=1ex]
-			\coordinate(hasklogoref) at (5,8);
-			\foreach \i in {100,...,1} {
-					\pgfmathparse{(\i*.1)^(-2)}
-					\edef\opac{\pgfmathresult}
-					\pgfmathparse{.8 * \i}
-					\edef\angl{\pgfmathresult}
-					\haskelltikzlogo[orangelamb, rotate=\angl,opacity=\opac];
-				}
-			\foreach \i in {100,...,1} {
-					\pgfmathparse{(\i*.1)^(-2)}
-					\edef\opac{\pgfmathresult}
-					\pgfmathparse{.8 * \i}
-					\edef\angl{\pgfmathresult}
-					\haskelltikzlogo[bluelamb, rotate=-\angl,opacity=\opac];
-				}
-			\haskelltikzlogo[original];
-		\end{tikzpicture}
-	}
+	% \resizebox{.9\textwidth}{.9\textwidth}{%
+	% 	\begin{tikzpicture}[x=1ex,y=1ex]
+	% 		\coordinate(hasklogoref) at (5,8);
+	% 		\foreach \i in {100,...,1} {
+	% 				\pgfmathparse{(\i*.1)^(-2)}
+	% 				\edef\opac{\pgfmathresult}
+	% 				\pgfmathparse{.8 * \i}
+	% 				\edef\angl{\pgfmathresult}
+	% 				\haskelltikzlogo[orangelamb, rotate=\angl,opacity=\opac];
+	% 			}
+	% 		\foreach \i in {100,...,1} {
+	% 				\pgfmathparse{(\i*.1)^(-2)}
+	% 				\edef\opac{\pgfmathresult}
+	% 				\pgfmathparse{.8 * \i}
+	% 				\edef\angl{\pgfmathresult}
+	% 				\haskelltikzlogo[bluelamb, rotate=-\angl,opacity=\opac];
+	% 			}
+	% 		\haskelltikzlogo[original];
+	% 	\end{tikzpicture}
+	% }
 
 	\begin{flushright}
 		\modulecodefont 60023 \\
