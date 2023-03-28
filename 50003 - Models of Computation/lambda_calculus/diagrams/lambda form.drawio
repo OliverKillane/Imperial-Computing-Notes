@@ -1,0 +1,34 @@
+<mxfile host="65bd71144e">
+    <diagram id="Vp7pahBWI1AMd1UNvQCL" name="Page-1">
+        <mxGraphModel dx="827" dy="410" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="1" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="$$M ::=$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="90" y="50" width="90" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="$$\lambda x.M$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="290" y="50" width="110" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="$$M \ M$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="440" y="50" width="100" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="$$x$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="210" y="50" width="60" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="Variable" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;" vertex="1" parent="1">
+                    <mxGeometry x="210" y="40" width="60" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="Abstraction" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;" vertex="1" parent="1">
+                    <mxGeometry x="315" y="40" width="60" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="Application" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;" vertex="1" parent="1">
+                    <mxGeometry x="460" y="40" width="60" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="Left associative&lt;br&gt;$$((M) \ M) \ M$$" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;" vertex="1" parent="1">
+                    <mxGeometry x="425" y="130" width="140" height="20" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
