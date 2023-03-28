@@ -12,6 +12,56 @@
 \usepackage{utf8}
 \setcode{utf8}
 
+%================================CONFIGURATIONS================================
+\newcommand{\config}[2]{\langle #1, #2 \rangle}
+%==============================================================================
+
+%==============================BIG STEP SEMANTICS==============================
+\newcommand{\bigstep}[4]{\text{(#1)}\dfrac{#2}{#3 \Downarrow #4}}
+\newcommand{\bigstepdef}[5]{\bigstep{#1}{#2}{#3}{#4} \ #5}
+%==============================================================================
+
+%=============================SMALL STEP SEMANTICS=============================
+\newcommand{\smallstep}[4]{\text{(#1)}\dfrac{#2}{#3 \to #4}}
+\newcommand{\smallstepdef}[5]{\smallstep{#1}{#2}{#3}{#4} \ #5}
+%==============================================================================
+
+\newcommand{\whilest}[3]{\text{(#1)}\dfrac{#2}{#3}}
+\newcommand{\whilestdef}[4]{\whilest{#1}{#2}{#3} \ #4}
+%==============================================================================
+
+%===================================COMMANDS===================================
+\newcommand{\while}[2]{\text{while } #1 \text{ do } #2}
+\newcommand{\ifcond}[3]{\text{if } #1 \text{ then } #2 \text{ else } #3}
+\newcommand{\doret}[2]{\text{do } #1 \text{ return } #2}
+
+\newcommand{\instrlabel}[1]{\text{\textcolor{teal}{$L_{#1}$}}}
+\newcommand{\reglabel}[1]{\text{\textcolor{orange}{$R_{#1}$}}}
+\newcommand{\regtemp}[1]{\text{\textcolor{orange}{$#1$}}}
+\newcommand{\instr}[2]{\instrlabel{#1} : & #2 \\}
+\newcommand{\dec}[3]{\reglabel{#1}^- \to \instrlabel{#2}, \instrlabel{#3}}
+\newcommand{\inc}[2]{\reglabel{#1}^+ \to \instrlabel{#2}}
+\newcommand{\halt}{\text{\textcolor{red}{\textbf{HALT}}}}
+
+\newcommand{\lambapp}[2]{#1 \ #2}
+\newcommand{\lambappb}[2]{(#1) \ (#2)}
+\newcommand{\lambfun}[2]{\lambda #1 \ . \ #2}
+
+\makeatletter
+\newcommand{\lambarg}[1]{%
+	#1 \checknextarglambarg}
+\newcommand{\checknextarglambarg}{\@ifnextchar\bgroup{\gobblenextarglambarg}{}}
+\newcommand{\gobblenextarglambarg}[1]{ \ #1 \@ifnextchar\bgroup{\gobblenextarglambarg}{}}
+
+\newcommand{\chnum}[1]{\underline{#1}}
+% Variable argument regconfig \regconfig{label no}{reg val}{reg val}...
+\makeatletter
+\newcommand{\regconfig}[2]{%
+	$#1$ & $#2$\checknextarg}
+\newcommand{\checknextarg}{\@ifnextchar\bgroup{\gobblenextarg}{\\}}
+\newcommand{\gobblenextarg}[1]{ & $#1$\@ifnextchar\bgroup{\gobblenextarg}{\\}}
+%==============================================================================
+
 \begin{document}
 \include{titlepage/titlepage}
 
@@ -19,6 +69,8 @@
 \newpage
 
 \addchapter{introduction}
+
+\addchapter{while_language}
 
 \addchapter{credit}
 

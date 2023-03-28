@@ -1,0 +1,364 @@
+\chapter{While Language}
+
+\section{SimpleExp}
+We can define a simple expression language (\textit{SimpleExp}) to work on:
+\[E \in SimpleExp \ ::= \ n | E + E | E \times E | \dots\]
+We want semantics that are the same as we would expect in typical mathematics notation
+\begin{tcbraster}[raster columns=2,raster equal height]
+    \begin{definitionbox}{Small-Set/Structural}
+        Gives a method for evaluating an expression step-by-step.
+        \[E \to E'\]
+    \end{definitionbox}
+    \begin{definitionbox}{Big-Step/Natural}
+        Ignores intermediate steps and gives result immediately.
+        \[E \Downarrow n\]
+    \end{definitionbox}
+\end{tcbraster}
+\noindent We need big to define big and small step semantics for SimpleExp to describe this, and have those semantics conform to several properties listed.
+
+\subsection{Big-Step Semantics}
+\subsubsection{Rules}
+\[\bigstep{B-NUM}{}{n}{n} \qquad \qquad \bigstepdef{B-ADD}{E_1 \Downarrow n_1 \quad E_2 \Downarrow n_2}{E_1 + E_2}{n_3}{n_3 = n_1 + n_2}\]
+We can similarly define multiplication, subtraction etc.
+\subsubsection{Properties}
+\begin{tcbraster}[raster columns=2,raster equal height]
+    \begin{definitionbox}{Determinacy}
+        \[\forall E, n_1, n_2 . \ [E \Downarrow n_1 \land E \Downarrow n_2 \Rightarrow n_1 = n_2]\]
+    Expression evaluation is deterministic (only one result possible).
+    \end{definitionbox}
+    \begin{definitionbox}{Totality}
+        \[\forall E. \ \exists n . \ [E \Downarrow n] \]
+        Every expression evaluates to something.    
+    \end{definitionbox}
+\end{tcbraster}
+
+\begin{examplebox}{Break it!}
+    How could we break the totality of SimpleExp?
+    \tcblower
+    \[\bigstepdef{B-NON-TOTAL}{}{true}{true}{}\]
+    We can break \textit{totality} by introducing a rule that can always match its output.
+    \\ 
+    \\ The B-NON-TOTAL rule can be applied indefinitely (possible evaluation path that never finishes).
+\end{examplebox}
+
+\begin{examplebox}{Now it all adds up!}
+    Show that $3 + (2 + 1) \Downarrow 6$ using the provided rules.
+    \tcblower
+    We can hence create the derivation:
+    \[\bigstep{B-ADD}{
+        \bigstep{B-NUM}{}{3}{3} \ \bigstep{B-ADD}{
+            \bigstep{B-NUM}{}{2}{2} \ \bigstep{B-NUM}{}{1}{1}
+        }{2 + 1}{3}
+    }{3 + (2 + 1)}{6}\] 
+\end{examplebox}
+
+\subsection{Small Step Semantics}
+Given a relation $\to$ we can define a its transitive closure $\to^*$ such that:
+\[E \to^* E' \Leftrightarrow E = E' \lor \exists E_1, E_2, \dots, E_k . \ [E \to E_1 \to E_2 \to \dots \to E_k \to E'] \]
+
+\subsubsection{Rules}
+\[\smallstepdef{S-ADD}{}{n_1 + n_2}{n_3}{n_3 = n_1 + n_2}\]
+\[\smallstep{S-LEFT}{E_1 \to E_1'}{E_1 + E_2}{E_1' + E_2} \qquad \smallstep{S-RIGHT}{E \to E'}{n + E}{n + E'}\]
+Here we define $+$ as a left-associative operator.
+\begin{definitionbox}{Normal Form}
+    $E$ is in its normal form (irreducable) if there is no $E'$ such that $E \to E'$        
+\end{definitionbox}
+\noindent In \textit{SimpleExp} the normal form is the natural numbers.
+
+\subsubsection{Properties}
+\begin{definitionbox}{Confluence}
+    \[\forall E, E_1, E_2 . \ [E \to^* E_1 \land E \to^* E_2 \Rightarrow \exists E' . \ [E_1 \to^* E' \land E_2 \to* E']]\]
+    Determinate $\rightarrow$ Confluent
+    \\ There are several evaluations paths, but they all get the same end result.
+\end{definitionbox}
+\begin{tcbraster}[raster columns=2,raster equal height]
+    \begin{definitionbox}{Determinacy}
+        \[\forall E, E_1, E_2 . \ [E \to E_1 \land E \to E_2 \Rightarrow E_1 = E_2]\]
+        There is at most one next possible step/rule to apply.
+    \end{definitionbox}
+    \begin{definitionbox}{Strong Normalisation}
+        There are no infinite sequences of expressions, all sequences are finite.
+    \end{definitionbox}
+
+    % note that the slides have to E_k, assumed to be normal form?
+    \begin{definitionbox}{Weak Normalisation}
+        \[\forall E. \ \ \exists k. \ \exists n. \ [E \to^k n]\]
+        There is some finite sequence of expressions (to normalize) for any expression.
+    \end{definitionbox}
+    \begin{definitionbox}{Unique Normal Form}
+        \[\forall E, n_1, n_2. \ [E \to^* n_1 \land E \to n_2 \Rightarrow n_1 = n_2]\]
+    \end{definitionbox}
+\end{tcbraster}	
+
+\begin{examplebox}{To be determined\dots}
+    Add a rule to break determinacy without breaking confluence.
+    \tcblower
+    \[\smallstep{S-RIGHT-E}{E_2 \to E_2'}{E_1 + E_2}{E_1 + E_2'}\]
+    As we can now choose which side to reduce first (S-LEFT or S-RIGHT-E), we have lost determinacy, however we retain confluence.
+\end{examplebox}
+
+\section{While}
+\subsection{Syntax}
+We can define a simple while language (if, else, while loops) to build programs from \& to analyse.
+\begin{center}
+	\begin{tabular}{r c l}
+		$B \in Bool$ & ::= & $true | false | E = E | E < E | B \& B | \neg B \dots$                   \\
+		$E \in Exp$  & ::= & $x | n | E + E | E \times E | \dots$                                     \\
+		$C \in Com$  & ::= & $x :=E | if \ B \ then \ C \ else \ C | C;C | skip | while \ B \ do \ C$ \\
+	\end{tabular}
+\end{center}
+Where $x \in Var$ ranges over variable identifiers, and $n \in \mathbb{N}$ ranges over natural numbers.
+
+\subsection{States}
+\begin{definitionbox}{Partial Function}
+	A mapping of every member of its domain, to at most one member of its codomain.
+\end{definitionbox}
+
+A \textit{state} is a partial function from variables to numbers (partial function as only defined for some variables). For state $s$, and variable $x$, $s(x)$ is defined, e.g:
+\[s = (x \mapsto 2, y \mapsto 200, z \mapsto 20)\]
+(In the current state, $x = 2, y = 200, z = 20$).
+
+For example:
+\begin{center}
+	\begin{tabular}{r c l c}
+		$s[x \mapsto 7](u)$ & $=$ & $7$    & if $u = x$ \\
+		                    & $=$ & $s(u)$ & otherwise  \\
+	\end{tabular}
+\end{center}
+
+The \textit{small-step} semantics of \textit{While} are defined using \textit{configurations} of form:
+\[\config{E}{s}, \config{B}{s}, \config{C}{s} \]
+(Evaluating $E$, $B$, or $C$ with respect to state $s$)
+\\
+\\ We can create a new state, where variable $x$ equals value $a$, from an existing state $s$:
+\[s'(u) \triangleq \alpha(x)=\begin{cases}
+		a    & u = x     \\
+		s(u) & otherwise \\
+	\end{cases}\]
+\[s' = s[x \mapsto u] \text{ is equivalent to } dom(s') = dom(s) \land \forall y.[y \neq x \rightarrow s(y) = s'(y) \land s'(x) = a]\]
+($s'$ equals $s$ where $x$ maps to $a$)
+
+\subsection{Rules}
+\subsubsection{Expressions}
+\[\whilestdef{W-EXP.LEFT}{\config{E_1}{s} \to_e \config{E'_1}{s'}}{\config{E_1 + E_2}{s} \to_e \config{E'_1 + E_2}{s'}}{} \qquad \qquad \whilestdef{W-EXP.RIGHT}{\config{E}{s} \to_e \config{E'}{s'}}{\config{n+E}{s} \to_e \config{n + E'}{s'}}{}\]
+\[\whilestdef{W-EXP.VAR}{}{\config{x}{s} \to_e \config{n}{s}}{s(x) = n} \qquad \qquad \whilestdef{W-EXP.ADD}{}{\config{n_1 + n_2}{s}}{\config{n_3}{s}}{n_3 = n_1 + n_2}\]
+These rules allow for side effects, despite the While language being side effect free in expression evaluation. We show this by changing state $s \to_e s'$.
+\\
+\\ We can show inductively (from the base cases W-EXP.VAR and W-EXP.ADD) that expression evaluation is side effect free.
+\subsubsection{Booleans}
+ (Based on expressions, one can create the same for booleans) ($b \in \{true, false\}$)
+\[\whilestdef{W-BOOL.AND.LEFT}{\config{B_1}{s} \to_b \config{B'_1}{s'}}{\config{B_1 \& B_2}{s} \to_b \config{B'_1 \& B_2}{s'}}{} \qquad \whilestdef{W-BOOL.AND.RIGHT}{\config{B}{s} \to_b \config{B'}{s'}}{\config{b \& B_2}{s} \to_b \config{b \& B'}{s'}}{}\]
+\[\whilestdef{W-BOOL.AND.TRUE}{}{\config{true \& true}{s} \to_b \config{true}{s}}{} \qquad \whilestdef{W-BOOL.AND.FALSE}{}{\config{false \& b}{s} \to_b \config{true}{s}}{}\]
+(Notice we do not short circuit, as the right arm may change the state. In a side effect free language, we could.)
+\\
+\[\whilestdef{W-BOOL.EQUAL.LEFT}{\config{E_1}{s} \to_e \config{E'_1}{s'}}{\config{E_1 = E_2}{s} \to_b \config{E'_1 = E_2}{s'}}{} \qquad \whilestdef{W-BOOL.EQUAL.RIGHT}{\config{E}{s} \to_e \config{E'}{s'}}{\config{n = E}{s} \to_b \config{n = E}{s'}}{}\]
+\[\whilestdef{W-BOOL.EQUAL.TRUE}{}{\config{n_1 = n_2}{s} \to_b \config{true}{s}}{n_1 = n_2} \quad \whilestdef{W-BOOL.EQUAL.FALSE}{}{\config{n_1 = n_2}{s} \to_b \config{false}{s}}{n_1 \neq n_2}\]
+\[\whilestdef{W-BOOL.LESS.LEFT}{\config{E_1}{s} \to_e \config{E'_1}{s'}}{\config{E_1 < E_2}{s} \to_b \config{E'_1 < E_2}{s'}}{} \qquad \whilestdef{W-BOOL.LESS.RIGHT}{\config{E}{s} \to_e \config{E'}{s'}}{\config{n < E}{s} \to_b \config{n < E}{s'}}{}\]
+\[\whilestdef{W-BOOL.LESS.TRUE}{}{\config{n_1 < n_2}{s} \to_b \config{true}{s}}{n_1 < n_2} \qquad \whilestdef{W-BOOL.EQUAL.FALSE}{}{\config{n_1 < n_2}{s} \to_b \config{false}{s}}{n_1 \geq n_2}\]
+\[\whilestdef{W-BOOL.NOT}{}{\config{\neg true}{s} \to_b \config{false}{s}}{} \qquad \whilestdef{W-BOOL.NOT}{}{\config{\neg false}{s} \to_b \config{true}{s}}{}\]
+
+\subsubsection{Assignment}
+\[\whilestdef{W-ASS.EXP}{\config{E}{s} \to_e \config{E'}{s'}}{
+		\config{x := E}{s} \to_c \config{x := E'}{s'}
+	}{} \qquad \whilestdef{W-ASS.NUM}{}{
+		\config{x:= n}{s} \to_c \config{skip}{s[x \mapsto n]}
+	}{}\]
+\subsubsection{Sequential Composition}
+\[\whilestdef{W-SEQ.LEFT}{\config{C_1}{s} \to_c \config{C_1'}{s'}}{
+		\config{C_1;C_2}{s} \to_c \config{C_1';C_2}{s'}
+	}{} \qquad \whilestdef{W-SEQ.SKIP}{}{
+		\config{skip;C}{s} \to_c \config{C}{s}
+	}{}\]
+\subsubsection{Conditionals}
+\[\whilestdef{W-COND.TRUE}{}{\config{\text{if } true \text{ then } C_1 \text{ else } C_2}{s} \to_c \config{C_1}{s}}{}\]
+\[\whilestdef{W-COND.FALSE}{}{\config{\text{if } false \text{ then } C_1 \text{ else } C_2}{s} \to_c \config{C_2}{s}}{}\]
+\[\whilestdef{W-COND.BEXP}{
+		\config{B}{s} \to_b \config{B'}{s'}
+	}{\config{\text{if } B \text{ then } C_1 \text{ else } C_2}{s} \to_c \config{\text{if } B' \text{ then } C_1 \text{ else } C_2}{s'}}{}\]
+\subsubsection{While}
+\[\whilestdef{W-WHILE}{}{
+		\config{\text{while } B \text{ do } C}{s} \to_c \config{\text{if } B \text{ then } (C; \text{while } B \text{ do } C) \text{ else } skip}{s}
+	}{}\]
+\subsection{Properties}
+The execution relation ($\to_c$) is deterministic.
+\[\forall C,C_1,C_2 \in Com \forall s,s_1,s_2 .[\config{C}{s} \to_c \config{C_1}{s_1} \land \config{C}{s} \to_c \config{C_2}{s_2} \rightarrow \config{C_1}{s_1} = \config{C_2}{s_2}]\]
+Hence the relation is also confluent:
+\[\forall C,C_1,C_2 \in Com \forall s,s_1,s_2 .[\config{C}{s} \to_c \config{C_1}{s_1} \land \config{C}{s} \to_c \config{C_2}{s_2} \rightarrow \]
+			\[\exists C' \in Com, s' . [\config{C_1}{s_1} \to_c \config{C'}{s'} \land \config{C_2}{s_2}\to_c \config{C'}{s'} ]]\]
+Both also hold for $\to_e$ and $\to_b$.
+
+\subsection{Configurations}
+\subsubsection{Answer Configuration}
+A configuration $\config{skip}{s}$ is an \textit{answer configuration}. As there is no rule to execute skip, it is a normal form.
+\[\neg\exists C \in Com, s, s' . [\config{skip}{s} \to_c \config{C}{s'}]\]
+For booleans $\config{true}{s}$ and $\config{false}{s}$ are answer configurations, and for expressions $\config{n}{s}$.
+\subsubsection{Stuck Configurations}
+A configuration that cannot be evaluated to a normal form is called a \textit{suck configuration}.
+\[\config{y}{(x \mapsto 3)}\]
+Note that a configuration that leads to a \textit{stuck configuration} is not itself stuck.
+\[\config{5 < y}{(x \mapsto 2)}\]
+(Not stuck, but reduces to a stuck state)
+\subsection{Normalising}
+The relations $\to_b$ and $\to_e$ are normalising, but $\to_c$ is not as it may not have a normal form.
+\[\text{while } true \text{ do } skip\]
+\[\config{\text{while } true \text{ do } skip}{s} \to_c^3 \config{\text{while } true \text{ do } skip}{s}\]
+($\to_c^3$ means 3 steps, as we have gone through more than one to get the same configuration, it is an infinite loop)
+\subsection{Side Effecting Expressions}
+If we allow programs such as:
+\[\text{do } x := x + 1 \ return \ x\]
+\[(\text{do } x := x + 1 \ return \ x) + (\text{do } x := x \times 1 \ return \ x)\]
+(value depends on evaluation order)
+\subsection{Short Circuit Semantics}
+\[\cfrac{B_1 \to_b B'_1}{B_1 \& B_2 \to_b B_1' \& B_2} \qquad \cfrac{}{false \& B \to_b false} \qquad \cfrac{}{true \& B \to_b B}\]
+\subsection{Strictness}
+An operation is \textit{strict} when arguments must be evaluated before the operation is evaluated. Addition is struct as both expressions must be evaluated (left, then right).
+\\
+\\ Due to short circuiting, $\&$ is left strict as it is possible for the operation to be evaluated without evaluating the right (\textit{non-strict} in right argument).
+
+\subsection{Complex Programs}
+It is now possible to build complex programs to be evaluated with our small step rules.
+\[Factorial \triangleq  y:= x; a:= 1;\text{while }0<y \text{ do } (a:= a \times y; y:= y - 1)\]
+We can evaluate $Factorial$ with an input $s = [x \mapsto \dots]$ to get answer configuration $[\dots, a \mapsto x!, x \mapsto \dots]$
+
+\begin{examplebox}{Execute!}
+    Evaluate $Factorial$ for the following initial configuration:
+    \[s = [x \mapsto 3, y \mapsto 17, z \mapsto 42]\]
+    \tcblower
+    \subsubsection*{Start}
+\[\config{y:= x; a:= 1;\text{while }0<y \text{ do } (a:= a \times y; y:= y - 1)}{[x \mapsto 3, y \mapsto 17, z \mapsto 42]}\]
+\subsubsection*{Get x variable}
+where $C = a:= 1;\text{while }0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 17, z \mapsto 42)$:
+\[\whilest{W-SEQ.LEFT}{
+		\whilest{W-ASS.EXP}{
+			\whilest{W-EXP.VAR}{}{\config{x}{s} \to_e \config{3}{s}}
+		}{\config{y:= x}{s} \to_c \config{y := 3}{s}}
+	}{\config{y:= x; C}{s} \to_c \config{y:=3;C}{s}}\]
+Result:
+\[\config{y:= 3; a:= 1;\text{while }0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 17, z \mapsto 42)}\]
+\subsubsection*{Assign to y variable}
+where $C = a:= 1;\text{while }0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 17, z \mapsto 42)$:
+\[\whilest{W-SEQ.LEFT}{
+		\whilest{W-ASS.NUM}{}{\config{y:=3}{s} \to_c \config{skip}{s[y \mapsto 3]}}
+	}{\config{y:= 3; C}{s} \to_c \config{skip;C}{s[y \mapsto 3]}}\]
+Result:
+\[\config{skip; a:= 1;\text{while }0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 3, z \mapsto 42)}\]
+\subsubsection*{Eliminate skip}
+where $C = a:= 1;\text{while }0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42)$:
+\[\whilest{W-SEQ.SKIP}{}{\config{skip;C}{s} \to_c \config{C}{s}}\]
+Result:
+\[\config{a:= 1;\text{while }0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 3, z \mapsto 42)}\]
+\subsubsection*{Assign a}
+where $C = \text{while }0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42)$:
+\[\whilest{W-SEQ.LEFT}{
+		\whilest{W-ASS.NUM}{}{\config{a := 1}{s} \to_c \config{skip}{s[a \mapsto 1]}}
+	}{\config{a:=1;C}{s} \to_c \config{skip;C}{s[a \mapsto 1]}}\]
+Result:
+\[\config{skip;\text{while }0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)}\]
+\subsubsection*{Eliminate skip}
+where $C = \text{while }0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)$
+\[\whilest{W-SEQ.SKIP}{}{\config{skip;C}{s} \to_c \config{C}{s}}\]
+Result:
+\[\config{\text{while }0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)}\]
+\subsubsection*{Expand while}
+where $C = (a:= a \times y; y:= y - 1)$, $B = 0<y$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)$:
+\[\whilest{W-WHILE}{}{\config{\text{while } B \text{ do } C}{s} \to_c \config{\text{if } B \text{ then } (C; \text{while } B \text{ do } C) \text{ else } skip}{s}}\]
+Result:
+\[\config{\text{if } 0<y \text{ then } (a:= a \times y; y:= y - 1; \text{while } 0<y \text{ do } a:= a \times y; y:= y - 1) \text{ else } skip}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)}\]
+\subsubsection*{Get y variable}
+where $C = (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)$:
+\[\whilest{W-COND.BEXP}{
+		\whilest{W-BOOL.LESS.RIGHT}{
+			\whilest{W-EXP.VAR}{}{\config{y}{s} \to \config{3}{s}}
+		}{\config{0<y}{s} \to_b \config{0<3}{s}}
+	}{\config{\text{if } 0<y \text{ then } (C; \text{while } 0<y \text{ do } C) \text{ else } skip}{s} \to_c \config{\text{if } 0<3 \text{ then } (C; \text{while } 0<y \text{ do } C) \text{ else } skip}{s}}\]
+Result:
+\[\config{\text{if } 0<3 \text{ then } (a:= a \times y; y:= y - 1; \text{while } 0<y \text{ do } a:= a \times y; y:= y - 1); \text{ else } skip}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)}\]
+\subsubsection*{Complete if boolean}
+where $C = (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)$:
+\[\whilest{W-COND.EXP}{
+		\whilest{W-BOOl.LESS.TRUE}{}{\config{0<3}{s} \to_b \config{true}{s}}
+	}{\config{\text{if } 0<3 \text{ then } (C; \text{while } 0<y \text{ do } C) \text{ else } skip}{s} \to_c \config{\text{if } true \text{ then } (C; \text{while } 0<y \text{ do } C) \text{ else } skip}{s}}\]
+Result:
+\[\config{\text{if } true \text{ then } (a:= a \times y; y:= y - 1; \text{while } 0<y \text{ do } a:= a \times y; y:= y - 1); \text{ else } skip}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)}\]
+\subsubsection*{Evaluate if}
+where $C = (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)$:
+\[\whilest{W-COND.TRUE}{}{\config{\text{if } true \text{ then } (C; \text{while } 0<y \text{ do } C) \text{ else } skip}{s} \to_c \config{C; \text{while } 0<y \text{ do } C}{s}}\]
+Result:
+\[\config{a:= a \times y; y:= y - 1; \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)}\]
+\subsubsection*{Evaluate Expression a}
+where $C = y:= y - 1;  \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)$:
+\[\whilest{W-SEQ.LEFT}{
+		\whilest{W-ASS.EXP}{
+			\whilest{W-EXP.MUL.LEFT}{
+				\whilest{W-EXP.VAR}{}{\config{a}{s} \to \config{1}{s}}
+			}{\config{a \times y}{s} \to_e \config{1 \times y}{s}}
+		}{\config{a := a \times y}{s} \to_c \config{a := 1 \times y}{s}}
+	}{\config{a := a \times y; C}{s} \to_c \config{a := 1 \times y; C}{s}}\]
+Result:
+\[\config{a := 1 \times y; y:= y - 1;  \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)}\]
+\subsubsection*{Evaluate Expression y}
+where $C = y:= y - 1;  \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)$:
+\[\whilest{W-SEQ.LEFT}{
+		\whilest{W-ASS.EXP}{
+			\whilest{W-EXP.MUL.RIGHT}{
+				\whilest{W-EXP.VAR}{}{\config{y}{s} \to_e \config{3}{s}}
+			}{\config{1 \times y}{s} \to_e \config{1 \times 3}{s}}
+		}{\config{a := 1 \times y}{s} \to_c \config{a := 1 \times 3}{s}}
+	}{\config{a := 1 \times y; C}{s} \to \config{a := 1 \times 3; C}{s}}\]
+Result:
+\[\config{a := 1 \times 3; y:= y - 1;  \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)}\]
+\subsubsection*{Evaluate Multiply}
+where $C = y:= y - 1;  \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)$:
+\[\whilest{W-SEQ.LEFT}{
+		\whilest{W-ASS.EXP}{
+			\whilest{W-EXP.MUL}{}{\config{1 \times 3}{s} \to_e \config{3}{s}}
+		}{\config{a := 1 \times 3}{s} \to_c \config{a := 3}{s}}
+	}{\config{a := 1 \times 3; C}{s} \to_c \config{a := 3; C}{s}}\]
+Result:
+\[\config{a := 3; y:= y - 1;  \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)}\]
+\subsubsection*{Assign 3 to a}
+where $C = y:= y - 1;  \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 1)$:
+\[\whilest{W-SEQ.LEFT}{
+		\whilest{W-ASS.NUM}{}{\config{a := 3}{s} \to_c \config{skip}{s[a \mapsto 3]}}
+	}{\config{a := 3; C}{s} \to_c \config{skip;C}{s[a \mapsto 3]}}\]
+Result:
+\[\config{skip; y:= y - 1;  \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 3)}\]
+\subsubsection*{Eliminate Skip}
+where $C = y:= y - 1;  \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 3)$:
+\[\whilest{W-SEQ.SKIP}{}{\config{skip;C}{s} \to_c \config{C}{s}}\]
+Result:
+\[\config{y:= y - 1;  \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 3)}\]
+\subsubsection*{Assign 3 to y}
+where $C = \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 3)$:
+\[\whilest{W-SEQ.LEFT}{
+		\whilest{W-ASS.EXP}{
+			\whilest{W-EXP.SUB.LEFT}{
+				\whilest{W-EXP.VAR}{}{\config{y}{s} \to \config{3}{s}}
+			}{\config{y - 1}{s} \to_e \config{3 - 1}{s}}
+		}{\config{y := y - 1}{s} \to_c \config{y := 3 - 1}{s}}
+	}{\config{y := y - 1; C}{s} \to_c \config{y := 3 - 1}{s}}\]
+Result:
+\[\config{y:= 3 - 1;  \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 3)}\]
+\subsubsection*{Evaluate Subtraction}
+where $C = \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 3)$:
+\[\whilest{W-SEQ.LEFT}{
+		\whilest{W-ASS.EXP}{
+			\whilest{W-EXP.SUB}{}{\config{3 - 1}{s} \to_e \config{2}{s}}
+		}{\config{y := 3 - 1}{s} \to_c \config{y := 2}{s}}
+	}{\config{y := 3 - 1;C}{s} \to_c \config{y:= 2;C}{s}}\]
+Result:
+\[\config{y:= 2;  \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 3)}\]
+\subsubsection*{Assign 2 to y}
+where $C = \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 3, z \mapsto 42, a \mapsto 3)$:
+\[\whilest{W-SEQ.LEFT}{
+		\whilest{W-ASS.NUM}{}{\config{y:= 2}{s} \to_c \config{skip}{s[y \mapsto 2]}}
+	}{\config{y:= 2;C}{s} \to_c \config{skip;C}{s[y \mapsto 2]}}\]
+Result:
+\[\config{skip;\text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 2, z \mapsto 42, a \mapsto 3)}\]
+\subsubsection*{Eliminate skip}
+where $C = \text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)$ and $s = (x \mapsto 3, y \mapsto 2, z \mapsto 42, a \mapsto 3)$:
+\[\whilest{W-SEQ.SKIP}{}{\config{skip;C}{s} \to_c \config{C}{s}}\]
+Result:
+\[\config{\text{while } 0<y \text{ do } (a:= a \times y; y:= y - 1)}{(x \mapsto 3, y \mapsto 2, z \mapsto 42, a \mapsto 3)}\]
+\unfinished
+\end{examplebox}
