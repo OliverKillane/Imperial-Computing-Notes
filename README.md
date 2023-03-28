@@ -1,11 +1,10 @@
-# Imperial College year 3 Notes
 ## What is this repo?
 
-This repo is the collection of notes for my chosen third year modules. 
+This repo is the collection of notes for my chosen third year modules (taught 2022-23) and some second year modules (taught 2021-22).
 
 It is designed as an improvement in quality over the [second year repo](https://github.com/OliverKillane/Imperial-Computing-Year-2-Notes).
 
-## Where are the notes!
+## The Notes...
 - [50003 - Models of Computation](50003%20-%20Models%20of%20Computation)
 - [50008 - Probability and Statistics](50008%20-%20Probability%20and%20Statistics)
 - [60001 - Advanced Computer Architecture](60001%20-%20Advanced%20Computer%20Architecture)
