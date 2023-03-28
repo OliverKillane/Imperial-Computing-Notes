@@ -21,5 +21,4 @@ Upon successful competition of this module a student will be able to:
 - Dr Azalea Raad [First Half]
 - Dr Herbert Wiklicky [Second Half]
 
-## Resources
-
+[Back to main notes](../README.md)
