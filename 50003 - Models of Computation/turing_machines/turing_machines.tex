@@ -6,7 +6,7 @@
         \includegraphics[width=0.7\textwidth]{turing_machines/images/turing_machine.drawio.png}
     \end{center}
 \end{definitionbox}
-
+\noindent
 \textit{Register machines} abstract away the representation of numbers and operations on numbers (just uses $\mathbb{N}$ with increment, decrement operations), \textit{Turing machines} are a more concrete representation of computing.
 
 \subsection{Turing $\to$ Register Machine}
@@ -23,6 +23,13 @@ In order to take arguments, and return value we need to encode lists on number o
 \begin{center}
     \includegraphics[width=0.8\textwidth]{turing_machines/images/turing_tape_list.drawio.png}
 \end{center}
+
+\begin{exambox}{2c}{2021/22}
+	Specify a turing machine $M = (\mathcal{Q}, \Sigma, s, \sigma)$ which takes a tape with the representation of a list $\ell = [x_1, x_2, \dots, x_n]$ and terminates with a tape representing the singleton list $[s]$ where:
+	\[s = \left( \sum_{i=1}^n x_i \right) + n\]
+	Describe the computational steps (configurations) of $M$ when the initial tape represents the list $[1,2,3]$.
+\end{exambox}
+
 \begin{definitionbox}{Turing Computable}
 	If $f: \mathbb{N}^n  \rightharpoonup \mathbb{N}$ is \textit{Turing Computable} iff there is a turing machine $M$ such that:
 	\\

@@ -61,6 +61,30 @@ However we run into the halting problem:
 
 Here we have ended up with the halting problem being uncomputable.
 
+\begin{sidenotebox}{Collatz Conjecture}
+    A famous example of a simple algorithm not yet determined to terminate on all inputs.
+    \begin{quote}
+        \textit{Given some input $n$, how many steps of applying $f$ are required to reach $1$, given:}
+    \end{quote}
+    \[f = \begin{cases}
+        \cfrac{n}{2} & n \text{ is even} \\
+        3n + 1 & n \text{ is odd} \\
+    \end{cases}\]
+    The conjecture states that the sequence from any positive integer $n$ will eventually go to zero. And hence any algorithm generating the sequence will terminate. This remains unproven.
+    \begin{minted}{haskell}
+-- get the sequence for positive integer
+-- note we have use Integral (as proven to terminate for all values of fixed size Int)
+collatz :: (Integral a) => a -> [a]
+collatz 1 = [1]
+collatz n 
+    | odd n     = n : collatz (n * 3 + 1)
+    | otherwise = n : collatz (n `div` 2)
+
+limit :: (Integral a) => a -> Int
+limit = length . collatz
+    \end{minted}
+\end{sidenotebox}
+
 \subsection{Undecidable Set of Numbers}
 Given a set $S \subseteq \mathbb{N}$, its characteristic function is:
 \[\chi_S \in \mathbb{N} \to \mathbb{N} \ \ \chi_S(x) \triangleq \begin{cases}
@@ -86,3 +110,25 @@ Hence we are finding the set of the indexes (numbers representing register machi
 Take set $S_1 \subseteq \mathbb{N}$:
 \[S_1 \triangleq \{e | \varphi_e\text{total function}\}\]
 If such a register machine exists to compute $\chi_{S_1}$, we can create another register machine, simply checking $0$. Hence as from the previous example, there is no register machine to determine $S_0$, there is none to determine $S_1$.
+
+
+\begin{exambox}{2biii}{2020/21}
+    \textit{\dots continued from Q2bii - 2020/21}
+    \\
+    \\ Take the machine $M$ in (ii) and use the substitutions to create register machine $K$:
+    \begin{center}
+        \begin{tabular}{l p{.8\textwidth}}
+            $E \triangleq even \ R_0$ & exiting by $\twoheadrightarrow$ if odd, or by $\to$ if even. \\
+            $H \triangleq R_0 := \sfrac{R_0}{2}$ & exiting by $\twoheadrightarrow$ if odd, or by $\to$ if even. \\
+            $T \triangleq R_0 := 3 \times R_0 + 1$ & with no $\twoheadrightarrow$ needed. \\
+        \end{tabular}
+    \end{center}
+    Describe what the Register Machine $K$ computing? In particular sketch an execution of $K$ with initially $R_0 = 0, 1, 2, 3, 4$ and $5$.
+\end{exambox}
+\begin{exambox}{2biv}{2020/21}
+    \textit{\dots continued from Q2biii - 2020/21}
+    \\
+    \\ To the best of our knowledge nobody could yet show that $K$ halts for all
+    possible initial values of $R_0$. How does this relate to the Halting problem
+    for RMs?
+\end{exambox}

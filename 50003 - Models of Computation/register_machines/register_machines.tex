@@ -255,6 +255,36 @@ Note that this is an inefficient implementation (to make it easy to follow) we c
         \includegraphics[scale=0.06]{register_machines/images/rm_functions/exponent_base_2.drawio.png}
     \end{center}
 }
+
+\begin{exambox}{2bi}{2021/22}
+	Consider the graphical representation of a Register Machine $M$:
+	\begin{center}
+		\includegraphics[width=.4\textwidth]{register_machines/images/exam_2bi_2021_2022.drawio.png}
+	\end{center}
+	Write down the program/code (list of instructions) for this machine using only a single $\halt$ instruction (at the end of the code).
+\end{exambox}
+
+\begin{exambox}{2bi}{2020/21}
+	Describe (graphically) a Register Machine (RM) gadget which tests if $R_0$ is
+	even or odd without changing the value of $R_0$ and using only RM
+	instructions (no gadgets).
+	\begin{center}
+		\includegraphics[width=.5\textwidth]{register_machines/images/exam_2bi_2020_2021.drawio.png}
+	\end{center}
+\end{exambox}
+
+\begin{exambox}{2bii}{2020/21}
+	\textit{Note: This question contains corrections from the original paper}
+	\\
+	\\ Consider the graphical representation of register machine $M$:
+	\begin{center}
+		\includegraphics[width=.4\textwidth]{register_machines/images/exam_2bii_2020_2021.drawio.png}
+	\end{center}
+	Take for $E \equiv R_1^-$, $H \equiv R_2^-$ and $T \equiv R_0^-$.
+	\\
+	\\ Write down the program, code or list of instructions for this machine using only a single $\halt$ instruction (at end of the code).
+\end{exambox}
+
 \section{Encoding Programs as Numbers}
 
 \begin{definitionbox}{Halting Problem}
@@ -293,6 +323,30 @@ In order to reason about programs consuming/running programs (as in the halting 
 		$\langle x, y \rangle $               & $= 2^x(2y + 1) - 1$ & $y \ 0 \ 1_1 \dots 1_x$ & Bijection between $\mathbb{N} \times \mathbb{N}$ and $\mathbb{N}$                                     \\
 	\end{tabular}
 \end{center}
+
+\begin{exambox}{2a}{2021/22}
+	Either state your birthday or take today's date as $B = YYMMDD$ (i.e. last two
+	digits of the year, two digits representing month and day each) and determine the
+	pair, the list, and the Register Machine (RM) instruction it represents, i.e. for
+	which pair $x, y$ do we have $\langle \langle x, y \rangle \rangle = B$, for which list $\ell$ of numbers do we get
+	$\ulcorner \ell \urcorner = B$, and for which Register Machine instruction $I$ do we have that
+	$\ulcorner I \urcorner = B$?  
+	\\
+	\\ Show your work, e.g. binary representation of your $B$, etc.
+\end{exambox}
+\begin{exambox}{2a}{2020/21}
+	State your $CID$ and determine the pair, the list, and the Register Machine (RM)
+	instruction it represents, i.e. for which pair $x, y$ do we have $\langle \langle x, y \rangle \rangle = $ CID, for
+	which list $\ell$ of numbers do we get $\ulcorner ell \urcorner = CID$, and for which register-machine
+	instructions $I$ do we have that $\ulcorner I \urcorner = CID$? 
+	\\
+	\\ Show your work, e.g. binary representation of your $CID$, etc.
+	\\
+	\\ Add eight to your $CID$, i.e. consider $CID+8$, and repeat these three decodings.
+	\\
+	\\ Can one be sure that very student in class can (in principle) decode their $CID$s as requested?
+\end{exambox}
+
 \subsection{Lists}
 We can express lists and right-nested pairs.
 \[[x_1, x_2, \dots, x_n] = x_1:x_2:\dots:x_n = (x_1, (x_2, (\dots, x_n) \dots ))\]
@@ -341,6 +395,42 @@ Given some program:
     \end{center}
 	And then can use these to create larger programs.
 \end{definitionbox}
+
+\begin{exambox}{2bii}{2021/22}
+	\textit{\dots continued from question Q2bi - 2021/22}
+	\\
+	\\ Replace some instructions by gadgets as follows:
+	\[\begin{split}
+		R_0^+ & \text{ by copy } N \text{ to } O \\
+		N^+   & \text{ by copy } Y \text{ to } N \\
+		O^+   & \text{ by push } X \text{ to } O \\
+	\end{split} \qquad \begin{split}
+		R_1^- & \text{ by pop }  O \text{ to } R_1 \\
+		R_2^- & \text{ by pop }  O \text{ to } R_2 \\
+		R_3^+ & \text{ by add }R_2 \text{ to } R_1 \\
+	\end{split} \qquad \begin{split}
+		R_2^+ & \text{ by push }R_1 \text{ to } N \\
+		R_1^+ & \text{ by copy } R_2 \text{ to } R_1 \\
+		\\
+	\end{split}\]
+	where for pop gadgets the \textit{empty} exit is identified with $\twoheadrightarrow$  and \textit{done}
+	with $\to$ and where we have additional registers: $X$ with (constant) value $1$
+	and $Y$ with (constant) value $2$.
+	\\
+	\\ Draw the graphical representation of the resulting RM and describe its
+	execution with initially: $R_0 = 3$ and all other registers set to $0$ (except for
+	$X$ and $Y$), use the same labels as in the original RM.
+\end{exambox}
+
+\begin{exambox}{2biii}{2021/22}
+	\textit{\dots continued from Q2bii - 2021/22}
+	\\
+	\\ What does this register machine compute for $R_0 = n$ and all other registers
+	set to $0$ (except for $X$ and $Y$), i.e. what does the contents of register $N$ or $O$
+	represent when the RM terminates? 
+	\\
+	\\Give an interpretation of what the registers are used for/hold.
+\end{exambox}
 
 \section{Analysing Register Machines}
 There is no general algorithm for determining the operations of a register machine (i.e halting problem)

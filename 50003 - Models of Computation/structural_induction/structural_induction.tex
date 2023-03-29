@@ -65,7 +65,7 @@ Or $branches$:
     branches(Branch(T_1,T_2)) & = branches(T_1) + branches(T_2) + 1 \\    
 \end{matrix*}\]
     
-\begin{examplebox}
+\begin{examplebox}{I speak for the trees\dots}
     Prove By induction that $leaves(T) = branches(T) + 1$
     \tcblower
     \unfinished
@@ -205,6 +205,44 @@ We have two cases:
 	\includegraphics[scale=0.1]{structural_induction/images/confluence_inductive_case_B.drawio.png}
 \end{center}
 
+\begin{exambox}{1 c}{2021/22}
+	\textit{\dots continued from Q1b - 2021/22}
+	\\
+	\\ Let us assume the following evaluation rules are deterministic.
+	\[\forall b_1, b_2, B, s . \ [\langle B, s \rangle \Downarrow_b b_1 \land \langle B, s \rangle \Downarrow_b b_2 \Rightarrow b_1 = b_2] \qquad (\text{BOOl-DET})\] 
+	\[\forall n_1, n_2, E, s . \ [\langle E, s \rangle \Downarrow_e n_1 \land \langle E, s \rangle \Downarrow_e n_2 \Rightarrow n_1 = n_2] \qquad (\text{EXPR-DET})\]
+	Prove that the program evaluation rules are deterministic.
+	\[\forall k_1, k_2, s_1, s_2, P, s, pc . \ [\langle P, s, pc \rangle \Downarrow \langle s_1, k_1 \rangle \land \langle P, s, pc \rangle \Downarrow \langle s_2, k_2 \rangle \Rightarrow s_1 = s_2 \land k_1 = k_2] \]
+	Do you proof using mathematical induction on $k_1$. You may use assumptions (BOOL-DET) and (EXPR-DET) in your proof.
+\end{exambox}
+
+\begin{exambox}{1c}{2020/21}
+	\textit{\dots continued from Q1a - 2020/21}
+	\\
+	\\ Recall the $WHILE$ language from lectures. We can annotate the big-step
+	operational semantics of $WHILE$ to record the derivation depth $i \in \mathbb{N}$. This is
+	just a simple annotation that will help with the proofs. Formally:
+	\[\langle C, s \rangle \Downarrow_i s' \text{ where } i \in \mathbb{N}\]
+	The annotated big-step operational semantics of $WHILE$ are given below.
+	% Note: I am cringe => made frustratingly restrictive \bigstepdef with no option for symbol used, just gonna be repetitive here instead of deriving a better bigstepdef with optional
+	\[(\text{SKIP}) \cfrac{}{\langle skip, s \rangle \Downarrow_0 s} \qquad (\text{ASSIGN}) \cfrac{\langle E, s \rangle \Downarrow_e n \qquad s[x \mapsto n] = s'}{\langle x := E, s \rangle \Downarrow_0 s'}\]
+	\[(\text{IF-TRUE}) \cfrac{\langle B, s \rangle \Downarrow_b true \qquad \langle C_1, s \rangle \Downarrow_i s'}{\langle \text{if } B \text{ then } C_1 \text{ else } C_2 , s \rangle \Downarrow_{i+1} s'} \qquad (\text{IF-TRUE}) \cfrac{\langle B, s \rangle \Downarrow_b false \qquad \langle C_2, s \rangle \Downarrow_i s'}{\langle \text{if } B \text{ then } C_1 \text{ else } C_2 , s \rangle \Downarrow_{i+1} s'}\]
+	\[(\text{WHILE-ITER}) \cfrac{\langle B, s \rangle \Downarrow_b true \qquad \langle C, s \rangle \Downarrow_i s'' \qquad \langle \text{while } B \text{ do } C, s''\rangle \Downarrow_j s' \qquad k = max(i,j)}{\langle \text{while } B \text{ do } C, s \rangle \Downarrow_{k+1} s'}\]
+	\[(\text{WHILE-BREAK}) \cfrac{\langle B, s \rangle \Downarrow_b false}{\langle \text{while } B \text{ do } C, s \rangle \Downarrow_0 s} \qquad (\text{SEQ}) \cfrac{\langle C_1, s \rangle \Downarrow_i s'' \qquad \langle C_2, s'' \rangle \Downarrow_j s' \qquad k = max(i,j)}{\langle C_1 ; C_2, s \rangle \Downarrow_{k+1} s'}\]
+	Consider the translation function $f$ from $WHILE$ commands to $NONDET$
+	commands, defined inductively as follows:
+	\[\begin{split}
+		f(skip) & = skip \\
+		f(x:= E) & = x := E \\
+		f(\text{if } B \text{ then } C_1 \text{ else } C_2) & = or((assume \ B ; f(C_1)), (assume \ \neg B ; f(C_2))) \\
+		f(\text{while } B \text{ do } C) &= loop(assume \ B; f(C)); assume \neg B \\
+		f(C_1; C_2) & = f(C_1) ; f(C_2) \\ 
+	\end{split}\]
+	Prove that the translation f preserves the meaning of commands:
+	\[\forall i, C, s, s' . \ [\langle C, s \rangle \Downarrow_i s' \Rightarrow (f(C), s) \Downarrow s']\]
+	Do your proof using \underline{strong mathematical induction} on $i$. You may also use the following lemma:
+	\[\forall B, s . \ [\langle B , s \rangle \Downarrow_b false \Rightarrow \langle \neg B, s \rangle \Downarrow_b true] \qquad (\text{LEMMA-EXCLUDED-MIDDLE})\]
+\end{exambox}
 
 \section{Multi-Step Reductions}
 \textit{Note: We will reference to state by set $State \triangleq (Var \rightharpoonup \mathbb{N})$.}
@@ -348,13 +386,15 @@ Take arbitrary $x \in Var$ and $s \in State$ to show $P(n,s)$
 \dots Inductive Step \dots
 
 \subsection{Syntax of Commands}
-\[C \in Com ::= x := E | \ifcond{B}{C}{C} | C;C | skip | \while{B}{C}\]
+\[C \in Com ::= x := E \ | \ \ifcond{B}{C}{C} \ | \ C;C \ | \ skip \ | \ \while{B}{C}\]
 
 \subsubsection{Determinacy}	
 \[\forall C, C_1, C_2 \in Com . \forall s, s_1, s_2 \in State . [\config{C}{s} \to_c \config{C_1}{s_1} \land \config{C}{s} \to_c \config{C_2}{s_2} \Rightarrow \config{C_1}{s_1} = \config{C_2}{s_2}]\]
 	
 \subsubsection{Confluence}	
-\[\forall C, C_1, C_2 \in Com . \forall s, s_1, s_2 \in State . [\config{C}{s} \to_c^* \config{C_1}{s_1} \land \config{C}{s} \to_c^* \config{C_2}{s_2} \Rightarrow \exists C' \in Com . \exists s' \in State . [\config{C_1}{s_1} \to_c^* \config{C'}{s'} \land \config{C_2}{s_2} \to_c^* \config{C'}{s'}]]\]
+\begin{multline*}
+	\forall C, C_1, C_2 \in Com . \forall s, s_1, s_2 \in State . [\config{C}{s} \to_c^* \config{C_1}{s_1} \land \config{C}{s} \to_c^* \config{C_2}{s_2} \Rightarrow \exists C' \in Com . \exists s' \in State . \\ [\config{C_1}{s_1} \to_c^* \config{C'}{s'} \land \config{C_2}{s_2} \to_c^* \config{C'}{s'}]]
+\end{multline*}
 	
 \subsubsection{Unique Answer}
 \[\forall C \in Com . s_1 s_2 \in State . [\config{C}{s} \to_c^* \config{skip}{s_1} \land \config{C}{s} \to_c^* \config{skip}{s_2} \Rightarrow s_1 = s_2]\]

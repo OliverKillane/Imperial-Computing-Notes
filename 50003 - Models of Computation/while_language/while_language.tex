@@ -52,6 +52,64 @@ We can similarly define multiplication, subtraction etc.
     }{3 + (2 + 1)}{6}\] 
 \end{examplebox}
 
+\begin{exambox}{1a}{2021/22}
+	Consider the language $GOTO$, comprising of the standard expressions $E$, boolean expressions $B$ and the following commands (where $i,j \in \mathbb{N}$ are natural numbers):
+	\[C ::= exit \ | \ x := E \ | \ goto(i) \ | \ goto(B, i, j)\]
+	A $GOTO$ program $P \in Prog$ is a map of numbers to commands:
+	\[P \in PROG \overset{def}{=} \mathbb{N} \to CMD \text{ where commands, } C \in CMD \text{ is defined as above}\] 
+	Given a $GOTO$ program $P$, $P(0)$ denotes the first command of $P$, $P(1)$ dnotes the second command of $P$, and so forth.
+	\\
+	\\ Using big-step operational semantics the expressions and booleans are evaluated against a (variable) store $s$ as usual, and their evaluation is simplified so that the sore does not change.
+	\[\langle E, s \rangle \Downarrow_e n \text{ where } n \in \mathbb{N} \qquad \qquad \langle B, s \rangle \Downarrow_b b \text{ where } b \in \{true, false\}\]
+	Programs are also evaluated using a big-step operational semantics against a store $s$ and the program counter $pc \in \mathbb{N}$ resulting in another store $s'$ and a positive natural number $k \in \mathbb{N}^+$. That is the $GOTO$ big-step operational semantics rules, given below are of form:
+	\[\langle P, s, pc \rangle \Downarrow \langle s', k \rangle\]
+	The rules are:
+	\[\bigstepdef{EXIT}{P(pc) = exit}{\langle P, s, pc \rangle}{\langle s, 1 \rangle}{} \qquad \bigstepdef{JUMP}{P(pc) = goto(i) \qquad \langle P, s, i \rangle \Downarrow \langle s', k \rangle}{\langle P, s, pc \rangle}{\langle s', k+1 \rangle}{}\]
+	\[\bigstepdef{ASSIGN}{P(pc) = x := E \qquad \langle E, s \rangle \Downarrow_e n \qquad \langle P, s[x \mapsto n], pc + 1 \rangle \Downarrow \langle s', k \rangle}{\langle P, s, pc \rangle}{\langle s', k+1 \rangle}{}\]
+	\[\bigstepdef{BRANCH-TRUE}{P(pc) = goto(B, i, j) \qquad \langle B, s \rangle \Downarrow_e true \qquad \langle P, s, i \rangle \Downarrow \langle s' k \rangle}{\langle P, s, pc \rangle}{\langle s', k+1 \rangle}{}\]
+	\[\bigstepdef{BRANCH-FALSE}{P(pc) = goto(B, i, j) \qquad \langle B, s \rangle \Downarrow_e false \qquad \langle P, s, j \rangle \Downarrow \langle s' k \rangle}{\langle P, s, pc \rangle}{\langle s', k+1 \rangle}{}\]
+	Consider a program $P$ with three instructions:
+	\[\begin{split}
+		P(0) & = x:= x + 1 \\
+		P(1) & = goto(x>0, 2, 0) \\
+		P(2) & = exit \\
+	\end{split}\]
+	\begin{enumerate}[label=\roman*)]
+		\item {Give a derivation for $\langle P, s_0, 0 \rangle \Downarrow \langle s_1, 3 \rangle$ with $s_0 = [x \mapsto 0]$ and $s_1 = [x \mapsto 1]$.
+		\\
+		\\ You may evaluate expressions and booleans directly without showing their derivation trees.}
+		\item Explain in words what $k$ denotes when $\langle P, s, pc \rangle \Downarrow \langle s', k \rangle$.
+		\item Explain in words the behaviour of the $goto(i)$ and $goto(B, i, j)$ commands. 
+		\item Define $goto(i)$ in terms of the other GOTO commands. You may use any GOTO command except $goto(i)$ in your definition.
+	\end{enumerate}
+\end{exambox}
+\begin{exambox}{1a}{2020/21}
+	Consider the language $NONDET$ comprising the standard expressions E,
+	boolean expressions B, and the following commands.
+	\[C ::= skip \ | \ x := E \ | \ assume \ B \ | \ or(C, C) \ | \ loop(C) \ | \ C ; C \]
+	Using a big-step operational semantics, the expressions and booleans are
+	evaluated against a variable store $s$, and their evaluation is simplified so that the
+	store does not change:
+	\[\langle E, s \rangle \Downarrow_e \text{ where } n \in \mathbb{N} \qquad \qquad \langle B, s \rangle \Downarrow_b b \text{ where } b \in \{true, false \}\]
+	Commands are also evaluated using a big-step operational semantics, against a
+	variable store $s$, resulting in a new store $s'$. The big-step operational semantics
+	rules of $NONDET$ are given below:
+	\[\bigstepdef{SKIP}{}{\langle skip, s \rangle}{s}{} \qquad \bigstepdef{ASSIGN}{\langle E, s \rangle \Downarrow_e n \qquad s[x \mapsto n] = s'}{\langle x := E, s \rangle}{s'}{} \qquad \bigstepdef{ASSUME}{\langle B, s \rangle \Downarrow_b true}{\langle assume \ B, s}{s}{}\]
+	\[\bigstepdef{OR-LEFT}{\langle C_1, s \rangle \Downarrow s'}{\langle or(C_1, C_2), s \rangle}{s'}{} \qquad \bigstepdef{OR-RIGHT}{\langle C_2, s \rangle \Downarrow s'}{\langle or(C_1, C_2), s \rangle}{s'}{}\]
+	\[\bigstepdef{LOOP-ITER}{\langle C, s \rangle \Downarrow s'' \qquad \langle loop(C), s'' \rangle \Downarrow s'}{\langle loop(C), s \rangle}{s'}{} \qquad \bigstepdef{LOOP-EXIT}{}{\langle loop(C), s \rangle}{s}{}\]
+	\[\bigstepdef{SEQ}{\langle C_1, s \rangle \Downarrow s'' \qquad \langle C_2, s'' \rangle \Downarrow s'}{\langle C_1 ; C_2, s \rangle}{s'}{}\]
+	\begin{enumerate}[label=\roman*)]
+		\item {Give the derivation tree corresponding to the the big-step derivation $\langle C, s_0 \rangle \Downarrow s_2$ where:
+			\[C = loop(x := x + 1) \qquad s_0 = [x \mapsto 0] \qquad s_2 = [x \mapsto 2]\]
+			You may evaluate expressions and booleans directly, without showing their
+			derivation trees.
+		}
+		\item Explain in words the behaviour of the $loop$ command.
+		\item {Let $\langle C, s_0 \rangle \Downarrow s'$ for some store $s'$ where $C$ and $s_0$ are defined as in part i. 
+			\\
+			\\ What are the possible values of $x$ in $s'$? Justify your answer in words.}
+	\end{enumerate}
+\end{exambox}
 \subsection{Small Step Semantics}
 Given a relation $\to$ we can define a its transitive closure $\to^*$ such that:
 \[E \to^* E' \Leftrightarrow E = E' \lor \exists E_1, E_2, \dots, E_k . \ [E \to E_1 \to E_2 \to \dots \to E_k \to E'] \]
@@ -96,6 +154,12 @@ Here we define $+$ as a left-associative operator.
     \[\smallstep{S-RIGHT-E}{E_2 \to E_2'}{E_1 + E_2}{E_1 + E_2'}\]
     As we can now choose which side to reduce first (S-LEFT or S-RIGHT-E), we have lost determinacy, however we retain confluence.
 \end{examplebox}
+
+\begin{exambox}{1b}{2020/21}
+	\textit{\dots continued from Q1a - 2020/21}
+	\\
+	\\ Give the small-step operational semantics rules for $or(C_1, C_2)$ and $loop(C)$.
+\end{exambox}
 
 \section{While}
 \subsection{Syntax}
@@ -179,6 +243,18 @@ These rules allow for side effects, despite the While language being side effect
 \[\whilestdef{W-WHILE}{}{
 		\config{\text{while } B \text{ do } C}{s} \to_c \config{\text{if } B \text{ then } (C; \text{while } B \text{ do } C) \text{ else } skip}{s}
 	}{}\]
+
+\begin{exambox}{1b}{2021/22}
+	\textit{\dots continued from Q1a - 2021/22}
+	\\
+	\\ We can similarly define the small-step operational semantics of $GOTO$ programs
+	to be of the form $ P, s, pc  \to  P, s', pc' $ where $s$ and $pc$ are the starting store and program counter, and $s'$ and $pc'$ are the resulting store and program counter.
+	For instance, for $x := E$ we have:
+	\[\smallstepdef{ASSIGN}{P(pc) = x := E \qquad \langle E, s \rangle \Downarrow_e n \qquad s' = [x \mapsto n] \qquad pc' = pc + 1}{P, s, pc}{P, s', pc'}{}\]
+	Note that for simplicity we use the big-step evaluation of expressions in the premise above. You may use big step evaluation rules for expressions (including booleans) in your answer.
+	\\
+	\\ Give the small-step operational semantics rules for $goto(i)$ and $goto(B, i, j)$. 
+\end{exambox}
 \subsection{Properties}
 The execution relation ($\to_c$) is deterministic.
 \[\forall C,C_1,C_2 \in Com \forall s,s_1,s_2 .[\config{C}{s} \to_c \config{C_1}{s_1} \land \config{C}{s} \to_c \config{C_2}{s_2} \rightarrow \config{C_1}{s_1} = \config{C_2}{s_2}]\]

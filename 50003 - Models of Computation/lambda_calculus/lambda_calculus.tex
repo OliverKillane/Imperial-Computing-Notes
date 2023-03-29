@@ -226,6 +226,29 @@ We can encode pairs as a function, with a selector $s$ function. Hence by supply
 		second(p) &\triangleq \lambapp{p}{\underbrace{(\lambfun{x}{\lambfun{y}{y}})}_\text{second}} \equiv \lambapp{p}{\underbrace{(\lambfun{\lambarg{x}{y}}{y})}_\text{second}}\\
 	\end{split}\]
 
+\begin{exambox}{2bv}{2020/21}
+	\textit{\dots continued from 2bvi - 2020/21}
+	\\
+	\\ Using Church numerals, give an equivalent $\lambda$-term (program) C, i.e. for all $n > 0$ we have $C \ \underline{n} \to_\beta^* \underline{m} $ if and only if the execution of register machine $K$ also halts with $R_0 = m$ when started with $R_0 = n$.
+	\\
+	\\ You can use the pre-defined operations from the lecture ($plus$, $mult$, $succ$,
+	$pred$, $ifz$, etc.) and also integer division ($div$) and reminder ($rem$). It helps to
+	use various subroutines.
+\end{exambox}
+
+\begin{exambox}{2d}{2021/22}
+	Consider the following recursively defined sequence of integers $x_i$:
+	\[\begin{split}
+		x_0 & = x _ 1 = 1 \\
+		x_i & = x_{i-2}^2 + 2 x_{i-1} \\
+	\end{split}\]
+	Implement this in the $\lambda$-calculus using Church numerals, i.e. write a lambda term $f$ such that $f \ \underline{n}$ reduces to $\underline{x_n}$.
+	\\
+	\\ You can use functions defined in the lecture, e.g $plus$, $mult$, $ifz$ etc. It might help to define subroutines.
+	\\
+	\\ Sketch the execution of $f \ \underline{2}$ (you can use $\to_\beta^*$ rather than $\to_\beta$).
+\end{exambox}
+
 \subsection{Predecessor}
 \[\underline{m} =  \lambfun{f}{\lambfun{x}{\underbrace{f(\dots (\lambapp{f}{x})}_\text{$m$ times} \dots )}}\]
 We cannot remove applications of $f$, however we can use a pair to count up until the successor is $\underline{m}$.
@@ -291,3 +314,8 @@ We cannot define $\lambda$-terms in terms of themselves, as the $\lambda$-term i
 	\[fact \triangleq Y(\lambfun{f}{\lambfun{n}{\lambapp{\lambapp{\lambapp{\text{if zero}}{n}}{\chnum{1}}}{(\lambapp{\lambapp{multiply}{n}}{(\lambapp{f}{(\lambapp{pred}{n})})})}}}) \]
 \end{examplebox}
 
+\begin{exambox}{2c}{2020/21}
+	Consider the term $\mathbf{Y}' = \mathbf{UU}$ with $\mathbf{U} = \lambfun{\lambarg{u}{x}}{\lambapp{x}{uux}}$.
+	\\
+	\\ Why is $\mathbf{Y}$ (and $\mathbf{U}$) a combinator? Show that it is an alternative implementation of the \textit{fixed-point combinator}.
+\end{exambox}
