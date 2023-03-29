@@ -94,21 +94,21 @@ Given a set $S \subseteq \mathbb{N}$, its characteristic function is:
 $S$ is \textit{register machine decidable} if its characteristic function is a register machine computable function.
 \\
 \\ $S$ is decidable iff there is a register machine $M$ such that for all $x \in \mathbb{N}$ when run with $\reglabel{0} = 0, \reglabel{1} = x$ and $\reglabel{2..} = 0$ it eventually halts with:
-\[\reglabel{0} = 1 \Leftrightarrow x \in S \qquad \qquad \reglabel{0} = 1 x \not\in S \]
+\[\reglabel{0} = 1 \Leftrightarrow x \in S \qquad \qquad \reglabel{0} = 1 \Leftrightarrow x \not\in S \]
 Hence we are effectively asking if a register machine exists that can determine if any number is in some set $S$.
 \\
 \\ We can then define subsets of $\mathbb{N}$ that are decidable/undecidable.
 
 \subsubsection{The set of functions mapping $0$ is undecidable}
 Given a set:
-\[S_0 \triangleq \{e | \varphi_e(0)\downarrow\}\]
+\[S_0 \triangleq \{e \ | \ \varphi_e(0)\downarrow\}\]
 Hence we are finding the set of the indexes (numbers representing register machines) that halt on input $0$.
 \\
 \\ If such a machine exists, we can use it to create a register machine to solve the halting problem. Hence this is a contradiction, so the set is undecidable.
 
 \subsubsection{The set of total functions is undecidable}
 Take set $S_1 \subseteq \mathbb{N}$:
-\[S_1 \triangleq \{e | \varphi_e\text{total function}\}\]
+\[S_1 \triangleq \{e \ | \ \varphi_e\text{total function}\}\]
 If such a register machine exists to compute $\chi_{S_1}$, we can create another register machine, simply checking $0$. Hence as from the previous example, there is no register machine to determine $S_0$, there is none to determine $S_1$.
 
 
