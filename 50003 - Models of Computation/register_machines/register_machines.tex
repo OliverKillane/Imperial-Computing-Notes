@@ -316,14 +316,15 @@ Given some program:
 			\vdots & \vdots \\
 			\instr{n}{instruction_n}
 		\end{matrix*} \right) \urcorner = \ulcorner [\ulcorner instruction_0 \urcorner, \dots, \ulcorner instruction_n \urcorner] \urcorner\]
-\section{Tools}
-In order to simplify checking workings, a basic python script for running, encoding and decoding register machines is provided (also available in the notes repository).
-\\
-\\ It is designed to be used in the python shell, to allow for easy manipulation, storing, etc of register machines, encoding/decoding results.
-\\
-\\ It also produces latex to show step-by-step workings for calculations.
-\inputminted{python}{register_machines/code/register_machine_encoding.py}
 
+\begin{sidenotebox}{Tools}
+	In order to simplify checking workings, a basic python script for running, encoding and decoding register machines is provided (also available in the notes repository).
+	\begin{itemize}
+		\item It is designed to be used in the python shell, to allow for easy manipulation, storing, etc of register machines, encoding/decoding results.
+		\item It also produces latex to show step-by-step workings for calculations.
+	\end{itemize}
+	Have a go at making your own register machine encode/decode and simulation in your language of choice!
+\end{sidenotebox}
 \section{Gadgets}
 \begin{definitionbox}{Register Machine Gadget}
 	A gadget is a partial register machine graph, used as components in more complex programs, that can be composed into larger register machines or gadgets.

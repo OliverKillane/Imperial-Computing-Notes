@@ -6,7 +6,7 @@ Inc = namedtuple('Inc', 'reg label')
 Dec = namedtuple('Dec', 'reg label1 label2')
 Halt = namedtuple('Halt', '')
 
-''' 
+print(r''' 
  __          ________ _      _____ ____  __  __ ______ 
  \ \        / /  ____| |    / ____/ __ \|  \/  |  ____|
   \ \  /\  / /| |__  | |   | |   | |  | | \  / | |__   
@@ -27,7 +27,7 @@ Inc(reg, label)
 Halt()
 
 To ensure your latex will compile, make sure you have commands for, these are 
-available on my github (Oliver Killane) (Imperial-Computing-Year-2-Notes):
+available in the notes repository:
 
 % register machine helper commands:
 \newcommand{\instrlabel}[1]{\text{\textcolor{teal}{$L_{#1}$}}}
@@ -38,7 +38,7 @@ available on my github (Oliver Killane) (Imperial-Computing-Year-2-Notes):
 \newcommand{\halt}{\text{\textcolor{red}{\textbf{HALT}}}}
 
 To see examples, go to the end of this file.
-'''
+''')
 
 # for encoding numbers as <a,b>
 def encode_large(x: int, y: int) -> int:
@@ -72,18 +72,22 @@ def encode_large_list_helper(lst: List[int], step: int) -> Tuple[int, int]:
     if (step == 0):
         print(r"\begin{center}\begin{tabular}{r l l}")
     if len(lst) == 0:
-        print(f"{step} &" + rf"$ {buffer} 0$ & (No more numbers in the list, can unwrap recursion) \\")
+        print(f"{step} &" + rf"$ {buffer} 0$ & (No more numbers in the list, " + 
+              "can unwrap recursion) \\")
         return (0, step)
     else:
 
-        print(rf"{step} & $ {buffer} \langle \langle {lst[0]}, \ulcorner {lst[1:]} \urcorner \rangle \rangle $ & (Take next element {lst[0]}, and encode the rest {lst[1:]}) \\")
+        print(rf"{step} & $ {buffer} \langle \langle {lst[0]}, \ulcorner " + 
+              rf"{lst[1:]} \urcorner \rangle \rangle $ & (Take next element " + 
+              rf" {lst[0]}, and encode the rest {lst[1:]}) \\")
         
         (b, step2) = encode_large_list_helper(lst[1:], step + 1)
         c = encode_large(lst[0], b)
         
         step2 += 1
 
-        print(f"{step2} & $ {buffer} \langle \langle {lst[0]}, {b} \\rangle \\rangle = {c} $ & (Can now encode) \\\\")
+        print(f"{step2} & $ {buffer} \langle \langle {lst[0]}, {b} \\rangle "+
+              f"\\rangle = {c} $ & (Can now encode) \\\\")
 
         if (step == 0):
             print(r"\end{tabular}\end{center}")
@@ -102,7 +106,8 @@ def decode_large_list_helper(n : int, prev : List[int], step : int = 0) -> List[
     else:
         (a,b) = decode_large(n)
         prev.append(a)
-        print(rf"{step} & ${n} = \langle \langle {a}, {b} \rangle \rangle \ \ $&$ {prev}$ & (Decode into two integers) \\ ")
+        print(rf"{step} & ${n} = \langle \langle {a}, {b} \rangle \rangle \ \ " + 
+              rf"$&$ {prev}$ & (Decode into two integers) \\ ")
 
         next = decode_large_list_helper(b, prev, step + 1)
 
@@ -115,13 +120,17 @@ def decode_large_list_helper(n : int, prev : List[int], step : int = 0) -> List[
 # R+(i) -> L(j)
 def encode_inc(instr: Inc) -> int:
     encode = encode_large(2 * instr.reg, instr.label)
-    print(rf"$\ulcorner \inc{{{instr.reg}}}{{{instr.label}}} \urcorner = \langle \langle 2 \times {instr.reg}, {instr.label} \rangle \rangle = {encode}$")
+    print(rf"$\ulcorner \inc{{{instr.reg}}}{{{instr.label}}} \urcorner = " + 
+          rf"\langle \langle 2 \times {instr.reg}, {instr.label} \rangle " + 
+          rf"\rangle = {encode}$")
     return encode
 
 # R-(i) -> L(j), L(k)
 def encode_dec(instr: Dec) -> int:
-    encode: int =  encode_large(2 * instr.reg + 1, encode_small(instr.label1 ,instr.label2))
-    print(rf"$\ulcorner \dec {{{instr.reg}}}{{{instr.label1}}}{{{instr.label2}}} \urcorner = \langle \langle 2 \times {instr.reg} + 1, \langle {instr.label1}, {instr.label2} \rangle \rangle \rangle = {encode}$")
+    encode: int =  encode_large(2 * instr.reg + 1, encode_small(instr.label1, instr.label2))
+    print(rf"$\ulcorner \dec {{{instr.reg}}}{{{instr.label1}}}{{{instr.label2}}}" + 
+          rf" \urcorner = \langle \langle 2 \times {instr.reg} + 1, \langle " +
+          rf"{instr.label1}, {instr.label2} \rangle \rangle \rangle = {encode}$")
     return encode
 
 # Halt
@@ -201,11 +210,14 @@ def program_str(prog) -> str:
 def program_run(prog, instr_no : int, registers : List[int])-> Tuple[int, List[int]]:
     # step instruction label R0 R1 R2 ... (info)
     print(rf"\begin{{center}}\begin{{tabular}}{{l l l c" + " c" * len(registers) + " }")
-    print(r"\textbf{Step} & \textbf{Instruction} & \instrlabel{{i}} &" + " & ".join([rf"$\reglabel{{{n}}}$" for n in range(0, len(registers))]) + r" & \textbf{Description}\\")
+    print(r"\textbf{Step} & \textbf{Instruction} & \instrlabel{{i}} &" + 
+          " & ".join([rf"$\reglabel{{{n}}}$" for n in range(0, len(registers))]) + 
+          r" & \textbf{Description}\\")
     print(r"\hline")
     step = 0
     while True:
-        step_str = rf"{step} & ${instr_to_str(prog[instr_no])}$ & ${instr_no}$ & " + "&".join([f"${n}$" for n in registers]) + "&"
+        step_str = (rf"{step} & ${instr_to_str(prog[instr_no])}$ & ${instr_no}$ & " + 
+                   "&".join([f"${n}$" for n in registers]) + "&")
         instr = prog[instr_no]
         if type(instr) == Inc:
             if (instr.reg >= len(registers)):
@@ -229,14 +241,18 @@ def program_run(prog, instr_no : int, registers : List[int])-> Tuple[int, List[i
                 else:
                     registers[instr.reg] -= 1
                     instr_no = instr.label1
-                    print(step_str + rf"(Subtract 1 from register {instr.reg} and jump to instruction {instr.label1})\\")
+                    print(step_str + 
+                          rf"(Subtract 1 from register {instr.reg} and "+ 
+                          rf"jump to instruction {instr.label1})\\")
             else:
                 if instr.label2 >= len(prog):
                     print(step_str + rf"(label {instr.label2} is does not exist)\\")
                     break
                 else:
                     instr_no = instr.label2
-                    print(step_str + rf"(Register {instr.reg} is zero, jump to instruction {instr.label2})\\")
+                    print(step_str + 
+                          rf"(Register {instr.reg} is zero, jump to " +
+                          rf"instruction {instr.label2})\\")
         else:
             print(step_str + rf"(Halt!)\\")
             break
@@ -288,22 +304,23 @@ def examples():
         Inc(0,0)
     ], 0, [0,7])
 
-    encode_program_to_list([
-        Inc(1,1),
-        Inc(0,2),
-        Inc(0,3),
-        Inc(0,4),
-    ])
+    # encode_program_to_list([
+    #     Inc(1,1),
+    #     Inc(0,2),
+    #     Inc(0,3),
+    #     Inc(0,4),
+    # ])
 
-    encode_program_to_int([
-        Dec(1,2,1),
-        Halt(),
-        Dec(1,3,4),
-        Dec(1,5,4),
-        Halt(),
-        Inc(0,0)
-    ])
+    # encode_program_to_int([
+    #     Dec(1,2,1),
+    #     Halt(),
+    #     Dec(1,3,4),
+    #     Dec(1,5,4),
+    #     Halt(),
+    #     Inc(0,0)
+    # ])
 
-    decode_program((2 ** 46) * 20483)
+    # decode_program((2 ** 46) * 20483)
 
 # examples()
+# test()
