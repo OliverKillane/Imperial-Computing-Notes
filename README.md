@@ -5,6 +5,7 @@ This repo is the collection of notes for my chosen third year modules (taught 20
 It is designed as an improvement in quality over the [second year repo](https://github.com/OliverKillane/Imperial-Computing-Year-2-Notes).
 
 ## The Notes...
+- [50003 - Algorithm Analysis and Design](50001%20-%20Algorithm%20Analysis%20and%20Design)
 - [50003 - Models of Computation](50003%20-%20Models%20of%20Computation)
 - [50008 - Probability and Statistics](50008%20-%20Probability%20and%20Statistics)
 - [60001 - Advanced Computer Architecture](60001%20-%20Advanced%20Computer%20Architecture)
