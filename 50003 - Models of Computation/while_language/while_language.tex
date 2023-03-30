@@ -33,12 +33,18 @@ We can similarly define multiplication, subtraction etc.
 \end{tcbraster}
 
 \begin{examplebox}{Break it!}
-    How could we break the totality of SimpleExp?
-    \tcblower
-    \[\bigstepdef{B-NON-TOTAL}{}{true}{true}{}\]
-    We can break \textit{totality} by introducing a rule that can always match its output.
-    \\ 
-    \\ The B-NON-TOTAL rule can be applied indefinitely (possible evaluation path that never finishes).
+    We introduce a subtraction operator with big step rule:
+	\[\bigstepdef{B-SUB}{E_1 \Downarrow n_1 \qquad E_2 \Downarrow n_2}{E_1 - E_2}{n_3}{n_3 = n_1 - n_2}\]
+    What properties of simpleExp does this break? How could this be resolved.
+	\tcblower
+	It breaks totality as we specify $n \in \mathbb{N}$, hence $n \geq 0$.
+	\[\text{for example } \quad \bigstep{?}{\bigstep{B-NUM}{}{3}{3} \qquad \bigstep{B-NUM}{}{4}{4}}{3 - 4}{?}\] 
+	We could fix this by:
+	\begin{itemize}
+		\item Changing the set of $n$ to include negative numbers
+		\item Use saturating arithmetic, and fix negative subtraction to zero by modifying the B-SUB rule to have $n_3 = n_1 - n_2 \text{ where } n_1 \geq n_2$, and introducing a new saturated arithmetic rule for $n_1 < n_2$.
+		\item Add a new result value to represent a non-number/underflow. $n \in \mathbb{N} \cup \{ Nan \}$ and set negative results to $NaN$
+	\end{itemize}
 \end{examplebox}
 
 \begin{examplebox}{Now it all adds up!}
@@ -50,6 +56,40 @@ We can similarly define multiplication, subtraction etc.
             \bigstep{B-NUM}{}{2}{2} \ \bigstep{B-NUM}{}{1}{1}
         }{2 + 1}{3}
     }{3 + (2 + 1)}{6}\] 
+\end{examplebox}
+
+\begin{examplebox}{C Semantics \& Short Circuiting in Big-Step}
+	In this module short-circuiting and side-effects have been kept separate, however this typically not the case (expressions with assignment, using results of functions in expressions).
+	\begin{minted}{C}
+int main() {
+	bool a = false;
+	bool b = true || (a = true); 
+	// a is false, b is true
+}
+	\end{minted}
+	Create basic big-step operational semantics rules for an extension to SimpleExp boolean expressions that contains:
+	\begin{itemize}
+		\item Assignments in expressions $B ::= x \ | \ B \lor B \ | \ B \land B \ | \ \neg B \ | \ x : = B$ where $x$ is a variable identifier $x \in Var$, assignment evaluates to the assigned value.
+		\item A variable store $s$ ($Var \rightharpoonup \{true, false \}$), much like the While language.
+		\item A big-step derivation rule of form $\langle B, s \rangle \Downarrow_b \langle s', b \rangle$ (program and store $\to$ final store and expression value).
+	\end{itemize}
+	We want determinacy and totality to be preserved, provide a suggestion of a rule that could be added to your solution to break either.  
+	\tcblower
+	\[\bigstepdef{B-BOOL}{}{\langle b, s \rangle}{\langle s, b \rangle}{} \qquad \bigstepdef{B-NEG-FALSE}{\langle B, s \rangle  \Downarrow_b \langle s', false \rangle}{\langle \neg B, s \rangle}{\langle s', true \rangle}{} \qquad \bigstepdef{B-NEG-TRUE}{\langle B, s \rangle  \Downarrow_b \langle s', true \rangle}{\langle \neg B, s \rangle}{\langle s', false \rangle}{}\]
+	\[\bigstepdef{OR-SC}{\langle B_1, s \rangle \Downarrow_b \langle s', true \rangle}{\langle B_1 \lor B_2, s \rangle \lor }{\langle s', true \rangle}{} \qquad \bigstepdef{OR-EXH}{\langle B_1 , s \rangle \Downarrow_b \langle s'', false \rangle \qquad \langle B_2, s'' \rangle \Downarrow_b \langle s', b \rangle}{\langle B_1 \lor B_2, s \rangle}{\langle s', b \rangle}{}\]
+	\[\bigstepdef{AND-SC}{\langle B_1, s \rangle \Downarrow_b \langle s', false \rangle}{\langle B_1 \land B_2, s \rangle}{\langle s', false \rangle}{} \qquad \bigstepdef{AND-EXH}{\langle B_1, s \rangle \Downarrow_b \langle s'', true \rangle \qquad \langle B_2, s'' \rangle \Downarrow_b \langle s', b \rangle}{\langle B_1 \land B_2, s \rangle}{\langle s', b \rangle}{}\]
+	\[\bigstepdef{ASSIGN}{\langle B, s \rangle \Downarrow_b \langle s'', b \rangle \qquad s' = [x \mapsto b]}{\langle x := B, s \rangle}{\langle s', b \rangle}{}\]
+	Hence we can now create derivations such as:
+	\begin{minted}{C}
+bool x;
+(x = true) || (x = false);
+	\end{minted}
+	\[\bigstepdef{OR-SC}{
+		\bigstepdef{ASSIGN}{
+			\bigstepdef{B-BOOL}{}{true}{true}{} \qquad (x \mapsto true) = ()[x \mapsto true]
+		}{\langle x := true, () \rangle}{\langle (x \mapsto true), true \rangle}{}
+	}{\langle (x := true) \lor (x := false), () \rangle}{\langle (x \mapsto true),  true \rangle}{}\]
+	We can break determinacy by adding short-circuiting rules for the right hand side (e.g $b \lor true \Downarrow true$) of $\lor$ and $\land$. 
 \end{examplebox}
 
 \begin{exambox}{1a}{2021/22}
