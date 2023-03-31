@@ -26,12 +26,9 @@ data Table = Table
   {
     tableName :: String,
     tableCols :: [ColumnID],
-    tableRows :: [Row]
+    tableRows :: [Row],
+    tableSize :: Int
   }
-
--- Types for query optimisation
-type Cost = Int
-type Selectivity = Double
 
 -- Some predicate types (e.g col1 == "a"), theta is included complex expressions 
 data PredFun = EQUAL ColumnID Value | NOTEQUAL ColumnID Value | Theta (Row -> Bool) 
@@ -56,113 +53,59 @@ data SortBy = SortBy
 
 data AggFun = AggFun 
   {
-    aggCols :: [ColumnID],
-    aggFun  :: Maybe Value -> Row -> Value,
-    outCol  :: ColumnID
+    aggCols   :: [ColumnID],
+    aggGroups :: Int,
+    aggFun    :: Maybe Value -> Row -> Value,
+    outCol    :: ColumnID
   }
 
 data Operator = 
     Scan        Table
-  | Select      Operator Predicate Selectivity 
+  | Select      Operator Predicate
   | Project     Operator RowTrans
   | Product     Operator Operator
-  | Join        Operator Operator Predicate Selectivity
+  | Join        Operator Operator Predicate
   | Difference  Operator Operator
   | Union       Operator Operator
-  | Aggregation Operator AggFun Selectivity
-  | TopN        Operator SortBy
+  | Aggregation Operator AggFun
+  | TopN        Operator SortBy Int
 
-getOutputs :: Operator-> [ColumnID]
-getOutputs op = case op of
-  Select      op _   _   -> getOutputs op
+attributes :: Operator -> [ColumnID]
+attributes op = case op of
+  Select      op _       -> attributes op
   Project     _  rt      -> outputCols rt
-  Product     op op'     -> getOutputs op ++ getOutputs op'
-  Join        op op' _ _ -> getOutputs op ++ getOutputs op'
-  Difference  op _       -> getOutputs op -- op' op assumed to have same cols
-  Union       op _       -> getOutputs op -- op' op assumed to have same cols
-  Aggregation op agf _   -> [outCol agf]
-  TopN        op _       -> getOutputs op
+  Product     op op'     -> attributes op ++ attributes op'
+  Join        op op' _   -> attributes op ++ attributes op'
+  Difference  op _       -> attributes op -- op' op assumed to have same cols
+  Union       op _       -> attributes op -- op' op assumed to have same cols
+  Aggregation op agf     -> [outCol agf]
+  TopN        op _ _     -> attributes op
   Scan        table      -> tableCols table
-
--- Map a function over the operators
-apply :: (Operator -> Operator) -> Operator -> Operator
-apply m op = case op of  
-    Select      op p s     -> Select      (m op) p s
-    Project     op rt      -> Project     (m op) rt
-    Product     op op'     -> Product     (m op) (m op')
-    Join        op op' p s -> Join (m op) (m op') p s
-    Difference  op op'     -> Difference  (m op) (m op')
-    Union       op op'     -> Union       (m op) (m op')
-    Aggregation op cc af   -> Aggregation (m op) cc af
-    TopN        op sb      -> TopN        (m op) sb
-    op -> op
 
 type Peephole = Operator -> Maybe Operator
 type Optimiser = Operator -> Operator
 
-logicalOnly :: Peephole
-{- Selection Pushdown  
- - Assume join is more expensive than select (essentially always true)
- - Select operates on columns on one side of the join 
-
-SELECT selectCols
-FROM op1 JOIN op2
-WHERE selectFun
-
-.. goes to ...
-
-SELECT *
-FROM (SELECT selectCols FROM op1 WHERE selectFun) JOIN op2
--}
-logicalOnly (Select (Join op op' p1 s1) p2 s2) 
-  | getOutputs op `containsAll` selectCols p2
-  = Just (Join (Select op p2 s2) op' p1 s1)
-logicalOnly (Select (Join op op' p1 s1) p2 s2) 
-  | getOutputs op' `containsAll` selectCols p2
-  = Just (Join op (Select op' p2 s2) p1 s1)
-{- Selection ordering
-We push down selections that likely have lower selectivity
-- Here we only consider == (EQ) and <> (NEQ)
-
-SELECT ...
-FROM (SELECT ... FROM op WHERE ... <> ...)
-WHERE ... == ...
-
-... goes to ...
-
-SELECT ...
-FROM (SELECT ... FROM op WHERE ... == ...)
-WHERE ... <> ...
-
--}
-logicalOnly 
-  (Select (Select op p1@Predicate{selectCols=_, selectFun=(NOTEQUAL _ _)} s1) p2@Predicate{selectCols=_, selectFun=(EQUAL _ _)} s2)
-  = Just (Select (Select op p2 s2) p1 s1)
-
--- default case
-logicalOnly op = Nothing
-
--- Rules for optimising a query
-naive :: Peephole
-{- 
-Reorder selectivity [Data Aware]
- - Use the lowest selectivity first
- - Assumes selectivities are independent
--} 
-naive (Select (Select op p2 s2) p1 s1) | s2 > s1 
-  = Just (Select (Select op p1 s2) p2 s2)
-
-naive op = Nothing
+-- Map a function over the operators
+apply :: (Operator -> Operator) -> Operator -> Operator
+apply m op = case op of  
+    Select      op p     -> Select      (m op) p
+    Project     op rt    -> Project     (m op) rt
+    Product     op op'   -> Product     (m op) (m op')
+    Join        op op' p -> Join (m op) (m op') p
+    Difference  op op'   -> Difference  (m op) (m op')
+    Union       op op'   -> Union       (m op) (m op')
+    Aggregation op af    -> Aggregation (m op) af
+    TopN        op sb _  -> TopN        (m op) sb
+    op -> op
 
 -- Continue traversing until making an optimisation, then return to root.
 -- As optimisations on either side of a join, difference, or union are 
 -- independent, peep both separately.
 root :: Peephole -> Optimiser
-root peep orig = case optR of
+root peep orig 
+  = case peep orig of
     Just opt -> opt
     Nothing  -> apply (root peep) orig
-  where
-    optR = peep orig
 
 -- traverse from bottom up - apply rules, then traverse from optimised.  
 trav :: Peephole -> Optimiser
@@ -173,3 +116,61 @@ trav peep orig = apply (trav peep) (peep orig `orElse` orig)
 travLim :: Peephole -> Int -> Optimiser
 travLim peep 0 orig = orig
 travLim peep n orig = apply (travLim peep (n - 1)) (peep orig `orElse` orig)
+
+-- 
+predicateLess :: Predicate -> Predicate -> Bool
+predicateHeuristic 
+  Predicate{selectFun=(NOTEQUAL _ _)} 
+  Predicate{selectFun=(EQUAL _ _)} 
+    = True
+predicateHeuristic = False
+
+predicateImplies :: Predicate -> Predicate -> Bool
+predicateImplies = undefined
+
+logicalRuleBased :: Peephole
+-- Selection Pushdown  
+-- Assume join is more expensive than select (essentially always true)
+-- Select operates on columns on one side of the join 
+logicalRuleBased (Select (Join op op' p1) p2) 
+  | attributes op  `containsAll` selectCols p2 = Just (Join (Select op p2) op' p1) 
+  | attributes op' `containsAll` selectCols p2 = Just (Join op (Select op' p2) p1)
+-- Selection ordering
+-- We push down selections that likely have lower selectivity
+-- Here we only consider == (EQ) and <> (NEQ) 
+logicalRuleBased
+  (Select (Select op p1) p2) | p2 `predicateLess` p1
+  = Just (Select (Select op p2) p1)
+-- Selection Implies
+-- Eliminate a redundant selection based on predicates implications 
+logicalRuleBased
+  (Select (Select op p1) p2) 
+  | p1 `predicateImplies` p2 = Just (Select op p1)
+  | p2 `predicateImplies` p1 = Just (Select op p2)  
+
+-- default case
+logicalRuleBased op = Nothing
+
+
+
+-- Types for query optimisation
+type Selectivity = Double
+type Cost = Double
+
+-- left unimplemented as it requires a great extension to Predicate
+selectivity :: Predicate -> Cost
+selectivity = undefined
+
+-- Estimating the size of output relations
+sizeCost :: Operator -> Cost
+sizeCost op = case op of
+  Scan        t         -> fromIntegral (tableSize t)
+  Select      op   p    -> selectivity p * sizeCost op
+  Project     op   _    -> sizeCost op
+  Product     opL opR   -> sizeCost opL * sizeCost opR
+  Join        opL opR p -> selectivity p * sizeCost opL * sizeCost opR
+  Difference  opL opR   -> max (sizeCost opL) (sizeCost opR)
+  Union       opL opR   -> sizeCost opL + sizeCost opR
+  Aggregation _   af    -> aggGroups af
+  TopN        op  _  n  -> min (sizeCost op) n
+
