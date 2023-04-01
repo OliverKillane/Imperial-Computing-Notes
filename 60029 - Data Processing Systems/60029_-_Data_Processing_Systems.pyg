@@ -1,4 +1,0 @@
-Output<int> console(std::cout);
-WindowTwoStackAggregator<int, intmax> maxints(&console, 3);
-UserInput<int> user(&maxints, std::cin);
-user.run();

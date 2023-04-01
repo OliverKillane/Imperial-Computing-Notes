@@ -181,7 +181,7 @@ In order to demonstrate logical optimisation we use a representation of
     \end{itemize}
 \end{minipage}
 \end{center}
-We include basic functions for applying functions to the plan:
+We include basic functions for applying transformations to the plan:
 \begin{minted}{haskell}
 -- Apply some transformation to all children of an operator
 apply :: (Operator -> Operator) -> Operator -> Operator
@@ -347,7 +347,19 @@ If we assume all values are equally likely:
 
 \subsubsection{Histograms}
 Store the frequency of values in a table.
-\[selectivity(a = v) \equiv P(a = v) \triangleq \cfrac{histogram_a.v}{histogram_a.total} \]
+\begin{center}
+    \begin{minipage}{.49\textwidth}
+        \begin{center}
+            \begin{tabular}{l c c c c c}
+                \multicolumn{6}{c}{$\underline{histogram_a}$} \\
+                \textbf{values}    & $v_1$ & $v_2$ & $v_3$ & \dots & $v_n$ \\ 
+                \textbf{frequency} & $c_1$ & $c_2$ & $c_3$ & \dots & $c_n$ \\    
+            \end{tabular}
+        \end{center}
+    \end{minipage} \hfill \begin{minipage}{.49\textwidth}
+        \[selectivity(a = v) \triangleq P(a = v) \equiv \cfrac{histogram_a.v}{histogram_a.total} \]
+    \end{minipage}
+\end{center}
 \begin{itemize}
     \item Must retain and update a histogram for each attribute, with a count for each unique value.
     \item Histograms can be binned (like bitmap indices) when the number of unique values is large.
@@ -355,29 +367,108 @@ Store the frequency of values in a table.
 when evaluating multiple equalities, we assume \textit{attribute independence}, and hence:
 \[selectivity(a_1 = v_1  \dots \land a_n = v_n) \equiv P(a_1 = v_1) \times \dots \times P(a_n = v_n) = \cfrac{histogram_{a_1}.v_1}{histogram_{a_1}.total} \times \dots \times \cfrac{histogram_{a_n}.v_n}{histogram_{a_n}.total}\]
 
+\begin{sidenotebox}{Binned Histograms}
+    SparkSQL's catalyst optimiser uses binned histograms as implemented \href{https://github.com/apache/spark/blob/master/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/plans/logical/Statistics.scala}{here}
+\end{sidenotebox}
+
 \subsubsection{Multidimensional Histograms}
 Often attribute values are correlated (e.g largest orders tend to be urgent).
+\begin{center}
+    \begin{tabular}{l l c c c c c}
+        \multicolumn{7}{c}{$\underline{histogram_{(a_1, a_2)}}$} \\
+                                         &               & \multicolumn{5}{c}{attribute $a_1$} \\
+                                         &               & ${v_{a_1}}_1$ & ${v_{a_1}}_2$ & ${v_{a_1}}_3$ & \dots     & ${v_{a_1}}_n$ \\
+        \multirow{5}{*}{attribute $a_2$} & ${v_{a_2}}_1$ & $c_{(1,1)}$   & $c_{(2,1)}$   & $c_{(3,1)}$ & $c_{(4,1)}$ & $c_{(5,1)}$   \\
+                                         & ${v_{a_2}}_2$ & $c_{(1,2)}$   & $c_{(2,2)}$   & $c_{(3,2)}$ & $c_{(4,2)}$ & $c_{(5,2)}$   \\
+                                         & ${v_{a_2}}_3$ & $c_{(1,3)}$   & $c_{(2,3)}$   & $c_{(3,3)}$ & $c_{(4,3)}$ & $c_{(5,3)}$   \\
+                                         & \vdots        & $c_{(1,4)}$   & $c_{(2,4)}$   & $c_{(3,4)}$ & $c_{(4,4)}$ & $c_{(5,4)}$   \\
+                                         & ${v_{a_2}}_n$ & $c_{(1,5)}$   & $c_{(2,5)}$   & $c_{(3,5)}$ & $c_{(4,5)}$ & $c_{(5,5)}$   \\
+    \end{tabular}
+\end{center}
+
 \begin{itemize}
     \item Store multiple histograms to show frequencies of attribute values, given other attribute's value.
+    \item Number of histograms grows combinatorially with number of tables. \toimprove
+    \item Reducing the number of histograms, but still producing good selectivity estimates is an open area of research.
 \end{itemize}
-
 \[selectivity(a_1 = v_1 \land a_2 = v_2) = P(a_1 = v_1 | a_2 = v_2) \times P(a_2 = v_2) = \cfrac{histogram_{(a_1, a_2)}.(v_1, v_2)}{histogram_{(a_1, a_2)}.total} \]
 
 \section{Physical Optimisation}
-% Cost metrics
-% function calls, produced tuples, page faults, max(I/O, CPU), intermediate sizes
+\begin{definitionbox}{Physical Plan}
+    A plan containing implementation specific information, and describing how the query should be physically executed.
+    \begin{itemize}
+        \item Operator implementations (e.g which join: sort-merge, hash, nested loop, index based join etc)
+        \item Costs of different implementations (e.g hash join vs nested-loop $\to$ time versus memory)
+        \item Available indices \& data structure choices (e.g type of hashmap, hash function)
+    \end{itemize} 
+    Physical plan optimisation focuses on optimising the plan for the specific system the query is executed on.
+\end{definitionbox}
+
+The cost metric different types of cost (e.g time versus memory)
+\begin{itemize}
+    \item Produced tuples
+    \item Page faults
+    \item Intermediate buffer sizes
+    \item (Volcano Processing) function calls
+    \item Storage access \& availability
+\end{itemize}
+We can then decide if a rule is universally beneficial (for \textit{rule-based}), or determine which possible plan is lowest cost (\textit{cost-based})
 
 \subsection{Rule Based Physical Optimisation}
-
-% data structure choice
-% sort merge join when input data is sorted
-% using existing indices
+Much like \textit{logical rule-based optimisation}, (almost) universally beneficial (given the decided cost metric) rules to improve performance.
+\begin{center}
+    \begin{tabular}{l p{.8\textwidth}}
+        Data structures & Always use hash map with rehashing for probe if expected collisions are high.  \\
+        Parallelism     & always use parallel sort for \mintinline{sql}{ORDER BY}, always partition hash joins \\
+        Using Indices   & If foreign key index exists, always use for foreign key join, if getting range always use available bitmap or B+ tree index. \\
+        Cache           & Always use cache-conscious partitioning to improve locality. \\
+    \end{tabular}
+\end{center}
 
 \subsection{Cost Based Physical Optimisation}
-% parameters (buffer pool size, data, hardware - accelerators/extensions)
-
+Much like \textit{logical cost-based optimisation} but on a physical plan (using implementation specific details).
+\begin{center}
+    \begin{tabular}{l p{.8\textwidth}}
+        Data & Consider cardinalities \& how this affect operator choice (e.g choose sort-merge join over hash if the required hashtable is too large for the buffer pool). \\
+        Hardware & Function call overhead (for this architecture), buffer pool size, access latencies, available parallelism (hardware threads). \\
+        Algorithm & Must consider how algorithms expected costs change with parameters (e.g cardinality) \\ 
+    \end{tabular}
+\end{center}
+This is the current state of the art in optimisation. 
 
 \section{SparkSQL}
-% spark system architecture
-% catalyst optimiser
-\unfinished
+\begin{sidenotebox}{SparkSQL Logical Optimiser}
+    You can find the source for SparkSQL's catalyst optimiser's logical optimisations \href{https://github.com/apache/spark/blob/master/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/optimizer/Optimizer.scala}{here on github}.
+\end{sidenotebox}
+\begin{center}
+    \includegraphics[width=\textwidth]{optimisation/images/catalyst.drawio.png}
+\end{center}
+\begin{itemize}
+    \item \textit{Rule-based logical optimiser} and \textit{cost-based physical optimiser}
+    \item Rather than reapplying the physical plan optimiser repeatedly on one plan, multiple possible candidate plans are produced and evaluated (negates local optima problem at the cost of generating many physical plans).
+\end{itemize}
+\noindent
+Logical rules are expressed as extensions of a \mintinline{scala}{Rule[LogicalPlan]} interface. For example expression simplification and constant folding can be found in the \href{https://github.com/apache/spark/blob/master/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/optimizer/expressions.scala}{expression optimiser}.
+\begin{minted}{scala}
+/**
+* Simplifies boolean expressions:
+* 1. Simplifies expressions whose answer can be determined without evaluating both sides.
+* 2. Eliminates / extracts common factors.
+* 3. Merge same expressions
+* 4. Removes `Not` operator.
+*/
+object BooleanSimplification extends Rule[LogicalPlan] with PredicateHelper {
+  def apply(plan: LogicalPlan): LogicalPlan = plan.transformWithPruning(
+    _.containsAnyPattern(AND, OR, NOT), ruleId) {
+    case q: LogicalPlan => q.transformExpressionsUpWithPruning(
+      _.containsAnyPattern(AND, OR, NOT), ruleId) {
+        case TrueLiteral And e => e
+        case e And TrueLiteral => e
+        case FalseLiteral Or e => e
+        case e Or FalseLiteral => e
+        // ...
+      }
+      // ...
+    }
+}
+\end{minted}
