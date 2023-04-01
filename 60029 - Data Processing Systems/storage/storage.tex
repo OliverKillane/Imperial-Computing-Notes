@@ -89,6 +89,18 @@ Multi-dimensional data must be stored in a 1-dimensional memory.
 \end{definitionbox}
 
 \subsection{Disk Storage}
+Disks differ from main memory:
+\begin{center}
+    \begin{tabular}{l p{.7\textwidth}}
+        \textbf{Larger Pages}        & Disks accessed in blocks. Main memory is to disk what cache is to main memory, but with lines (pages) on the oder of kilobytes. For \textit{N-Ary} storage each page behaves like a mini-database. \\
+        \textbf{Higher Latency}      & Order of milliseconds rather than micro/nano seconds (main memory/cache). \\
+        \textbf{Lower Throughput}    & Megabytes per second versus gigabytes per second for main memory. \\
+        \textbf{Accessed Through OS} & Programs must interact with OS for every read and write from disk through an OS provided file abstraction (this can be negated \& there are exceptions). File size is limited, the DBMS must manage a pool of used files and determine offsets to access data contained. \\
+    \end{tabular}
+\end{center}
+As a result disk IO often dominates DBMS costs. Small reductions from complex IO management strategies are often more significant than any overhead they incur. 
+
+
 \begin{definitionbox}{Buffer Manager}
     Manages disk-resident data and manages data transfer to \textit{pages} in memory.
     \begin{itemize}
@@ -150,16 +162,5 @@ Multi-dimensional data must be stored in a 1-dimensional memory.
     \end{center}
 \end{definitionbox}
 
-\begin{examplebox}{Lookups}
-    Access latencies to elements in a table are modelled as follows:
-    \[\begin{matrix*}[l]
-        n & \text{Access a (32 bit) word for the first time} \\
-        m & \text{Access an adjacent word to the last accessed word} \\
-        p & \text{Access a previously accessed value} \\
-    \end{matrix*} \text{ where } n > m > p\]
-    \unfinished
-\end{examplebox}
-
-\section{Example Sketch Implementation}
+\section{Implementation}
 \unfinished
-

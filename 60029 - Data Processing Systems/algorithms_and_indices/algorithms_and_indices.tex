@@ -1,16 +1,49 @@
 \chapter{Algorithms and Indices}
 
-\section{Sorting Algorithms}
+\section{Sorting Algorithms (unassessed)}
 \subsection{Quicksort}
+\begin{center}
+    \includegraphics[width=.9\textwidth]{algorithms_and_indices/images/quicksort.drawio.png}
+\end{center}
+\inputminted{cpp}{algorithms_and_indices/code/quicksort.cpp}
+\begin{center}
+    \begin{tabular}{c | c}
+        \textbf{Average Complexity} & \textbf{Worst-Case Complexity} \\
+        $O(n \log n)$ & $O(n^2)$ \\ 
+    \end{tabular}
+\end{center}
+Selecting a balanced pivot (ideally the median) is important to avoid worst-case complexity (where all others are larger or smaller than the pivot). Sampling multiple possible pivots negates this, as do other hybrid sorts.
+
+\begin{tabbox}{prosbox}
+    \textbf{Quick} & On average typically faster than merge or heapsort. \\
+    \textbf{In-Place} & Sort can be performed entirely in place (no extra memory required, good temporal locality). \\
+    \textbf{Parallel} & Is trivial to parallelise. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{Worst-Case} & Avoiding $O(N^2)$ \\
+    \textbf{Blind} & Does not take advantage of partially sorted data (in fact this can lead to worst-case depending on pivot selection). \\
+\end{tabbox}
+
+\begin{sidenotebox}{Better quicksorts}
+    Many variations have been developed to improve performance, such as: 
+    \\\begin{tabular}{l p{.7\textwidth}}
+        \textit{Multi-Pivot Quicksort}       & For improved cache performance (a dual-pivot quicksort was used in Java 7). \\
+        \textit{Quick-Radix Sort}            & Partitions based on bit (depth of recursion) of the key. \\
+        \textit{Pattern Defeating Quicksort} & A hybrid sort using quicksort's fast average complexity, and heapsort's good worst-case complexity. \\
+    \end{tabular}
+\end{sidenotebox}
 \subsection{Merge Sort}
+
 \subsection{Tim Sort}
+
 \subsection{Radix Sort}
+
 \subsection{Top-N with Heaps}
 
 \unfinished
 
 \section{Joins}
-\subsection{Database Normalisation}
+\subsection{Database Normalisation (unassessed)}
 % Normal Forms
 \unfinished
 

@@ -78,46 +78,79 @@ Relational algebra is closed:
 \end{itemize}
 
 \begin{examplebox}{Query This!}
-  Given the below structure, write a query.
-  \unfinished
+  Given the below structure, write a query to get the names of every book ordered by a current Customer in relational algebra and SQL (you may ignore differences due to bag vs set semantics).
+  \begin{center}
+    \begin{minipage}{.49\textwidth}
+      \begin{minted}{sql}
+CREATE TABLE Book (
+  BookID INTEGER NOT NULL,
+  Title  VARCHAR(20),
+  Author VARCHAR(20),
+  ISBN   VARCHAR(13)
+);
+
+CREATE TABLE OrderedItem (
+  OrderID INTEGER NOT NULL,
+  BookID  INTEGER NOT NULL
+);
+
+      \end{minted}
+    \end{minipage} \hfill \begin{minipage}{.49\textwidth}
+      \begin{minted}{sql}
+CREATE TABLE Order (
+  OrderID    INTEGER NOT NULL,
+  CustomerID INTEGER NOT NULL,
+  Price      DECIMAL(18,2)
+);
+
+-- Stores current customers
+CREATE TABLE Customer (
+  CustomerID      INTEGER NOT NULL,
+  ShippingAddress VARCHAR(50),
+  Name            VARCHAR(20) 
+);
+      \end{minted} 
+    \end{minipage}
+  \end{center}
   \tcblower
-  \[\Pi_{title}(\sigma_{OrderItem.BookID = Book.BookID}(\sigma_{\text{OrderedItem.OrderId = Order.OrderID}}((\sigma_{Order.CustomerID = Customer.CustomerID}(\sigma_{\text{customerID=Holger}}(Customer) \times Order)) \times OrderedItem) \times Book))\]
+  \begin{multline*}
+    \Pi_{title}(\sigma_{OrderItem.BookID = Book.BookID}(\sigma_{\text{OrderedItem.OrderId = Order.OrderID}}(( \\ \sigma_{Order.CustomerID = Customer.CustomerID}(\sigma_{\text{customerID=Holger}}(Customer) \times Order)) \times OrderedItem) \times Book))
+  \end{multline*}
   \begin{minted}{sql}
 SELECT Book.title
 FROM (
-  (
-    Customer NATURAL JOIN Order
-  ) NATURAL JOIN OrderedItem
+  (Customer NATURAL JOIN Order) NATURAL JOIN OrderedItem
 ) NATURAL JOIN Book
   \end{minted}
-  Here a natural join is:
-  \[\text{natural join}(R_1, R_2) \triangleq \sigma_{R_1.x_1 = R_2.x_1 \land \dots R_1.x_n = R_2.x_n} (R_1 \times R_2) \text{ where the }x\text{s are in both tables}\]
+  Note that this will produce duplicates (bag semantics), we can remove these using a \mintinline{sql}{SELECT DISTINCT}.
 \end{examplebox}
 
 \begin{examplebox}{Unique Addresses}
-  \unfinished
-  \[\Pi_{Book.Author}(
+  Using the previous schema create a query to get each author that has only sold to one address (can potentially ship to multiple customers at the same address)   
+  
+  \begin{multline*}
+    \Pi_{Book.Author}(
     \sigma_{count=1}(
-      \Gamma_{(Customer.ShippingAddress),(Book.Author, count)}(
+      \Gamma_{(Customer.ShippingAddress),(Book.Author, count)}( \\
         \Pi_{Book.Author, Customer.ShippingAddress} (
           \text{natural join}(Customer, Order, orderItem, Book)
         )
       )
     )
-  )\]
+  )
+  \end{multline*}
+  Here a natural join is:
+  \[\text{natural join}(R_1, R_2) \triangleq \sigma_{R_1.x_1 = R_2.x_1 \land \dots R_1.x_n = R_2.x_n} (R_1 \times R_2) \text{ where the }x\text{s are in both tables}\]
   \begin{minted}{sql}
 SELECT Book.Author
 FROM (
   SELECT Book.Author, Customer.ShippingAddress
-  FROM (
-      (
-        Customer NATURAL JOIN Order
-        ) NATURAL JOIN OrderedItem
-    ) NATURAL JOIN Book
+  FROM ((Customer NATURAL JOIN Order) NATURAL JOIN OrderedItem) NATURAL JOIN Book
 )
 GROUP BY Book.Author
-WHERE COUNT(*) = 1;
+HAVING COUNT(*) = 1;
   \end{minted}
+
 \end{examplebox}
 
 \subsection{Nomenclatures}
