@@ -418,10 +418,10 @@ We can then decide if a rule is universally beneficial (for \textit{rule-based})
 Much like \textit{logical rule-based optimisation}, (almost) universally beneficial (given the decided cost metric) rules to improve performance.
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}
-        Data structures & Always use hash map with rehashing for probe if expected collisions are high.  \\
-        Parallelism     & always use parallel sort for \mintinline{sql}{ORDER BY}, always partition hash joins \\
-        Using Indices   & If foreign key index exists, always use for foreign key join, if getting range always use available bitmap or B+ tree index. \\
-        Cache           & Always use cache-conscious partitioning to improve locality. \\
+        \textbf{Data structures} & Always use hash map with rehashing for probe if expected collisions are high.  \\
+        \textbf{Parallelism}     & always use parallel sort for \mintinline{sql}{ORDER BY}, always partition hash joins \\
+        \textbf{Using Indices}   & If foreign key index exists, always use for foreign key join, if getting range always use available bitmap or B+ tree index. \\
+        \textbf{Cache}           & Always use cache-conscious partitioning to improve locality. \\
     \end{tabular}
 \end{center}
 
@@ -429,9 +429,9 @@ Much like \textit{logical rule-based optimisation}, (almost) universally benefic
 Much like \textit{logical cost-based optimisation} but on a physical plan (using implementation specific details).
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}
-        Data & Consider cardinalities \& how this affect operator choice (e.g choose sort-merge join over hash if the required hashtable is too large for the buffer pool). \\
-        Hardware & Function call overhead (for this architecture), buffer pool size, access latencies, available parallelism (hardware threads). \\
-        Algorithm & Must consider how algorithms expected costs change with parameters (e.g cardinality) \\ 
+        \textbf{Data}      & Consider cardinalities \& how this affect operator choice (e.g choose sort-merge join over hash if the required hashtable is too large for the buffer pool). \\
+        \textbf{Hardware}  & Function call overhead (for this architecture), buffer pool size, access latencies, available parallelism (hardware threads). \\
+        \textbf{Algorithm} & Must consider how algorithms expected costs change with parameters (e.g cardinality) \\ 
     \end{tabular}
 \end{center}
 This is the current state of the art in optimisation. 
