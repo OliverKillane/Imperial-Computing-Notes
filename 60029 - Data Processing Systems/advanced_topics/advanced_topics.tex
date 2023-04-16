@@ -1,10 +1,92 @@
 \chapter{Advanced Topics}
-\unfinished
+
 \section{Hardware and Data Models}
+\begin{sidenotebox}{The Turing Tax}
+    The additional cost/overhead (performance, hardware cost, energy) of universality/general purpose computing in hardware.
+    \begin{center}
+        \begin{tabular}{l l p{.8\textwidth}}
+            & Example & Description \\
+            General Purpose & CPU & \textit{Jack of all trades, but a master of none.} \\
+            Dedicated & GPU, TPU & Optimised for a very specific set of operations. \\
+        \end{tabular}
+    \end{center}
+    The  \textit{turing tax} \& related tradeoffs of general purpose computing are discussed at length in Dr Paul Kelly's \textit{60001 - Advanced Computer Architecture} Module.
+\end{sidenotebox}
+\noindent
+\centerline{\textit{Hardware Heterogeneity is Increasing}}
+\begin{itemize}
+    \item The end of moore's law the \textit{free lunch} provided decades of performance improvements by \textit{dennard scaling} is ending.
+    \item Dedicated accelerators for specific applications/operations can provide increased performance by avoiding/reducing the \textit{turing tax}
+    \item As a result, systems need to be able to efficiently use many different accelerators.
+\end{itemize}
+
+\begin{tcbraster}[raster columns=2,raster equal height]
+\begin{definitionbox}{GPU}
+    \textit{Graphics Processing Unit}, designed for highly parallel operations on data (operating the same instructions across many threads in many warps).
+\end{definitionbox}
+\begin{definitionbox}{TPU}
+    \textit{Tensor Processing Unit}, developed by Google for low precision arithmetic on tensors (matrices are 2D tensors) 
+\end{definitionbox}
+\begin{definitionbox}{ASIC}
+    \textit{Application-specific Integrated Circuit}. An IC designed to compute a specific application and hence with virtually no associated \textit{turing tax} overhead.
+\end{definitionbox}
+\begin{definitionbox}{Near Memory Computing}
+    Accelerators built into/physically adjacent to main memory to avoid the bandwidth limitations of CPU memory access over a memory bus.
+\end{definitionbox}
+\end{tcbraster}
+\begin{definitionbox}{Field Programmable Gate Array (FPGA)}
+    An array of programmable blocks that can be configured to a specific design (described by a developer using a \textit{hardware description language}) to perform a specific algorithm.  
+\end{definitionbox}
+\centerline{\textit{Data Model Heterogeneity is Increasing}}
+Many new data models have been developed to support specific types of application.
+\begin{itemize}
+    \item Key value stores used to improve performance of distributed systems through caching.
+    \item Graph based models for highly interconnected data (e.g social networks) that avoid the costs associated with joins on very large relations
+    \item Document based databases for flexibility \& simplicity in storing data (e.g storing BSON objects in MongoDB to support simple webapps)
+\end{itemize}
+
+\begin{tcbraster}[raster columns=2,raster equal height]
+\begin{sidenotebox}{Redis}
+    \href{https://redis.io/}{Redis} is a popular in-memory key value store, often used as a cache but also usable as a key-value database. 
+\end{sidenotebox}
+\begin{sidenotebox}{Memcached}
+    \href{https://github.com/memcached/memcached}{Memcached} is a distributed key-value store designed for caching. Usage is nicely explained in this \href{https://github.com/memcached/memcached/wiki/TutorialCachingStory}{funny story}.
+\end{sidenotebox}
+\end{tcbraster}
+\begin{sidenotebox}{RedisGraph}
+    A graph based database \href{https://redis.com/modules/redis-graph/}{RedisGraph} which uses adjacency matrices \& smart linear algebra to achieve a self-proclaimed title of \textit{fastest graph database}.
+\end{sidenotebox}
+\centerline{\textit{Workload Heterogeneity is Increasing}}
+Datasets are growing larger with more kinds of workload.
+\begin{center}
+    \begin{tabular}{c c c c c c}
+        Analytics & Transaction Processing & Inference & Data Cleaning & Data Integration \\ 
+    \end{tabular}
+\end{center}
+\begin{itemize}
+    \item Data integration workloads are required for the large distributed data systems
+    \item Data science related workloads needed at scale (cleaning, model training and inference)
+\end{itemize}
 
 \section{CodeGen}
+A typical DBMS implementation converts queries to logical, then physical plans. The kernel then invokes operator implementations specified in a query's physical plan to process the query. 
+\begin{center}
+    \includegraphics[width=\textwidth]{advanced_topics/images/naive_query_path.drawio.png}
+\end{center}
+There are several unavoidable costs/limitations to optimisation present:
+\unfinished
+\begin{center}
+    \includegraphics[width=\textwidth]{advanced_topics/images/query_compilation_path.drawio.png}
+\end{center}
+\begin{center}
+    \includegraphics[width=\textwidth]{advanced_topics/images/unified_algebra_path.drawio.png}
+\end{center}
+
 % voodoo
 % https://www.cs.albany.edu/~jhh/courses/readings/pirk.pvldb16.pdf
+
+
+
 
 \section{Cracking}
 \subsection{Hoare Partitioning}
