@@ -119,8 +119,31 @@ template<size_t n>
 void element_sum_scalar(int64_t x[n], int64_t y[n], int64_t z[n]) {
     for (auto i = 0; i < n; i++) z[i] = x[i] + y[i];
 }
-// Note: with optimisation on clang & g++ will automatically vectorize this
+// Note: with optimisation on clang & gcc will automatically vectorize this
 \end{minted}
+We could use multithreading.
+\begin{minted}{cpp}
+template <size_t n>
+void element_sum_threads(int64_t x[n], int64_t y[n], int64_t z[n]) {
+    //number of concurrent threads supported
+    const auto no_threads = std::thread::hardware_concurrency();
+    
+    // round-up integer division to get elements computed per thread
+    const auto n_per_thread = ((n - 1) / no_threads) + 1;
+    
+    std::vector<std::thread> threads;
+    
+    for (auto index = 0; index < n; index += n_per_thread) {
+        threads.emplace_back([&, index] {
+        for (auto s = index; s < std::min(index + n_per_thread, n); s++)
+            z[s] = x[s] + y[s];
+        });
+    }
+
+    for (auto &t : threads) t.join();
+}
+\end{minted}
+\noindent
 Or we can use a vector extension we know is available on the hardware the system is running on, such as AVX-512 used here.
 \begin{minted}{cpp}
 #include <immintrin.h> // intel intrinsics used to ensure we use 512 bit vector instructions
@@ -170,13 +193,14 @@ SELECT * FROM table WHERE x BETWEEN c1 AND c2; -- Given constants c1 and c2
 \end{minted}
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}
-        \textbf{Scan}  & \\
-        \textbf{Sort}  & \\
-        \textbf{Crack} & \\
+        \textbf{Scan}         & Linearly scan table, get entries.                                                                              \\
+        \textbf{Sorted Index} & Build a sorted index, maintain the index under writes, inserts \& deletes. Use index to get range efficiently. \\
+        \textbf{Cracking}     & Split/\textit{crack} the table into several unsorted ranges, with the ranges in sorted order.                  \\
     \end{tabular}
 \end{center}
-
-
+\begin{center}
+    \includegraphics[width=\textwidth]{advanced_topics/images/cracked_table.drawio.png}
+\end{center}
 
 \subsection{Hoare Partitioning}
 
