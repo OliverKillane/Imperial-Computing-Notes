@@ -201,11 +201,71 @@ SELECT * FROM table WHERE x BETWEEN c1 AND c2; -- Given constants c1 and c2
 \begin{center}
     \includegraphics[width=\textwidth]{advanced_topics/images/cracked_table.drawio.png}
 \end{center}
+Cracking has been shown to significantly improve performance, as examined in the paper \href{https://stratos.seas.harvard.edu/files/IKM_CIDR07.pdf}{\textbf{Database Cracking}} (benchmarking cracking in monetDB).
+\begin{center}
+    \includegraphics[width=.9\textwidth]{advanced_topics/images/cracking_perf.png}
+\end{center}
+
+\begin{sidenotebox}{"Cracking stuff Gromit!"}
+    \begin{itemize}
+        \item \href{https://homepages.cwi.nl/~mk/onderwijs/adt2009/lectures/lecture5.pdf}{These slides} cover the cracking implementation in monetDB.
+        \item \href{https://stratos.seas.harvard.edu/sites/scholar.harvard.edu/files/StochasticDatabaseCrackingPVLDB12.pdf}{Stochastic Database Cracking: Towards Robust Adaptive
+                  Indexing in Main-Memory Column-Stores}
+    \end{itemize}
+\end{sidenotebox}
 
 \subsection{Hoare Partitioning}
+\begin{center}
+    \includegraphics[width=\textwidth]{advanced_topics/images/hoare_partitioning.drawio.png}
+\end{center}
+The partitioning algorithm used in quicksort
+\begin{itemize}
+    \item $O(n)$ time complexity
+    \item Does not require extra memory / partitions in-place.
+\end{itemize}
+
+\begin{minted}{cpp}
+// partition part of a vector in range [start-inc, end-exc)
+// return the pivot index
+template <typename T>
+size_t hoare_partition(std::vector<T>& sort_vec, size_t start, size_t end) {
+  // get pivot
+  T pivot = sort_vec[start];
+  size_t count = 0;
+  
+  // determine where to partition / where to place pivot value 
+  for(size_t i = start + 1; i < end; i++) {
+    if(comp(sort_vec[i], pivot))
+      count++;
+  }
+
+  // swap pivot into place, will partition around pivot
+  size_t pivotIndex = start + count;
+  std::swap(sort_vec[pivotIndex], sort_vec[start]);
+
+  // start pointers i & j at ends of range  
+  size_t i = start, j = end - 1;
+
+  // advance pointers, swap and partition
+  while(i < pivotIndex && j > pivotIndex) {
+    while(sort_vec[i] <= pivot) i++;
+    while(sort_vec[j] > pivot) j--;
+    if(i < pivotIndex && j >= pivotIndex) {
+      std::swap(sort_vec[i], sort_vec[j]);
+      i++;
+      j--;
+    }
+  }
+
+  return pivotIndex;
+}
+\end{minted}
+
 
 \subsection{Predication}
+
 \subsection{Predicated Cracking}
+
 \section{Stream Processing}
 \section{Composable Data Processing}
 
