@@ -225,32 +225,32 @@ The partitioning algorithm used in quicksort
 \end{itemize}
 
 \begin{minted}{cpp}
-// partition part of a vector in range [start-inc, end-exc)
-// return the pivot index
+// partition part of a vector in range [start-inc, end-exc) and return the pivot index
 template <typename T>
-size_t hoare_partition(std::vector<T>& sort_vec, size_t start, size_t end) {
+size_t partition(std::vector<T> &sort_vec, size_t start, size_t end) {
   // get pivot
   T pivot = sort_vec[start];
   size_t count = 0;
-  
-  // determine where to partition / where to place pivot value 
-  for(size_t i = start + 1; i < end; i++) {
-    if(comp(sort_vec[i], pivot))
+
+  // determine where to partition / where to place pivot value
+  for (size_t i = start + 1; i < end; i++) {
+    if (sort_vec[i] <= pivot)
       count++;
   }
-
+  
   // swap pivot into place, will partition around pivot
   size_t pivotIndex = start + count;
   std::swap(sort_vec[pivotIndex], sort_vec[start]);
-
-  // start pointers i & j at ends of range  
+  
+  // start pointers i & j at ends of range
   size_t i = start, j = end - 1;
-
+  
   // advance pointers, swap and partition
-  while(i < pivotIndex && j > pivotIndex) {
-    while(sort_vec[i] <= pivot) i++;
-    while(sort_vec[j] > pivot) j--;
-    if(i < pivotIndex && j >= pivotIndex) {
+  while (i < pivotIndex && j > pivotIndex) {
+    while (sort_vec[i] <= pivot) i++;
+    while (sort_vec[j] > pivot) j--;
+
+    if (i < pivotIndex && j >= pivotIndex) {
       std::swap(sort_vec[i], sort_vec[j]);
       i++;
       j--;
@@ -261,10 +261,91 @@ size_t hoare_partition(std::vector<T>& sort_vec, size_t start, size_t end) {
 }
 \end{minted}
 
+Consider the following section from the algorithm.
+\begin{minted}{cpp}
+while(sort_vec[i] <= pivot) i++;
+\end{minted}
+A \textit{hot loop} containing a conditional with low selectivity (on random data).
+\begin{itemize}
+    \item we can employ an out-of-place algorithm that allows us to remove this \textit{control hazard}
+\end{itemize}
 
 \subsection{Predication}
+\begin{sidenotebox}{Predication}
+    The idea behind predication is to avoid \textit{control hazards}.
+    Some architectures support this directly with predicated instructions
+    \begin{minipage}[t]{.3\textwidth}
+        \begin{minted}{cpp}
+if (a > b) a += b;
+        \end{minted}
+    \end{minipage} \hfill \begin{minipage}[t]{.2\textwidth}
+        \begin{minted}{asm}
+    cmp r0, r1
+    addlt r0, r0, r1
+
+
+    
+        \end{minted}
+    \end{minipage} \hfill\begin{minipage}[t]{.2\textwidth}
+        \begin{minted}{asm}
+    cmp r0, r1
+    ble dont_add 
+    add r0, r0, r1
+dont_add:
+    @ ...
+        \end{minted}
+    \end{minipage}
+\end{sidenotebox}
+We can start with a basic out-of-place partition.
+\begin{minted}{cpp}
+template<std::copy_constructible T>
+size_t partition(const std::vector<T>& input_vec, std::vector<T>& output_vec, size_t start, size_t end)
+{
+    const T& pivot = input_vec[(start + end) / 2];  
+    size_t left_index = start;
+    size_t right_index = end - 1;
+
+    for (auto i = start; i < end; i++) {
+        if (input_vec[i] < pivot) {
+            output_vec[left_index] = input_vec[i];
+            left_index++;
+        } else {
+            output_vec[right_index] = input_vec[i];
+            right_index--;
+        }
+    }
+
+    return right_index;
+}
+\end{minted}
+Here the \mintinline{cpp}{if (input_vec[i] < pivot)} condition has low selectivity, and is part of the hot loop.
+\\
+\\ We can predicate this by always writing the \mintinline{cpp}{input_vec[i]}, and incrementing the pivot indexes based on the condition.
+\begin{minted}{cpp}
+template<std::copy_constructible T>
+size_t partition(const std::vector<T>& input_vec, std::vector<T>& output_vec, size_t start, size_t end)
+{
+    const T& pivot = input_vec[(start + end) / 2];  
+    size_t left_index = start;
+    size_t right_index = end - 1;
+
+    for (auto i = start; i < end; i++) {
+        output_vec[left_index] = input_vec[i];
+        output_vec[right_index] = input_vec[i];
+
+        // increment using boolean, if not incremented, value is overwritten on the next iteration 
+        // of the loop 
+        left_index += input_vec[i] < pivot;
+        right_index -= input_vec[i] >= pivot;
+    }
+
+    return right_index;
+}
+\end{minted}
 
 \subsection{Predicated Cracking}
+
+
 
 \section{Stream Processing}
 \section{Composable Data Processing}
