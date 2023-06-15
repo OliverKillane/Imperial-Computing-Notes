@@ -1,4 +1,5 @@
 #include "in_place_conditional.h"
+#include "in_place_predicated.h"
 #include "out_of_place_conditional.h"
 #include "out_of_place_predicated.h"
 
@@ -53,14 +54,17 @@ static void partition_out_of_place(benchmark::State &state) {
 }
 
 BENCHMARK(partition_in_place<int, hoare::partition, ordered_ints>)->Range(8 * 1024, 64 * 1024);
+BENCHMARK(partition_in_place<int, predicated_cracking::partition, ordered_ints>)->Range(8 * 1024, 64 * 1024);
 BENCHMARK(partition_out_of_place<int, out_of_place_cond::partition, ordered_ints>)->Range(8 * 1024, 64 * 1024);
 BENCHMARK(partition_out_of_place<int, out_of_place_pred::partition, ordered_ints>)->Range(8 * 1024, 64 * 1024);
 
 BENCHMARK(partition_in_place<int, hoare::partition, alternating_ints>)->Range(8 * 1024, 64 * 1024);
+BENCHMARK(partition_in_place<int, predicated_cracking::partition, alternating_ints>)->Range(8 * 1024, 64 * 1024);
 BENCHMARK(partition_out_of_place<int, out_of_place_cond::partition, alternating_ints>)->Range(8 * 1024, 64 * 1024);
 BENCHMARK(partition_out_of_place<int, out_of_place_pred::partition, alternating_ints>)->Range(8 * 1024, 64 * 1024);
 
 BENCHMARK(partition_in_place<int, hoare::partition, random_ints>)->Range(8 * 1024, 64 * 1024);
+BENCHMARK(partition_in_place<int, predicated_cracking::partition, random_ints>)->Range(8 * 1024, 64 * 1024);
 BENCHMARK(partition_out_of_place<int, out_of_place_cond::partition, random_ints>)->Range(8 * 1024, 64 * 1024);
 BENCHMARK(partition_out_of_place<int, out_of_place_pred::partition, random_ints>)->Range(8 * 1024, 64 * 1024);
 
@@ -68,7 +72,7 @@ BENCHMARK(partition_out_of_place<int, out_of_place_pred::partition, random_ints>
 // cd partition_comparison
 // ```bash
 //   cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-//   make -j C build/
+//   make -j build/
 //   ./build/Partition-Benchmarks
 // ```
 BENCHMARK_MAIN();
