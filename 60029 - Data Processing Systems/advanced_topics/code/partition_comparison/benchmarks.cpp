@@ -72,7 +72,7 @@ BENCHMARK(partition_out_of_place<int, out_of_place_pred::partition, random_ints>
 // cd partition_comparison
 // ```bash
 //   cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-//   make -j build/
+//   make -j -C build/
 //   ./build/Partition-Benchmarks
 // ```
 BENCHMARK_MAIN();

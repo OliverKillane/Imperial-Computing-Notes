@@ -1,5 +1,5 @@
 \chapter{Transactions}
-
+\label{chap:transactions}
 \begin{sidenotebox}{40007 - Introduction to Databases}
     Histories, anomalies and basic concurrency control are also taught in the \href{https://www.doc.ic.ac.uk/~pjm/idb/}{40007 - Introduction to Databases} module.
 \end{sidenotebox}
@@ -75,8 +75,8 @@ END TRANSACTION
 \begin{definitionbox}{Read/Write Locks}
     \begin{center}
         \begin{tabular}{l p{.7\textwidth}}
-            \textbf{Write/Exclusive}  & Only lock holder can hold write lock for object $o_1$. \\
-            \textbf{Read/Shared}  & Any number of other read locks on $o_1$ can be held. \\
+            \textbf{Write/Exclusive} & Only lock holder can hold write lock for object $o_1$. \\
+            \textbf{Read/Shared}     & Any number of other read locks on $o_1$ can be held.   \\
         \end{tabular}
     \end{center}
     \begin{itemize}
@@ -86,10 +86,10 @@ END TRANSACTION
     Read/Write locks exist in many languages (e.g \mintinline{cpp}{std::shared_mutex} in C++).
     \begin{center}
         \begin{tabular}{ r l c c}
-            &                & \multicolumn{2}{c}{Transaction 1} \\
-            &                & \textbf{Read} & \textbf{Write} \\
-            \multirow{2}{*}{Transaction 2}& \textbf{Read}  & No Conflict & Conflict! \\
-            & \textbf{Write} & Conflict! & Conflict! \\
+                                           &                & \multicolumn{2}{c}{Transaction 1}                  \\
+                                           &                & \textbf{Read}                     & \textbf{Write} \\
+            \multirow{2}{*}{Transaction 2} & \textbf{Read}  & No Conflict                       & Conflict!      \\
+                                           & \textbf{Write} & Conflict!                         & Conflict!      \\
         \end{tabular}
     \end{center}
 \end{definitionbox}
@@ -97,17 +97,17 @@ END TRANSACTION
 \noindent We can formalise \textit{transactions} by their read/write operations, and by the locks they acquire to perform these.
 \begin{center}
     \begin{tabular}{l l}
-        $rl_1[o_1]$ & Transaction $1$ acquires a read lock on object $o_1$. \\
-        $ru_1[o_1]$ & Transaction $1$ releases a read lock on object $o_1$. \\
-        $r_1[o_1]$ & Transaction $1$ reads from object $o_1$. \\
+        $rl_1[o_1]$ & Transaction $1$ acquires a read lock on object $o_1$.  \\
+        $ru_1[o_1]$ & Transaction $1$ releases a read lock on object $o_1$.  \\
+        $r_1[o_1]$  & Transaction $1$ reads from object $o_1$.               \\
         \\
         $wl_2[o_3]$ & Transaction $2$ acquires a write lock on object $o_3$. \\
         $wu_2[o_3]$ & Transaction $2$ releases a write lock on object $o_3$. \\
-        $w_2[o_3]$ & Transaction $2$ writes to object $o_3$. \\
+        $w_2[o_3]$  & Transaction $2$ writes to object $o_3$.                \\
         \\
-        $c_7$ & Transaction $7$ commits. \\
-        $a_5$ & Transaction $5$ aborts. \\
-        $e_1$ & Transaction $1$ commits or aborts. \\
+        $c_7$       & Transaction $7$ commits.                               \\
+        $a_5$       & Transaction $5$ aborts.                                \\
+        $e_1$       & Transaction $1$ commits or aborts.                     \\
     \end{tabular}
 \end{center}
 We can order operations using $first \prec second$.
@@ -128,8 +128,8 @@ SELECT a FROM table WHERE b = 1;
 END TRANSACTION
 -- committed T1 depends on uncommitted T2
        \end{minted}
-   \end{minipage} \hfill \begin{minipage}[t]{.49\textwidth}
-       \begin{minted}{sql}
+    \end{minipage} \hfill \begin{minipage}[t]{.49\textwidth}
+        \begin{minted}{sql}
 BEGIN TRANSACTION T2
 UPDATE table SET a = 5 WHERE b = 1;
 
@@ -137,7 +137,7 @@ UPDATE table SET a = 5 WHERE b = 1;
 
 END TRANSACTION
        \end{minted}
-   \end{minipage}
+    \end{minipage}
 \end{definitionbox}
 
 \begin{definitionbox}{Non-Repeatable Read}
@@ -153,8 +153,8 @@ SELECT * from table;
 SELECT * from table;
 END TRANSACTION
        \end{minted}
-   \end{minipage} \hfill \begin{minipage}[t]{.49\textwidth}
-       \begin{minted}{sql}
+    \end{minipage} \hfill \begin{minipage}[t]{.49\textwidth}
+        \begin{minted}{sql}
 
 
 BEGIN TRANSACTION T2
@@ -162,7 +162,7 @@ UPDATE table SET  a = 9 WHERE  b = 3;
 END TRANSACTION
 
        \end{minted}
-   \end{minipage}
+    \end{minipage}
 \end{definitionbox}
 
 \begin{definitionbox}{Phantom Read}
@@ -181,8 +181,8 @@ SELECT * from table;
 SELECT * from table;
 END TRANSACTION
        \end{minted}
-   \end{minipage} \hfill \begin{minipage}[t]{.49\textwidth}
-       \begin{minted}{sql}
+    \end{minipage} \hfill \begin{minipage}[t]{.49\textwidth}
+        \begin{minted}{sql}
 
 
 BEGIN TRANSACTION T2
@@ -190,7 +190,7 @@ DELETE FROM table; -- delete all rows
 END TRANSACTION
 
        \end{minted}
-   \end{minipage}
+    \end{minipage}
 \end{definitionbox}
 
 
@@ -207,8 +207,8 @@ UPDATE table SET  a = 9 WHERE  b = 3;
 
 END TRANSACTION
        \end{minted}
-   \end{minipage} \hfill \begin{minipage}[t]{.49\textwidth}
-       \begin{minted}{sql}
+    \end{minipage} \hfill \begin{minipage}[t]{.49\textwidth}
+        \begin{minted}{sql}
 BEGIN TRANSACTION T2
 UPDATE table SET  a = 5 WHERE  b = 1;
 
@@ -216,11 +216,11 @@ UPDATE table SET  a = 5 WHERE  b = 1;
 UPDATE table SET  a = 5 WHERE  b = 3;
 END TRANSACTION
        \end{minted}
-   \end{minipage}
-   \begin{itemize}
-     \item If \mintinline{sql}{TRANSACTION T1} overwrites uncommitted updates from \mintinline{sql}{TRANSACTION T2}, then we will get a mixture of \mintinline{sql}{a = 9 OR a = 5}.
-     \item Under these circumstances there is no equivalent serial execution
-   \end{itemize}
+    \end{minipage}
+    \begin{itemize}
+        \item If \mintinline{sql}{TRANSACTION T1} overwrites uncommitted updates from \mintinline{sql}{TRANSACTION T2}, then we will get a mixture of \mintinline{sql}{a = 9 OR a = 5}.
+        \item Under these circumstances there is no equivalent serial execution
+    \end{itemize}
 \end{definitionbox}
 
 \begin{definitionbox}{Write Skew}
@@ -235,15 +235,15 @@ UPDATE table SET c = a WHERE b = 1;
 END TRANSACTION
 -- a <> c (a and b has been swapped)
        \end{minted}
-   \end{minipage} \hfill \begin{minipage}[t]{.49\textwidth}
-       \begin{minted}{sql}
+    \end{minipage} \hfill \begin{minipage}[t]{.49\textwidth}
+        \begin{minted}{sql}
 BEGIN TRANSACTION T2
 -- read c
 UPDATE table SET a = c WHERE b = 1;
 
 END TRANSACTION
        \end{minted}
-   \end{minipage}
+    \end{minipage}
 \end{definitionbox}
 
 \begin{definitionbox}{Inconsistent Analysis}
@@ -252,7 +252,7 @@ END TRANSACTION
     \unfinished
     \tcblower
     \begin{minipage}[t]{.49\textwidth}
-    \begin{minted}{sql}
+        \begin{minted}{sql}
 BEGIN TRANSACTION T1
 
 SELECT sum(a) FROM table;
@@ -261,8 +261,8 @@ SELECT sum(a) FROM table;
 -- sum reads some a = 9 and some a = 17
 END TRANSACTION
        \end{minted}
-   \end{minipage} \hfill \begin{minipage}[t]{.49\textwidth}
-       \begin{minted}{sql}
+    \end{minipage} \hfill \begin{minipage}[t]{.49\textwidth}
+        \begin{minted}{sql}
 BEGIN TRANSACTION T2
 UPDATE table SET a = 9 WHERE  b = 1;
 
@@ -271,7 +271,7 @@ UPDATE table SET a = 17 WHERE  b = 3;
 
 END TRANSACTION
        \end{minted}
-   \end{minipage}
+    \end{minipage}
 \end{definitionbox}
 
 \begin{definitionbox}{Lost Update}
@@ -307,8 +307,8 @@ END TRANSACTION
 \begin{definitionbox}{Read Uncommitted}
     \begin{center}
         \begin{tabular}{c | c | c | c | c | c | c}
-            \textit{Dirty Write} & \textit{Dirty Read} & \textit{Write Skew} & \textit{Inconsistent Analysis} & \textit{Lost Update} & \textit{Ph-Read} & \textit{Non-Rep Read}\\
-            \prevented           & \allowed            & \allowed            & \allowed                       & \allowed             & \allowed              & \allowed \\
+            \textit{Dirty Write} & \textit{Dirty Read} & \textit{Write Skew} & \textit{Inconsistent Analysis} & \textit{Lost Update} & \textit{Ph-Read} & \textit{Non-Rep Read} \\
+            \prevented           & \allowed            & \allowed            & \allowed                       & \allowed             & \allowed         & \allowed              \\
         \end{tabular}
     \end{center}
     Reads occur immediately (can read uncommitted data), writers wait for other writers to commit (serial order for writers).
@@ -321,8 +321,8 @@ END TRANSACTION
 \begin{definitionbox}{Read Committed}
     \begin{center}
         \begin{tabular}{c | c | c | c | c | c | c}
-            \textit{Dirty Write} & \textit{Dirty Read} & \textit{Write Skew} & \textit{Inconsistent Analysis} & \textit{Lost Update} & \textit{Ph-Read} & \textit{Non-Rep Read}\\
-            \prevented           & \prevented          & \allowed            & \allowed                       & \allowed             & \allowed              & \allowed \\
+            \textit{Dirty Write} & \textit{Dirty Read} & \textit{Write Skew} & \textit{Inconsistent Analysis} & \textit{Lost Update} & \textit{Ph-Read} & \textit{Non-Rep Read} \\
+            \prevented           & \prevented          & \allowed            & \allowed                       & \allowed             & \allowed         & \allowed              \\
         \end{tabular}
     \end{center}
     Readers wait for writers to commit. All writes of a transaction are atomically made available at commit time.
@@ -334,24 +334,24 @@ END TRANSACTION
 \begin{definitionbox}{Repeatable Read}
     \begin{center}
         \begin{tabular}{c | c | c | c | c | c | c}
-            \textit{Dirty Write} & \textit{Dirty Read} & \textit{Write Skew} & \textit{Inconsistent Analysis} & \textit{Lost Update} & \textit{Ph-Read} & \textit{Non-Rep Read}\\
-            \prevented           & \prevented          & \prevented          & \prevented                     & \prevented           & \allowed         & \prevented \\
+            \textit{Dirty Write} & \textit{Dirty Read} & \textit{Write Skew} & \textit{Inconsistent Analysis} & \textit{Lost Update} & \textit{Ph-Read} & \textit{Non-Rep Read} \\
+            \prevented           & \prevented          & \prevented          & \prevented                     & \prevented           & \allowed         & \prevented            \\
         \end{tabular}
     \end{center}
     Strengthen's read committed to guarantee any repeated read in a transaction returns the same result.
     \begin{itemize}
         \item Phantom reads can occur (different rows $\to$ different reads)
         \item Each row is read/write locked, both read \& write locks held until commit/abort.
-    \end{itemize} 
+    \end{itemize}
 \end{definitionbox}
 
 \begin{definitionbox}{Serializable}
-    
-        \begin{tabular}{c | c | c | c | c | c | c}
-            \textit{Dirty Write} & \textit{Dirty Read} & \textit{Write Skew} & \textit{Inconsistent Analysis} & \textit{Lost Update} & \textit{Ph-Read} & \textit{Non-Rep Read}\\
-            \prevented           & \prevented          & \prevented          & \prevented                     & \prevented           & \prevented       & \prevented      \\
-        \end{tabular}
-    
+
+    \begin{tabular}{c | c | c | c | c | c | c}
+        \textit{Dirty Write} & \textit{Dirty Read} & \textit{Write Skew} & \textit{Inconsistent Analysis} & \textit{Lost Update} & \textit{Ph-Read} & \textit{Non-Rep Read} \\
+        \prevented           & \prevented          & \prevented          & \prevented                     & \prevented           & \prevented       & \prevented            \\
+    \end{tabular}
+
     Readers get full isolation, execution is serializable.
     \begin{itemize}
         \item Restrictive \& expensive $\to$ never the default isolation level.
@@ -363,9 +363,9 @@ END TRANSACTION
 
 \begin{center}
     \begin{tabular}{l c l}
-        Serializability is required & $\to$ & Use 2PL \\
-        Conflicts expected to be Low & $\to$ & Use OCC lowest overhead \\
-        Conflicts expected to be high & $\to$ & Use MVCC \\
+        Serializability is required   & $\to$ & Use 2PL                 \\
+        Conflicts expected to be Low  & $\to$ & Use OCC lowest overhead \\
+        Conflicts expected to be high & $\to$ & Use MVCC                \\
     \end{tabular}
 \end{center}
 
@@ -424,7 +424,7 @@ Manages the locking of ranges within tables as either read or write.
 Each tuple is timestamped for \textit{last read} and \textit{last write}, and every transaction is timestamped at the start of execution.
 \begin{center}
     \begin{tabular}{l p{.7\textwidth}}
-        \textbf{Read} & Check tuple read timestamp (if newer than transaction timestamp abort), set read timestamp to transaction timestamp. \\
+        \textbf{Read}  & Check tuple read timestamp (if newer than transaction timestamp abort), set read timestamp to transaction timestamp.   \\
         \textbf{Write} & Check tuple write timestamp (if newer than transaction timestamp abort), set write timestamp to transaction timestamp. \\
     \end{tabular}
 \end{center}

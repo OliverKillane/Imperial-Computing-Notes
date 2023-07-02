@@ -4,19 +4,19 @@
 
 \subsection{Preliminaries}
 \begin{definitionbox}{Schema}
-    A description of the database structure.
-    \begin{itemize}
-        \item {Tables, names and types.
-            \begin{minted}{sql}
+  A description of the database structure.
+  \begin{itemize}
+    \item {Tables, names and types.
+          \begin{minted}{sql}
 CREATE TABLE foo (bing INTEGER, zog TEXT, bar INTEGER); 
             \end{minted}
-        }
-        \item {Integrity constraints (foreign keys, nullability, uniqueness etc)
-                \begin{minted}{sql}
+          }
+    \item {Integrity constraints (foreign keys, nullability, uniqueness etc)
+          \begin{minted}{sql}
 ALTER TABLE foo ADD CONSTRAINT foo_key UNIQUE(bing);
                 \end{minted}
-        }
-    \end{itemize}
+          }
+  \end{itemize}
 \end{definitionbox}
 
 \begin{examplebox}{Foreign Key}
@@ -33,43 +33,44 @@ ALTER TABLE foo ADD CONSTRAINT foo_key UNIQUE(bing);
     \item No constant lookup (a pointer can be dereferenced in constant time, but looking up a key in a table is not necessarily)
   \end{itemize}
 \end{examplebox}
-
+\noindent
 Data structures used include:
 \begin{center}
-    \begin{tabular}{l p{.8\textwidth}}
-        Vector & Ordered collection of objects (same type) \\
-        Tuple & Ordered collection of objects (can be different types) \\
-        Bag & Unordered collection of objects (same type) \\
-        Set & Unordered collection of unique objects (same type) \\
-    \end{tabular}
+  \begin{tabular}{l p{.8\textwidth}}
+    \textbf{Vector} & Ordered collection of objects (same type)              \\
+    \textbf{Tuple}  & Ordered collection of objects (can be different types) \\
+    \textbf{Bag}    & Unordered collection of objects (same type)            \\
+    \textbf{Set}    & Unordered collection of unique objects (same type)     \\
+  \end{tabular}
 \end{center}
 
 \begin{definitionbox}{Relation}
-    An array representing an $n$-ary relation $R$ with the properties:
-    \\ \begin{minipage}{.49\textwidth}
-        \begin{enumerate}
-            \setlength\itemsep{0em}
-            \item Each row is an $n$-tuple of $R$
-            \item Rows are unordered
-            \item All rows are unique / distinct
-            \item The order of columns corresponds to the ordering of the domains of $R$
-            \item Each column is labelled
-        \end{enumerate}
-        They are almost equivalent to sets tuples (but include labels).
-    \end{minipage}
-    \hfill
-    \begin{minipage}{.5\textwidth}
-        \begin{center}
-            \includegraphics[width=\textwidth]{relational_algebra/images/relation.drawio.png}
-        \end{center}
-    \end{minipage}
+  An array representing an $n$-ary relation $R$ with the properties:
+  \\ \begin{minipage}{.49\textwidth}
+    \begin{enumerate}
+      \setlength\itemsep{0em}
+      \item Each row is an $n$-tuple of $R$
+      \item Rows are unordered
+      \item All rows are unique / distinct
+      \item The order of columns corresponds to the ordering of the domains of $R$
+      \item Each column is labelled
+    \end{enumerate}
+    They are almost equivalent to sets tuples (but include labels).
+  \end{minipage}
+  \hfill
+  \begin{minipage}{.5\textwidth}
+    \begin{center}
+      \includegraphics[width=\textwidth]{relational_algebra/images/relation.drawio.png}
+    \end{center}
+  \end{minipage}
 \end{definitionbox}
 
 The minimal set of operators required for the relational algebra are:
 \begin{center}
-    \begin{tabular}{c c c c c}
-        Project & Select & Cross/Cartesian product & Union & Difference \\
-    \end{tabular}
+  \begin{tabular}{c c c c c}
+    \textbf{Project} & \textbf{Select} & \textbf{Cross/Cartesian product} & \textbf{Union} & \textbf{Difference} \\
+    $\pi$            & $\sigma$        & $\times$                         & $\cup$         & $-$ or $\setminus$  \\
+  \end{tabular}
 \end{center}
 Relational algebra is closed:
 \begin{itemize}
@@ -109,7 +110,7 @@ CREATE TABLE Customer (
   ShippingAddress VARCHAR(50),
   Name            VARCHAR(20) 
 );
-      \end{minted} 
+      \end{minted}
     \end{minipage}
   \end{center}
   \tcblower
@@ -126,18 +127,18 @@ FROM (
 \end{examplebox}
 
 \begin{examplebox}{Unique Addresses}
-  Using the previous schema create a query to get each author that has only sold to one address (can potentially ship to multiple customers at the same address)   
-  
+  Using the previous schema create a query to get each author that has only sold to one address (can potentially ship to multiple customers at the same address)
+  \tcblower
   \begin{multline*}
     \Pi_{Book.Author}(
     \sigma_{count=1}(
-      \Gamma_{(Customer.ShippingAddress),(Book.Author, count)}( \\
-        \Pi_{Book.Author, Customer.ShippingAddress} (
-          \text{natural join}(Customer, Order, orderItem, Book)
-        )
-      )
+    \Gamma_{(Customer.ShippingAddress),(Book.Author, count)}( \\
+    \Pi_{Book.Author, Customer.ShippingAddress} (
+    \text{natural join}(Customer, Order, orderItem, Book)
     )
-  )
+    )
+    )
+    )
   \end{multline*}
   Here a natural join is:
   \[\text{natural join}(R_1, R_2) \triangleq \sigma_{R_1.x_1 = R_2.x_1 \land \dots R_1.x_n = R_2.x_n} (R_1 \times R_2) \text{ where the }x\text{s are in both tables}\]
@@ -156,15 +157,20 @@ HAVING COUNT(*) = 1;
 \subsection{Nomenclatures}
 \begin{center}
   \begin{tabular}{l p{.8\textwidth}}
-    \textbf{Expression} & A composition of operators \\
-    \textbf{Logical Plan/Plan} & An expression. \\
-    \textbf{Cardinality} & The number of tuples in a set. \\
+    \textbf{Expression}        & A composition of operators     \\
+    \textbf{Logical Plan/Plan} & An expression.                 \\
+    \textbf{Cardinality}       & The number of tuples in a set. \\
   \end{tabular}
 \end{center}
 
 \section{Implementing Relational Algebra in C++}
-
-In order to implement relations we will make use of several containers from the 
+\begin{sidenotebox}{A note on types\dots}
+  Here we will express operators \& relations in the C++ types system.
+  \\
+  \\ In real data processing systems (and in particular databases), the schema \& types are not know at compile time (i.e do not know the types of columns, tables until they are created, amended, and operated on at runtime).
+\end{sidenotebox}
+\noindent
+In order to implement relations we will make use of several containers from the
 \href{https://en.wikipedia.org/wiki/Standard_Template_Library}{STL (standard template library)}.
 \begin{minted}{cpp}
 #include <set>
@@ -182,23 +188,6 @@ template<typename... some_types>
 We will also create an operator to inherit from for all operator types:
 \begin{minted}{cpp}
 template <typename... types> struct Operator : public Relation<types...> {};
-\end{minted}
-
-Finally when concatenating lists of types in templates, we will make use of the following:
-\begin{minted}{cpp}
-// declare the empty struct used to bind types
-template <typename, typename> struct ConcatStruct;
-
-// Table both types, create a type alias within the scope of ConcatStruct that 
-// concatenates the lists of types 
-template <typename... First, typename... Second>
-struct ConcatStruct<std::tuple<First...>, std::tuple<Second...>> {
-  using type = std::tuple<First..., Second...>;
-};
-
-// expose the type alias outside of the scope of concatStruct 
-template <typename L, typename R>
-using Concat = typename ConcatStruct<L, R>::type;
 \end{minted}
 
 \subsection{Relation}
@@ -229,7 +218,7 @@ Relation<string, int, int> rel(
 \[\Pi_{\underbrace{{a_1, \dots, a_n}}_\text{columns}}(R)\]
 A unary operator returning a relation containing only the columns projected ($a_1, \dots, a_n$).
 \\
-\\ We can first create a projection to 
+\\ We can first create a projection.
 \begin{minted}{cpp}
 template <typename InputOperator, typename... outputTypes>
 struct Project : public Operator<outputTypes...> {
@@ -265,10 +254,12 @@ Produce a new relation of input tuples satisfying the predicate. Here we narrow 
 \begin{minted}{cpp}
 enum class Comparator { less, lessEqual, equal, greaterEqual, greater };
 
-// user must explicitly set string as a column (less chance of mistake)
 struct Column {
   string name;
-  Column(string name) : name(name) {}
+
+  // user must explicitly set string as a column (less chance of mistake)
+  explicit Column(string name) : name(name) {}
+  Column() = delete;
 };
 
 // type alias for comparable values
@@ -285,22 +276,50 @@ struct Condition {
       : leftHandSide(leftHandSide), compare(compare),
         rightHandSide(rightHandSide) {}
 };
+
+template <typename InputOperator> 
+struct Select : public Operator<typename InputOperator::OutputType> {
+  InputOperator input;
+  Condition condition;
+
+  Select(InputOperator input, Condition condition) : input(input), condition(condition) {};
+};
 \end{minted}
 
 \begin{sidenotebox}{Enums vs Enum classes}
   \begin{center}
     \begin{tabular}{p{.45\textwidth} p{.45\textwidth}}
-      \centerline{\mintinline{cpp}{enum class}} & \centerline{\mintinline{cpp}{enum}} \\
+      \centerline{\mintinline{cpp}{enum class}}  & \centerline{\mintinline{cpp}{enum}}            \\
       Enumerations are in the scope of the class & Enumerations are in the same scope as the enum \\
-      No implicit conversions. & Implicit conversions to integers. \\ 
+      No implicit conversions.                   & Implicit conversions to integers.              \\
     \end{tabular}
   \end{center}
-  Enum classes are generally preferred over enums due to the above differences. 
+  Enum classes are generally preferred over enums due to the above differences.
 \end{sidenotebox}
 
 \subsection{Cross Product / Cartesian}
 \[R_1 \times R_2\]
 Creates a new schema concatenating the columns and with the cartesian product of records.
+\\
+\\ In order to concatenate the types of the product relations we create \mintinline{cpp}{Concat<left types..., right types...>}.
+\begin{minted}{cpp}
+// declare the empty struct used to bind types
+template <typename, typename> struct ConcatStruct;
+
+// Table both types, create a type alias within the scope of ConcatStruct that 
+// concatenates the lists of types 
+template <typename... First, typename... Second>
+struct ConcatStruct<std::tuple<First...>, std::tuple<Second...>> {
+  using type = std::tuple<First..., Second...>;
+};
+
+// expose the type alias outside of the scope of concatStruct 
+template <typename L, typename R>
+using Concat = typename ConcatStruct<L, R>::type;
+\end{minted}
+\begin{sidenotebox}{Template Magic}
+  If you are interested in how this works, see \href{https://en.cppreference.com/w/cpp/language/template_specialization}{cppreference - template specialisation}.
+\end{sidenotebox}
 
 \begin{minted}{cpp}
 // Concat<> is used to concatenate the types from both input relations to 
@@ -409,4 +428,11 @@ struct TopN : public Operator<typename InputOperator::OutputType> {
 };
 \end{minted}
 
-
+\begin{sidenotebox}{Have a go!}
+  The provided examples are only one way to mock up / sketch relation algebra with C++. Consider:
+  \begin{itemize}
+    \item Using runtime polymorphism \mintinline{cpp}{virtual} methods in derived operator classes and \mintinline{cpp}{std::variant} data types, rather than using templates.
+    \item Going all-in on compile time programming with \mintinline{cpp}{constexpr}.
+    \item Using \mintinline{cpp}{concept}s / \mintinline{cpp}{requires} to constrain the operator types.
+  \end{itemize}
+\end{sidenotebox}

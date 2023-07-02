@@ -1,11 +1,66 @@
 \chapter{Introduction}
 \section{Logistics}
+\begin{minipage}{.3\textwidth}
+    \begin{center}
+        \begin{tikzpicture}
+            \clip (0,0)  circle (2cm) ;
+            \node[anchor=center] at (0,-0.5) {\includegraphics[width=4.5cm]{introduction/images/holger_pirk.jpg}};
+        \end{tikzpicture}
+        \centerline{\textbf{Dr Holger Pirk}}
+    \end{center}
+\end{minipage} \hfill \begin{minipage}{.65\textwidth}
+    The module is taught by \href{https://holger.pirk.name/}{Dr Holger Pirk}.
+    \begin{itemize}
+        \item Taught as prerecorded lectures with in-person Q\&As
+        \item Weekly tutorial sheets covered during the Q\&A sessions
+        \item One coursework in teams of 3 (with a competition!)
+    \end{itemize}
+\end{minipage}
+\subsection{SQL}
+\begin{center}
+    \textbf{SQL is not prerequisite for this course!}
+\end{center}
+The \href{https://www.doc.ic.ac.uk/~pjm/idb/}{\textbf{40007 - Introduction to Databases}} module covers all that is required. This module is about the implementation of data processing systems, not using databases \& SQL.
 
-\begin{sidenotebox}{A note on types\dots}
-    In real data processing systems (and in particular databases), types of data are not known at runtime (i.e do not know the types of columns, tables until they are created, amended, and operated on at runtime). 
-    \\
-    \\ For simplicity in many code examples the types of data will be encoded through templates, and types at compile time (change a table or query requires the example to be recompiled).
+\subsection{C++}
+\begin{center}
+    \textbf{C++ is not prerequisite for this course!}
+\end{center}
+This course contains many code examples in C++. This course represents a great
+opportunity to learn at least a small part of its enormity, and to apply some of this
+in the coursework.
+\begin{sidenotebox}{C++ $>$ C with classes}
+    C++ was originally developed around 1983 by Bjarne Stroustrup as \textit{'C with classes'} and implemented as a transpiler to C called cfront.
 \end{sidenotebox}
+\noindent \twosplit{
+    \begin{center}
+        \includegraphics[height=3cm]{introduction/images/cppreference.jpg}
+        \\ \href{https://en.cppreference.com/}{\textbf{CppReference}}
+        \\ \textit{Comprehensive C++ and standard template library documentation.}
+    \end{center}
+}{
+    \begin{center}
+        \includegraphics[height=3cm]{introduction/images/cmake.png}
+        \\ \href{https://cmake.org/cmake/help/book/mastering-cmake/index.html}{\textbf{Mastering CMake}}
+        \\ \href{https://cmake.org/cmake/help/latest/}{\textbf{CMake Documentation}}
+    \end{center}
+}
+\\ \twosplit{
+    \begin{center}
+        \includegraphics[height=6cm]{introduction/images/tour_of_cpp_3rd_ed.jpg}
+        \\ \textbf{A tour of C++}
+        \\ \textit{An overview of C++, only need C}
+        \\ \textit{knowledge carried from pintos}
+    \end{center}
+}{
+    \begin{center}
+        \includegraphics[height=6cm]{introduction/images/Effective-Modern-Cpp.jpg}
+        \\ \textbf{Effective Modern C++}
+        \\ \textit{modern C++ exploration \& best practices}
+    \end{center}
+}
+\\ \vspace{5mm}
+\\ The above books are available online from O'Reilly through Imperial (use institution login) for free \& you may find useful for learning more C++ (though beyond the understanding required for this module).
 
 \section{Data Management Systems}
 \begin{definitionbox}{Database}
@@ -42,7 +97,7 @@
         For example a tool as small as \mintinline{bash}{grep} could be considered a data processing system.
     \end{definitionbox}
 \end{tcbraster}
-
+\noindent
 Building data management systems is hard!
 \begin{itemize}
     \item Often must fetch data continuously from multiple sources
@@ -50,16 +105,20 @@ Building data management systems is hard!
     \item Needs to be efficient (specification may contain performance requirements)
 \end{itemize}
 \begin{center}
+    \begingroup
+    \setlength{\tabcolsep}{10pt} % Default value: 6pt
+    \renewcommand{\arraystretch}{1.5} % Default value: 1
     \begin{tabular}{p{.25\textwidth} p{.75\textwidth}}
-        \textbf{Storage}                        & Needs to be persistent (but also needs to be fast) \\
-        \textbf{Data Ingestions}                & Needs to allow for easy import of data (e.g by providing a csv, another database's url) \\
-        \textbf{Concurrency}                    & To exploit parallelism in hardware (e.g multithreaded, distributed over several machines) \\
-        \textbf{Data Analysis}                  & For inspection (typically the reason to hold data in for first place) \\
-        \textbf{Standardized Programming Model} & Features are not implemented in an ad-hoc way but through common abstractions, users and developers do not need to radically change how they approach a new feature. \\
-        \textbf{User Defined Functions}         & \\
-        \textbf{Access Control}                 & Not all data is shared between all users. \\
-        \textbf{Self-Optimization}              & Monitors its own workloads in an attempt to optimise (e.g keeping frequently accessed data in memory) \\
+        \textbf{Storage}                                 & Needs to be persistent (but also needs to be fast)                                                                                                                   \\
+        \textbf{Data Ingestions}                         & Needs to allow for easy import of data (e.g by providing a csv, another database's url)                                                                              \\
+        \textbf{Concurrency}                             & To exploit parallelism in hardware (e.g multithreaded, distributed over several machines)                                                                            \\
+        \textbf{Data Analysis}                           & For inspection (typically the reason to hold data in for first place)                                                                                                \\
+        \textbf{User Defined Functions}                  & Needs to allow users to write their own queries on data.                                                                                                             \\
+        \textbf{Standardized \newline Programming Model} & Features are not implemented in an ad-hoc way but through common abstractions, users and developers do not need to radically change how they approach a new feature. \\
+        \textbf{Access Control}                          & Not all data is shared between all users.                                                                                                                            \\
+        \textbf{Self-Optimization}                       & Monitors its own workloads in an attempt to optimise (e.g keeping frequently accessed data in memory)                                                                \\
     \end{tabular}
+    \endgroup
 \end{center}
 
 \section{Data Intensive Applications}
@@ -68,29 +127,31 @@ Building data management systems is hard!
     Core functionality of the application is based on data.
 \end{definitionbox}
 
-There are several common patterns for data-intensive applications:
-\subsubsection{Online Transaction Processing (OTP)}
-\begin{itemize}
-    \item High volume of small updates to a persistent database
-    \item ACID is important
-\end{itemize}
-Goal: Throughput
+\begin{definitionbox}{Online Transaction Processing (OTP)}
+    \begin{center}
+        \begin{tabular}{c c}
+            High volume of small updates to a persistent database. & ACID is important. \\
+        \end{tabular}
+    \end{center}
+    Goal: \textbf{Throughput}
+\end{definitionbox}
+\begin{definitionbox}{Online Analytical Processing (OLAP)}
+    \begin{center}
+        \begin{tabular}{c c c}
+            Running a single data analysis task. & Mixture of query types. & Queries are ad-hoc. \\
+        \end{tabular}
+    \end{center}
+    Goal: \textbf{Latency}
+\end{definitionbox}
+\begin{definitionbox}{Reporting}
+    \begin{center}
+        \begin{tabular}{c c c}
+            Running a set of data analysis tasks. & Fixed time budget. & Queries known in advance. \\
+        \end{tabular}
+    \end{center}
+    Goal: \textbf{Resource Efficiency}
+\end{definitionbox}
 
-\subsubsection{Online Analytical Processing (OLAP)}
-\begin{itemize}
-    \item Running a single data analysis task.
-    \item A mixture of 
-    \item Queries are ad-hoc
-\end{itemize}
-Goal: Latency
-
-\subsubsection{Reporting}
-\begin{itemize}
-    \item Running a set of data analysis tasks
-    \item Fixed time budget
-    \item Queries known in advance
-\end{itemize}
-Goal: Resource Efficiency
 \begin{examplebox}{Daily Struggle}
     Provide some examples of \textit{Reporting} pattern being used in industry.
     \tcblower
@@ -135,11 +196,11 @@ A typical \textit{data intensive application} has the following architecture:
 \subsection{Non-Functional Requirements}
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}
-        \textbf{Efficiency}  & Ideally should be as fast as a bespoke, hand-written solution. \\
-        \textbf{Resilience}  & Must be able to recover from failures (software crashes, power failure, hardware failure) \\
+        \textbf{Efficiency}  & Ideally should be as fast as a bespoke, hand-written solution.                                                   \\
+        \textbf{Resilience}  & Must be able to recover from failures (software crashes, power failure, hardware failure)                        \\
         \textbf{Robustness}  & Predictable performance (semantically small change in query $\Rightarrow$ similarly small change in performance) \\
-        \textbf{Scalability} & Can scale performance with available resources. \\
-        \textbf{Concurrency} & Can serve multiple clients concurrently with a clear model for how concurrency will affect results. \\
+        \textbf{Scalability} & Can scale performance with available resources.                                                                  \\
+        \textbf{Concurrency} & Can serve multiple clients concurrently with a clear model for how concurrency will affect results.              \\
     \end{tabular}
 \end{center}
 
@@ -156,10 +217,10 @@ Actions to be performed on a data management system can be wrapped up as a \text
     A set of useful properties for database management systems.
     \begin{center}
         \begin{tabular}{l p{.8\textwidth}}
-            \textbf{Atomic} & A transaction either runs entirely (and is committed) or has no effect. (All or nothing) \\
-            \textbf{Consistent} & A transaction can only bring the database from one valid (for some invariants) state to another. Note that there may be inconsistency between. \\
-            \textbf{Isolated} & Many transactions run concurrently, however each leaves the database in some state equivalent to running the transactions in some sequential order. (Run as if alone on the system). \\
-            \textbf{Durable} & Once a transaction is committed, it is persistent (even in case of failure - e.g power failure). \\
+            \textbf{Atomic}     & A transaction either runs entirely (and is committed) or has no effect. (All or nothing)                                                                                             \\
+            \textbf{Consistent} & A transaction can only bring the database from one valid (for some invariants) state to another. Note that there may be inconsistency between.                                       \\
+            \textbf{Isolated}   & Many transactions run concurrently, however each leaves the database in some state equivalent to running the transactions in some sequential order. (Run as if alone on the system). \\
+            \textbf{Durable}    & Once a transaction is committed, it is persistent (even in case of failure - e.g power failure).                                                                                     \\
         \end{tabular}
     \end{center}
 \end{definitionbox}
@@ -167,20 +228,22 @@ Actions to be performed on a data management system can be wrapped up as a \text
     \includegraphics[width=.7\textwidth]{introduction/images/consistent_state.drawio.png}
 \end{center}
 \noindent
-\textit{"Isolated"} is the most flexible ACID property, several \textit{isolation levels} describe how concurrent transactions interact. 
+\textit{"Isolated"} is the most flexible ACID property, several \textit{isolation levels} describe how concurrent transactions interact.
 The more isolation is enforced, the more locking is required which can affect performance (contention \& blocking).
 
 \begin{sidenotebox}{Concurrency Controls}
     In order to support efficient concurrent access \& mutation of data without race conditions concurrency control is used:
     \begin{center}
         \begin{tabular}{l p{.8\textwidth}}
-            Lock Based & Each object (e.g record, table) contains a lock (read-write) used for synchronisation of access. The most common technique is \href{https://en.wikipedia.org/wiki/Two-phase_locking}{\textit{two-phase locking}}. \\
-            \href{https://en.wikipedia.org/wiki/Multiversion_concurrency_control}{Multiversion} & Each object and transaction is timestamped, by maintaining multiple timestamped versions of an object a transaction can effectively operate on a snapshot of the database at its own timestamp. \\
+            Lock Based                                                                          & Each object (e.g record, table) contains a lock (read-write) used for synchronisation of access. The most common technique is \href{https://en.wikipedia.org/wiki/Two-phase_locking}{\textit{two-phase locking}}. \\
+            \href{https://en.wikipedia.org/wiki/Multiversion_concurrency_control}{Multiversion} & Each object and transaction is timestamped, by maintaining multiple timestamped versions of an object a transaction can effectively operate on a snapshot of the database at its own timestamp.                   \\
         \end{tabular}
     \end{center}
+    Concurrency control is discussed in detail in \autoref{chap:transactions}.
 \end{sidenotebox}
 
 \subsection{Read Phenomena}
+You should already be familiar with some basic anomalies/phenomena, these include:
 \begin{definitionbox}{Dirty Read / Uncommitted Dependency}
     A transaction reads a record updated by a transaction that has not yet committed.
     \begin{itemize}
@@ -188,32 +251,32 @@ The more isolation is enforced, the more locking is required which can affect pe
     \end{itemize}
 \end{definitionbox}
 \begin{tcbraster}[raster columns=2, raster equal height]
-\begin{definitionbox}{Non-Repeatable Read}
-    When a transaction reads a record twice with different results (another committed transaction updated the row between the reads).
-\end{definitionbox}
-\begin{definitionbox}{Phantom Reads}
-    When a transaction reads a set of records twice, but the sets of records are not equal as another transaction committed between the reads.
-\end{definitionbox}
+    \begin{definitionbox}{Non-Repeatable Read}
+        When a transaction reads a record twice with different results (another committed transaction updated the row between the reads).
+    \end{definitionbox}
+    \begin{definitionbox}{Phantom Reads}
+        When a transaction reads a set of records twice, but the sets of records are not equal as another transaction committed between the reads.
+    \end{definitionbox}
 \end{tcbraster}
 \subsection{Isolation levels}
 \begin{definitionbox}{Serialisable}
     \begin{center}
         \begin{tabular}{c | c | c}
-            \textit{Dirty Read} & \textit{Non-repeatable Read} & \textit{{Phantom Read}} \\
-            \textcolor{red}{Prevented} & \textcolor{red}{Prevented} & \textcolor{red}{Prevented} \\
+            \textit{Dirty Read}        & \textit{Non-repeatable Read} & \textit{{Phantom Read}}    \\
+            \textcolor{red}{Prevented} & \textcolor{red}{Prevented}   & \textcolor{red}{Prevented} \\
         \end{tabular}
     \end{center}
     Execution of transactions is can be serialized (it is equivalent to some sequential history of transactions).
     \begin{itemize}
-        \item In lock-based concurrency control locks are released at the end of a transaction, and range-locks are acquired for \mintinline{sql}{SELECT ... FROM ... WHERE ... ;} to avoid \textit{phantom reads}. 
+        \item In lock-based concurrency control locks are released at the end of a transaction, and range-locks are acquired for \mintinline{sql}{SELECT ... FROM ... WHERE ... ;} to avoid \textit{phantom reads}.
         \item Prevents all 3 read phenomena and is the strongest isolation level.
     \end{itemize}
 \end{definitionbox}
 \begin{definitionbox}{Repeatable Reads}
     \begin{center}
         \begin{tabular}{c | c | c}
-            \textit{Dirty Read} & \textit{Non-repeatable Read} & \textit{{Phantom Read}} \\
-            \textcolor{red}{Prevented} & \textcolor{red}{Prevented} & \textcolor{ForestGreen}{Allowed} \\
+            \textit{Dirty Read}        & \textit{Non-repeatable Read} & \textit{{Phantom Read}}          \\
+            \textcolor{red}{Prevented} & \textcolor{red}{Prevented}   & \textcolor{ForestGreen}{Allowed} \\
         \end{tabular}
     \end{center}
     \begin{itemize}
@@ -224,7 +287,7 @@ The more isolation is enforced, the more locking is required which can affect pe
 \begin{definitionbox}{Read Committed}
     \begin{center}
         \begin{tabular}{c | c | c}
-            \textit{Dirty Read} & \textit{Non-repeatable Read} & \textit{{Phantom Read}} \\
+            \textit{Dirty Read}        & \textit{Non-repeatable Read}     & \textit{{Phantom Read}}          \\
             \textcolor{red}{Prevented} & \textcolor{ForestGreen}{Allowed} & \textcolor{ForestGreen}{Allowed} \\
         \end{tabular}
     \end{center}
@@ -236,7 +299,7 @@ The more isolation is enforced, the more locking is required which can affect pe
 \begin{definitionbox}{Read Uncommitted}
     \begin{center}
         \begin{tabular}{c | c | c}
-            \textit{Dirty Read} & \textit{Non-repeatable Read} & \textit{{Phantom Read}} \\
+            \textit{Dirty Read}              & \textit{Non-repeatable Read}     & \textit{{Phantom Read}}          \\
             \textcolor{ForestGreen}{Allowed} & \textcolor{ForestGreen}{Allowed} & \textcolor{ForestGreen}{Allowed} \\
         \end{tabular}
     \end{center}
@@ -244,9 +307,8 @@ The more isolation is enforced, the more locking is required which can affect pe
 \end{definitionbox}
 
 \subsection{Declarative Data Analysis}
-In order to make complex data management tools easier to use, a programmer describes the result 
-they need declaratively, and the database system then plans the operations that must occur to 
+In order to make complex data management tools easier to use, a programmer describes the result
+they need declaratively, and the database system then plans the operations that must occur to
 provide the requested result.
 \\
-\\ This is present in almost all databases (e.g SQL)
-
+\\ This is present in almost all databases (e.g SQL \& SQL derived languages).

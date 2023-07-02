@@ -271,14 +271,14 @@ A \textit{hot loop} containing a conditional with low selectivity (on random dat
 \end{itemize}
 
 \subsection{Predication}
+\label{section:predication}
 \begin{sidenotebox}{Predication}
-    The idea behind predication is to avoid \textit{control hazards}.
-    Some architectures support this directly with predicated instructions
-    \\ \begin{minipage}[t]{.3\textwidth}
-        \begin{minted}{cpp}
+    The idea behind predication is to avoid \textit{control hazards}, rather than branching to different instructions, just conditionally apply instructions.
+    Some architectures support this directly with predicated instructions, such as IA64 (full predication) or ARM.
+    \begin{minted}{cpp}
 if (a > b) a += b;
-        \end{minted}
-    \end{minipage} \hfill \begin{minipage}[t]{.2\textwidth}
+    \end{minted}
+    \begin{minipage}[t]{.3\textwidth}
         \begin{minted}{asm}
     cmp r0, r1
     addlt r0, r0, r1
@@ -286,7 +286,7 @@ if (a > b) a += b;
 
     
         \end{minted}
-    \end{minipage} \hfill\begin{minipage}[t]{.2\textwidth}
+    \end{minipage} \begin{minipage}[t]{.3\textwidth}
         \begin{minted}{asm}
     cmp r0, r1
     ble dont_add 
@@ -295,6 +295,7 @@ dont_add:
     @ ...
         \end{minted}
     \end{minipage}
+    \\ In the below examples we \textit{predicate} by removing a jump/branch, rather than using predicated instructions.
 \end{sidenotebox}
 We can start with a basic out-of-place partition.
 \begin{minted}{cpp}
@@ -342,11 +343,50 @@ size_t partition(const std::vector<T>& input_vec, std::vector<T>& output_vec, si
     return right_index;
 }
 \end{minted}
-
 \subsection{Predicated Cracking}
+\begin{sidenotebox}{Cracking stuff!}
+    The algorithm presented here is from the paper \href{https://core.ac.uk/download/pdf/301643658.pdf}{\textit{Database Cracking: Fancy Scan, not Poor Man's Sort!}}
+\end{sidenotebox}
 
+\begin{minted}{cpp}
+template <typename T>
+size_t partition(std::vector<T> &sort_vec, size_t start, size_t end) {
 
+    bool cmp = false;
+    size_t left_ptr = start;
+    size_t right_ptr = end - 1;
+    T active = sort_vec[left_ptr];
+    T backup = sort_vec[right_ptr];
+    T pivot = sort_vec[(start + end) / 2];  // somewhat arbitrary pivot selection
+
+    while (left_ptr < right_ptr) {
+        // compare and write
+        cmp = pivot > active;
+        sort_vec[left_ptr] = active;
+        sort_vec[right_ptr] = active;
+
+        // advance cursor
+        left_ptr += cmp;
+        right_ptr -= 1 - cmp;
+
+        // backup phase
+        active = cmp * sort_vec[left_ptr] + (1-cmp) * sort_vec[right_ptr];
+
+        // swap active
+        std::swap(active, backup);
+    }
+
+    sort_vec[left_ptr] = active;
+    return left_ptr;
+}
+\end{minted}
+
+\begin{sidenotebox}{Conditional Understanding}
+    A python script in the included code for these notes can be used to generate apply and print steps of this algorithm.
+\end{sidenotebox}
 
 \section{Stream Processing}
+
+
 \section{Composable Data Processing}
 

@@ -18,24 +18,17 @@ template <typename... types> struct Relation {
       : schema(schema), data(data) {}
 };
 
-auto rel_example() {
-  return Relation<string, int, int>(
-      {"Name", "Age", "Review"},
-      {{"Jim", 33, 3}, {"Jay", 23, 5}, {"Mick", 34, 4}});
-}
-
 template <typename... types> struct Operator : public Relation<types...> {};
 
 template <typename InputOperator, typename... outputTypes>
 struct Project : public Operator<outputTypes...> {
   InputOperator input;
-  variant<function<tuple<outputTypes...>(typename InputOperator::OutputType)>,
-          set<pair<string, string>>>
-      projections;
+  variant<
+    function<tuple<outputTypes...>(typename InputOperator::OutputType)>, 
+    set<pair<string, string>>
+  > projections;
 
-  Project(InputOperator input,
-          function<tuple<outputTypes...>(typename InputOperator::OutputType)>
-              projections)
+  Project(InputOperator input, function<tuple<outputTypes...>(typename InputOperator::OutputType)> projections)
       : input(input), projections(projections) {}
 
   Project(InputOperator input, set<pair<string, string>> projections)
@@ -49,7 +42,10 @@ enum class Comparator { less, lessEqual, equal, greaterEqual, greater };
 
 struct Column {
   string name;
-  Column(string name) : name(name) {}
+
+  // user must explicitly set string as a column (less chance of mistake)
+  explicit Column(string name) : name(name) {}
+  Column() = delete;
 };
 
 // type alias for comparable values
@@ -61,12 +57,20 @@ struct Condition {
   Column leftHandSide;
   variant<Column, Value> rightHandSide;
 
-  Condition(Column leftHandSide, Comparator compare,
-            variant<Column, Value> rightHandSide)
+  Condition(Column leftHandSide, Comparator compare, variant<Column, Value> rightHandSide)
       : leftHandSide(leftHandSide), compare(compare),
         rightHandSide(rightHandSide) {}
 };
 
+template <typename InputOperator> 
+struct Select : public Operator<typename InputOperator::OutputType> {
+  InputOperator input;
+  Condition condition;
+
+  Select(InputOperator input, Condition condition) : input(input), condition(condition) {};
+};
+
+// Concatentating types using template specialisation
 template <typename, typename> struct ConcatStruct;
 template <typename... First, typename... Second>
 struct ConcatStruct<std::tuple<First...>, std::tuple<Second...>> {
@@ -74,6 +78,7 @@ struct ConcatStruct<std::tuple<First...>, std::tuple<Second...>> {
 };
 template <typename L, typename R>
 using Concat = typename ConcatStruct<L, R>::type;
+
 
 template <typename LeftInputOperator, typename RightInputOperator>
 struct CrossProduct
@@ -92,16 +97,6 @@ struct Union : public Operator<typename LeftInputOperator::outputType> {
   RightInputOperator rightInput;
 
   Union(LeftInputOperator leftInput, RightInputOperator rightInput)
-      : leftInput(leftInput), rightInput(rightInput){};
-};
-
-template <typename LeftInputOperator, typename RightInputOperator>
-struct Difference : public Operator<typename LeftInputOperator::outputType> {
-
-  LeftInputOperator leftInput;
-  RightInputOperator rightInput;
-
-  Difference(LeftInputOperator leftInput, RightInputOperator rightInput)
       : leftInput(leftInput), rightInput(rightInput){};
 };
 
@@ -145,3 +140,9 @@ struct TopN : public Operator<typename InputOperator::OutputType> {
   TopN(InputOperator input, string predicate)
       : input(input), predicate(predicate){};
 };
+
+auto relation_example() {
+  return Relation<string, int, int>(
+      {"Name", "Age", "Review"},
+      {{"Jim", 33, 3}, {"Jay", 23, 5}, {"Mick", 34, 4}});
+}

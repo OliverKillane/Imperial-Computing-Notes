@@ -10,7 +10,7 @@ size_t partition(std::vector<T> &sort_vec, size_t start, size_t end) {
     size_t right_ptr = end-1;
     T active = sort_vec[left_ptr];
     T backup = sort_vec[right_ptr];
-    T pivot = sort_vec[(start + end) / 2];
+    T pivot = sort_vec[(start + end) / 2]; // somewhat arbitrary pivot selection
 
     while (left_ptr < right_ptr) {
         // compare and write

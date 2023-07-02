@@ -98,5 +98,6 @@ def partition_predicated(data: list[int], pivot: int):
 
 
 # partition_predicated([3, 2, 4, 2, 8, 1, 9, 3, 8, 1, 5, 0, 7, 5, 7], pivot=5)
+partition_predicated([3, 2, 4, 2, 8, 1, 9, 3, 8, 1, 5, 0, 7, 5, 7], pivot=3)
 # partition_predicated([0, 1, 5, 8, 9], pivot=5)
-partition_predicated([10, 10, 10, 0], pivot=3)
+# partition_predicated([10, 10, 10, 0], pivot=3)

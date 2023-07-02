@@ -5,11 +5,11 @@
 \begin{center}
     \includegraphics[width=.9\textwidth]{algorithms_and_indices/images/quicksort.drawio.png}
 \end{center}
-\inputminted{cpp}{algorithms_and_indices/code/quicksort.cpp}
+\inputminted{cpp}{algorithms_and_indices/code/sort_comparison/sorts/quicksort.h}
 \begin{center}
     \begin{tabular}{c | c}
         \textbf{Average Complexity} & \textbf{Worst-Case Complexity} \\
-        $O(n \log n)$ & $O(n^2)$ \\ 
+        $O(n \log n)$               & $O(n^2)$                       \\
     \end{tabular}
 \end{center}
 Selecting a balanced pivot (ideally the median) is important to avoid worst-case complexity (where all others are larger or smaller than the pivot). Sampling multiple possible pivots negates this, as do other hybrid sorts.
@@ -25,18 +25,46 @@ Selecting a balanced pivot (ideally the median) is important to avoid worst-case
 \end{tabbox}
 
 \begin{sidenotebox}{Better quicksorts}
-    Many variations have been developed to improve performance, such as: 
+    Many variations have been developed to improve performance, such as:
     \\\begin{tabular}{l p{.7\textwidth}}
-        \textit{Multi-Pivot Quicksort}       & For improved cache performance (a dual-pivot quicksort was used in Java 7). \\
-        \textit{Quick-Radix Sort}            & Partitions based on bit (depth of recursion) of the key. \\
+        \textit{Multi-Pivot Quicksort}       & For improved cache performance (a dual-pivot quicksort was used in Java 7).                         \\
+        \textit{Quick-Radix Sort}            & Partitions based on bit (depth of recursion) of the key.                                            \\
         \textit{Pattern Defeating Quicksort} & A hybrid sort using quicksort's fast average complexity, and heapsort's good worst-case complexity. \\
     \end{tabular}
 \end{sidenotebox}
 \subsection{Merge Sort}
+\begin{center}
+    \includegraphics[width=\textwidth]{algorithms_and_indices/images/mergesort.drawio.pdf}
+\end{center}
+\inputminted{cpp}{algorithms_and_indices/code/sort_comparison/sorts/mergesort.h}
+\begin{center}
+    \begin{tabular}{c | c}
+        \textbf{Average Complexity} & \textbf{Worst-Case Complexity} \\
+        $O(n \log n)$               & $O(n \log n)$                  \\
+    \end{tabular}
+\end{center}
+\begin{tabbox}{prosbox}
+    \textbf{Worst-Case} & Same time complexity as best-case. \\
+    \textbf{Parallel} & Is trivial to parallelise. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{Out-of-Place} & Extra memory required for merges / cannot be done entirely in place \& worse locality. \\
+    \textbf{Blind} & Does not take advantage of partially sorted data. \\
+\end{tabbox}
+\begin{sidenotebox}{Bring order to the galaxy!}
+    The provided simplistic mergesort allocates many vectors for out-of-place merging. Try and improve it!
+    \begin{itemize}
+        \item Reuse one scratch vector for out-of-place merging
+        \item Don't copy the single element \textit{splits} at the merge sort's base case.
+        \item Predicate the merge process - see \autoref{section:predication}.
+    \end{itemize}
+\end{sidenotebox}
 
-\subsection{Tim Sort}
+\subsection{Heapsort}
 
 \subsection{Radix Sort}
+
+\subsection{Hybrid Sorts}
 
 \subsection{Top-N with Heaps}
 
@@ -78,7 +106,7 @@ Normalised databases naturally require joins to re-compose data.
                 \endscope
                 % outline
                 \draw (0,0) circle (1) (0,1)  node [text=black,above] {$R_1$}
-                      (1,0) circle (1) (1,1)  node [text=black,above] {$R_2$};
+                (1,0) circle (1) (1,1)  node [text=black,above] {$R_2$};
             \end{tikzpicture}
         \end{center}
     \end{definitionbox}
@@ -131,47 +159,47 @@ FROM R1 JOIN R2 ON R1.x <> R2.x
     \begin{definitionbox}{Left Join}
         \[R_1 \overset{L}{\bowtie} R_2\]
         Returns all rows of $R_1$ even if no rows in $R_2$ match (in which case columns are \mintinline{sql}{NULL}).
-        
-            \begin{center}
-                \begin{tikzpicture}[fill=gray]
-                    % left hand
-                    \scope
-                    \fill (0,0) circle (1);
-                    \endscope
-                    % right hand
-                    \scope
-                    \clip (0,0) circle (1);
-                    \fill (1,0) circle (1);
-                    \endscope
-                    % outline
-                    \draw (0,0) circle (1) (0,1)  node [text=black,above] {$R_1$}
-                            (1,0) circle (1) (1,1)  node [text=black,above] {$R_2$};
-                \end{tikzpicture}
-            \end{center}
-            \begin{minted}{sql}
+
+        \begin{center}
+            \begin{tikzpicture}[fill=gray]
+                % left hand
+                \scope
+                \fill (0,0) circle (1);
+                \endscope
+                % right hand
+                \scope
+                \clip (0,0) circle (1);
+                \fill (1,0) circle (1);
+                \endscope
+                % outline
+                \draw (0,0) circle (1) (0,1)  node [text=black,above] {$R_1$}
+                (1,0) circle (1) (1,1)  node [text=black,above] {$R_2$};
+            \end{tikzpicture}
+        \end{center}
+        \begin{minted}{sql}
 FROM R1 LEFT JOIN R2 ON ... 
             \end{minted}
     \end{definitionbox}
     \begin{definitionbox}{Right Join}
         \[R_1 \overset{R}{\bowtie} R_2\]
         Returns all rows of $R_2$ even if no rows in $R_1$ match (in which case columns are \mintinline{sql}{NULL}).
-            \begin{center}
-                \begin{tikzpicture}[fill=gray]
-                    % left hand
-                    \scope
-                    \clip (1,0) circle (1);
-                    \fill (0,0) circle (1);
-                    \endscope
-                    % right hand
-                    \scope
-                    \fill (1,0) circle (1);
-                    \endscope
-                    % outline
-                    \draw (0,0) circle (1) (0,1)  node [text=black,above] {$R_1$}
-                            (1,0) circle (1) (1,1)  node [text=black,above] {$R_2$};
-                \end{tikzpicture}
-            \end{center}
-            \begin{minted}{sql}
+        \begin{center}
+            \begin{tikzpicture}[fill=gray]
+                % left hand
+                \scope
+                \clip (1,0) circle (1);
+                \fill (0,0) circle (1);
+                \endscope
+                % right hand
+                \scope
+                \fill (1,0) circle (1);
+                \endscope
+                % outline
+                \draw (0,0) circle (1) (0,1)  node [text=black,above] {$R_1$}
+                (1,0) circle (1) (1,1)  node [text=black,above] {$R_2$};
+            \end{tikzpicture}
+        \end{center}
+        \begin{minted}{sql}
 FROM R1 RIGHT JOIN R2 ON ... 
             \end{minted}
     \end{definitionbox}
@@ -191,7 +219,7 @@ FROM R1 RIGHT JOIN R2 ON ...
             \endscope
             % outline
             \draw (0,0) circle (1) (0,1)  node [text=black,above] {$R_1$}
-                    (1,0) circle (1) (1,1)  node [text=black,above] {$R_2$};
+            (1,0) circle (1) (1,1)  node [text=black,above] {$R_2$};
         \end{tikzpicture}
     \end{center}
     \begin{minted}{sql}
@@ -205,36 +233,36 @@ FROM (SELECT * FROM R1 LEFT JOIN R2 ON ... UNION SELECT * FROM R1 RIGHT JOIN R2 
 \begin{examplebox}{Which imposter?}
     Which of the following are joins?
     \begin{multicols}{2}
-    \begin{enumerate}
-        \item {
-\begin{minted}{sql}
+        \begin{enumerate}
+            \item {
+                  \begin{minted}{sql}
 SELECT R.r, S.s
 FROM R, S
 WHERE R.id = S.id;
 \end{minted}
-}
-\item {
-    \begin{minted}{sql}
+                  }
+            \item {
+                  \begin{minted}{sql}
 SELECT R.r, S.s
 FROM R, S
 WHERE R.r = R.id
     \end{minted}
-}
-        \item {
-        \begin{minted}{sql}
+                  }
+            \item {
+                  \begin{minted}{sql}
 SELECT R.r
 FROM R, S
 WHERE R.id = S.id;
         \end{minted}
-        }
-        \item {
-            \begin{minted}{sql}
+                  }
+            \item {
+                  \begin{minted}{sql}
 SELECT R.r
 FROM R, S
 WHERE R.r = "some string";
             \end{minted}
-        }
-    \end{enumerate}
+                  }
+        \end{enumerate}
     \end{multicols}
     \tcblower
     \begin{enumerate}
@@ -258,7 +286,7 @@ The following join implementations are written is C++20
 using namespace std;
 
 template <typename... types> using Table = vector<tuple<types...>>;
-\end{minted} 
+\end{minted}
 Compile with \mintinline{bash}{g++ -std=c++2a joins.cc}, the following main can be used for testing:
 \begin{minted}{cpp}
 int main() {
@@ -290,9 +318,9 @@ Table<TypesOne..., TypesTwo...> nest_loop_join(Table<TypesOne...> &left, Table<T
 }
 \end{minted}
 \[\text{Time Complexity} = \begin{cases}
-    \cfrac{\Theta (|left| \times |right|) }{2} & \text{ If elements unique} \\
-    \Theta (|left| \times |right|)  & otherwise \\
-\end{cases}\]
+        \cfrac{\Theta (|left| \times |right|) }{2} & \text{ If elements unique} \\
+        \Theta (|left| \times |right|)             & otherwise                  \\
+    \end{cases}\]
 \begin{tabbox}{prosbox}
     \textbf{Simple} & Easy to reason about (memory accesses \& complexity) \\
     \textbf{Trivially Parallel} & Loop iterations are not dependent, so can be parallelised. \\
@@ -305,8 +333,8 @@ Table<TypesOne..., TypesTwo...> nest_loop_join(Table<TypesOne...> &left, Table<T
 \subsection{Sort Merge Join}
 If we assume both tables are sorted, and values (being joined on) are unique.
 \begin{itemize}
-  \item Two cursors (one per table)
-  \item Advance cursors in order, if the value on the left exceeds the right there can be no joins for the left row (and vice versa).
+    \item Two cursors (one per table)
+    \item Advance cursors in order, if the value on the left exceeds the right there can be no joins for the left row (and vice versa).
 \end{itemize}
 \begin{minted}{cpp}
 template <size_t leftCol, size_t rightCol, typename... TypesOne,
@@ -348,21 +376,21 @@ Table<TypesOne..., TypesTwo...> sort_merge_join(const Table<TypesOne...> &leftT,
 }
 \end{minted}
 \[\begin{split}
-  \text{Time Complexity} &= \Theta (sort(left)) + \Theta (sort(right)) + \Theta (merge) \\
-  & = \Theta(|left| \times \log |left| + |right| \times \log |right| + |left| + |right|)
-\end{split}\]
+        \text{Time Complexity} &= \Theta (sort(left)) + \Theta (sort(right)) + \Theta (merge) \\
+        & = \Theta(|left| \times \log |left| + |right| \times \log |right| + |left| + |right|)
+    \end{split}\]
 \begin{tabbox}{prosbox}
-  \textbf{Sequential I/O} & In the merge phase \\
-  \textbf{Inequality} & Works for joins using $<$ and $>$ instead of just \textit{equi-joins}. \\
+    \textbf{Sequential I/O} & In the merge phase \\
+    \textbf{Inequality} & Works for joins using $<$ and $>$ instead of just \textit{equi-joins}. \\
 \end{tabbox}
 \begin{tabbox}{consbox}
-  \textbf{Tricky to Parallelize} & Sorts can be somewhat parallelised, but merge is sequential. \\
+    \textbf{Tricky to Parallelize} & Sorts can be somewhat parallelised, but merge is sequential. \\
 \end{tabbox}
 
 \subsection{Hash Join}
 For \textit{equi joins} we can insert one table into a hash table, then iterate over the second (assumed constant time lookup in hashtable).
 \\
-\\ Below we have used the standard template library's \mintinline{cpp}{unordered_map} 
+\\ Below we have used the standard template library's \mintinline{cpp}{unordered_map}
 \begin{minted}{cpp}
 template <size_t leftCol, size_t rightCol, typename... TypesOne, typename... TypesTwo>
 Table<TypesOne..., TypesTwo...> hash_join(const Table<TypesOne...> &left,
@@ -391,9 +419,9 @@ Table<TypesOne..., TypesTwo...> hash_join(const Table<TypesOne...> &left,
 }
 \end{minted}
 \[\begin{split}
-    \Theta (|build| + |probe|) & \text{best case} \\
-    O(|build| \times |probe|) & \text{worst case} \\
-\end{split}\]
+        \Theta (|build| + |probe|) & \text{best case} \\
+        O(|build| \times |probe|) & \text{worst case} \\
+    \end{split}\]
 \begin{itemize}
     \item The probing phase can be easily parallelised (hashtable is unchanged), however the build side is tricky to paralleliuse efficiently.
 \end{itemize}
@@ -407,7 +435,7 @@ Table<TypesOne..., TypesTwo...> hash_join(const Table<TypesOne...> &left,
 \end{tabbox}
 
 \begin{sidenotebox}{Bucket Based Hashmaps}
-    Many hashmaps are implemented as a table of buckets (linked lists of conflicting values). 
+    Many hashmaps are implemented as a table of buckets (linked lists of conflicting values).
     \begin{itemize}
         \item Called bucket-chaining/open addressing
         \item Poor lookup performance.
@@ -430,19 +458,19 @@ template <typename T> struct Probe {
 \end{minted}
 \begin{center}
     \begin{tabular}{l l p{.6\textwidth}}
-        Requirement & \textbf{Pure} & no state/call with same value $\to$ same hash \\
-        Requirement & \textbf{Known Co-Domain} & Known range of values (co-domain also known as image/range). \\
-        Nicety & \textbf{Contiguous Co-Domain} & No gaps in range of output means few gaps holes in the table. \\
-        Nicety & \textbf{Uniform} & All hash values in the range are equally likely. \\
+        Requirement & \textbf{Pure}                 & no state/call with same value $\to$ same hash                 \\
+        Requirement & \textbf{Known Co-Domain}      & Known range of values (co-domain also known as image/range).  \\
+        Nicety      & \textbf{Contiguous Co-Domain} & No gaps in range of output means few gaps holes in the table. \\
+        Nicety      & \textbf{Uniform}              & All hash values in the range are equally likely.              \\
     \end{tabular}
 \end{center}
 \begin{sidenotebox}{Typical Hashers}
     \begin{center}
         \begin{tabular}{l p{.8\textwidth}}
-            \textbf{MD5} & Encodes any length string as a 128-bit hash. \\
-            \textbf{Modulo-Division} & Very simple and fast. \\
-            \textbf{MurmurHash} & A fast, non-cryptographic hash (\href{https://github.com/aappleby/smhasher}{on github}). \\
-            \textbf{CRC32} & Cyclic Redundancy Check (common, non-cryptographic) and with hardware support on some systems (also see usage of \mintinline{asm}{PCLMULQDQ} on intel for acceleration \href{https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/fast-crc-computation-generic-polynomials-pclmulqdq-paper.pdf}{here})
+            \textbf{MD5}             & Encodes any length string as a 128-bit hash.                                                                                                                                                                                                                                                                                \\
+            \textbf{Modulo-Division} & Very simple and fast.                                                                                                                                                                                                                                                                                                       \\
+            \textbf{MurmurHash}      & A fast, non-cryptographic hash (\href{https://github.com/aappleby/smhasher}{on github}).                                                                                                                                                                                                                                    \\
+            \textbf{CRC32}           & Cyclic Redundancy Check (common, non-cryptographic) and with hardware support on some systems (also see usage of \mintinline{asm}{PCLMULQDQ} on intel for acceleration \href{https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/fast-crc-computation-generic-polynomials-pclmulqdq-paper.pdf}{here})
         \end{tabular}
     \end{center}
 \end{sidenotebox}
@@ -567,7 +595,7 @@ private:
 \end{tabbox}
 
 \subsubsection{Resizing}
-For the example above we have considered fixed-size hashmaps. 
+For the example above we have considered fixed-size hashmaps.
 \begin{itemize}
     \item Hashtables are typically overallocated by factor $2$ (twice as many slots as expected input tuples).
     \item Table can be resized once it is larger than some capacity (will change hash of values, so must effectively rebuild hashmap)
@@ -596,10 +624,10 @@ An implementation is included below:
 \subsection{Partitioning}
 Sequential accesses are cheaper than random accesses, as they can access the same page in memory \& thus share the cost of the initially expensive cold access.
 \[\begin{split}
-    c &= \text{cost of page-in } \\
-    \cfrac{n}{pagesize_{OS}} \times c  &= \text{cost of sequentially accessing }n \text{ elements}\\
-    \cfrac{c}{pagesize_{OS}} &= \text{cost of one access} \\
-\end{split}\]
+        c &= \text{cost of page-in } \\
+        \cfrac{n}{pagesize_{OS}} \times c  &= \text{cost of sequentially accessing }n \text{ elements}\\
+        \cfrac{c}{pagesize_{OS}} &= \text{cost of one access} \\
+    \end{split}\]
 In order to reduce the cost of accessing some data we can:
 \begin{itemize}
     \item Increase the page size (huge pages).
@@ -673,10 +701,10 @@ Persistent hash tables may grow very large (overallocate) and need to be rebuilt
 \begin{tabbox}[.7\textwidth]{prosbox}
     \textbf{Hash-Joins \& Aggregation} & Perform well and remove build phase (provided they index on the columns joining). \\
     \textbf{Equality Selection} & {Can reduce number of candidate columns if not all columns are indexed
-    \begin{minted}{sql}
+            \begin{minted}{sql}
 SELECT * FROM table_name WHERE column1 = some_value;
     \end{minted}
-    } \\
+        } \\
 \end{tabbox}
 
 \begin{tabbox}{consbox}
