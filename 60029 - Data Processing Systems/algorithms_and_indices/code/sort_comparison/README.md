@@ -17,3 +17,7 @@ make -j -C build/
 ./build/Benchmark
 ```
 
+## Contribute!
+The example sorts are written to be simple to read in the notes, not to be performant. 
+
+If you make them simpler, or write a performant sort implementation, please open a PR!
