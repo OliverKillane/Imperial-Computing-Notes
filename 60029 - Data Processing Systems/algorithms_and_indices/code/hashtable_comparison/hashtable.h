@@ -12,11 +12,13 @@ concept HashMap = requires(T& t, const T& tc, K&& k, V&& v) {
     { tc.contains(std::declval<const K&>()) } noexcept  -> std::same_as<bool>;
 };
 
+template<typename K, typename V>
 struct EmptyMap {
-    bool insert(int&&, char&&) { return false;}
-    char* find(const int&) noexcept { return nullptr; }
-    bool contains(const int&) const noexcept { return false; }
-    bool erase(const int&) noexcept { return false; }
+    bool insert(K&&, V&&) { return false;}
+    V* find(const K&) noexcept { return nullptr; }
+    bool contains(const K&) const noexcept { return false; }
+    bool erase(const K&) noexcept { return false; }
+    
+    static_assert(HashMap<EmptyMap<K, V>, K, V>, "not a hashmap");
 };
 
-static_assert(EmptyMap<MyMap, int, char>, "not a hashmap");
