@@ -3,6 +3,7 @@
 
 #include "hashtables/bucket.h"
 #include "hashtables/std_unordered_map.h"
+#include "hashtables/probing.h"
 
 #include "utils.h"
 
@@ -31,9 +32,17 @@ void basic_example() {
 }
 
 template<typename K, typename V>
-using BucketSTDHash = BucketMap<K, V, collision_hash<K>>;
+using BucketSTDHash = BucketMap<K, V, std_hash<K>>;
+
+template<typename K, typename V>
+using BucketCollisionHash = BucketMap<K, V, collision_hash<K>>;
+
+template<typename K, typename V>
+using LinearOpenAddressing = ProbingHashMap<K, V, Probes::Linear<K, std_hash<K>>>;
 
 int main() {
-    basic_example<STLUnorderedMap>();
-    basic_example<BucketSTDHash>();
+    // basic_example<STLUnorderedMap>();
+    // basic_example<BucketCollisionHash>();
+    // basic_example<BucketSTDHash>();
+    basic_example<LinearOpenAddressing>();
 }

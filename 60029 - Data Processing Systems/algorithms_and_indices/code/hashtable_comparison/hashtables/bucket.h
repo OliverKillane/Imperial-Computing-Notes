@@ -4,9 +4,9 @@
 
 #include <vector>
 #include <tuple>
-#include <forward_list>
 #include <algorithm>
 #include <exception>
+#include <memory>
 #include <iostream>
 
 #include "../hasher.h"
@@ -20,8 +20,15 @@ using namespace std;
 // - Ideally each bucket should be small (1 element) 
 template<typename K, typename V, Hasher<K> hasher>
 class BucketMap {
-    vector<forward_list<tuple<K,V>>> _buckets;
-    size_t _size = 0;
+
+    struct BucketNode {
+        K key;
+        V value;
+        BucketNode* next;
+    };
+
+    vector<BucketNode*> _buckets;
+    size_t _size;
 
     const size_t _get_index(const K& key) const noexcept {
         return hasher(key) % _buckets.size();
@@ -33,59 +40,74 @@ class BucketMap {
         return _size / _buckets.size() > 2;
     }
 
-    void resize() noexcept {
-        vector<forward_list<tuple<K,V>>> old_buckets(_buckets.size() * 2);
+    void _resize() noexcept {
+        vector<BucketNode*> old_buckets(_buckets.size() * 2);
+        std::swap(old_buckets, _buckets);
         for (auto& bucket : old_buckets) {
-            // implement efficiently (std::forward_list<T>.splice_after)
+            for (auto curr = bucket; curr;) {
+                BucketNode*& dest = _buckets.at(_get_index(curr->key));
+                BucketNode* next = curr->next;
+                curr->next = dest;
+                dest = curr;
+                curr = next;
+            }
         }
     }
 
 public:
-    BucketMap(size_t initial_buckets = 16) : _buckets(initial_buckets) {
-        if (initial_buckets < 1) {
-            throw std::invalid_argument("initial buckets must be larger than zero");
-        }
-    }
+    // INV: initial_buckets > 0 
+    BucketMap(size_t initial_buckets = 16) : _buckets(initial_buckets), _size(0) {}
 
-    bool insert(K&& key, V&& val) { 
-        auto& bucket = _buckets.at(_get_index(key));
-        if (any_of(bucket.cbegin(), bucket.cend(), [&key](auto kv){return get<0>(kv) == key;})) {
-            // already present in the map
-            return false;
-        } else {
-            bucket.emplace_front(tuple {key, val});
-            _size++;
-            // add resize policy check and resize
-            return true;
+    bool insert(K key, V val) {
+        if (_resize_policy()) _resize();
+        BucketNode*& bucket = _buckets.at(_get_index(key));
+        for (const BucketNode* b = bucket; b; b = b->next) {
+            if (b->key == key) return false;
         }
+        bucket = new BucketNode{ .key=std::move(key), .value=std::move(val), .next=bucket };
+        _size++;
+        return true;
     }
 
     V* find(const K& key) noexcept { 
-        for (auto& [cmp_key, val] : _buckets.at(_get_index(key))) {
-            if (key == cmp_key) {
-                return &val;
-            }
+        for (BucketNode* b = _buckets.at(_get_index(key)); b; b = b->next) {
+            if (b->key == key) return &b->value;
         }
         return nullptr;
      }
 
     bool contains(const K& key) const noexcept { 
-        const auto& bucket = _buckets.at(_get_index(key));
-        return any_of(bucket.cbegin(), bucket.cend(), [&key](auto kv){return get<0>(kv) == key;});
+        for (const BucketNode* b = _buckets.at(_get_index(key)); b; b = b->next) {
+            if (b->key == key) return true;
+        }
+        return false;
      }
 
     bool erase(const K& key) noexcept {
-        auto& bucket = _buckets.at(_get_index(key));
-        auto prev = bucket.before_begin();
-        for (auto it = bucket.begin(); it != bucket.end(); it++) {
-            if (get<0>(*it) == key) {
-                bucket.erase_after(prev);
+        BucketNode*& first_node = _buckets.at(_get_index(key));
+
+        if (first_node) {
+            if (first_node->key == key) {
+                BucketNode* next_node = first_node->next;
+                delete first_node;
+                first_node = next_node;
                 _size--;
                 return true;
+            } else {
+                BucketNode* prev = first_node;
+                for (BucketNode* curr = prev->next; curr; prev = curr, curr = curr->next) {
+                    if (curr->key == key) {
+                        prev->next = curr->next;
+                        delete curr;
+                        _size--;
+                        return true;
+                    }
+                }
+                return false;
             }
-            prev = it;
+        } else {
+            return false;
         }
-        return false;
      }
 
      size_t size() const noexcept { return _size; }
@@ -94,15 +116,15 @@ public:
         os << "Hash Table: " << type<BucketMap<K, V, hasher>>() << endl;
         os << "Size: " << ht.size() << endl;
         os << "Buckets: " << ht._buckets.size() << endl;
-        for (auto i = 0; i < ht._buckets.size(); i++) {
-            const auto& bucket = ht._buckets[i];
+        for (size_t i = 0; i < ht._buckets.size(); i++) {
+            BucketNode* first_node = ht._buckets[i];
             os << i << ": ";
-            if (bucket.empty()) {
-                os << "<empty>";
-            } else {
-                for (const auto& [key, val] : bucket) {
-                    os << "-> " << "{" << key << ":" << val << "}";
+            if (first_node) {
+                for (BucketNode* b = first_node; b; b = b->next) {
+                    os << "-> " << "{" << b->key << ":" << b->value << "}";
                 }
+            } else {
+                os << "<empty>";
             }
             os << endl;
         }

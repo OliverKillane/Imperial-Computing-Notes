@@ -15,14 +15,14 @@ class STLUnorderedMap {
     unordered_map<K, V> _map;
 
 public:
-    bool insert(K&& key, V&& value) { 
-        return _map.emplace(key, value).second;
+    bool insert(K key, V value) { 
+        return _map.emplace(std::move(key), std::move(value)).second;
     }
 
     V* find(const K& key) noexcept { 
         auto it = _map.find(key);
         if (it != _map.cend()) {
-            return *it;
+            return &(it->second);
         } else {
             return nullptr;
         }
