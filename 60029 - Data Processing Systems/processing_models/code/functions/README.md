@@ -148,6 +148,7 @@ class Bar : public Foo {
 
 
 
+
 ```
 
 </td>
@@ -189,16 +190,6 @@ struct Bar {
 *Note: The C example is not compilable due to lack of forward declarations for Foo, Bar, and Bar::b*
 
 *Note: This example is simplified, for example we do not include a pointer to the parent class's vtable*
-
-We can then call virtual methods by:
-
-<table>
-<tr>
-<th>Cpp</th>
-<th>C</th>
-</tr>
-<tr>
-<td>
 
 `std::function` uses function pointers, and adds functionality to support captures. 
 
