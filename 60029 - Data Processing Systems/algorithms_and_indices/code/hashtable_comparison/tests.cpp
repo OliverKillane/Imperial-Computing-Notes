@@ -2,6 +2,9 @@
 #include "hashtables/std_unordered_map.h"
 #include "hashtables/probing.h"
 
+#include "hashers/const_hash.h"
+#include "hashers/std_hash.h"
+
 #include "hashtable.h"
 #include "hasher.h"
 
@@ -12,10 +15,11 @@
 using namespace std;
 
 using HashTables = ::testing::Types<
-    BucketMap<int, int, std_hash<int>>,
-    STLUnorderedMap<int, int>,
-    ProbingHashMap<int, int, Probes::Linear<int, std_hash<int>>>,
-    ProbingHashMap<int, int, Probes::Quadratic<int, std_hash<int>>>
+    HashMap::Buckets<int, int, Hash::STD<int>>,
+    HashMap::STD<int, int>,
+    HashMap::Probing<int, int, HashMap::Probes::Linear<int, Hash::STD<int>>>,
+    HashMap::Probing<int, int, HashMap::Probes::Linear<int, Hash::Const<int>>>,
+    HashMap::Probing<int, int, HashMap::Probes::Quadratic<int, Hash::STD<int>>>
 >;
 
 template <class HashTable> class HashTableTests : public testing::Test {};
