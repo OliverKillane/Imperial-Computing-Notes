@@ -16,7 +16,7 @@ using namespace std;
 
 using HashTables = ::testing::Types<
     HashMap::Buckets<int, int, Hash::STD<int>>,
-    HashMap::STD<int, int>,
+    HashMap::STD<int, int, Hash::STD<int>>,
     HashMap::Probing<int, int, HashMap::Probes::Linear<int, Hash::STD<int>>>,
     HashMap::Probing<int, int, HashMap::Probes::Linear<int, Hash::Const<int>>>,
     HashMap::Probing<int, int, HashMap::Probes::Quadratic<int, Hash::STD<int>>>

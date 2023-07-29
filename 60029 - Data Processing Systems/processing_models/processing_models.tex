@@ -2,36 +2,39 @@
 
 \section{Motivation}
 \begin{definitionbox}{Processing Model}
-    A mechanism used to connect operators acting on data in a query.
-    \begin{itemize}
-        \item Choice is critical to database design.
-    \end{itemize}
+  A mechanism used to connect operators acting on data in a query.
+  \begin{itemize}
+    \item Choice is critical to database design.
+  \end{itemize}
 \end{definitionbox}
 
 \begin{definitionbox}{Function Objects}
-    References to code that can be passed, invoked, change state and produce values.
-    \begin{minted}{cpp}
+  References to code that can be passed, invoked, change state and produce values.
+  \toimprove
+  % add use of auto, lambda's own type, then std::function, also explain other captures.
+  % Also use of auto arguments
+  \begin{minted}{cpp}
 #include <functional>
 
 std::function<int(int, int)> add = [ /* captures */ ](int a, int b) { return a + b; }
     \end{minted}
-    See \href{https://en.cppreference.com/w/cpp/language/lambda}{C++11 Lambdas}
-    \begin{itemize}
-        \item Can capture variables (value and references to) (also called closures).
-        \item Used to implement single abstract method classes in some languages (e.g kotlin, java)
-    \end{itemize}
+  See \href{https://en.cppreference.com/w/cpp/language/lambda}{C++11 Lambdas}
+  \begin{itemize}
+    \item Can capture variables (value and references to) (also called closures).
+    \item Used to implement single abstract method classes in some languages (e.g kotlin, java)
+  \end{itemize}
 \end{definitionbox}
 
 \section{Volcano Processing}
 \begin{definitionbox}{Volcano Processing Model}
-    \begin{center}
-        \includegraphics[width=.9\textwidth]{processing_models/images/volcano_stages.drawio.png}
-    \end{center}
-    Data is fed chunk by chunk (row) through a tree of operators.
-    \begin{itemize}
-        \item Older design (influential in the 80s) with a focus on design practices over performance. At the time this was an alternative to ad-hoc implementation.
-        \item Uses non-relational physical algebra (specialized to be useful in expressing queries for a physical plan, rather than as an abstraction for the programmer).
-    \end{itemize}
+  \begin{center}
+    \includegraphics[width=.9\textwidth]{processing_models/images/volcano_stages.drawio.png}
+  \end{center}
+  Data is fed chunk by chunk (row) through a tree of operators.
+  \begin{itemize}
+    \item Older design (influential in the 80s) with a focus on design practices over performance. At the time this was an alternative to ad-hoc implementation.
+    \item Uses non-relational physical algebra (specialized to be useful in expressing queries for a physical plan, rather than as an abstraction for the programmer).
+  \end{itemize}
 \end{definitionbox}
 
 \begin{tabbox}[.7\textwidth]{prosbox}
@@ -53,19 +56,19 @@ struct Operator
   virtual optional<T> next() = 0;
 };
 \end{minted}
-In order to allow the greatest flexibility in using our operators, they are parameterised by \mintinline{cpp}{typename T}. 
+In order to allow the greatest flexibility in using our operators, they are parameterised by \mintinline{cpp}{typename T}.
 In the concrete examples this is set as a \textit{runtime tracked} type \mintinline{cpp}{Row} which is variable size, and contains variants of \mintinline{cpp}{int}, \mintinline{cpp}{char}, \mintinline{cpp}{bool}, etc.
 \\
 \\ We could also swap this out for a reference, or pointer to some \textit{runtime type} to avoid copying.
 
 \begin{sidenotebox}{But why not RAII}
-    To keep these examples explicit, an \mintinline{cpp}{open()} and \mintinline{cpp}{close()} are overriden, rather than using the constructor \& destructor.
-    \\
-    \\ That said RAII would be useful here:
-    \begin{itemize}
-        \item Automatically clean up after operators after they are dropped.
-        \item Cannot be used before open/construction, or used after close/destruction.
-    \end{itemize}
+  To keep these examples explicit, an \mintinline{cpp}{open()} and \mintinline{cpp}{close()} are overriden, rather than using the constructor \& destructor.
+  \\
+  \\ That said RAII would be useful here:
+  \begin{itemize}
+    \item Automatically clean up after operators after they are dropped.
+    \item Cannot be used before open/construction, or used after close/destruction.
+  \end{itemize}
 \end{sidenotebox}
 
 \subsubsection{Scan}
@@ -215,10 +218,10 @@ private:
 \subsubsection{Difference}
 
 \begin{definitionbox}{Pipeline Breaker}
-    An operator which can only produce its first value/output tuple after all inputs from one or more input operators has been processed.
-    \begin{itemize}
-        \item Usually requires some kind of buffering (e.g with \mintinline{cpp}{Difference}).
-    \end{itemize}
+  An operator which can only produce its first value/output tuple after all inputs from one or more input operators has been processed.
+  \begin{itemize}
+    \item Usually requires some kind of buffering (e.g with \mintinline{cpp}{Difference}).
+  \end{itemize}
 \end{definitionbox}
 
 Difference breaks the pipeline as we need to know all tuples from one side (the subtracting set) before we can start to produce rows.
@@ -343,8 +346,8 @@ private:
 \end{minted}
 A Non-pipeline breaking implementation has two phases:
 \begin{enumerate}
-    \item Collecting rows from the right child operator, while using the same row from the left.
-    \item The right child operator has been exhausted, slowly get tuples from the left while traversing tuples collected from the right.
+  \item Collecting rows from the right child operator, while using the same row from the left.
+  \item The right child operator has been exhausted, slowly get tuples from the left while traversing tuples collected from the right.
 \end{enumerate}
 \begin{minted}{cpp}
 template <typename A, typename B>
@@ -412,12 +415,12 @@ private:
 \end{minted}
 
 \subsubsection{Group Aggregation}
-This is fundamentally a \textit{pipeline breaker}, and must buffer rows prior to \mintinline{cpp}{next()}. 
+This is fundamentally a \textit{pipeline breaker}, and must buffer rows prior to \mintinline{cpp}{next()}.
 The algorithm acts in three phases:
 \begin{enumerate}
-    \item Buffer tuples from the child.
-    \item Get the key (column being grouped by e.g \mintinline{SQL}{GROUP BY column1}) and aggregation (e.g \mintinline{SQL}{SELECT MAX(column2)}) and place in a hashmap.
-    \item Finally provide rows through \mintinline{cpp}{next()}
+  \item Buffer tuples from the child.
+  \item Get the key (column being grouped by e.g \mintinline{SQL}{GROUP BY column1}) and aggregation (e.g \mintinline{SQL}{SELECT MAX(column2)}) and place in a hashmap.
+  \item Finally provide rows through \mintinline{cpp}{next()}
 \end{enumerate}
 \begin{minted}{cpp}
 /* We use the template to determine the hash and nextSlot implementations used
@@ -550,7 +553,7 @@ groupby.close();
 \end{minted}
 
 \begin{sidenotebox}{Run it!}
-    The above code is provided with examples in the associated notes repository!
+  The above code is provided with examples in the associated notes repository!
 \end{sidenotebox}
 
 \subsection{Pipelining}
@@ -586,7 +589,7 @@ CREATE TABLE Customer (
     \end{minted}
     \begin{itemize}
       \item Customer has $10,000$ tuples
-      \item Strings are represented by a 32 bit integer key into a compressed dictionary. 
+      \item Strings are represented by a 32 bit integer key into a compressed dictionary.
       \item $\sigma_{id > 250}$ has $30\%$ selectivity.
       \item $\Gamma_{(id), (count)}$ has grouping cardinality of $9$
       \item Page size is $64 \ B$
@@ -596,22 +599,22 @@ CREATE TABLE Customer (
   \tcblower
   \begin{enumerate}
     \item { $Scan(Customer)$:
-      \[size(Customer) = (6 \times 4) \times 10,000 = 240,000 \Rightarrow pages(Customer) = \left\lceil \cfrac{240,000}{64} \right\rceil = 3,750\]
-      \begin{itemize}
-        \item Scan reads sequentially, so $cost(Scan(Customer)) = 3,750$ I/O operations. 
-        \item Not a pipeline-breaker, so only needs 1 tuple at a time, so no buffer allocation required.
-      \end{itemize}
-    }
+          \[size(Customer) = (6 \times 4) \times 10,000 = 240,000 \Rightarrow pages(Customer) = \left\lceil \cfrac{240,000}{64} \right\rceil = 3,750\]
+          \begin{itemize}
+            \item Scan reads sequentially, so $cost(Scan(Customer)) = 3,750$ I/O operations.
+            \item Not a pipeline-breaker, so only needs 1 tuple at a time, so no buffer allocation required.
+          \end{itemize}
+          }
     \item { $\sigma_{id < 250}(\dots)$
-      \begin{itemize}
-        \item Not a pipeline breaker, so no need to buffer.
-        \item No IO costs as child $Scan$ operation passes tuple in memory.
-      \end{itemize}
-    }
+          \begin{itemize}
+            \item Not a pipeline breaker, so no need to buffer.
+            \item No IO costs as child $Scan$ operation passes tuple in memory.
+          \end{itemize}
+          }
     \item { $\Gamma_{(id),(count)}$
-      \\ For the grouping we assume a hashtable overallocation factor of $2$, the table contains $count$ and grouping attribute ($id$).
-      \[size(\text{GroupBy hashtable}) = 2 \times ((2 \times 4) \times 9) = 144\]
-    }
+          \\ For the grouping we assume a hashtable overallocation factor of $2$, the table contains $count$ and grouping attribute ($id$).
+          \[size(\text{GroupBy hashtable}) = 2 \times ((2 \times 4) \times 9) = 144\]
+          }
   \end{enumerate}
 \end{examplebox}
 
@@ -636,14 +639,14 @@ CREATE TABLE Customer (
 For each operation we can count the function calls per tuple
 \begin{center}
   \begin{tabular}{l l p{.6\textwidth}}
-    Scan & 0 & Tuples read straight from buffer. \\
-    Select/$\sigma$ & 2 & Call to read input, call to apply predicate. \\
-    Project/$\Pi$ & 2 & Call to read input, call to projection. \\
-    Cross Product (Inner \& Outer) & 1 & Call to read input. \\
-    Join & 1 & Call to read input (comparison and hash can be inlined). \\
-    Group-By & 2 & Read input and call aggregation function. \\
-    Output & 1 & Call to read input and extract to output. \\
-   \end{tabular}
+    Scan                           & 0 & Tuples read straight from buffer.                        \\
+    Select/$\sigma$                & 2 & Call to read input, call to apply predicate.             \\
+    Project/$\Pi$                  & 2 & Call to read input, call to projection.                  \\
+    Cross Product (Inner \& Outer) & 1 & Call to read input.                                      \\
+    Join                           & 1 & Call to read input (comparison and hash can be inlined). \\
+    Group-By                       & 2 & Read input and call aggregation function.                \\
+    Output                         & 1 & Call to read input and extract to output.                \\
+  \end{tabular}
 \end{center}
 
 \subsection{Operations Calculations}
@@ -667,7 +670,7 @@ INSERT INTO table VALUES /* ...10 million rows*/ ;
 SELECT sum(c) FROM  table WHERE a = 11 and b = 7;
   \end{minted}
   \tcblower
-  If we assume the \mintinline{sql}{WHERE} can be done with a single selection, and selection predicate. 
+  If we assume the \mintinline{sql}{WHERE} can be done with a single selection, and selection predicate.
   \begin{center}
     \includegraphics[width=\textwidth]{processing_models/images/example_basic_selection.drawio.png}
   \end{center}
@@ -749,19 +752,19 @@ For determining the number of IO operations, bulk operators read all input pages
   \tcblower
   \begin{enumerate}
     \item { Load Page
-      \[size(Orders) = 1,000,000 \times (3 \times 4) = 12,000,000 \Rightarrow pages(Orders) = \left\lceil \cfrac{12,000,000}{64} \right\rceil = 187,500 \]
-      Hence $187,500$ IO actions
-    }
+          \[size(Orders) = 1,000,000 \times (3 \times 4) = 12,000,000 \Rightarrow pages(Orders) = \left\lceil \cfrac{12,000,000}{64} \right\rceil = 187,500 \]
+          Hence $187,500$ IO actions
+          }
     \item { $\sigma_{status=PENDING}$
-      \[size(PendingOrders) = 250,000 \times (3 \times 4) = 3,000,000 \]
-      \[\Rightarrow pages(PendingOrders) = \left\lceil \cfrac{3,000,000}{64} \right\rceil = 46,875\]
-      Hence given the input buffer, there are $46,875$ output IO actions.
-    }
+          \[size(PendingOrders) = 250,000 \times (3 \times 4) = 3,000,000 \]
+          \[\Rightarrow pages(PendingOrders) = \left\lceil \cfrac{3,000,000}{64} \right\rceil = 46,875\]
+          Hence given the input buffer, there are $46,875$ output IO actions.
+          }
     \item { $\sigma_{urgency=URGENT}$
-      \[size(PendingAndUrgentOrders) = 62,500 \times (3 \times 4) = 750,000 \]
-      \[\Rightarrow pages(PendingAndUrgentOrders) = \left\lceil \cfrac{750,000}{64} \right\rceil = \lceil 11,718.75 \rceil = 11,719\]
-      Hence given the input buffer, there are $11,719$ output IO actions.
-    }
+          \[size(PendingAndUrgentOrders) = 62,500 \times (3 \times 4) = 750,000 \]
+          \[\Rightarrow pages(PendingAndUrgentOrders) = \left\lceil \cfrac{750,000}{64} \right\rceil = \lceil 11,718.75 \rceil = 11,719\]
+          Hence given the input buffer, there are $11,719$ output IO actions.
+          }
   \end{enumerate}
   Hence in total there are $187,500 + 46,875 + 11,719 = 246094$ IO actions.
 \end{examplebox}
@@ -818,9 +821,9 @@ Probability of a page being touched, given $s$ selectivity of tuples and $n$ tup
 \[p(s,n) = 1 - \underbrace{(1-s)^n}_{\text{no tuples accessed}}\]
 Hence for a selection:
 \[PageFault = p(s,n) \times pages(underlying) where \begin{cases}
-  s & = \text{ selection selectivity} \\
-  n & = \cfrac{\text{page size}}{\text{tuple size}} \\
-\end{cases}\]
+    s & = \text{ selection selectivity}               \\
+    n & = \cfrac{\text{page size}}{\text{tuple size}} \\
+  \end{cases}\]
 
 \subsection{Decomposed Bulk Processing}
 Decomposed storage was introduced as a consequence of bulk processing:

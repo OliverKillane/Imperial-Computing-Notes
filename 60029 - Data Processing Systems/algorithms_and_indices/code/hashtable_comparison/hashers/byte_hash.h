@@ -7,7 +7,7 @@
 // An unsafe hash that uses the raw bytes provided to determine the hash
 // - Unsafe (e.g apply to identical strings of different addresses -> pointers 
 //   produce different hashes).
-namespace hash {
+namespace Hash {
     template<typename K>
     const size_t Bytes(const K& key) {
         constexpr auto num_bytes = min<K>(sizeof(K), sizeof(size_t));

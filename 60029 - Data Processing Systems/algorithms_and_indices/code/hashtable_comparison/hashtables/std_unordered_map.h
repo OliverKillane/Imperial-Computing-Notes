@@ -2,6 +2,7 @@
 
 
 #include "../hashtable.h"
+#include "../hasher.h"
 #include "../utils.h"
 
 #include <unordered_map>
@@ -11,9 +12,17 @@
 
 namespace HashMap {
 
-    template<typename K, typename V>
+    template<typename K, typename V, Hasher<K> hasher>
     class STD {
-        std::unordered_map<K, V> _map;
+
+        struct ThisHash
+        {
+            size_t operator()(K const& k) const noexcept {
+                return hasher(k);
+            }
+        };
+
+        std::unordered_map<K, V, ThisHash> _map;
 
     public:
         bool insert(K key, V value) { 
@@ -38,8 +47,8 @@ namespace HashMap {
         }
         size_t size() const noexcept { return _map.size(); }
 
-        friend std::ostream &operator<<(std::ostream &os, const STD<K, V> & ht) {
-            os << "Hash Table: " << type<STD<K, V>>() << std::endl;
+        friend std::ostream &operator<<(std::ostream &os, const STD<K, V, hasher> & ht) {
+            os << "Hash Table: " << type<STD<K, V, hasher>>() << std::endl;
             os << "Size: " << ht._map.size() << std::endl;
             os << "Buckets: " << ht._map.bucket_count() << std::endl;
             for (auto i = 0; i < ht._map.bucket_count(); i++) {
@@ -56,6 +65,6 @@ namespace HashMap {
             return os;
         }
 
-        static_assert(IsHashMap<STD<K, V>, K, V>, "not a hashmap");
+        static_assert(IsHashMap<STD<K, V, hasher>, K, V>, "not a hashmap");
     };
 }
