@@ -20,9 +20,9 @@ void example_equality() {
             {1,true},
         }
     };
-    print_table(t);
+    cout << t;
     t.sort_rows();
-    print_table(t);
+    cout << t;
 }
 
 void example_basic() {
@@ -36,7 +36,7 @@ void example_basic() {
             {"yoda",            120024},
         }
     };
-    print_table(tab);
+    cout << tab;
 
 
     Table<string, int> ages {
@@ -49,10 +49,10 @@ void example_basic() {
             {"yoda",          900},
         }
     };
-    print_table(ages);
+    cout << ages;
 
     auto joined = hash_join<0, 0>(tab, ages);
-    print_table(joined);
+    cout << joined;
 }
 
 void example_sort_merges() {
@@ -66,7 +66,7 @@ void example_sort_merges() {
             {3, "fourth"},
         }
     };
-    print_table(repeat);
+    cout << repeat;
     
     auto unique_joined = unique_sort_merge_join<0,0>(repeat, repeat);
     auto joined = sort_merge_join<0,0>(repeat, repeat);
@@ -74,11 +74,8 @@ void example_sort_merges() {
     // here we demonstrate that the simple sort merge (unique) only works when 
     // the attributes joined on are unique in each table
 
-    cout << "unique sort merge (incorrect result)" << endl;
-    print_table(unique_joined);
-
-    cout << "normal sort merge (correct result)" << endl;
-    print_table(joined);
+    cout << "unique sort merge (incorrect result)" << endl << unique_joined;
+    cout << "normal sort merge (correct result)" << endl << joined;
 }
 
 void example_three_way_join() {
@@ -89,7 +86,7 @@ void example_three_way_join() {
             {1,2},
         }
     };
-    print_table(ab);
+    cout << ab;
 
     Table<int64_t, int64_t> cd{
         .name = "cd",
@@ -98,7 +95,7 @@ void example_three_way_join() {
             {2,3},
         }
     };
-    print_table(cd);
+    cout << cd;
 
     Table<int64_t, int64_t> ef{
         .name = "ef",
@@ -107,13 +104,13 @@ void example_three_way_join() {
             {3,4},
         }
     };
-    print_table(ef);
+    cout << ef;
 
     auto cdef = hash_join<1,0>(cd, ef);
-    print_table(cdef);
+    cout << cdef;
     auto abcdef = sort_merge_join<1,0>(ab, cdef);
 
-    print_table(abcdef);
+    cout << abcdef;
 }
 
 int main() {

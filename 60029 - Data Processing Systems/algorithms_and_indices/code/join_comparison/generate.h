@@ -55,11 +55,11 @@ struct create_table {
 constexpr auto gen_ints = [](size_t i) -> auto {return make_tuple(0,0,0);};
 void example_ints() {
     auto t = create_table<int, int, int>::with_gen<+gen_ints>(5);
-    print_table(t);
+    cout << t;
 }
 
 constexpr auto gen_mixed = [](size_t i) -> auto {return make_tuple(i, string(i, 'a'), i % 2 == 0);};
 void example_mixed() {
     auto t = create_table<size_t, string, bool>::with_gen<+gen_mixed>(10);
-    print_table(t);
+    cout << t;
 }

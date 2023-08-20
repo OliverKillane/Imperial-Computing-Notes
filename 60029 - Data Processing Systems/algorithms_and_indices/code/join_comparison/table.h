@@ -50,6 +50,42 @@ template <typename... types> struct Table {
     inline bool operator==(const Table<types...>& rhs) const {
         return name == rhs.name && cols == rhs.cols && rows == rhs.rows;
     }
+
+    friend std::ostream &operator<<(std::ostream &os, const Table<types...> & t) {
+        constexpr auto num_cols = sizeof...(types);
+        array<vector<string>, num_cols> cols;
+        array<size_t, num_cols> max_len;
+        for (auto col = 0; col < num_cols; col++) {
+            max_len[col] = table.cols[col].size();
+        }
+        append_rows<0, num_cols, types...>(table, cols, max_len);
+        
+        const string sep = "│";
+        os << endl << " " << table.name << endl;
+        os << sep;
+        for (auto col = 0; col < num_cols; col++) {
+            os << string(max_len[col] - table.cols[col].size(), ' ') << table.cols[col] << sep;
+        }
+        os << endl << sep;
+        for (auto col = 0; col < num_cols; col++) {
+            for (auto c  = 0; c < max_len[col]; c++) {
+                os << "┄";
+            }
+            os << sep;
+        }
+        os << endl;
+        for (auto row = 0; row < table.rows.size(); row++) {
+            os << sep;
+            for (auto col = 0; col < num_cols; col++) {
+                const string val = cols[col][row];
+                os << string(max_len[col] - val.size(), ' ');
+                os << val << sep;
+            }
+            os << endl;
+        }
+        os << endl;
+        return os;
+    }
 };
 
 
@@ -73,42 +109,7 @@ void append_rows(
     }
 }
 
-template<typename... types> void print_table(const Table<types...>& table) {
-    constexpr auto num_cols = sizeof...(types);
-    array<vector<string>, num_cols> cols;
-    array<size_t, num_cols> max_len;
-    for (auto col = 0; col < num_cols; col++) {
-        max_len[col] = table.cols[col].size();
-    }
-    append_rows<0, num_cols, types...>(table, cols, max_len);
-    
-    const string sep = "│";
-    cout << endl << " " << table.name << endl;
-    cout << sep;
-    for (auto col = 0; col < num_cols; col++) {
-        cout << string(max_len[col] - table.cols[col].size(), ' ') << table.cols[col] << sep;
-    }
-    cout << endl << sep;
-    for (auto col = 0; col < num_cols; col++) {
-        for (auto c  = 0; c < max_len[col]; c++) {
-            cout << "┄";
-        }
-        cout << sep;
-    }
-    cout << endl;
-    for (auto row = 0; row < table.rows.size(); row++) {
-        cout << sep;
-        for (auto col = 0; col < num_cols; col++) {
-            const string val = cols[col][row];
-            cout << string(max_len[col] - val.size(), ' ');
-            cout << val << sep;
-        }
-        cout << endl;
-    }
-    cout << endl;
-}
-
-// Helper for creatng the name and columns of a new table from a join
+// Helper for creating the name and columns of a new table from a join
 template<size_t leftCol, size_t rightCol, typename... leftTypes, typename... rightTypes> 
 Table<leftTypes..., rightTypes...> join_empty(const Table<leftTypes...>& left, const Table<rightTypes...>& right)  {
     const auto rightSize = sizeof...(rightTypes);

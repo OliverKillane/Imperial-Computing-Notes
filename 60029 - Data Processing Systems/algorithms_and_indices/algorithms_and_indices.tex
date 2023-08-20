@@ -1,6 +1,10 @@
 \chapter{Algorithms and Indices}
+\begin{sidenotebox}{Play \& Contribute!}
+    C++ implementations, tests and benchmarks for this section are included in the associated code directory for this chapter.
+\end{sidenotebox}
 
 \section{Sorting Algorithms (unassessed)}
+
 \subsection{Quicksort}
 \begin{center}
     \includegraphics[width=.9\textwidth]{algorithms_and_indices/images/quicksort.drawio.png}
@@ -24,14 +28,6 @@ Selecting a balanced pivot (ideally the median) is important to avoid worst-case
     \textbf{Blind} & Does not take advantage of partially sorted data (in fact this can lead to worst-case depending on pivot selection). \\
 \end{tabbox}
 
-\begin{sidenotebox}{Better quicksorts}
-    Many variations have been developed to improve performance, such as:
-    \\\begin{tabular}{l p{.7\textwidth}}
-        \textit{Multi-Pivot Quicksort}       & For improved cache performance (a dual-pivot quicksort was used in Java 7).                         \\
-        \textit{Quick-Radix Sort}            & Partitions based on bit (depth of recursion) of the key.                                            \\
-        \textit{Pattern Defeating Quicksort} & A hybrid sort using quicksort's fast average complexity, and heapsort's good worst-case complexity. \\
-    \end{tabular}
-\end{sidenotebox}
 \subsection{Merge Sort}
 \begin{center}
     \includegraphics[width=\textwidth]{algorithms_and_indices/images/mergesort.drawio.pdf}
@@ -61,28 +57,68 @@ Selecting a balanced pivot (ideally the median) is important to avoid worst-case
 \end{sidenotebox}
 
 \subsection{Heapsort}
+\begin{center}
+    \includegraphics[width=.85\textwidth]{algorithms_and_indices/images/heapsort.drawio.png}
+\end{center}
+\inputminted{cpp}{algorithms_and_indices/code/sort_comparison/sorts/heapsort.h}
+\begin{center}
+    \begin{tabular}{c | c}
+        \textbf{Average Complexity} & \textbf{Worst-Case Complexity} \\
+        $O(n \log n)$               & $O(n \log n)$                  \\
+    \end{tabular}
+\end{center}
+\begin{tabbox}{prosbox}
+    \textbf{Worst-Case} & Same time complexity as best-case. \\
+    \textbf{Top-N} & If we only want to $n$ largest items, heapsort can extract this without sorting the entire array. \\
+    \textbf{In-Place} & Sort can be performed entirely in place (no extra memory required, good temporal locality). \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{Parallelism} & Difficult to parallelize. \\
+    \textbf{Blind} & Does not take advantage of partially sorted data. \\
+\end{tabbox}
+\begin{sidenotebox}{Bring order to the galaxy!}
+    There are parallelised heapsort implementations, such as \href{Dualheap Sort}{https://arxiv.org/ftp/arxiv/papers/0706/0706.2893.pdf}.
+\end{sidenotebox}
 
 \subsection{Radix Sort}
+\begin{center}
+    \includegraphics[width=\textwidth]{algorithms_and_indices/images/radixsort.drawio.png}
+\end{center}
+A non-comparative sorting algorithm. Rather than comparing elements to determine an order, continually split buckets by some place.
+\begin{center}
+    \begin{tabular}{c}
+        \textbf{Worst-Case Complexity}            \\
+        $O(\text{key width} \times \text{radix})$ \\
+    \end{tabular}
+\end{center}
+\begin{tabbox}{prosbox}
+    \textbf{Parallelism} & Trivially parallel. \\
+    \textbf{In-Place} & In-place variants of the sort exist. \\
+\end{tabbox}
+\begin{tabbox}{consbox}
+    \textbf{Inefficient on Small Data} & Often paired with another sort (e.g insertion sort) used when buckets are small. \\
+    \textbf{Lexicographical Only} & Data must have a lexicographical order (e.g integers) \\
+\end{tabbox}
 
 \subsection{Hybrid Sorts}
-
-\subsection{Top-N with Heaps}
-
-\unfinished
+Sorts can be combined to avoid worst-case weaknesses. A typical pattern is to pair quicksort with another sort switch to to avoid quicksort's poor worst-case complexity.
+\begin{center}
+    \begin{tabular}{l | p{.7\textwidth}}
+        \textbf{Pattern Defeating Quicksort} & A hybrid sort using quicksort's fast average complexity, and heapsort's good worst-case complexity. \\
+        \textbf{Multi-Pivot Quicksort}       & For improved cache performance (a dual-pivot quicksort was used in Java 7).                         \\
+        \textbf{Quick-Radix Sort}            & Partitions based on bit (depth of recursion) of the key.                                            \\
+        \textbf{Timsort}                     & A combination of merge sort and insertion sort, originally developed for python.                    \\
+    \end{tabular}
+\end{center}
 
 \section{Joins}
-\subsection{Database Normalisation (unassessed)}
-% Normal Forms
-\unfinished
+\begin{definitionbox}{Database Normalisation}
+    Structuring a relational database according to progressively stricter \textit{normal forms} to remove redundant data, and improve integrity (prevent potential logical inconsistency under insertion/update/deletion).
+    \\ \href{https://en.wikipedia.org/wiki/Database_normalization}{See wikipedia}.
+\end{definitionbox}
 
 \subsection{Join Types}
 Normalised databases naturally require joins to re-compose data.
-
-\begin{examplebox}{We would be honoured if you would join us\dots}
-    Provide some examples of types of queries that would require a join.
-    \tcblower
-    \unfinished
-\end{examplebox}
 
 \begin{definitionbox}{Join}
     A join is a cross product with selection using data from both relations ($\sigma_{p(R_A.x, R_B.y)} (R_A \times R_B)$).
@@ -274,49 +310,9 @@ WHERE R.r = "some string";
 \end{examplebox}
 
 \subsection{Join Implementations}
-The following join implementations are written is C++20
-\begin{minted}{cpp}
-#include <algorithm>
-#include <iostream>
-#include <tuple>
-#include <unordered_map> // using contains from cpp20
-#include <utility>
-#include <vector>
-
-using namespace std;
-
-template <typename... types> using Table = vector<tuple<types...>>;
-\end{minted}
-Compile with \mintinline{bash}{g++ -std=c++2a joins.cc}, the following main can be used for testing:
-\begin{minted}{cpp}
-int main() {
-  vector<tuple<int, char, int>> table1{
-      {1, 'a', 21}, {1, 'b', 34}, {2, 'c', 23}};
-  vector<tuple<char, int>> table2{{'a', 21}, {'b', 34}, {'c', 6}};
-
-  auto tableResult = sort_merge_join<2, 1>(table1, table2);
-
-  print_table(table1);
-  print_table(table2);
-  print_table(tableResult);
-}
-\end{minted}
-\mintinline{cpp}{#include "print_table.cc"} after the \mintinline{cpp}{using Table = ...} definition for easy printing.
-
 \subsection{Nested Loop Join}
 We can implement a basic join naively using nested loops.
-\begin{minted}{Cpp}
-template <size_t leftCol, size_t rightCol, typename... TypesOne, typename... TypesTwo>
-Table<TypesOne..., TypesTwo...> nest_loop_join(Table<TypesOne...> &left, Table<TypesTwo...> &right) {
-  Table<TypesOne..., TypesTwo...> result;
-  for (auto &leftElem : left) for (auto &rightElem : right) {
-    if (get<leftCol>(leftElem) == get<rightCol>(rightElem)) {
-      result.push_back(tuple_cat(leftElem, rightElem));
-    }
-  }
-  return result;
-}
-\end{minted}
+\inputminted[firstline=6, lastline=19]{cpp}{algorithms_and_indices/code/join_comparison/joins/nested_loop.h}
 \[\text{Time Complexity} = \begin{cases}
         \cfrac{\Theta (|left| \times |right|) }{2} & \text{ If elements unique} \\
         \Theta (|left| \times |right|)             & otherwise                  \\
@@ -336,45 +332,11 @@ If we assume both tables are sorted, and values (being joined on) are unique.
     \item Two cursors (one per table)
     \item Advance cursors in order, if the value on the left exceeds the right there can be no joins for the left row (and vice versa).
 \end{itemize}
-\begin{minted}{cpp}
-template <size_t leftCol, size_t rightCol, typename... TypesOne,
-          typename... TypesTwo>
-Table<TypesOne..., TypesTwo...> sort_merge_join(const Table<TypesOne...> &leftT,
-                                                const Table<TypesTwo...> &rightT) {
+\inputminted[firstline=10, lastline=44]{cpp}{algorithms_and_indices/code/join_comparison/joins/unique_sort_merge.h}
+\begin{sidenotebox}{Non-Unique}
+    A sort-merge that does not require uniqueness is included in this chapter's code directory.
+\end{sidenotebox}
 
-  Table<TypesOne..., TypesTwo...> result;
-
-  // copy tables and sort (required for interface, but could be ommitted with assumption)
-  auto left = leftT;
-  auto right = rightT;
-  sort(left.begin(), left.end(), [](auto const &a, auto const &b) {
-    return get<leftCol>(a) < get<leftCol>(b);
-  });
-  sort(right.begin(), right.end(), [](auto const &a, auto const &b) {
-    return get<rightCol>(a) < get<rightCol>(b);
-  });
-
-  auto leftIndex = 0;
-  auto rightIndex = 0;
-
-  while (leftIndex < left.size() && rightIndex < right.size()) {
-    auto leftElem = left[leftIndex];
-    auto rightElem = right[rightIndex];
-
-    if (get<leftCol>(leftElem) < get<rightCol>(rightElem)) {
-      leftIndex++;
-    } else if (get<leftCol>(leftElem) > get<rightCol>(rightElem)) {
-      rightIndex++;
-    } else {
-      result.emplace_back(tuple_cat(leftElem, rightElem));
-      leftIndex++;
-      rightIndex++;
-    }
-  }
-
-  return result;
-}
-\end{minted}
 \[\begin{split}
         \text{Time Complexity} &= \Theta (sort(left)) + \Theta (sort(right)) + \Theta (merge) \\
         & = \Theta(|left| \times \log |left| + |right| \times \log |right| + |left| + |right|)
@@ -389,35 +351,11 @@ Table<TypesOne..., TypesTwo...> sort_merge_join(const Table<TypesOne...> &leftT,
 
 \subsection{Hash Join}
 For \textit{equi joins} we can insert one table into a hash table, then iterate over the second (assumed constant time lookup in hashtable).
-\\
-\\ Below we have used the standard template library's \mintinline{cpp}{unordered_map}
-\begin{minted}{cpp}
-template <size_t leftCol, size_t rightCol, typename... TypesOne, typename... TypesTwo>
-Table<TypesOne..., TypesTwo...> hash_join(const Table<TypesOne...> &left,
-                                          const Table<TypesTwo...> &right) {
-  Table<TypesOne..., TypesTwo...> result;
-  using leftColType = typename tuple_element<leftCol, tuple<TypesOne...>>::type;
-  
-  // Build Phase - create has hashtable of one table.
-  // we should ideally choose the smallest table here -> smallest hashmap
-  unordered_map<leftColType, const tuple<TypesOne...> *> leftContents(
-      left.size());
-
-  // Inserting pointers to avoid overhead of cloning tuples
-  for (const tuple<TypesOne...> &elem : left) {
-    leftContents.insert(make_pair(get<leftCol>(elem), &elem));
-  }
-
-  // Probing phase - find matching values
-  for (auto &elem : right) {
-    if (leftContents.contains(get<rightCol>(elem))) {
-      result.emplace_back(tuple_cat(*leftContents[get<rightCol>(elem)], elem));
-    }
-  }
-
-  return result;
-}
-\end{minted}
+\begin{itemize}
+    \item Below we have used the standard template library's \mintinline{cpp}{unordered_map}
+    \item We assume each value in a table is unique, otherwise a \mintinline{cpp}{unordered_multimap} is required.
+\end{itemize}
+\inputminted[firstline=9, lastline=29]{cpp}{algorithms_and_indices/code/join_comparison/joins/unique_hash.h}
 \[\begin{split}
         \Theta (|build| + |probe|) & \text{best case} \\
         O(|build| \times |probe|) & \text{worst case} \\
@@ -445,16 +383,10 @@ Table<TypesOne..., TypesTwo...> hash_join(const Table<TypesOne...> &left,
 
 
 \section{Hash Tables}
-\subsection{Probing Hashmap}
-\begin{center}
-    \includegraphics[width=.9\textwidth]{algorithms_and_indices/images/hash_table.drawio.png}
-\end{center}
-We can define the hash function using a \mintinline{cpp}{struct} as follows:
+\subsection{Hashing}
+A hash function is used to lookup keys in a hashmap.
 \begin{minted}{cpp}
-template <typename T> struct Probe {
-  virtual void hash(T data, size_t indexSize) = 0;
-  virtual size_t next() = 0;
-};
+template<typename K> using Hasher = size_t (const K&);
 \end{minted}
 \begin{center}
     \begin{tabular}{l l p{.6\textwidth}}
@@ -464,6 +396,7 @@ template <typename T> struct Probe {
         Nicety      & \textbf{Uniform}              & All hash values in the range are equally likely.              \\
     \end{tabular}
 \end{center}
+
 \begin{sidenotebox}{Typical Hashers}
     \begin{center}
         \begin{tabular}{l p{.8\textwidth}}
@@ -474,43 +407,89 @@ template <typename T> struct Probe {
         \end{tabular}
     \end{center}
 \end{sidenotebox}
+
 \begin{examplebox}{Hash it out}
     Write a basic Modulo-Division hash using the interface above provided. Take the modulus as a template parameter.
     \tcblower
     \begin{minted}{cpp}
-template <size_t MODULUS> size_t modulusHash(int data) {
+template <size_t MODULUS> size_t modulusHash(const int& data) {
   return static_cast<size_t>(data) % MODULUS;
 }
     \end{minted}
 \end{examplebox}
-When different keys have the same hash a \textit{conflict} occurs. A strategy is required to select the next slot to probe (the \mintinline{cpp}{nextSlot} function).
-\begin{itemize}
-    \item We want locality (when detecting a conflict, the real key is close/same page/line)
-    \item Very high locality will result in parts of the hash table being saturated, and long probe chains.
-    \item We want to avoid leaving holes (may be used by hash function, but if the probing function never accesses, they are likely to never be used)
-\end{itemize}
+
+Hashes can collide, and hence we need a way to resolve this.
+
+\subsection{Bucket Hashmap (Separate Chaining)}
+Collisions are resolved using linked-list buckets.
+\begin{center}
+    \includegraphics[width=.9\textwidth]{algorithms_and_indices/images/bucket_hashmap.drawio.png}
+\end{center}
+
+\begin{tabbox}{prosbox}
+    \textbf{Simple} & Easy to implement (no extra logic for collisions required, can just insert/delete from linked list buckets). \\
+\end{tabbox}
+\begin{tabbox}[.7\textwidth]{consbox}
+    \textbf{Locality} & Linked list nodes are usually allocated separately, resulting in a random access pattern on larger buckets. \\
+\end{tabbox}
+
+\inputminted[firstline=21, lastline=135]{cpp}{algorithms_and_indices/code/hashtable_comparison/hashtables/bucket.h}
+
+\begin{sidenotebox}{Other Structures}
+    \begin{center}
+        \begin{tabular}{l p{.7\textwidth}}
+            \textbf{Balanced Tree}                                                                         & If keys are ordered, then a self-balancing tree can provide $\log (n) $ lookup, potentially better then a bucket based hashmap under many collisions (bucket based hashmap can deteriorate into iterating over large lists). \\
+            \textbf{\href{https://en.wikipedia.org/wiki/Dynamic_perfect_hashing}{Dynamic Perfect Hashing}} & Each bucket is a second hashtable. Requires a perfect hash over $k^2$ slots (where the hashtables have $k$ slots).                                                                                                           \\
+        \end{tabular}
+    \end{center}
+\end{sidenotebox}
+
+\subsection{Probing Hashmap (Open Addressing)}
+Collisions are resolved by retrying on a new slot (determined by a probe).
+\begin{center}
+    \includegraphics[width=\textwidth]{algorithms_and_indices/images/hash_table.drawio.png}
+\end{center}
+We can define an interface for a probe using a concept.
+\begin{minted}{cpp}
+template<typename State>
+struct ProbeResult {
+    size_t hash;
+    State state;
+};
+
+template<typename K, typename Probe>
+concept IsProbe = requires {
+    { 
+        Probe::initial(std::declval<const K&>()) 
+    } noexcept -> std::same_as<ProbeResult<typename Probe::State>>;
+    { 
+        Probe::collision(std::declval<const ProbeResult<typename Probe::State>&>()) 
+    } noexcept -> std::same_as<ProbeResult<typename Probe::State>>;
+};
+\end{minted}
+We can then implement different probes, ideally with the following qualities:
+\begin{center}
+    \begin{tabular}{l p{.8\textwidth}}
+        High Locality & When detecting a conflict, the real key is close/same page/line.                                                                                           \\
+        Not too High! & Very high locality will result in parts of the hash table being saturated, and long probe chains.                                                          \\
+        No Holes      & We want to avoid leaving holes/wasted memory (may be used by hash function, but if the probing function never accesses, they are likely to never be used). \\
+    \end{tabular}
+\end{center}
 
 \subsubsection{Linear Probing}
-Add some \mintinline{cpp}{DISTANCE} to the probe position, wrap around at the end of the buffer.
+Add some \mintinline{cpp}{DISTANCE} to the probe position, wrap around at the end of the buffer (here we assume the hashmap structure modulates our output).
 \begin{minted}{cpp}
-template <typename K> struct LinearProbe : public Probe<K> {
-  LinearProbe(std::function<size_t(K)> hash) : _hash(hash) {}
+template<typename K, Hasher<K> hasher, size_t DISTANCE>
+struct Linear {
+    struct State {}; // no state required for linear hashing
 
-  void hash(K data, size_t indexSize) override {
-    _indexSize = indexSize;
-    _position = _hash(data) % indexSize;
-  };
+    static ProbeResult<State> initial(const K& key) noexcept { 
+        return { .hash=hasher(key), .state={} }; 
+    }
 
-  size_t next() override {
-    auto oldPosition = _position;
-    _position = (_position + 1) % _indexSize;
-    return oldPosition;
-  };
-
-private:
-  std::function<size_t(K)> _hash;
-  size_t _position;
-  size_t _indexSize;
+    static ProbeResult<State> collision(const ProbeResult<State>& prev) noexcept { 
+        return { .hash=prev.hash+DISTANCE, .state={} }; 
+    }
 };
 \end{minted}
 \begin{tabbox}{prosbox}
@@ -528,26 +507,30 @@ private:
     \item Variants exist (still use power of $2$ but can include linear and constant term)
 \end{itemize}
 \begin{minted}{cpp}
-template <typename K> struct QuadraticProbe : public Probe<K> {
-  QuadraticProbe(std::function<size_t(K)> hash) : _hash(hash) {}
+template<typename K, Hasher<K> hasher>
+struct Quadratic {
+    struct State {
+        size_t original_hash;
+        size_t collisions = 0;
+    };
 
-  void hash(K data, size_t indexSize) override {
-    _indexSize = indexSize;
-    _firstPosition = _hash(data) % indexSize;
-    _step = 0;
-  };
-
-  size_t next() override {
-    auto newPosition = _firstPosition + _step * _step;
-    _step++;
-    return newPosition;
-  };
-
-private:
-  std::function<size_t(K)> _hash;
-  size_t _firstPosition;
-  size_t _step;
-  size_t _indexSize;
+    static ProbeResult<State> initial(const K& key) noexcept { 
+        size_t hash = hasher(key);
+        return {
+            .hash=hash, 
+            .state={ .original_hash=hash, .collisions=0 }
+        };
+    }
+    static ProbeResult<State> collision(const ProbeResult<State>& prev) noexcept { 
+        size_t collisions = prev.state.collisions + 1;
+        return {
+            .hash=prev.state.original_hash + collisions * collisions, 
+            .state={
+                .original_hash=prev.state.original_hash, 
+                .collisions=collisions
+            }
+        };
+    }
 };
 \end{minted}
 \begin{tabbox}{prosbox}
@@ -561,28 +544,17 @@ private:
 \subsubsection{Rehashing}
 In order to distribute nodes uniformly, use a has function to hash a conflicting position to find the next one.
 \begin{minted}{cpp}
-template <typename K> struct ReHashProbe : public Probe<K> {
-  ReHashProbe(std::function<size_t(K)> hash,
-              std::function<size_t(size_t)> rehash)
-      : _hash(hash), _rehash(rehash) {}
-
-  void hash(K data, size_t indexSize) override {
-    _indexSize = indexSize;
-    _current = _hash(data) % indexSize;
-  };
-
-  size_t next() override {
-    auto old = _current;
-    _current = _rehash(_current) % _indexSize;
-    cout << "rehashing to " << _current << endl;
-    return old;
-  };
-
-private:
-  std::function<size_t(K)> _hash;
-  std::function<size_t(size_t)> _rehash;
-  size_t _current;
-  size_t _indexSize;
+template<typename K, Hasher<K> hasher, Hasher<size_t> reHasher>
+struct ReHash {
+    struct State {};
+    
+    static ProbeResult<State> initial(const K& key) noexcept { 
+        return ProbeResult{ .hash=hasher(key), .state={} }; 
+    }
+    
+    static ProbeResult<State> collision(const ProbeResult<State>& prev) noexcept { 
+        return { .hash=reHasher(prev.hash), .state={} }; 
+    }
 };
 \end{minted}
 \begin{tabbox}{prosbox}
@@ -607,19 +579,9 @@ For this reason, hash-joins (using hash tables) are best when one of the joined 
 \begin{center}
     \includegraphics[width=.8\textwidth]{algorithms_and_indices/images/mark_deletion.drawio.png}
 \end{center}
-An implementation is included below:
-\subsection{Basic Hash Table Implementation}
-\begin{sidenotebox}{Contribute!}
-    This basic implementation can be improved!
-    \begin{itemize}
-        \item Resize functionality
-        \item Use structs for entries, rather than tuples
-        \item Construct probers local to methods
-        \item Provide prober type in template and construct, rather than taking constructor parameter
-    \end{itemize}
-\end{sidenotebox}
 
-\inputminted{cpp}{algorithms_and_indices/code/hashtable.cc}
+\subsubsection{Probing Hashmap Implementation}
+\inputminted[firstline=98, lastline=247]{cpp}{algorithms_and_indices/code/hashtable_comparison/hashtables/probing.h}
 
 \subsection{Partitioning}
 Sequential accesses are cheaper than random accesses, as they can access the same page in memory \& thus share the cost of the initially expensive cold access.
@@ -633,9 +595,22 @@ In order to reduce the cost of accessing some data we can:
     \item Increase the page size (huge pages).
     \item Make the access pattern \textit{more} sequential.
 \end{itemize}
-Assuming a hashtable does not fit in memory/buffer page cache, we can reduce costs from page-misses by paying less for a partitioning pass.
+The access pattern for hashtables is typically random (often intentional by hash function).
+\begin{definitionbox}{Hashtable Thrashing}
+    Thrashing due to random access pattern associated with hashtable access, on a large hashtable.
+    \begin{itemize}
+        \item e.g high page IO when hash-joining two large relations, as the hashtable is too large to fit in the buffer pool.
+    \end{itemize}
+\end{definitionbox}
 
-\unfinished
+\begin{center}
+    \includegraphics[width=.9\textwidth]{algorithms_and_indices/images/partitioning.drawio.png}
+\end{center}
+\begin{itemize}
+    \item As each partition can be joined independently, we can do one at a time, and hence each partition's hash-join's hashtable can fit within the buffer pool.
+    \item Alternatively, we could join all in parallel.
+\end{itemize}
+The partitioning function can be as simple as $key \mod No. Partitions$.
 
 \subsection{Indexing}
 We can use a secondary store of redundant data to speed up queries.
@@ -802,11 +777,13 @@ Trees are well suited to the requirements of a database:
     \item Good complexity for equality lookups ($\log(n)$ tree traversal)
     \item Easy to update (hash-tables can require a resize and cause a load spike on insert)
 \end{itemize}
-Typical balanced tree data structures such as red/black trees, AVL trees are unsuited as they have low fan-out (require a large number of traversals to node spread across many pages $\to$ many page faults occur to fetch only a few nodes). Databases are I/O bound (here the I/O is page faults).
+Typical balanced tree data structures such as red/black trees, AVL trees are unsuited as they have low fan-out
+(require a large number of traversals to node spread across many pages $\to$ many page faults occur to fetch only a
+few nodes). Databases are I/O bound (here the I/O is page faults).
 
 \begin{definitionbox}{B-Tree}
     \begin{center}
-        \includegraphics[width=.8\textwidth]{algorithms_and_indices/images/b_tree_node.drawio.png}
+        \includegraphics[width=.6\textwidth]{algorithms_and_indices/images/b_tree_node.drawio.png}
     \end{center}
     A high fan-out, balanced tree.
     \begin{itemize}
@@ -829,3 +806,7 @@ Most joins are using a foreign key relation.
     \item Constraint implies the number of matching tuples is 1 (foreign key $\to$ unique primary key)
     \item A foreign key indices effectively cache/save a join.
 \end{itemize}
+\begin{tabbox}{prosbox}
+    \textbf{Cheap} & Use a small amount of space, only need to add an extra pointer when updating, no extra optimisation effort needed (other than \textit{if an fk-index exists, use it}). \\
+    \textbf{Used} & Foreign key constraints usually are only created where users intend to join. \\
+\end{tabbox}

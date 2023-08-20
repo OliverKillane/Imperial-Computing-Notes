@@ -7,8 +7,6 @@
 #include <cstdint>
 using namespace std;
 
-// A basic hasher takes some key to hash, and the maximum has allowed (e.g 
-// slots or buckets in the hashtable)
 template<typename K>
 using Hasher = size_t (const K&);
 

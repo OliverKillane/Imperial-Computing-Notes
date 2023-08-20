@@ -18,9 +18,7 @@ namespace Hash {
         size_t len = str.size();
         uint32_t hash = len;
         uint32_t tmp;
-        int rem;
-
-        rem = len & 3;
+        int rem = len & 3;
         len >>= 2;
 
         /* Main loop */

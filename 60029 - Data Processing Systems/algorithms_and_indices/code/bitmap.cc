@@ -22,3 +22,5 @@ vector<size_t> scan_bitmap(const vector<uint32_t>& bitvector) {
     }
     return positions;
 }
+
+// TODO: proper bitmap + roaring bitmap

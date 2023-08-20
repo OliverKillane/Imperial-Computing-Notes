@@ -53,7 +53,7 @@ static void hashmap_random_insert(benchmark ::State &state) {
 
 BENCH_RAND_INSERT(HashMap::STD<int, char, Hash::STD<int>>);
 BENCH_RAND_INSERT(HashMap::Buckets<int, char, Hash::STD<int>>);
-BENCH_RAND_INSERT(HashMap::Probing<int, char, HashMap::Probes::Linear<int, Hash::STD<int>>>);
+BENCH_RAND_INSERT(HashMap::Probing<int, char, HashMap::Probes::Linear<int, Hash::STD<int>, 1>>);
 // BENCH_RAND_INSERT(HashMap::Probing<int, char, HashMap::Probes::Quadratic<int, Hash::STD<int>>>);
 
 // Benchmarking random inserts with conflicts
@@ -62,7 +62,7 @@ BENCH_RAND_INSERT(HashMap::Probing<int, char, HashMap::Probes::Linear<int, Hash:
 
 BENCH_RAND_CONFLICT(HashMap::STD<int, char, Hash::Const<int>>);
 BENCH_RAND_CONFLICT(HashMap::Buckets<int, char, Hash::Const<int>>);
-BENCH_RAND_CONFLICT(HashMap::Probing<int, char, HashMap::Probes::Linear<int, Hash::Const<int>>>);
+BENCH_RAND_CONFLICT(HashMap::Probing<int, char, HashMap::Probes::Linear<int, Hash::Const<int>, 1>>);
 // BENCH_RAND_CONFLICT(HashMap::Probing<int, char, HashMap::Probes::Quadratic<int, Hash::Const<int>>>);
 
 BENCHMARK_MAIN();

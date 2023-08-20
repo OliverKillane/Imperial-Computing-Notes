@@ -35,7 +35,7 @@ namespace HashMap {
             { Probe::collision(std::declval<const ProbeResult<typename Probe::State>&>()) } noexcept -> std::same_as<ProbeResult<typename Probe::State>>;
         };
 
-        template<typename K, Hasher<K> hasher>
+        template<typename K, Hasher<K> hasher, size_t DISTANCE>
         struct Linear {
             struct State {};
             static ProbeResult<State> initial(const K& key) noexcept { 
@@ -46,11 +46,11 @@ namespace HashMap {
 
             static ProbeResult<State> collision(const ProbeResult<State>& prev) noexcept { 
                 return { 
-                    .hash=prev.hash+1, .state={}
+                    .hash=prev.hash+DISTANCE, .state={}
                 }; 
             }
 
-            static_assert(IsProbe<K, Linear<K, hasher>>, "linear is not a probe");
+            static_assert(IsProbe<K, Linear<K, hasher, DISTANCE>>, "linear is not a probe");
         };
 
         template<typename K, Hasher<K> hasher>

@@ -40,7 +40,7 @@ template<typename K, typename V>
 using BucketCollisionHash = HashMap::Buckets<K, V, Hash::Const<K>>;
 
 template<typename K, typename V>
-using LinearOpenAddressing = HashMap::Probing<K, V, HashMap::Probes::Linear<K, Hash::STD<K>>>;
+using LinearOpenAddressing = HashMap::Probing<K, V, HashMap::Probes::Linear<K, Hash::STD<K>, 1>>;
 
 int main() {
     hash_examples();
