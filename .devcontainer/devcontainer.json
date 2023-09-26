@@ -1,0 +1,15 @@
+{
+    "image": "ghcr.io/oliverkillane/imperial-computing-notes-dev:latest",
+    "customizations": {
+        "vscode": {
+            "extensions": []
+        }
+    },
+    "mounts": [
+        {
+            "source": "${localEnv:HOME}/.ssh",
+            "target": "/root/.ssh",
+            "type": "bind"
+        }
+    ]
+}
