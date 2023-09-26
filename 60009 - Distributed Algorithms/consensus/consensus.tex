@@ -10,10 +10,10 @@ Many algorithms require a set of processes running in a distributed system to ag
 \begin{definitionbox}{Uniform Consensus}
     \begin{center}
         \begin{tabular}{l l p{.6\textwidth}}
-            \textbf{Validity} & Safety & If a process decides on a value, then this value was proposed by some process. \\
-            \textbf{Integrity} & Safety & A process can only decide on one value at most. \\
-            \textbf{Termination} & Liveness & Each correct process eventually decides. \\
-            \textbf{Uniform Agreement} & Safety & Processes cannot decide on different values. \\
+            \textbf{Validity}          & Safety   & If a process decides on a value, then this value was proposed by some process. \\
+            \textbf{Integrity}         & Safety   & A process can only decide on one value at most.                                \\
+            \textbf{Termination}       & Liveness & Each correct process eventually decides.                                       \\
+            \textbf{Uniform Agreement} & Safety   & Processes cannot decide on different values.                                   \\
         \end{tabular}
     \end{center}
 \end{definitionbox}
@@ -22,7 +22,7 @@ Many algorithms require a set of processes running in a distributed system to ag
     A strengthening of \textit{Uniform Consensus} to replace \textbf{Uniform Agreement}.
     \begin{center}
         \begin{tabular}{l l p{.6\textwidth}}
-            \multicolumn{3}{c}{\textbf{Validity, Integrity and Termination Properties from Uniform Consensus}} \\
+            \multicolumn{3}{c}{\textbf{Validity, Integrity and Termination Properties from Uniform Consensus}}  \\
             \textbf{Uniform Agreement} & Safety & \textbf{Correct} Processes cannot decide on different values. \\
         \end{tabular}
     \end{center}
@@ -31,10 +31,10 @@ Many algorithms require a set of processes running in a distributed system to ag
 \noindent The FLP Impossibility result means that:
 \begin{center}
     \begin{tabular}{l l}
-        \textbf{System} & \textbf{Consensus} \\
-        Synchronous System & \textcolor{ForestGreen}{Possible} \\
+        \textbf{System}               & \textbf{Consensus}                \\
+        Synchronous System            & \textcolor{ForestGreen}{Possible} \\
         $\Diamond$ Synchronous System & \textcolor{ForestGreen}{Possible} \\
-        Asynchronous System & \textcolor{red}{Impossible} \\
+        Asynchronous System           & \textcolor{red}{Impossible}       \\
     \end{tabular}
 \end{center}
 \begin{definitionbox}{Eventually Synchronous System}
@@ -54,11 +54,11 @@ A simple consensus algorithm between two servers.
 \begin{sidenotebox}{Fisher Lynch \& Paterson}
     From the paper \href{https://groups.csail.mit.edu/tds/papers/Lynch/jacm85.pdf}{Impossibility of Distributed Consensus with One Faulty Process}:
     \begin{quote}
-        \textit{"The consensus problem involves an asynchronous system of processes, 
-        some of which may be unreliable. The problem is for the reliable
-        processes to agree on a binary value. In this paper, it is shown that 
-        every protocol for the problem has the possibility of non-termination, 
-        even with only one faulty process."}
+        \textit{"The consensus problem involves an asynchronous system of processes,
+            some of which may be unreliable. The problem is for the reliable
+            processes to agree on a binary value. In this paper, it is shown that
+            every protocol for the problem has the possibility of non-termination,
+            even with only one faulty process."}
     \end{quote}
     Michael \textbf{F}ischer, Nancy \textbf{L}ynch, Mike \textbf{P}aterson
 \end{sidenotebox}
@@ -79,14 +79,14 @@ A simple consensus algorithm between two servers.
 \begin{itemize}
     \item $receieve$ can return empty even if messages are present for $P$.
     \item Messages are delivered non-deterministically and can be received in any order with any arbitrary delay
-    \item If receive is called infinitely many times, then every message will eventually be delivered. 
+    \item If receive is called infinitely many times, then every message will eventually be delivered.
     \item A message takes finite (but unbounded) time.
     \item Message buffer is a multiset, so can contain duplicates.
 \end{itemize}
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}
-        \textbf{Configuration} & $([P_1 : S_1, \dots], \{(P, M), \dots\})$ All process states and the global message buffer. \\
-        \textbf{Initial Configuration} & Input bit of each process is set, message buffer is empty. \\
+        \textbf{Configuration}         & $([P_1 : S_1, \dots], \{(P, M), \dots\})$ All process states and the global message buffer. \\
+        \textbf{Initial Configuration} & Input bit of each process is set, message buffer is empty.                                  \\
     \end{tabular}
 \end{center}
 \[C_1 \to C_2\]
@@ -98,22 +98,22 @@ A step occur when a single process $P$:
 \end{itemize}
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}
-        $E = (P,M)$ & Recepit of message $M$ by process $P$ is an event $E$. \\
-        $C_2 = E(C_1)$ & Applying event $E$ to configuration $C_1$ to get new configuration $C_2$. \\
-        $E_1 \circ E_2 \circ \dots \circ E_n \triangleq \sigma$ & A \textit{schedule} is a series of events composed. \\
-        $\sigma (C)$ & A \textit{schedule} is an \textit{execution} if applied to the initial configuration. \\
-        $\sigma(C) = C \to C' \to \dots$ & A sequence of steps corresponding to a schedule is called a \textit{run}. \\
-        $\sigma(C) = C'$ & $C'$ is reachable from $C$, and accessible if $C$ is the initial configuration. \\
+        $E = (P,M)$                                             & Recepit of message $M$ by process $P$ is an event $E$.                                \\
+        $C_2 = E(C_1)$                                          & Applying event $E$ to configuration $C_1$ to get new configuration $C_2$.             \\
+        $E_1 \circ E_2 \circ \dots \circ E_n \triangleq \sigma$ & A \textit{schedule} is a series of events composed.                                   \\
+        $\sigma (C)$                                            & A \textit{schedule} is an \textit{execution} if applied to the initial configuration. \\
+        $\sigma(C) = C \to C' \to \dots$                        & A sequence of steps corresponding to a schedule is called a \textit{run}.             \\
+        $\sigma(C) = C'$                                        & $C'$ is reachable from $C$, and accessible if $C$ is the initial configuration.       \\
     \end{tabular}
 \end{center}
 A process can take infinitely many steps to run. \textit{Runs} can be categorised as:
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}
-        \textbf{Deciding Run} & A \textit{run} resulting in some process making a decision (writing to output bit). \\
+        \textbf{Deciding Run}   & A \textit{run} resulting in some process making a decision (writing to output bit).                                                                 \\
         \textbf{Admissable Run} & A \textit{run} where at least one process is faulty and every message is eventually $received$ (every process can $receive$ infinitely many times). \\
     \end{tabular}
 \end{center}
-A consensus protocol is \textit{totally correct} if every \textit{admissable run} is a \textit{deciding run}. 
+A consensus protocol is \textit{totally correct} if every \textit{admissable run} is a \textit{deciding run}.
 
 \subsection{Valent Configurations}
 \begin{center}
@@ -124,7 +124,7 @@ Proof is done by contradiction.
 \begin{itemize}
     \item Assume there is an algorithm $\mathcal{A}$ that solves consensus.
     \item Construct an \textit{execution} in which $\mathcal{A}$ never reaches a decision (indecisive forever).
-    \item Hence $\mathcal{A}$ cannot solve consensus, so by contradiction there can be no $\mathcal{A}$. 
+    \item Hence $\mathcal{A}$ cannot solve consensus, so by contradiction there can be no $\mathcal{A}$.
 \end{itemize}
 By showing it is possible to start in a \textit{bivalent configuration} and continue doing steps without reaching a \textit{decisive configuration} (\textit{univalent}) we demonstrate it is impossible to certainly reach consensus.
 
@@ -154,12 +154,12 @@ We show that $\mathcal{A}$ has at least one initial bivalent configuration.
 \subsubsection{Lemma 3: Neighbouring Configurations}
 Given the following:
 \[\begin{split}
-    C & = \text{Bivalent configuration for algorithms } \mathcal{A} \\
-    E & = (P, M)  \text{ An event applicable to } C \\
-    \mathcal{C} & = \text{Set of all configurations reachable from } C \text{ \textbf{when} applying } E \\
-    \mathcal{D} & = \{E(C_n) | C_n \in \mathcal{C}\}  \text{ Set of all configurations reachable from } C \text{ \textbf{without} applying } E \\
-\end{split}\]
-Then $\mathcal{D}$ contains a bivalent configuration. 
+        C & = \text{Bivalent configuration for algorithms } \mathcal{A} \\
+        E & = (P, M)  \text{ An event applicable to } C \\
+        \mathcal{C} & = \text{Set of all configurations reachable from } C \text{ \textbf{when} applying } E \\
+        \mathcal{D} & = \{E(C_n) | C_n \in \mathcal{C}\}  \text{ Set of all configurations reachable from } C \text{ \textbf{without} applying } E \\
+    \end{split}\]
+Then $\mathcal{D}$ contains a bivalent configuration.
 % diagram of C -> (C1..N) =E= (D1..N)
 \\ \toimprove
 % use \sigma /schedule in the above split?
@@ -170,18 +170,18 @@ Then $\mathcal{D}$ contains a bivalent configuration.
 We can now show any deciding run allows for the construction of an infinite non-deciding run.
 \begin{enumerate}
     \item By \textbf{Lemma 2} there is an initial bivalent configuration
-    \item Repeatedly apply \textbf{Lemma 3}, after each application, we can apply again - thus never reaching a decision. 
+    \item Repeatedly apply \textbf{Lemma 3}, after each application, we can apply again - thus never reaching a decision.
 \end{enumerate}
 
 \section{Common Consensus Algorithms}
 \begin{center}
     \begin{tabular}{l p{.7\textwidth}}
-        \textbf{Multipaxos} & Most popular algorithm, variants are used across industry; Google chubby (a distributed lock manager), BigTable (a Google DBMS), AWS, Azure Fabric, Neo4j (a graph DBMS), Apache Mesos (a distributed systems kernel). \\
-        \textbf{Raft} & (\textbf{R}eliable, \textbf{R}eplicated, \textbf{R}edundant \textbf{A}nd \textbf{F}ault \textbf{T}olerant)A newer algorithm (formally verified, and easier to understand) used in Meta's \href{https://engineering.fb.com/2014/06/05/core-data/hydrabase-the-evolution-of-hbase-facebook/?__xts__%5B0%5D=68.ARAXKR3kWX0_4Qq8xe7s2lwVPwGcEZrV8OV-K16hi-eK-Fb1LzlWDazInohFF1g7XTiHMwRkIQAtaF4yR04WO2-OChkq5L-JZZHw910Bm5FOlY0ZFRxo4Y65ZK6ovA3CUbcKPshN0nWFN6Z62CkA-27w-3fVqnQFkSajsljxYeg55G3wHfhbDBRBWNeOAoyTy2lLuocoxiWziROo5yQVrWJxMBH-f2cLHvJmXgcAqirctOmnxjsHDa5zzeJLHaxQVLv7KCCo3B3-8QTPNh-LhwrU34PvQEr5-0KajxXw4ruOLunEMQ&__tn__=HHH-R}{Hydrabase}, Kubernetes and Docker Swarm. \\ 
-        \textbf{PBFT} & (\textbf{P}ractical \textbf{B}yzantine \textbf{F}ault \textbf{T}olerance) and proof of work/proof of stake are used for many blockchains backing cryptocurrencies such as Bitcoin. \\
-        \textbf{Viewstamped Replication} & An early consensus algorithm designed to be easily added to non-distributed programs, it has been improved upon with \href{https://pmg.csail.mit.edu/papers/vr-revisited.pdf}{VSR Revisited}. \\
-        \textbf{Atomic Broadcast} & Implemented in Apache Zookeeper (ZAB protocol) for building coordination services and is used for services such as Apache Hadoop (similar to MapReduce). \\
-        \textbf{CRDTs} & (\textbf{C}onflict-\textbf{F}ree \textbf{R}eplicated \textbf{D}atatypes) A data structure that can be updated independently \& across a distributed system and can resolve any inconsistencies itself, with all eventually converging to the same value. \\
+        \textbf{Multipaxos}              & Most popular algorithm, variants are used across industry; Google chubby (a distributed lock manager), BigTable (a Google DBMS), AWS, Azure Fabric, Neo4j (a graph DBMS), Apache Mesos (a distributed systems kernel).                                                                            \\
+        \textbf{Raft}                    & (\textbf{R}eliable, \textbf{R}eplicated, \textbf{R}edundant \textbf{A}nd \textbf{F}ault \textbf{T}olerant)A newer algorithm (formally verified, and easier to understand) used in Meta's \href{https://engineering.fb.com/2014/06/05/core-data/hydrabase-the-evolution-of-hbase-facebook/?__xts__ %5B0%5D=68.ARAXKR3kWX0_4Qq8xe7s2lwVPwGcEZrV8OV-K16hi-eK-Fb1LzlWDazInohFF1g7XTiHMwRkIQAtaF4yR04WO2-OChkq5L-JZZHw910Bm5FOlY0ZFRxo4Y65ZK6ovA3CUbcKPshN0nWFN6Z62CkA-27w-3fVqnQFkSajsljxYeg55G3wHfhbDBRBWNeOAoyTy2lLuocoxiWziROo5yQVrWJxMBH-f2cLHvJmXgcAqirctOmnxjsHDa5zzeJLHaxQVLv7KCCo3B3-8QTPNh-LhwrU34PvQEr5-0KajxXw4ruOLunEMQ&__tn__=HHH-R}{Hydrabase}, Kubernetes and Docker Swarm. \\ 
+        \textbf{PBFT}                    & (\textbf{P}ractical \textbf{B}yzantine \textbf{F}ault \textbf{T}olerance) and proof of work/proof of stake are used for many blockchains backing cryptocurrencies such as Bitcoin.                                                                                                                \\
+        \textbf{Viewstamped Replication} & An early consensus algorithm designed to be easily added to non-distributed programs, it has been improved upon with \href{https://pmg.csail.mit.edu/papers/vr-revisited.pdf}{VSR Revisited}.                                                                                                     \\
+        \textbf{Atomic Broadcast}        & Implemented in Apache Zookeeper (ZAB protocol) for building coordination services and is used for services such as Apache Hadoop (similar to MapReduce).                                                                                                                                          \\
+        \textbf{CRDTs}                   & (\textbf{C}onflict-Free \textbf{R}eplicated \textbf{D}ata\textbf{t}ypes) A data structure that can be updated independently \& across a distributed system and can resolve any inconsistencies itself, with all eventually converging to the same value.                                          \\
     \end{tabular}
 \end{center}
 \begin{sidenotebox}{Faster Code Editing}
@@ -193,9 +193,9 @@ We can now show any deciding run allows for the construction of an infinite non-
     A consensus algorithm wherein each server has:
     \begin{center}
         \begin{tabular}{l p{.8\textwidth}}
-            \textbf{Learner} & Receives decisions, alters the state based on agreed values. \\
+            \textbf{Learner}  & Receives decisions, alters the state based on agreed values.                                          \\
             \textbf{Proposer} & Proposes values to \textbf{Acceptor}s, associated with its proposal number. Receives accepted values. \\
-            \textbf{Acceptor} & Accepts values with increasing ballot numbers. \\
+            \textbf{Acceptor} & Accepts values with increasing ballot numbers.                                                        \\
         \end{tabular}
     \end{center}
 \end{definitionbox}
@@ -219,7 +219,7 @@ Using a distinguished proposer as a leader to prevent livelock.
     \item The \textbf{leader} requests the last accepted value from each acceptor
     \item The \textbf{leader} determines which value to decide on.
     \item Each round can have a different duration.
-    \item As messages have round number, servers can move onto the next round by ignoring older round's messages. Rounds can be \textit{de-synchronised} 
+    \item As messages have round number, servers can move onto the next round by ignoring older round's messages. Rounds can be \textit{de-synchronised}
     \item Hence if the \textbf{leader} crashes, the acceptors can move just move onto the next round.
 \end{itemize}
 \unfinished

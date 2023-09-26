@@ -3,7 +3,7 @@
 %===============================================================================
 
 %=========================PACKAGES FOR USE IN DOCUMENT==========================
-\usepackage[dvipsnames]{xcolor} 
+\usepackage[dvipsnames]{xcolor}
 \usepackage{graphicx, amssymb, amsfonts, amsmath, listings, multirow, hyperref, mathtools, svg, tikz, enumitem, minted, xfrac, multicol}
 \usepackage[most]{tcolorbox}
 \usepackage[super]{nth}
@@ -48,7 +48,7 @@
 %	... cool unsassessed/not required info ...
 % \end{sidenotebox}
 \newtcolorbox[auto counter,number within=section]{sidenotebox}[2][]{%
-	colback=black!5!white,breakable,colframe=black!75!black,arc=0mm,sharp corners=all,fonttitle=\bfseries,%
+	colback=black!5!white,colframe=black!75!black,arc=0mm,sharp corners=all,fonttitle=\bfseries,%
 	title=#2 \hfill \textit{Extra Fun!} \thetcbcounter #1}
 
 % For example questions:
