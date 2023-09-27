@@ -1,8 +1,146 @@
 {
-    "image": "ghcr.io/oliverkillane/imperial-computing-notes-dev:latest",
+    "image": "ghcr.io/oliverkillane/imperial-computing-notes-dev:enh-development-docker",
     "customizations": {
         "vscode": {
-            "extensions": []
+            "settings": {
+                "latex-workshop.latex.tools": [
+                    {
+                        "name": "latexmk",
+                        "command": "latexmk",
+                        "args": [
+                            "-shell-escape",
+                            "-synctex=1",
+                            "-interaction=nonstopmode",
+                            "-file-line-error",
+                            "-pdf",
+                            "-outdir=%OUTDIR%",
+                            "%DOC%"
+                        ],
+                        "env": {}
+                    },
+                    {
+                        "name": "lualatexmk",
+                        "command": "latexmk",
+                        "args": [
+                            "-synctex=1",
+                            "-interaction=nonstopmode",
+                            "-file-line-error",
+                            "-lualatex",
+                            "-outdir=%OUTDIR%",
+                            "%DOC%"
+                        ],
+                        "env": {}
+                    },
+                    {
+                        "name": "xelatexmk",
+                        "command": "latexmk",
+                        "args": [
+                            "-synctex=1",
+                            "-interaction=nonstopmode",
+                            "-file-line-error",
+                            "-xelatex",
+                            "-outdir=%OUTDIR%",
+                            "%DOC%"
+                        ],
+                        "env": {}
+                    },
+                    {
+                        "name": "latexmk_rconly",
+                        "command": "latexmk",
+                        "args": [
+                            "%DOC%"
+                        ],
+                        "env": {}
+                    },
+                    {
+                        "name": "pdflatex",
+                        "command": "pdflatex",
+                        "args": [
+                            "-synctex=1",
+                            "-interaction=nonstopmode",
+                            "-file-line-error",
+                            "%DOC%"
+                        ],
+                        "env": {}
+                    },
+                    {
+                        "name": "bibtex",
+                        "command": "bibtex",
+                        "args": [
+                            "%DOCFILE%"
+                        ],
+                        "env": {}
+                    },
+                    {
+                        "name": "rnw2tex",
+                        "command": "Rscript",
+                        "args": [
+                            "-e",
+                            "knitr::opts_knit$set(concordance = TRUE); knitr::knit('%DOCFILE_EXT%')"
+                        ],
+                        "env": {}
+                    },
+                    {
+                        "name": "jnw2tex",
+                        "command": "julia",
+                        "args": [
+                            "-e",
+                            "using Weave; weave(\"%DOC_EXT%\", doctype=\"tex\")"
+                        ],
+                        "env": {}
+                    },
+                    {
+                        "name": "jnw2texmintex",
+                        "command": "julia",
+                        "args": [
+                            "-e",
+                            "using Weave; weave(\"%DOC_EXT%\", doctype=\"texminted\")"
+                        ],
+                        "env": {}
+                    },
+                    {
+                        "name": "tectonic",
+                        "command": "tectonic",
+                        "args": [
+                            "--synctex",
+                            "--keep-logs",
+                            "%DOC%.tex"
+                        ],
+                        "env": {}
+                    }
+                ],
+                "editor.rulers": [
+                    {
+                        "column": 80, // spacing of 1st column from left
+                        "color": "#ff9900" // orange, Go Vols!
+                    },
+                    {
+                        "column": 100, // spacing of 1st column from left
+                        "color": "#ff0000" // orange, Go Vols!
+                    }
+                ]
+            },
+            "extensions": [
+                // For latex vscode setup
+                "James-Yu.latex-workshop",
+                // Development Ease
+                "usernamehw.errorlens",
+                "GitHub.vscode-pull-request-github",
+                "GitHub.github-vscode-theme",
+                "GitHub.vscode-github-actions",
+                // Diagrams done with drawio
+                "hediet.vscode-drawio",
+                // Language Support
+                "llvm-vs-code-extensions.vscode-clangd",
+                "ms-vscode.cmake-tools",
+                "JakeBecker.elixir-ls",
+                "ms-python.python",
+                "ms-python.black-formatter",
+                "rust-lang.rust-analyzer",
+                "serayuzgur.crates",
+                "haskell.haskell",
+                "alygin.vscode-tlaplus"
+            ]
         }
     },
     "mounts": [
