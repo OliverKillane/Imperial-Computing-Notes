@@ -5,7 +5,7 @@ on:
     branches:
       - enh/development-docker
     paths:
-      - '.devcontainer/**'
+      - '.devcontainer/Dockerfile'
 
 jobs:
   docker:
@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: .devcontainer/Dockerfile
+          sparse-checkout-cone-mode: false
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Enrich Metadata

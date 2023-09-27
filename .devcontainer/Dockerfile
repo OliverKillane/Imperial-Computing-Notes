@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM debian:bookworm-slim
 
 
 # Install basic packages
@@ -22,8 +22,8 @@ RUN tlmgr update --self --all
 RUN tlmgr install latexindent chktex
 
 # install inkscape (for tikz) and minted (for code highlighting) 
-RUN apt-get install -qy inkscape python3 python3-pip
-RUN pip install pygments
+RUN apt-get install -qy inkscape python3 python3-pip pipx
+RUN pipx install pygments
 
 # C++
 # Already installed GCC as part of build-essential
