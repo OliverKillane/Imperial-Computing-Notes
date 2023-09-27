@@ -3,22 +3,23 @@ FROM ubuntu:latest
 
 # Install basic packages
 RUN apt-get update -q 
-RUN apt-get install -qy build-essential wget curl sudo
+RUN apt-get install -qy build-essential wget curl sudo openssh-client git
 
 # LATEX:
-# Install basic texlive distribution
+# Install full texlive distribution (very large)
 ARG TL_VERSION=2023
 ARG TL_MIRROR=https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
 RUN cd /tmp && \
     wget --directory-prefix /tmp ${TL_MIRROR} && \
     zcat < install-tl-unx.tar.gz | tar xf - && \
     cd install-tl-* && \
-    perl ./install-tl --scheme=small --no-interaction 
+    perl ./install-tl --no-interaction --no-doc-install --no-src-install
 ENV PATH="${PATH}:/usr/local/texlive/${TL_VERSION}/bin/x86_64-linux"
 
 # Update packages and tlmgr
 RUN tlmgr init-usertree
 RUN tlmgr update --self --all
+RUN tlmgr install latexindent chktex
 
 # install inkscape (for tikz) and minted (for code highlighting) 
 RUN apt-get install -qy inkscape python3 python3-pip
@@ -39,6 +40,7 @@ RUN apt-get install -qy elixir
 RUN apt-get install -qy default-jdk
 
 # Haskell
+RUN apt-get install -qy libffi-dev libffi8ubuntu1 libgmp-dev libgmp10 libncurses-dev libncurses5 libtinfo5
 RUN curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | BOOTSTRAP_HASKELL_NONINTERACTIVE=1 BOOTSTRAP_HASKELL_GHC_VERSION=latest BOOTSTRAP_HASKELL_CABAL_VERSION=latest BOOTSTRAP_HASKELL_INSTALL_STACK=1 BOOTSTRAP_HASKELL_INSTALL_HLS=1 BOOTSTRAP_HASKELL_ADJUST_BASHRC=P sh
 
 # Clean up to reduce image size
