@@ -1,0 +1,69 @@
+{
+    "image": "ghcr.io/oliverkillane/imperial-computing-notes-dev",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "version": "latest"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "latex-workshop.linting.chktex.enabled": true,
+                "latex-workshop.latex.tools": [
+                    {
+                        "name": "latexmk",
+                        "command": "latexmk",
+                        "args": [
+                            "-shell-escape",
+                            "-synctex=1",
+                            "-interaction=nonstopmode",
+                            "-file-line-error",
+                            "-pdf",
+                            "-outdir=%OUTDIR%",
+                            "%DOC%"
+                        ],
+                        "env": {}
+                    }
+                ],
+                "editor.rulers": [
+                    {
+                        "column": 80, // spacing of 1st column from left
+                        "color": "#ff9900" // orange, Go Vols!
+                    },
+                    {
+                        "column": 100, // spacing of 1st column from left
+                        "color": "#ff0000" // orange, Go Vols!
+                    }
+                ]
+            },
+            "extensions": [
+                // For latex vscode setup
+                "James-Yu.latex-workshop",
+                // Development Ease
+                "usernamehw.errorlens",
+                "GitHub.vscode-pull-request-github",
+                "GitHub.github-vscode-theme",
+                "GitHub.vscode-github-actions",
+                // Diagrams done with drawio
+                "hediet.vscode-drawio",
+                // Language Support
+                "llvm-vs-code-extensions.vscode-clangd",
+                "ms-vscode.cmake-tools",
+                "JakeBecker.elixir-ls",
+                "ms-python.python",
+                "ms-python.black-formatter",
+                "rust-lang.rust-analyzer",
+                "serayuzgur.crates",
+                "haskell.haskell",
+                "alygin.vscode-tlaplus"
+            ]
+        }
+    },
+    "mounts": [
+        // {
+        //     "source": "${localEnv:HOME}/.ssh",
+        //     "target": "/root/.ssh",
+        //     "type": "bind"
+        // }
+    ]
+}
