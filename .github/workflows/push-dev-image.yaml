@@ -3,9 +3,10 @@ run-name: Pushing new Imperial College Notes Devcontainer by @${{ github.actor }
 on:
   push:
     branches:
-      - enh/development-docker
+      - master
     paths:
       - '.devcontainer/Dockerfile'
+      - '.github/**'
 
 jobs:
   docker:
