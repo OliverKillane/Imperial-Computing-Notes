@@ -6,7 +6,7 @@
 \begin{itemize}
     \item Users want zero-overhead, the system should be as fast as hand-written \& optimised code.
     \item The database is expected to learn from data (e.g second run of a query is faster)
-    \item System must be highly flexible (users can create relations, indices, build complex queries without needing to upgrade/reconfigure/recompile any part of the DBMS) 
+    \item System must be highly flexible (users can create relations, indices, build complex queries without needing to upgrade/reconfigure/recompile any part of the DBMS)
 \end{itemize}
 In reality current \textit{DBMS} generally succeed in meeting these \textit{miraculous} expectations.
 
@@ -20,9 +20,9 @@ A query optimiser is similar to a compiler's optimiser:
 The main difference is timing of access to code and input data.
 \begin{center}
     \begin{tabular}{l l l}
-        & \textbf{Code/Query} & \textbf{Input Data} \\
-        \textbf{Compiler Optimiser} & At compile time & Unknown \\
-        \textbf{Query Optimiser} & At query time & Known before query \\
+                                    & \textbf{Code/Query} & \textbf{Input Data} \\
+        \textbf{Compiler Optimiser} & At compile time     & Unknown             \\
+        \textbf{Query Optimiser}    & At query time       & Known before query  \\
     \end{tabular}
 \end{center}
 
@@ -33,7 +33,7 @@ g++ -fprofile-generate myprog.cpp # Compile instrumented version
 ./myprog.cpp                      # Generates myprog.gcda
 g++ -fprofile-use myprog.cpp      # Use profile when optimising
     \end{minted}
-\end{sidenotebox} 
+\end{sidenotebox}
 
 Correctness is difficult.
 \begin{itemize}
@@ -67,7 +67,7 @@ As \textit{relational algebra} is closed, operators are easily composable.
 \begin{itemize}
     \item We can determine equivalences between compositions of operators.
     \item Substitutions of a part of a plan with an equivalent, results in a new equivalent plan.
-    \item We can use this to transform plans into more optimal (but equivalent) plans. 
+    \item We can use this to transform plans into more optimal (but equivalent) plans.
 \end{itemize}
 
 \begin{sidenotebox}{MonetDB Optimiser}
@@ -102,7 +102,7 @@ str l3, [sp, #8]
 
 \subsection{Avoiding Cycles}
 \begin{definitionbox}{Analytically Optimal Plan}
-    The final plan output of the optimiser (not necessarily the most optimal plan). 
+    The final plan output of the optimiser (not necessarily the most optimal plan).
 \end{definitionbox}
 \begin{center}
     \includegraphics[width=.8\textwidth]{optimisation/images/optimiser_cycle.drawio.png}
@@ -119,7 +119,7 @@ As many possible rules may be applied, some strategy is needed to determine whic
     \textbf{Simplicity} & Very easy to implement (particularly with pattern matching). \\
     \textbf{Time} & Matching and applying rules is faster than more holistic approaches. \\
     \textbf{Verifiability} & Can check each rule for correctness by checking if all rules produce semantically equivalent sub-plans. \\
-    \textbf{Composability} & Can easily add new rules to be composed with previous, rules can enable new rules to be applied. \\ 
+    \textbf{Composability} & Can easily add new rules to be composed with previous, rules can enable new rules to be applied. \\
 \end{tabbox}
 \begin{tabbox}{consbox}
     \textbf{Loops} & Developer must be careful to not introduce potential loops in rule application. \\
@@ -129,27 +129,27 @@ As many possible rules may be applied, some strategy is needed to determine whic
 \section{Classifying Optimisation}
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}
-        \textbf{Algorithm} & The implementation of operators (e.g joins). \\
+        \textbf{Algorithm} & The implementation of operators (e.g joins).                        \\
         \textbf{Data}      & Data \& metadata held by the system (e.g cardinalities, histograms) \\
     \end{tabular}
 \end{center}
 
 \begin{center}
     \begin{tabular}{l l l c c}
-                                        &          &                     &\multicolumn{2}{c}{\textbf{Algorithm}} \\
-                                        &          &                     & Agnostic          & Aware             \\
-                                        &          &                     & \textit{Logical}  & \textit{Physical} \\
-        \multirow{2}{*}{\textbf{Data}}  & Agnostic & \textit{Rule-Based} & $\bullet$         & $\bullet$         \\
-                                        & Aware    & \textit{Cost-Based} & $\bullet$         & $\bullet$         \\
+                                       &          &                     & \multicolumn{2}{c}{\textbf{Algorithm}}                     \\
+                                       &          &                     & Agnostic                               & Aware             \\
+                                       &          &                     & \textit{Logical}                       & \textit{Physical} \\
+        \multirow{2}{*}{\textbf{Data}} & Agnostic & \textit{Rule-Based} & $\bullet$                              & $\bullet$         \\
+                                       & Aware    & \textit{Cost-Based} & $\bullet$                              & $\bullet$         \\
     \end{tabular}
 \end{center}
 In DBMS optimisations are defined as operating on \textit{logical} or \textit{physical plans}, and are either \textit{rule-based} or \textit{cost-based}.
 \begin{center}
     \begin{tabular}{l l p{.7\textwidth}}
-        \textbf{Logical} & \textit{Algorithm-Agnostic} & Deals only with relational algebra. \\
-        \textbf{Physical} & \textit{Algorithm-Aware} & Can use different operator implementations, indices etc. \\
-        \textbf{Rule-Based} & \textit{Data-Agnostic} & Applying optimisation rules that are almost always beneficial. \\
-        \textbf{Cost-Based} & \textit{Data-Aware} & Using data to estimate the cost of operations in order to determine which transformations to apply (e.g reordering selections based on each's estimated selectivity). \\
+        \textbf{Logical}    & \textit{Algorithm-Agnostic} & Deals only with relational algebra.                                                                                                                                   \\
+        \textbf{Physical}   & \textit{Algorithm-Aware}    & Can use different operator implementations, indices etc.                                                                                                              \\
+        \textbf{Rule-Based} & \textit{Data-Agnostic}      & Applying optimisation rules that are almost always beneficial.                                                                                                        \\
+        \textbf{Cost-Based} & \textit{Data-Aware}         & Using data to estimate the cost of operations in order to determine which transformations to apply (e.g reordering selections based on each's estimated selectivity). \\
     \end{tabular}
 \end{center}
 
@@ -157,11 +157,11 @@ In DBMS optimisations are defined as operating on \textit{logical} or \textit{ph
 % diverging plans
 
 \section{Logical Optimisation}
-In order to demonstrate logical optimisation we use a representation of 
+In order to demonstrate logical optimisation we use a representation of
 (pseudo) relational algebra in Haskell.
 \begin{center}
-\begin{minipage}{.5\textwidth}
-    \begin{minted}{haskell}
+    \begin{minipage}{.5\textwidth}
+        \begin{minted}{haskell}
     data Operator = 
       Scan Table
     | Select      Operator Predicate
@@ -172,14 +172,14 @@ In order to demonstrate logical optimisation we use a representation of
     | Union       Operator Operator
     | Aggregation Operator AggFun
     | TopN        Operator SortBy
-    \end{minted} 
-\end{minipage} \hfill \begin{minipage}{.49\textwidth}
-    \begin{itemize}
-        \item Purely logical representation, Processing model \& operator implementations not specified.
-        \item Other functions for predicting cost, ordering predicates defined
-        \item Using \mintinline{haskell}{data} to allow for easy pattern matching, rather than using an operator typeclass.
-    \end{itemize}
-\end{minipage}
+    \end{minted}
+    \end{minipage} \hfill \begin{minipage}{.49\textwidth}
+        \begin{itemize}
+            \item Purely logical representation, Processing model \& operator implementations not specified.
+            \item Other functions for predicting cost, ordering predicates defined
+            \item Using \mintinline{haskell}{data} to allow for easy pattern matching, rather than using an operator typeclass.
+        \end{itemize}
+    \end{minipage}
 \end{center}
 We include basic functions for applying transformations to the plan:
 \begin{minted}{haskell}
@@ -202,7 +202,7 @@ root peep orig
   = case peep orig of
     Just opt -> opt
     Nothing  -> apply (root peep) orig
-\end{minted} 
+\end{minted}
 All that remains is to determine the \mintinline{haskell}{Peephole}'s rules.
 \begin{sidenotebox}{Your turn!}
     One way to further simplify the representation is to embed RA as a DSL within another language. \href{https://racket-lang.org/}{Racket} (\textit{the language oriented programming language}) is designed for this. Have a go with your own implementation!
@@ -244,7 +244,7 @@ logicalRuleBased _ = Nothing
 \end{center}
 Selections can be \textit{pushed down} through joins if they only use attributed from one side of the join.
 \begin{itemize}
-    \item As selections are pipelineable, this often a good optimisation when the underlying processing model is volcano. 
+    \item As selections are pipelineable, this often a good optimisation when the underlying processing model is volcano.
 \end{itemize}
 \begin{minted}{sql}
 SELECT * FROM opL JOIN opR WHERE p2;
@@ -266,8 +266,8 @@ logicalRuleBased (Select (Join opL opR p1) p2)
     Is \textit{selection pushdown} ever not very beneficial, provide some edge cases?
     \tcblower
     \begin{itemize}
-        \item If the selectivity of the selection is $100\%$ and the join does not increase cardinality (no benefit). 
-        \item If the join significantly reduces cardinality. 
+        \item If the selectivity of the selection is $100\%$ and the join does not increase cardinality (no benefit).
+        \item If the join significantly reduces cardinality.
     \end{itemize}
     \unfinished
     % Lecture mentions function calls vs access & fk index based joins
@@ -277,7 +277,7 @@ logicalRuleBased (Select (Join opL opR p1) p2)
 \begin{center}
     \includegraphics[width=.4\textwidth]{optimisation/images/selection_reordering.drawio.png}
 \end{center}
-Reordering selections to reduce cardinality at the earliest possible operator. 
+Reordering selections to reduce cardinality at the earliest possible operator.
 \begin{itemize}
     \item We infer which selection has the lowest selectivity using a heuristic
     \item A common heuristic for comparison operators: \mintinline{sql}{==} $ < $ ( \mintinline{sql}{<} and \mintinline{sql}{>} ) $ < $ ( \mintinline{sql}{<=} and \mintinline{sql}{>=} ) $ < $ \mintinline{sql}{<>}.
@@ -351,9 +351,9 @@ Store the frequency of values in a table.
     \begin{minipage}{.49\textwidth}
         \begin{center}
             \begin{tabular}{l c c c c c}
-                \multicolumn{6}{c}{$\underline{histogram_a}$} \\
-                \textbf{values}    & $v_1$ & $v_2$ & $v_3$ & \dots & $v_n$ \\ 
-                \textbf{frequency} & $c_1$ & $c_2$ & $c_3$ & \dots & $c_n$ \\    
+                \multicolumn{6}{c}{$\underline{histogram_a}$}              \\
+                \textbf{values}    & $v_1$ & $v_2$ & $v_3$ & \dots & $v_n$ \\
+                \textbf{frequency} & $c_1$ & $c_2$ & $c_3$ & \dots & $c_n$ \\
             \end{tabular}
         \end{center}
     \end{minipage} \hfill \begin{minipage}{.49\textwidth}
@@ -375,20 +375,20 @@ when evaluating multiple equalities, we assume \textit{attribute independence}, 
 Often attribute values are correlated (e.g largest orders tend to be urgent).
 \begin{center}
     \begin{tabular}{l l c c c c c}
-        \multicolumn{7}{c}{$\underline{histogram_{(a_1, a_2)}}$} \\
-                                         &               & \multicolumn{5}{c}{attribute $a_1$} \\
-                                         &               & ${v_{a_1}}_1$ & ${v_{a_1}}_2$ & ${v_{a_1}}_3$ & \dots     & ${v_{a_1}}_n$ \\
-        \multirow{5}{*}{attribute $a_2$} & ${v_{a_2}}_1$ & $c_{(1,1)}$   & $c_{(2,1)}$   & $c_{(3,1)}$ & $c_{(4,1)}$ & $c_{(5,1)}$   \\
-                                         & ${v_{a_2}}_2$ & $c_{(1,2)}$   & $c_{(2,2)}$   & $c_{(3,2)}$ & $c_{(4,2)}$ & $c_{(5,2)}$   \\
-                                         & ${v_{a_2}}_3$ & $c_{(1,3)}$   & $c_{(2,3)}$   & $c_{(3,3)}$ & $c_{(4,3)}$ & $c_{(5,3)}$   \\
-                                         & \vdots        & $c_{(1,4)}$   & $c_{(2,4)}$   & $c_{(3,4)}$ & $c_{(4,4)}$ & $c_{(5,4)}$   \\
-                                         & ${v_{a_2}}_n$ & $c_{(1,5)}$   & $c_{(2,5)}$   & $c_{(3,5)}$ & $c_{(4,5)}$ & $c_{(5,5)}$   \\
+        \multicolumn{7}{c}{$\underline{histogram_{(a_1, a_2)}}$}                                                                                             \\
+                                         &               & \multicolumn{5}{c}{attribute $a_1$}                                                               \\
+                                         &               & ${v_{a_1}}_1$                       & ${v_{a_1}}_2$ & ${v_{a_1}}_3$ & \dots       & ${v_{a_1}}_n$ \\
+        \multirow{5}{*}{attribute $a_2$} & ${v_{a_2}}_1$ & $c_{(1,1)}$                         & $c_{(2,1)}$   & $c_{(3,1)}$   & $c_{(4,1)}$ & $c_{(5,1)}$   \\
+                                         & ${v_{a_2}}_2$ & $c_{(1,2)}$                         & $c_{(2,2)}$   & $c_{(3,2)}$   & $c_{(4,2)}$ & $c_{(5,2)}$   \\
+                                         & ${v_{a_2}}_3$ & $c_{(1,3)}$                         & $c_{(2,3)}$   & $c_{(3,3)}$   & $c_{(4,3)}$ & $c_{(5,3)}$   \\
+                                         & \vdots        & $c_{(1,4)}$                         & $c_{(2,4)}$   & $c_{(3,4)}$   & $c_{(4,4)}$ & $c_{(5,4)}$   \\
+                                         & ${v_{a_2}}_n$ & $c_{(1,5)}$                         & $c_{(2,5)}$   & $c_{(3,5)}$   & $c_{(4,5)}$ & $c_{(5,5)}$   \\
     \end{tabular}
 \end{center}
 
 \begin{itemize}
     \item Store multiple histograms to show frequencies of attribute values, given other attribute's value.
-    \item Number of histograms grows combinatorially with number of tables. \toimprove
+    \item Number of histograms grows combinatorially with number of tables.
     \item Reducing the number of histograms, but still producing good selectivity estimates is an open area of research.
 \end{itemize}
 \[selectivity(a_1 = v_1 \land a_2 = v_2) = P(a_1 = v_1 | a_2 = v_2) \times P(a_2 = v_2) = \cfrac{histogram_{(a_1, a_2)}.(v_1, v_2)}{histogram_{(a_1, a_2)}.total} \]
@@ -400,7 +400,7 @@ Often attribute values are correlated (e.g largest orders tend to be urgent).
         \item Operator implementations (e.g which join: sort-merge, hash, nested loop, index based join etc)
         \item Costs of different implementations (e.g hash join vs nested-loop $\to$ time versus memory)
         \item Available indices \& data structure choices (e.g type of hashmap, hash function)
-    \end{itemize} 
+    \end{itemize}
     Physical plan optimisation focuses on optimising the plan for the specific system the query is executed on.
 \end{definitionbox}
 
@@ -418,10 +418,10 @@ We can then decide if a rule is universally beneficial (for \textit{rule-based})
 Much like \textit{logical rule-based optimisation}, (almost) universally beneficial (given the decided cost metric) rules to improve performance.
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}
-        \textbf{Data structures} & Always use hash map with rehashing for probe if expected collisions are high.  \\
-        \textbf{Parallelism}     & always use parallel sort for \mintinline{sql}{ORDER BY}, always partition hash joins \\
+        \textbf{Data structures} & Always use hash map with rehashing for probe if expected collisions are high.                                                \\
+        \textbf{Parallelism}     & always use parallel sort for \mintinline{sql}{ORDER BY}, always partition hash joins                                         \\
         \textbf{Using Indices}   & If foreign key index exists, always use for foreign key join, if getting range always use available bitmap or B+ tree index. \\
-        \textbf{Cache}           & Always use cache-conscious partitioning to improve locality. \\
+        \textbf{Cache}           & Always use cache-conscious partitioning to improve locality.                                                                 \\
     \end{tabular}
 \end{center}
 
@@ -430,11 +430,11 @@ Much like \textit{logical cost-based optimisation} but on a physical plan (using
 \begin{center}
     \begin{tabular}{l p{.8\textwidth}}
         \textbf{Data}      & Consider cardinalities \& how this affect operator choice (e.g choose sort-merge join over hash if the required hashtable is too large for the buffer pool). \\
-        \textbf{Hardware}  & Function call overhead (for this architecture), buffer pool size, access latencies, available parallelism (hardware threads). \\
-        \textbf{Algorithm} & Must consider how algorithms expected costs change with parameters (e.g cardinality) \\ 
+        \textbf{Hardware}  & Function call overhead (for this architecture), buffer pool size, access latencies, available parallelism (hardware threads).                                \\
+        \textbf{Algorithm} & Must consider how algorithms expected costs change with parameters (e.g cardinality)                                                                         \\
     \end{tabular}
 \end{center}
-This is the current state of the art in optimisation. 
+This is the current state of the art in optimisation.
 
 \section{SparkSQL}
 \begin{sidenotebox}{SparkSQL Logical Optimiser}

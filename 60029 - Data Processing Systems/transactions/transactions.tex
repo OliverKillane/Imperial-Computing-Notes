@@ -409,8 +409,7 @@ Manages the locking of ranges within tables as either read or write.
     \item Checks for conflicts in overlapping ranges
     \item Ensures locks are released properly
 \end{itemize}
-
-\unfinished
+To maximise concurrency, we want to lock as little as is required for the given isolation level.
 
 \begin{tabbox}{prosbox}
     \textbf{Serializable} & \textit{2PL} ensures realizability (and hence no anomalies). \\
@@ -419,6 +418,19 @@ Manages the locking of ranges within tables as either read or write.
     \textbf{Deadlock Detection} & Can be expensive to avoid \& complex to implement. \\
     \textbf{Mutual Exclusion} & Ranges are locked, so cannot read \& write, or write \& write in parallel. \\
 \end{tabbox}
+
+\begin{sidenotebox}{Predicate Locking}
+    Rather than locking objects (e.g rows, tables), lock predicates.
+    \begin{minted}{sql}
+-- lock updates, deletions, inserts of rows potentially covered by this predicate
+SELECT * FROM people WHERE name <> "bob" AND age > 18;
+UPDATE people SET cool = true WHERE name <> "bob"; -- can run concurrently
+    \end{minted}
+    \begin{itemize}
+        \item On attempting a query, use the current predicate locks, and predicate used for access to determine locking.
+        \item Locking rows can prevent Non-repeatable-read, locking inserts to a table (using predicate locking) can prevent phantom read.
+    \end{itemize}
+\end{sidenotebox}
 
 \subsection{Timestamp Ordering}
 Each tuple is timestamped for \textit{last read} and \textit{last write}, and every transaction is timestamped at the start of execution.

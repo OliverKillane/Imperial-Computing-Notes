@@ -8,7 +8,8 @@ using namespace std;
 
 // A sort merge join, that assumes there are no duplicates on the left table.
 template <size_t leftCol, size_t rightCol, typename... TypesOne, typename... TypesTwo>
-Table<TypesOne..., TypesTwo...> unique_sort_merge_join(const Table<TypesOne...> &leftT, const Table<TypesTwo...> &rightT) {
+Table<TypesOne..., TypesTwo...> 
+unique_sort_merge_join(const Table<TypesOne...> &leftT, const Table<TypesTwo...> &rightT) {
   auto result = join_empty<leftCol, rightCol>(leftT, rightT);
 
   // copy tables (so we can keep const, just reorder)

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(Partition-Benchmarks)
+project(Partition-Comparison)
 
 include(FetchContent)
 
@@ -24,5 +24,10 @@ FetchContent_MakeAvailable(
     googlebenchmark
 )
 
-add_executable(${PROJECT_NAME} benchmarks.cpp)
-target_link_libraries(${PROJECT_NAME} benchmark::benchmark)
+add_executable(Benchmark benchmarks.cpp)
+target_link_libraries(Benchmark benchmark::benchmark)
+
+add_executable(Test tests.cpp)
+target_link_libraries(Test gtest_main gmock) # Remove GTest::GTest
+
+add_executable(Examples examples.cpp)

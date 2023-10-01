@@ -7,7 +7,7 @@
 
 \subsection{Quicksort}
 \begin{center}
-    \includegraphics[width=.9\textwidth]{algorithms_and_indices/images/quicksort.drawio.png}
+    \includegraphics[width=.8\textwidth]{algorithms_and_indices/images/quicksort.drawio.png}
 \end{center}
 \inputminted{cpp}{algorithms_and_indices/code/sort_comparison/sorts/quicksort.h}
 \begin{center}
@@ -84,7 +84,7 @@ Selecting a balanced pivot (ideally the median) is important to avoid worst-case
 \begin{center}
     \includegraphics[width=\textwidth]{algorithms_and_indices/images/radixsort.drawio.png}
 \end{center}
-A non-comparative sorting algorithm. Rather than comparing elements to determine an order, continually split buckets by some place.
+A non-comparative sorting algorithm. Rather than comparing elements to determine an order, partition into buckets based on some key (e.g digit).
 \begin{center}
     \begin{tabular}{c}
         \textbf{Worst-Case Complexity}            \\
@@ -407,6 +407,7 @@ template<typename K> using Hasher = size_t (const K&);
         \end{tabular}
     \end{center}
 \end{sidenotebox}
+Hashes can collide, and hence we need a way to resolve this.
 
 \begin{examplebox}{Hash it out}
     Write a basic Modulo-Division hash using the interface above provided. Take the modulus as a template parameter.
@@ -417,8 +418,6 @@ template <size_t MODULUS> size_t modulusHash(const int& data) {
 }
     \end{minted}
 \end{examplebox}
-
-Hashes can collide, and hence we need a way to resolve this.
 
 \subsection{Bucket Hashmap (Separate Chaining)}
 Collisions are resolved using linked-list buckets.

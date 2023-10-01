@@ -12,14 +12,7 @@ There are many data processing applications that deal with streams of relevance-
 
 \section{Push Operators}
 Rather than operators pulling in tuples (as in \textit{volcano processing}), operators push tuples to the next stage.
-\begin{minted}{cpp}
-// templated by the Event data type (for easy testing), would be some vector<variant<int, float, string, ...>>
-template<typename Event>
-class PushOperator {
-public:
-    virtual void process(Event data) = 0;
-};
-\end{minted}
+\inputminted[firstline=10, lastline=14]{cpp}{streams/code/streams/streams.h}
 \begin{itemize}
     \item As with volcano and bulk processing we can also send references to data (e.g indexes into a larger backing table) to avoid copies.
     \item Virtual method used to allow operators to be combined into queries at runtime.
@@ -31,52 +24,13 @@ public:
 Some form of output operator is required to send data to the user (e.g player positions sent over the network to a live sports match website).
 \\
 \\ Here a basic Output operator pushes to a stream (e.g a file with \mintinline{cpp}{std::ofstream}, or to the console with \mintinline{cpp}{std::cout}).
-\begin{minted}{cpp}
-template <typename Event>
-class Output : public PushOperator<Event> {
-    std::ostream &output_;
-public:
-    Output(std::ostream &output) : output_(output) {}
-
-    void process(Event data) override { output_ << "->" << data << std::endl; }
-};
-\end{minted}
+\inputminted{cpp}{streams/code/streams/operators/output.h}
 
 \subsubsection{Selection}
-\begin{minted}{cpp}
-template <typename Event>
-class Select : public PushOperator<Event> {
-    PushOperator<Event> *plan_;
-    std::function<bool(Event &)> predicate_;
-
-public:
-    Select(PushOperator<Event> *plan, std::function<bool(Event &)> predicate) 
-      : plan_(plan), predicate_(predicate) {}
-
-    void process(Event data) override {
-        if (predicate_(data)) plan_->process(std::move(data));
-    }
-};
-\end{minted}
-
+\inputminted{cpp}{streams/code/streams/operators/select.h}
 \subsubsection{Project}
 Generalised here to just map a function over the stream.
-\begin{minted}{cpp}
-// by default maps to same data type
-template <typename InputEvent, typename OutputEvent = InputEvent>
-class Project : public PushOperator<InputEvent> {
-    PushOperator<OutputEvent> *plan_;
-    std::function<OutputEvent(InputEvent)> function_;
-
-public:
-    Project(PushOperator<OutputEvent> *plan, std::function<OutputEvent(InputEvent)> function) 
-      : plan_(plan), function_(function) {}
-
-    void process(InputEvent data) override {
-        plan_->process(function_(std::move(data)));
-    }
-};
-\end{minted}
+\inputminted{cpp}{streams/code/streams/operators/project.h}
 
 \subsubsection{Data Source}
 We also need to be able to pipe data directly into a chain of operators.
@@ -84,26 +38,7 @@ We also need to be able to pipe data directly into a chain of operators.
     \item Can implement a class to directly call \mintinline{cpp}{PushOperator::process}.
     \item Here a convenient interface is used to demonstrate terminal input.
 \end{itemize}
-\begin{minted}{cpp}
-template <typename Event>
-class Source {
-public:
-    virtual void run() = 0;
-};
-
-template <typename Event>
-class UserInput : public Source<Event> {
-    PushOperator<Event> *plan_;
-    std::istream &src_;
-
-public:
-    UserInput(PushOperator<Event> *plan, std::istream &src) : plan_(plan), src_{src} {}
-
-    void run() override {
-        for (Row r;; src_ >> r) plan_->process(std::move(r));
-    }
-};
-\end{minted}
+\inputminted{cpp}{streams/code/streams/operators/source.h}
 
 \subsubsection{Combining Operators}
 We can then combine operators to form queries.
@@ -195,7 +130,7 @@ public:
 \begin{definitionbox}{Event-Time}
     Timestamps externally provided by the source supplying events to the data processing system as part of data input.
     \begin{itemize}
-        \item System needs to ensure timestamps are ordered (external provider may not be correct). 
+        \item System needs to ensure timestamps are ordered (external provider may not be correct).
     \end{itemize}
     \begin{minted}{cpp}
 class NetworkSource : public Source {
@@ -222,7 +157,7 @@ public:
 \begin{definitionbox}{In-Order Processing}
     Events are assumed to be entered in timestamp order (or by some other monotonically progressing attribute - e.g counter).
     \begin{itemize}
-        \item Greatly simplifies stream system implementation, a powerful guarantee. 
+        \item Greatly simplifies stream system implementation, a powerful guarantee.
         \item Difficult to ensure order guarantee holds (on a distributed, asynchronous system there is not global clock)
     \end{itemize}
 \end{definitionbox}
@@ -278,7 +213,7 @@ ON IncomingEventWatermark e DELETE FROM event_backing_table WHERE timestamp < e.
 There are also \textit{Session Windows} open and closed by an event (e.g user loggin in \& out).
 \\
 \\ \textit{Lateness bounds} are an implementation detail for ordering streams
-\\ 
+\\
 \\ \textit{Windows} are SQL supported abstractions for viewing a slice of a stream, and are part of the language semantics.
 \begin{sidenotebox}{SQL Windows}
     Despite being originally designed only for persistent databases, SQL added window functions in SQL 2003 (\href{https://en.wikipedia.org/wiki/SQL:2003}{see changelog}).
@@ -311,78 +246,13 @@ min, max, percentiles -- non-invertible
 \subsection{Aggregate Implementations}
 We can implement basic aggregate functions using the previous \mintinline{cpp}{PushOperator<Event>} abstraction.
 \subsubsection{Window Sum}
-\begin{minted}{cpp}
-class WindowSumAggregator : public PushOperator<float> {
-    PushOperator<float> *plan_;
-
-    // a circular buffer window
-    // the next index after buffer_i_ is the start of the window
-    std::vector<float> window_buffer_;
-
-    size_t buffer_i_ = 0;
-    float aggregate = 0;
-
-    // for checking the window is filled
-    size_t count_ = 0;
-
-public:
-    WindowSumAggregator(PushOperator<float> *plan, size_t windowsize) 
-      : plan_(plan), window_buffer_(windowsize) {}
-
-    void process(float f) override {
-        buffer_i_ = (buffer_i_ + 1) % window_buffer_.size();
-        aggregate += f;
-        count_++;
-        if (count_ > window_buffer_.size()) {
-            aggregate -= window_buffer_[buffer_i_];
-            window_buffer_[buffer_i_] = f;
-            plan_->process(aggregate);
-        } else {
-            window_buffer_[buffer_i_] = f;
-        }
-    }
-};
-\end{minted}
+\inputminted{cpp}{streams/code/streams/operators/window_sum.h}
 
 \subsubsection{Window Median}
 \begin{sidenotebox}{Improve Me!}
     The provided algorithm must copy the entire window for every \mintinline{cpp}{WindowMedianAggregator::process}. For large window sizes this is very slow, this can be made much more efficient!
 \end{sidenotebox}
-\begin{minted}{cpp}
-class WindowMedianAggregator : public PushOperator<float> {
-    PushOperator<float> *plan_;
-    std::vector<float> window_buffer_;
-    size_t buffer_i_ = 0;
-
-    // for checking the window is filled
-    size_t count_ = 0;
-
-public:
-    WindowMedianAggregator(PushOperator<float> *plan, size_t window_size) 
-      : plan_(plan), window_buffer_(window_size) {}
-
-    void process(float f) override {
-        const size_t size = window_buffer_.size();
-        buffer_i_ = (buffer_i_ + 1) % size;
-        window_buffer_[buffer_i_] = f;
-        count_++;
-        if (count_ > size) {
-
-            // copy and sort, this can be made much more efficient using a multiset and vector
-            // see multiset median trick: https://codeforces.com/blog/entry/68300
-            std::vector<float> sorted = window_buffer_;
-            std::sort(sorted.begin(), sorted.end());
-
-            // if even size get average of two middle, else middle element
-            if (size % 2 == 0) {
-                plan_->process((sorted[size / 2] + sorted[(size / 2) - 1]) / 2);
-            } else {
-                plan_->process(sorted[size / 2]);
-            }
-        }
-    }
-};
-\end{minted}
+\inputminted{cpp}{streams/code/streams/operators/window_median.h}
 
 
 \subsection{Two Stacks Algorithm}
@@ -395,72 +265,7 @@ Two stacks of max size $window \ size$ are kept.
     \item When the front stack is full, and back stack empty (occurs every $\cfrac{1}{window \ size}$) flip the front stack, recalculate aggregates and set to back stack.
 \end{itemize}
 We can implement this using the previous \mintinline{cpp}{PushOperator<Event>} abstraction.
-\begin{minted}{cpp}
-template <typename Event, Event agg(Event &, Event &)>
-class WindowTwoStackAggregator : public PushOperator<Event> {
-    PushOperator<Event> *plan_;
-
-    // front stack
-    std::vector<Event> front_values_;
-    std::vector<Event> front_agg_;
-
-    // back stack
-    std::vector<Event> back_values_;
-    std::vector<Event> back_agg_;
-
-    // track the top of front and back stacks
-    size_t window_pos = 0;
-
-    // to determine when to start outputting aggregates
-    size_t count_ = 0;
-
-    // flip front stack to back stack, sets window_pos = 0
-    // invariant: Must have window_size items present
-    void flip() {
-        size_t size = front_values_.size();
-        assert(window_pos == size);
-
-        for (size_t i = 0; i < size; i++) { back_values_[size - 1 - i] = front_values_[i]; }
-
-        back_agg_[0] = back_values_[0];
-
-        for (size_t i = 1; i < size; i++) { back_agg_[i] = agg(back_agg_[i - 1], back_values_[i]); }
-
-        window_pos = 0;
-    }
-
-    // Push an item to the front_stack, leaves the window_pos untouched
-    void push_front(Event r) {
-        if (window_pos == 0) {
-            front_values_[0] = r;
-            front_agg_[0] = r;
-        } else {
-            front_values_[window_pos] = r;
-            front_agg_[window_pos] = agg(r, front_agg_[window_pos - 1]);
-        }
-    }
-
-public:
-    WindowTwoStackAggregator(PushOperator<Event> *plan, size_t window_size) 
-      : plan_(plan), front_values_(window_size), front_agg_(window_size), 
-        back_values_(window_size), back_agg_(window_size) {}
-
-    void process(Event r) override {
-        size_t max_size = front_values_.size();
-        if (count_ < max_size) {
-            push_front(r);
-            window_pos++;
-        } else {
-            if (window_pos == max_size) { flip(); }
-
-            push_front(r);
-            plan_->process(agg(front_agg_[window_pos], back_agg_[max_size - 1 - window_pos]));
-            window_pos++;
-        }
-        count_++;
-    }
-};
-\end{minted}
+\inputminted{cpp}{streams/code/streams/operators/window_two_stack.h}
 For example:
 \begin{minted}{cpp}
 Output<int> console(std::cout);
@@ -514,13 +319,13 @@ user.run();
 \subsubsection{Tuning Bloom Filters}
 \noindent Bloom filters have several parameters that can be tuned.
 \\ \begin{tabular}{l p{.7\textwidth}}
-    $m$        & bits in filter \\ 
-    $n$        & expected number of distinct elements \\ 
-    $k$        & number of hash functions \\ 
-    $\epsilon$ & False-positive rate \\
+    $m$        & bits in filter                       \\
+    $n$        & expected number of distinct elements \\
+    $k$        & number of hash functions             \\
+    $\epsilon$ & False-positive rate                  \\
 \end{tabular}
 \[\begin{matrix}
-    m \cong -1.44 \times n \times \log_2(\epsilon) & \ &
-    k \cong \cfrac{m}{n} \times \log_e(2) & \ &
-    \epsilon  = \left( 1 - e^{-\cfrac{k \times n}{m}}\right)^k \\
-\end{matrix}\]
+        m \cong -1.44 \times n \times \log_2(\epsilon) & \  &
+        k \cong \cfrac{m}{n} \times \log_e(2)          & \  &
+        \epsilon  = \left( 1 - e^{-\cfrac{k \times n}{m}}\right)^k \\
+    \end{matrix}\]

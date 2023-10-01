@@ -163,14 +163,40 @@ HAVING COUNT(*) = 1;
   \end{tabular}
 \end{center}
 
+\subsection{Schemas}
+\begin{definitionbox}{Database Schema}
+  The logical structure of the database that is exposed to users (e.g through SQL).
+  \begin{itemize}
+    \item defines the tables, their columns, relations, indexes and constraints in a database.
+    \item In some systems (e.g postgres), can include permissions/access control, functions, views and more.
+    \item Analogous to the \textit{type} of the database.
+    \item Does not describe the physical layout,
+  \end{itemize}
+  \begin{minted}{sql}
+-- one postgres database can have many different schemas
+CREATE SCHEMA my_schema; 
+
+CREATE TABLE foo(
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(20) NOT NULL,
+  bestie SERIAL REFERENCES foo(id),
+  added_date DATE NOT NULL CHECK (added_date > '2000-01-01')
+);
+
+CREATE INDEX idx_added_date_desc ON people (added_date DESC);
+  \end{minted}
+\end{definitionbox}
+
+
+
 \section{Implementing Relational Algebra in C++}
 \begin{sidenotebox}{A note on types\dots}
-  Here we will express operators \& relations in the C++ types system.
+  Here we will express operators \& relations in the C++ type system.
   \\
-  \\ In real data processing systems (and in particular databases), the schema \& types are not know at compile time (i.e do not know the types of columns, tables until they are created, amended, and operated on at runtime).
+  \\ In real databases the schema \& types are not know when the database itself is compiled, but rather later at runtime (i.e do not know the types of columns, tables until they are created, amended, and operated on at runtime).
 \end{sidenotebox}
 \noindent
-In order to implement relations we will make use of several containers from the
+In order to implement a model of relational algebra we will make use of several containers from the
 \href{https://en.wikipedia.org/wiki/Standard_Template_Library}{STL (standard template library)}.
 \begin{minted}{cpp}
 #include <set>
