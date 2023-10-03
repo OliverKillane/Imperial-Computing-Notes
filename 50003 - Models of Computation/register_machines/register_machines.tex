@@ -3,10 +3,10 @@
 \begin{sidenotebox}{Register Machine Simulator}
 	\begin{center}
 		\begin{tabular}{c c}
-			\href{https://flutter-rm.herokuapp.com/#/}{Register Machine Simulator} &  \href{https://github.com/MMZK1526/Haskell-RM}{Repository} \\
+			\href{ https://mmzk1526.github.io/rm_front_end/}{Register Machine Simulator} & \href{https://github.com/MMZK1526/Haskell-RM}{Repository} \\
 		\end{tabular}
 	\end{center}
-	This simulator has been developed by Yìtáng Chén to support 50003, make sure to give him a $\bigstar$! 
+	This simulator has been developed by Yìtáng Chén to support 50003, make sure to give him a $\bigstar$!
 \end{sidenotebox}
 \section{Algorithms}
 
@@ -22,16 +22,16 @@
 	One definition is: \textit{A finite, ordered series of steps to solve a problem.}
 	\\
 	\\ Common features of the many definitions of algorithms are:
-    \begin{center}
-        \begin{tabular}{l p{.8\textwidth}}
-            \textbf{Finite} & Finite number of elementary (cannot be broken down further) operations. \\
-            \textbf{Deterministic} & Next step uniquely defined by the current. \\
-            \textbf{Terminating}? & May not terminate, but we can see when it does \& what the result is. \\
-        \end{tabular}
-    \end{center}
-    \begin{center}
-        \includegraphics[width=0.6\textwidth]{register_machines/images/algorithm.drawio.png}
-    \end{center}
+	\begin{center}
+		\begin{tabular}{l p{.8\textwidth}}
+			\textbf{Finite}        & Finite number of elementary (cannot be broken down further) operations. \\
+			\textbf{Deterministic} & Next step uniquely defined by the current.                              \\
+			\textbf{Terminating}?  & May not terminate, but we can see when it does \& what the result is.   \\
+		\end{tabular}
+	\end{center}
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{register_machines/images/algorithm.drawio.png}
+	\end{center}
 \end{definitionbox}
 
 \section{Register Machines}
@@ -41,25 +41,25 @@
 	\begin{itemize}
 		\item Infinitely many registers, each storing a natural number ($\mathbb{N} \triangleq \{0, 1, 2, \dots\}$)
 		\item Each instruction has a label associated with it.
-    \end{itemize}
-    There are 3 instructions:
-    \begin{center}
-        \begin{tabular}{l l}
-            $\inc{i}{m}$    & Add 1 to register $\reglabel{i}$ and then jump to the instruction at $\instrlabel{m}$               \\
-            $\dec{i}{n}{m}$ & If $\reglabel{i} > 0$ then decrement it and jump to $\instrlabel{n}$, else jump to $\instrlabel{m}$ \\
-            $\halt$         & Halt the program.
-        \end{tabular}
-    \end{center}
+	\end{itemize}
+	There are 3 instructions:
+	\begin{center}
+		\begin{tabular}{l l}
+			$\inc{i}{m}$    & Add 1 to register $\reglabel{i}$ and then jump to the instruction at $\instrlabel{m}$               \\
+			$\dec{i}{n}{m}$ & If $\reglabel{i} > 0$ then decrement it and jump to $\instrlabel{n}$, else jump to $\instrlabel{m}$ \\
+			$\halt$         & Halt the program.
+		\end{tabular}
+	\end{center}
 	At each point in a program the registers are in a configuration $c = (l, r_0, \dots, r_n)$ (where $r_i$ is the value of $\reglabel{i}$ and $l$ is the instruction label $\instrlabel{l}$ that is about to be run).
 	\begin{itemize}
 		\item $c_0$ is the initial configuration, next configurations are $c_1, c_2, \dots$.
 		\item In a finite computation, the final configuration is the \textbf{halting configuration}.
 		\item In a \textbf{proper halt} the program ends on a $\halt$.
 		\item In an \textbf{erroneous halt} the program jumps to a non-existent instruction, the \textbf{halting configuration} is for the instruction immediately before this jump.
-    \end{itemize}
-    \begin{center}
-        \includegraphics[width=0.6\textwidth]{register_machines/images/graphical_register_machine.drawio.png}
-    \end{center}
+	\end{itemize}
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{register_machines/images/graphical_register_machine.drawio.png}
+	\end{center}
 \end{definitionbox}
 
 \begin{examplebox}{Sum of three numbers}
@@ -116,9 +116,9 @@
 	\[f \subseteq X \times Y \ \text{  and  } \ (x,y_1) \in f \land (x, y_2) \in f \Rightarrow y_1 = y_2\]
 	\begin{center}
 		\begin{tabular}{l | l}
-			$f(x) = y$            & $(x,y) \in f$                                           \\
-			$f(x)\downarrow$      & $\exists y \in Y . [f(x) = y]$                          \\
-			$f(x)\uparrow$        & $\neg\exists y \in Y . [f(x) = y]$                      \\
+			$f(x) = y$            & $(x,y) \in f$                                          \\
+			$f(x)\downarrow$      & $\exists y \in Y . [f(x) = y]$                         \\
+			$f(x)\uparrow$        & $\neg\exists y \in Y . [f(x) = y]$                     \\
 			$X \rightharpoonup Y$ & Set of all \textit{partial functions} from $X$ to $Y$. \\
 			$X \to Y$             & Set of all \textit{total functions} from $X$ to $Y$.   \\
 		\end{tabular}
@@ -140,9 +140,9 @@ The following arithmetic functions are computable. Using them we can derive larg
 }{
 	\[\halt\]
 }{
-    \begin{center}
-        \includegraphics[scale=0.06]{register_machines/images/rm_functions/projection.drawio.png}
-    \end{center}
+	\begin{center}
+		\includegraphics[scale=0.06]{register_machines/images/rm_functions/projection.drawio.png}
+	\end{center}
 }
 
 \subsubsection*{Constant}
@@ -160,9 +160,9 @@ The following arithmetic functions are computable. Using them we can derive larg
 		\end{matrix*}
 	\]
 }{
-    \begin{center}
-        \includegraphics[scale=0.06]{register_machines/images/rm_functions/constant.drawio.png}
-    \end{center}
+	\begin{center}
+		\includegraphics[scale=0.06]{register_machines/images/rm_functions/constant.drawio.png}
+	\end{center}
 }
 
 \subsubsection*{Truncated Subtraction}
@@ -181,9 +181,9 @@ The following arithmetic functions are computable. Using them we can derive larg
 		\end{matrix*}
 	\]
 }{
-    \begin{center}
-        \includegraphics[scale=0.06]{register_machines/images/rm_functions/truncated_subtraction.drawio.png}
-    \end{center}
+	\begin{center}
+		\includegraphics[scale=0.06]{register_machines/images/rm_functions/truncated_subtraction.drawio.png}
+	\end{center}
 }
 
 \subsubsection*{Integer Division}
@@ -213,9 +213,9 @@ Note that this is an inefficient implementation (to make it easy to follow) we c
 		\end{matrix*}
 	\]
 }{
-    \begin{center}
-        \includegraphics[scale=0.06]{register_machines/images/rm_functions/integer_division.drawio.png}
-    \end{center}
+	\begin{center}
+		\includegraphics[scale=0.06]{register_machines/images/rm_functions/integer_division.drawio.png}
+	\end{center}
 }
 \subsubsection*{Multiplication}
 \trisplit{
@@ -236,9 +236,9 @@ Note that this is an inefficient implementation (to make it easy to follow) we c
 		\end{matrix*}
 	\]
 }{
-    \begin{center}
-        \includegraphics[scale=0.06]{register_machines/images/rm_functions/integer_multiplication.drawio.png}
-    \end{center}
+	\begin{center}
+		\includegraphics[scale=0.06]{register_machines/images/rm_functions/integer_multiplication.drawio.png}
+	\end{center}
 }
 \subsubsection*{Exponent of base 2}
 \trisplit{
@@ -259,9 +259,9 @@ Note that this is an inefficient implementation (to make it easy to follow) we c
 		\end{matrix*}
 	\]
 }{
-    \begin{center}
-        \includegraphics[scale=0.06]{register_machines/images/rm_functions/exponent_base_2.drawio.png}
-    \end{center}
+	\begin{center}
+		\includegraphics[scale=0.06]{register_machines/images/rm_functions/exponent_base_2.drawio.png}
+	\end{center}
 }
 
 \begin{exambox}{2bi}{2021/22}
@@ -315,12 +315,12 @@ Note that this is an inefficient implementation (to make it easy to follow) we c
 	Hence using $H$ on any $B(p)$ we can determine if $p(p)$ halts ($H(B(p)) \Rightarrow \neg H(p(p))$).
 	\\
 	\\ Now we consider the case when $p = B$.
-    \begin{center}
-        \begin{tabular}{l p{.8\textwidth}}
-            \textbf{$B(B)$ halts} & Hence $B(B)$ does not halt. Contradiction! \\
-            \textbf{$B(B)$ does not halt} & Hence $B(B)$ halts. Contradiction! \\
-        \end{tabular}
-    \end{center}
+	\begin{center}
+		\begin{tabular}{l p{.8\textwidth}}
+			\textbf{$B(B)$ halts}         & Hence $B(B)$ does not halt. Contradiction! \\
+			\textbf{$B(B)$ does not halt} & Hence $B(B)$ halts. Contradiction!         \\
+		\end{tabular}
+	\end{center}
 	Hence by contradiction there is not such algorithm $H$.
 \end{definitionbox}
 In order to reason about programs consuming/running programs (as in the halting problem), we need a way to encode programs as data. Register machines use natural numbers as values for input, and hence we need a way to encode any register machine as a natural number.
@@ -338,7 +338,7 @@ In order to reason about programs consuming/running programs (as in the halting 
 	pair, the list, and the Register Machine (RM) instruction it represents, i.e. for
 	which pair $x, y$ do we have $\langle \langle x, y \rangle \rangle = B$, for which list $\ell$ of numbers do we get
 	$\ulcorner \ell \urcorner = B$, and for which Register Machine instruction $I$ do we have that
-	$\ulcorner I \urcorner = B$?  
+	$\ulcorner I \urcorner = B$?
 	\\
 	\\ Show your work, e.g. binary representation of your $B$, etc.
 \end{exambox}
@@ -346,7 +346,7 @@ In order to reason about programs consuming/running programs (as in the halting 
 	State your $CID$ and determine the pair, the list, and the Register Machine (RM)
 	instruction it represents, i.e. for which pair $x, y$ do we have $\langle \langle x, y \rangle \rangle = $ CID, for
 	which list $\ell$ of numbers do we get $\ulcorner ell \urcorner = CID$, and for which register-machine
-	instructions $I$ do we have that $\ulcorner I \urcorner = CID$? 
+	instructions $I$ do we have that $\ulcorner I \urcorner = CID$?
 	\\
 	\\ Show your work, e.g. binary representation of your $CID$, etc.
 	\\
@@ -396,11 +396,11 @@ Given some program:
 		\item Operates on registers specified in the name of the gadget (e.g \textit{"Add $\reglabel{1}$ to $\reglabel{2}$"}).
 		\item Can use scratch registers (assumed to be zero prior to gadget and set to zero by the gadget before it exits - allows usage in loops)
 		\item We can rename the registers used in gadgets (simply change the registers used in the name (\textit{push $\reglabel{0}$ to $\reglabel{1}$ $\to$ push $\regtemp{X}$ to $\regtemp{Y}$}), and have all scratch registers renamed to registers unused by other parts of the program)
-    \end{itemize}
+	\end{itemize}
 	For example we can create several gadgets in terms of registers that we can rename.
-    \begin{center}
-        \includegraphics[width=0.9\textwidth]{register_machines/images/gadget.drawio.png}
-    \end{center}
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{register_machines/images/gadget.drawio.png}
+	\end{center}
 	And then can use these to create larger programs.
 \end{definitionbox}
 
@@ -409,18 +409,18 @@ Given some program:
 	\\
 	\\ Replace some instructions by gadgets as follows:
 	\[\begin{split}
-		R_0^+ & \text{ by copy } N \text{ to } O \\
-		N^+   & \text{ by copy } Y \text{ to } N \\
-		O^+   & \text{ by push } X \text{ to } O \\
-	\end{split} \qquad \begin{split}
-		R_1^- & \text{ by pop }  O \text{ to } R_1 \\
-		R_2^- & \text{ by pop }  O \text{ to } R_2 \\
-		R_3^+ & \text{ by add }R_2 \text{ to } R_1 \\
-	\end{split} \qquad \begin{split}
-		R_2^+ & \text{ by push }R_1 \text{ to } N \\
-		R_1^+ & \text{ by copy } R_2 \text{ to } R_1 \\
-		\\
-	\end{split}\]
+			R_0^+ & \text{ by copy } N \text{ to } O \\
+			N^+   & \text{ by copy } Y \text{ to } N \\
+			O^+   & \text{ by push } X \text{ to } O \\
+		\end{split} \qquad \begin{split}
+			R_1^- & \text{ by pop }  O \text{ to } R_1 \\
+			R_2^- & \text{ by pop }  O \text{ to } R_2 \\
+			R_3^+ & \text{ by add }R_2 \text{ to } R_1 \\
+		\end{split} \qquad \begin{split}
+			R_2^+ & \text{ by push }R_1 \text{ to } N \\
+			R_1^+ & \text{ by copy } R_2 \text{ to } R_1 \\
+			\\
+		\end{split}\]
 	where for pop gadgets the \textit{empty} exit is identified with $\twoheadrightarrow$  and \textit{done}
 	with $\to$ and where we have additional registers: $X$ with (constant) value $1$
 	and $Y$ with (constant) value $2$.
@@ -435,7 +435,7 @@ Given some program:
 	\\
 	\\ What does this register machine compute for $R_0 = n$ and all other registers
 	set to $0$ (except for $X$ and $Y$), i.e. what does the contents of register $N$ or $O$
-	represent when the RM terminates? 
+	represent when the RM terminates?
 	\\
 	\\Give an interpretation of what the registers are used for/hold.
 \end{exambox}
@@ -453,7 +453,7 @@ We can group instructions together into gadgets to identify simple behaviours, a
 \\
 \\ For example below, we can deduce the result as $L = 2^X(2L + 1)$
 \begin{center}
-    \includegraphics[width=0.9\textwidth]{register_machines/images/rm_analysis.drawio.png}
+	\includegraphics[width=0.9\textwidth]{register_machines/images/rm_analysis.drawio.png}
 \end{center}
 
 \subsection{Invariants}
@@ -463,36 +463,36 @@ We can use logical assertions on the register machine state at certain instructi
 \\
 \\ We could attach invariants to every instruction, however it is usually only necessary to use them at the start, end and for loops (preconditions/postconditions).
 \begin{center}
-    \includegraphics[width=0.4\textwidth]{register_machines/images/rm_analysis_invariants.drawio.png}
+	\includegraphics[width=0.4\textwidth]{register_machines/images/rm_analysis_invariants.drawio.png}
 \end{center}
 Our first invariant ($P$) can be defined as:
 \[P \equiv (X =x  \land L = l \land Z = 0)\]
 Next we can use the instructions between invariant to find the states under which the invariants must hold.
 \begin{center}
-    \begin{tabular}{l l p{0.7\textwidth}}
-        \textbf{1.} & $P[Z-1/Z] \Rightarrow I_1$              & After incrementing $Z$ needs to go to the start of the first loop.                                  \\
-        \hline
-        \textbf{2.} & $I_1[L + 1/L, Z - 2/Z] \Rightarrow I_1$ & The loop decrements $L$ and increases $Z$ by two. After each loop iteration, $I_1$ must still hold. \\
-        \hline
-        \textbf{3.} & $I_1 \land L = 0 \Rightarrow I_2$       & If $L = 0$ the loop is escaped, and we move to $I_2$.                                               \\
-        \hline
-        \textbf{4.} & $I_2[Z+1/Z,L-1/L] \Rightarrow I_2$      & Loop increments $L$ and decrements $Z$ on each iteration, after this, $I_2$ must still hold.        \\
-        \hline
-        \textbf{5.} & $I_2 \land Z = 0 \Rightarrow I_3$       & Loop ends when $Z = 0$, moves to $I_3$.                                                             \\
-        \hline
-        \textbf{6.} & $I_3[X+1/X] \Rightarrow I_1$            & Large loop decrements $X$ on each iteration, invariant must hold with the new/decremented $X$.      \\
-        \hline
-        \textbf{7.} & $I_3 \land X = 0 \Rightarrow Q$         & When the main $X$-decrementing loop is escaped, we move to exit, so $Q$ must hold.
-    \end{tabular}
+	\begin{tabular}{l l p{0.7\textwidth}}
+		\textbf{1.} & $P[Z-1/Z] \Rightarrow I_1$              & After incrementing $Z$ needs to go to the start of the first loop.                                  \\
+		\hline
+		\textbf{2.} & $I_1[L + 1/L, Z - 2/Z] \Rightarrow I_1$ & The loop decrements $L$ and increases $Z$ by two. After each loop iteration, $I_1$ must still hold. \\
+		\hline
+		\textbf{3.} & $I_1 \land L = 0 \Rightarrow I_2$       & If $L = 0$ the loop is escaped, and we move to $I_2$.                                               \\
+		\hline
+		\textbf{4.} & $I_2[Z+1/Z,L-1/L] \Rightarrow I_2$      & Loop increments $L$ and decrements $Z$ on each iteration, after this, $I_2$ must still hold.        \\
+		\hline
+		\textbf{5.} & $I_2 \land Z = 0 \Rightarrow I_3$       & Loop ends when $Z = 0$, moves to $I_3$.                                                             \\
+		\hline
+		\textbf{6.} & $I_3[X+1/X] \Rightarrow I_1$            & Large loop decrements $X$ on each iteration, invariant must hold with the new/decremented $X$.      \\
+		\hline
+		\textbf{7.} & $I_3 \land X = 0 \Rightarrow Q$         & When the main $X$-decrementing loop is escaped, we move to exit, so $Q$ must hold.
+	\end{tabular}
 \end{center}
 We can now use these constraints (also called \textit{verification conditions}) to determine an invariant.
 \\
 \\
 \\ For each constraint we do:
 \begin{enumerate}
-    \item Get the basic for (potentially one already derived) for the invariant in question.
-    \item If there is iteration, iterate to build up a disjunction.
-    \item Find the pattern, and then re-form the invariant based on it.
+	\item Get the basic for (potentially one already derived) for the invariant in question.
+	\item If there is iteration, iterate to build up a disjunction.
+	\item Find the pattern, and then re-form the invariant based on it.
 \end{enumerate}
 
 \subsubsection*{Constraint 1.}
@@ -524,11 +524,11 @@ We can use the constraint, and the currently derived $I_1$ to get a disjunction:
 \[I_1 = (X=x-1 \land L = 2l + 1 \land Z = 0) \lor (X = x \land Z + 2L = 2l + 1)\]
 We can apply constraint \textbf{2.} on the first part of this disjunction, iterating to get the disjunction:
 \[I_1 = (X = x \land Z + 2L = 2l + 1) \lor \left( \begin{matrix}
-            (X=x-1 \land L = 2l + 1 \land Z = 0) \lor     \\
-            (X=x-1 \land L = 2l + 0 \land Z = 2) \lor     \\
-            (X=x-1 \land L = 2l-1 \land Z = 4) \lor       \\
-            (X=x-1 \land L = 2l-2 \land Z = 8) \lor \dots \\
-        \end{matrix} \right)\]
+			(X=x-1 \land L = 2l + 1 \land Z = 0) \lor     \\
+			(X=x-1 \land L = 2l + 0 \land Z = 2) \lor     \\
+			(X=x-1 \land L = 2l-1 \land Z = 4) \lor       \\
+			(X=x-1 \land L = 2l-2 \land Z = 8) \lor \dots \\
+		\end{matrix} \right)\]
 Hence for the second group of disjuncts we have the relation:
 \[Z + 2L = 2(2l + 1)\]
 Hence we have:
@@ -561,12 +561,12 @@ A register machine that simulates a register machine.
 \\
 \\ It takes the arguments:
 \begin{center}
-    \begin{tabular}{l p{.7\textwidth}}
-        $\reglabel{0}$ & $= 0$ \\
-        $\reglabel{1}$ & $= $ the program encoded as a number \\
-        $\reglabel{2}$ & $= $ the argument list encoded as a number \\
-        \multicolumn{2}{c}{All other registers zeroed} \\
-    \end{tabular}
+	\begin{tabular}{l p{.7\textwidth}}
+		$\reglabel{0}$ & $= 0$                                      \\
+		$\reglabel{1}$ & $= $ the program encoded as a number       \\
+		$\reglabel{2}$ & $= $ the argument list encoded as a number \\
+		\multicolumn{2}{c}{All other registers zeroed}              \\
+	\end{tabular}
 \end{center}
 The registers used are:
 \begin{center}
@@ -584,5 +584,5 @@ The registers used are:
 \end{center}
 \inputminted{python}{register_machines/code/universal_register_machine.py}
 \begin{center}
-    \includegraphics[width=0.9\textwidth]{register_machines/images/universal_register_machine.drawio.png}
+	\includegraphics[width=0.9\textwidth]{register_machines/images/universal_register_machine.drawio.png}
 \end{center}
