@@ -1,0 +1,40 @@
+<mxfile host="65bd71144e">
+    <diagram id="ZHF7SwjTDUc-ddh98iuG" name="Page-1">
+        <mxGraphModel dx="1248" dy="1126" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="" style="endArrow=open;html=1;endFill=0;endSize=30;strokeWidth=3;" edge="1" parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="40" y="180" as="sourcePoint"/>
+                        <mxPoint x="720" y="180" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="3" value="Local" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=25;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="200" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="Global" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=25;" vertex="1" parent="1">
+                    <mxGeometry x="340" y="200" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="Intraprocedural" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=25;" vertex="1" parent="1">
+                    <mxGeometry x="590" y="200" width="130" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="Basic Blocks" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=25;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="100" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="Procedures" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=25;" vertex="1" parent="1">
+                    <mxGeometry x="340" y="100" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="Whole&lt;br&gt;Program" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=25;" vertex="1" parent="1">
+                    <mxGeometry x="650" y="100" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="Fast &amp;amp; Easy to validate" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="15" y="30" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="Slow, very complex &amp;amp; rare" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="602.5" y="30" width="155" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

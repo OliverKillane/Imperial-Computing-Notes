@@ -6,3 +6,4 @@
 
 ## Resources
 
+TODO: integrate old notes

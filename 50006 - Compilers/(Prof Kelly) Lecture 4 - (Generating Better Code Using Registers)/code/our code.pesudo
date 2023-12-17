@@ -1,0 +1,5 @@
+PushImm R0 3
+PushImm R1 3
+Mul R0 R1
+PushImm R1 4
+Add R0 R1

@@ -1,0 +1,40 @@
+<mxfile host="65bd71144e">
+    <diagram id="K2yTUbwiFysPQzPlMyUt" name="Page-1">
+        <mxGraphModel dx="1141" dy="2462" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="9" value="Semantic Analyser" style="rounded=1;whiteSpace=wrap;html=1;fontSize=30;gradientColor=#80FF00;gradientDirection=west;fillColor=#33FF99;" vertex="1" parent="1">
+                    <mxGeometry x="200" y="40" width="310" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="AST" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontColor=#80FF00;" vertex="1" parent="1">
+                    <mxGeometry x="30" y="65" width="80" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=30;fontColor=#80FF00;endArrow=open;endFill=0;endSize=16;" edge="1" parent="1" source="10" target="9">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="160" y="110" as="sourcePoint"/>
+                        <mxPoint x="160" y="155" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="13" value="&lt;font&gt;Symbol Tables/Extra Information&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontColor=#33FF99;" vertex="1" parent="1">
+                    <mxGeometry x="610" y="115" width="280" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="AST (agumented with semantic Attributes)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontColor=#80FF00;" vertex="1" parent="1">
+                    <mxGeometry x="610" y="10" width="350" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=30;fontColor=#80FF00;endArrow=open;endFill=0;endSize=16;" edge="1" parent="1" source="9" target="14">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="530" y="60" as="sourcePoint"/>
+                        <mxPoint x="620" y="60" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="17" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=30;fontColor=#80FF00;endArrow=open;endFill=0;endSize=16;" edge="1" parent="1" source="9" target="13">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="520" y="75" as="sourcePoint"/>
+                        <mxPoint x="675" y="50" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

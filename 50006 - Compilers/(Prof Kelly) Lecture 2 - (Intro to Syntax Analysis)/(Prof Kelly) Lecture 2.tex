@@ -1,0 +1,219 @@
+\documentclass{report}
+    \title{50006 - Compilers - (Prof Kelly) Lecture 2}
+    \author{Oliver Killane}
+    \date{05/01/22}
+\input{../50006 common.tex}
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=db494c30-3e6d-40e7-a4c8-ae1400ffd4e2}
+
+\section*{Syntax Analysis}
+\begin{itemize}
+	\bullpara{Syntax}{ The grammatrical structure of the language expressed through rules.
+		\\ The compiler must determine if the program is syntactically correct.
+		\\
+		\\ Parser Generators tools used to generate the code to perform the analysis phases of a compiler from the language's formal specification (usually similar to \keyword{Bakus-Naur Form}).
+	}
+	\bullpara{Semantics}{meaning associated with program.
+		\\ For example type-checking, or checking for memory safety.
+		\\
+		\\ \keyword{Compiler Generators/Compilers} are an active area of research. They generate the synthesis phase from a specification of the semantics of the source \& target language.
+		\\
+		\\ These tools are promising but usually the code is written manually instead.
+	}
+\end{itemize}
+
+\subsection*{Bakus-Naur Form}
+Also called \keyword{Backus Normal Form} is a context-free grammar used to specify the syntactic structure of a language.
+\[ stat \to \text{ 'if' } \text{ '(' } expr \text{ ')' } stat \text{ 'else' } stat \]
+\begin{itemize}
+	\bullpara{Context Free Grammar}{
+		\\ A context free grammar is a set of \keyword{Productions}. Associated with a set of tokens (terminals), a set of non-terminals and a start (non-terminal) symbol.
+		\\
+		\\ Each production is of the form:
+		\[\text{single non-terminal} \ \to \ \text{String of terminals \& non-terminals}\]
+		The simple LHS makes it a context-free grammar, more complex LHSs are possible in context-sensitive grammars.
+	}
+	\bullpara{Production}{
+		\\ Shows one valid way to expand a non-terminal symbol into a string of terminals \& non-terminals.
+		\\
+		\\ \begin{tabular}{r l l}
+			$expr \to$ & '0'                                                                                          \\
+			$expr \to$ & '1'                                                                                          \\
+			$expr \to$ & $expr + expr$                                                                                \\
+			$expr \to$ & '0' $|$ '1' $|$ $expr + expr$ & Can combine two productions for more concise representation. \\
+		\end{tabular}
+	}
+	\bullpara{Terminals \& Non-Terminals}{
+		\\ Symbols that cannot be further expanded, these are the tokens generated from lexical analysis (e.g brackets, identifiers, semicolons).
+	}
+	\bullpara{Parse Tree}{
+		\\ Shows how the string is derived from the start symbol.
+		\\
+		\\ This tree is a graphical proof that a given sentence is within the grammar. Parsing is the process of generating this.
+		\centerimage{width=0.9\textwidth}{terminals and non-terminals.png}
+	}
+\end{itemize}
+We can express the grammar as a tuple:
+\[G = (S, P, t, nt) \text{ where S - start symbol, P - productions, t - terminals, nt - nonterminals, and } S \in nt\]
+
+The input is entirely terminals, we use productions \& pattern matching to analyse.
+\centerimage{width=\textwidth}{basic C grammar (wikipedia).png}
+\centerline{An example with a basic C-style if statement (sourced from wikipedia)}
+
+\compitem{
+	\item Starting with the start symbol we can use the productions to replace each non-terminal with some string of terminals and non-terminals, continually expanding the non-terminals.
+	\item A string dervbied that only consists of terminals is a \keyword{sentence} (cannot derive any further string of symbols).
+	\item The \keyword{language} of a grammar is the set of all sentences that can be derived from the start symbol.
+}
+
+\subsection*{Grammar Ambiguity}
+In some grammars there may be ambiguity (e.g multiple different productions can be applied to the same string, or the same production in different ways).
+\\
+\\ For example $3 - 2 - 1$ can be $(3 - 2) - 1$ or $3  - (2 - 1)$. This ambiguity results in multiple possible parse trees.
+\centerimage{width=0.8\textwidth}{associativity.png}
+Often the language designer will specify how to deal with ambiguities (assigning operator precedence \& associativity) using the grammar.
+
+\subsection*{Precedence and Associativity}
+Precedence determines which operators are applied first, and associativity how operators of the same precedence are applied.
+
+\subsubsection*{grammar for Associativity}
+Associativity can be enforced by using left or right recursive productions.
+\begin{center}
+	\begin{tabular}{r l l}
+		$term \to$ & $const \ | \ ident$ & Define a base term.                               \\
+		$expr \to$ & $expr + term$       & Left associative, the split is on the final $+$.  \\
+		$expr \to$ & $term + expr$       & Right associative, the split is on the first $+$. \\
+	\end{tabular}
+\end{center}
+\centerimage{width=0.8\textwidth}{associativities tokens.png}
+
+\subsubsection*{Grammar for Precedence}
+We can \textit{layer} our grammar such that some symbols are parsed first.
+\begin{center}
+	\begin{tabular}{r l }
+		$add \to$ & $ add + mul \ | \ add - mul \ | \ mul$ \\
+		$mul \to$ & $mul * val \ | \ mul / val \ | \ val$  \\
+		$val \to$ & $const \ | \ ident$                    \\
+	\end{tabular}
+\end{center}
+By splitting the expression into an add and multiply stage (both left associative), the second layer ($mul$) has higher precedence. To add more levels of precedence we can use more layers.
+\centerimage{width=0.8\textwidth}{precedence.png}
+
+\subsection*{Parse Tree vs Abstract Syntax Tree}
+The abstract syntax tree has similar structure, but does not need much of the extra information (layers for expressions used to enforce precedence for example).
+\centerimage{width=0.5\textwidth}{parse tree vs ast.png}
+
+\section*{Parsers}
+Parsers check the grammar is correct \& construct an \keyword{AST}.
+
+\centerimage{width=0.8\textwidth}{parser types.png}
+
+\subsection*{Top-Down Parsing}
+Also called predictive parsing.
+\compitem{
+	\item Input is derived from a start symbol.
+	\item Parser takes tokens from left $\to$ right, each only once.
+	\bullpara{For each step}{
+		\\ In each step the parser uses:
+		\compitem {
+			\item the current token
+			\item the current non-terminal being derived
+			\item the current non-terminal's production rules
+		}
+		By using the production rules \& the current token we can predict the next production rule, and use this to either:
+		\compenum {
+			\item Get another non-terminal to derive from, and potentially others for subsequent steps
+			\item Get a terminal which should match the current token (or else an error has occured/the program is syntactically invalid)
+		}
+	}
+	\item We are using the grammar \textit{left $\to$ right}.
+}
+For example with the grammar:
+\begin{center}
+	\begin{tabular}{r l }
+		$stat \to$     & 'begin' $statlist$    \\
+		$stat \to$     & 'S'                   \\
+		$statlist \to$ & 'end'                 \\
+		$statlist \to$ & $stat$ ';' $statlist$ \\
+	\end{tabular}
+\end{center}
+Start symbol is $stat$.
+\centerimage{width=\textwidth}{top down parser pt1.png}
+\centerimage{width=0.9\textwidth}{top down parser pt2.png}
+
+\subsubsection*{Production Choice}
+We may have a grammar where we cannot determine which production for a non-terminal token to use based on the first symbol.
+\begin{center}
+	\begin{tabular}{r l }
+		$stat \to$ & 'loop' $statlist$ 'until' $expr$ \\
+		$stat \to$ & 'loop' $statlist$ 'while' $expr$ \\
+		$stat \to$ & 'loop' $statlist$ 'forever'      \\
+	\end{tabular}
+\end{center}
+When we have token 'loop' we cannot determine which production to use. There are two methods to deal with this:
+\compitem{
+	\bullpara{Delay the choice}{
+		\\ Delay creating this tree (from stat) until it is known which production matches.
+		\\
+		\\ It is still possible to create the statlist inside while doing so.
+	}
+	\bullpara{Modify the grammar}{
+		\\ Change the grammar to factor out the difference.
+		\begin{center}
+			\begin{tabular}{r l }
+				$stat \to$     & 'loop' $statlist$ $loopstat$ \\
+				$loopstat \to$ & 'until' $expr$               \\
+				$loopstat \to$ & 'while' $expr$               \\
+				$loopstat \to$ & 'forever'                    \\
+			\end{tabular}
+		\end{center}
+	}
+}
+However there are more difficult problems, which can be more easily fixed with bottom-up parsing.
+\\
+\subsection*{Left recursion}
+Right recursive grammars produce right recursive parse trees:
+\begin{center}
+	\begin{tabular}{r l }
+		$add \to$ & $mul$ '+' $add$ \\
+		$add \to$ & $mul$ '-' $add$ \\
+		$add \to$ & $mul$           \\
+		$mul \to$ & $val$ '*' $mul$ \\
+		$mul \to$ & $val$ '/' $mul$ \\
+		$mul \to$ & $val$           \\
+		$val \to$ & $integer$       \\
+		$val \to$ & $identifier$    \\
+	\end{tabular}
+\end{center}
+We consider this right-recursive as the recursion on productions is right of the symbol.
+\\
+\\ Top-down parsing implemented through \keyword{Recursive Descent Parsers} cannot do left recursive grammars. This is as it will result in an infinite recursion.
+\begin{center}
+	\begin{tabular}{r l }
+		$add \to$ & $add$ '+' $mul$ \\
+	\end{tabular}
+\end{center}
+If attempting to parse this production:
+\codelist{Python}{left recursion.py}
+
+\subsection*{Bottom-up Parsing}
+\compitem{
+	\item The grammar's productions are used \textit{right $\to$ left}.
+	\item Input is compared against the right hand side to produce a non-terminal on the left.
+	\item Parsing is complete when the whole input is replaced by the start symbol.
+}
+Bottom up parsers are difficult to implement, so parser generators are recommended.
+\centerimage{width=\textwidth}{bottom-up parser.png}
+
+\section*{Simple Complete Compiler}
+A very basic compiler written is haskell to convert basic arithmetic expressions into instructions for a basic stack machine.
+\centerimage{width=\textwidth}{basic compiler stages.png}
+\codelist{Haskell}{simple compiler.hs}
+
+\section*{Visitor Pattern}
+\centerimage{width=\textwidth}{visitor pattern.png}
+The advantage of this pattern is that the data structure and operations are separated. This means new operations can be added easily by simply creating and passing a new visitor, which is then able to operate on the structure (e.g a tree as in the diagram).
+\\
+\\ Example usage could be: turtle operations on an \keyword{abstract syntax tree} of a turtle program (visitors for different colour, text styles, languages).
+\end{document}

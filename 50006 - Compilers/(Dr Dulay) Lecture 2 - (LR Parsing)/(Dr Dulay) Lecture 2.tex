@@ -1,0 +1,427 @@
+\documentclass{report}
+    \title{50006 - Compilers - (Dr Dulay) Lecture 2}
+    \author{Oliver Killane}
+    \date{07/04/22}
+\input{../50006 common.tex}
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=b12a0301-7f1d-4667-a049-ae0b01685aab}
+
+\section*{Parsing}
+\termdef{Parsing (Static Analysis)}{
+	\centerimage{width=0.7\textwidth}{parser}
+	Transforming a sequence of tokens into an \keyword{abstract syntax tree} using a language's \keyword{grammar}.
+}
+
+\subsection*{Chomsky Hierarchy}
+A hierarchy of grammars and the machines required to parse them.
+\\
+\\ Given that:
+\[\begin{matrix*}[l]
+		R & \text{non-terminal} \\
+		$t$ & \text{sequence of tokens} \\
+		\alpha, \beta, \varphi & \text{sequences of terminals and non-terminals}
+	\end{matrix*}\]
+We can express the rules as:
+\\\begin{tabular}{l c l p{0.4\textwidth}}                                                                                                                \\
+	Type 3 & $R \to t$                   & Regular                             & DFA                                                        \\
+	Type 2 & $R \to \alpha$              & Context Free                        & Pushdown automata (DFA with a stack and read-only tape)    \\
+	Type 1 & $\begin{matrix}
+			\alpha \ R \ \beta \to \alpha \ \varphi \ \beta \\ \text{where } R \to \varphi \\
+		\end{matrix}$ & Context Sensitive                   & Linear Bounded Automata (Turing machine with limited tape) \\
+	Type 0 & $\alpha \to \beta$          & Unrestricted/recursively enumerable & Turing Machine                                             \\
+\end{tabular}
+
+\[\text{regular} \subset \text{context-free} \subset \text{context-sensitive} \subset \text{recursively enumerable}\]
+
+\subsection*{Parsers for Context Free Grammars}
+\keyword{Context-free grammars} are parsed with complexity $O(n^3)$, \keyword{LL} and \keyword{LR} grammars are subsets of \keyword{CFG} that can be parsed in $O(n)$. Note that \keyword{LL(n)} is a subset of \keyword{LR(n)}.
+\\
+\\ Higher lookahead allows for more powerful \& complex grammars, at the cost of performance (particularly memory).
+\begin{center}
+	\begin{tabular}{l p{0.7\textwidth}}
+		\multicolumn{2}{l}{\keyword{LL/Top Down Parsers} (Builds \keyword{AST} from root to leaves)}                                        \\
+		\keyword{LL(k)}          & \textbf{L}eft-to-right scan, \textbf{L}eftmost-derivation, \textbf{k}-token look-ahead.                  \\
+		\keyword{LL(0)}          & Does not exist (needs to have lookahead of at least $1$).                                                \\
+		\keyword{LL(1)}          & Most Popular. Can be implemented using recursive descent, r as an automaton.                             \\
+		\keyword{LL(2)}          & Sometimes useful.                                                                                        \\
+		\keyword{LL(k $>$ 2)}    & Rarely Needed.                                                                                           \\
+		\hline
+		\multicolumn{2}{l}{\keyword{LR/Bottom-Up Parsers} (Builds \keyword{AST} from leaves to root)}                                       \\
+		\keyword{LR(k)}          & \textbf{L}eft-to-right scan, \textbf{R}ightmost-derivation (in reverse) with \textbf{k}-token lookahead. \\
+		\keyword{LR(0)}          & Weak \& used in education.                                                                               \\
+		\keyword{SLR(1)}         & Stronger than \keyword{LR(0)}, but superseded by \keyword{LALR(1)}                                       \\
+		\keyword{LALR(1)}        & Fast, popular and comparable power to \keyword{LR(1)}                                                    \\
+		\keyword{LR(1)}          & Powerful but has high memory usage.                                                                      \\
+		\keyword{LR(k $\geq$ 2)} & Possible but rarely used.                                                                                \\
+	\end{tabular}
+\end{center}
+
+\sidenote{Programming Language Grammars}{
+	Most programming languages' syntaxs are described using \keyword{Context-Free Grammars}. Almost all \keyword{context-free} programming language grammars can be described as an \keyword{LR grammar} and implemented using an \keyword{LR parser}.
+	\\
+	\\ C++ is much more complex, as it is not a context-free grammar (very well explained \href{https://stackoverflow.com/questions/14589346/is-c-context-free-or-context-sensitive}{here}.)
+}
+
+\section*{LR Parser}
+\centerimage{width=0.7\textwidth}{lr parsing}
+
+\subsection*{LR Parser Operation}
+\centerimage{width=0.7\textwidth}{lr parser}
+\begin{center}
+	\begin{tabular}{l p{0.7\textwidth}}
+		$shift\ Sn$   & Push state $n$  onto the stack and move to the next token.                                                              \\
+		$reduce \ Rn$ & {
+				\compenum{
+					\item Use rule $n$ to remove $m$ states from the stack (where $m = $ length of RHS of rule $n$).
+					\item Get the rule associated with the new-top of stack (i.e perform the goto action).
+					\item Push back the LHS of rule $n$.
+					\item Generate the new AST node for the rule.
+				}
+			}                                                                                                                                       \\
+		$accept \ a$  & Parse was successful                                                                                                    \\
+		$error$       & Report an error. Note that errors may be added to the AST under construction so multiply syntax errors can be reported. \\
+		$goto \ Gn$   & Used in the reduce case, not directly.
+	\end{tabular}
+\end{center}
+\example{Basic Parser Operations}{
+	With a basic grammar:
+	\[\begin{matrix*}[l]
+			& E' \to E \ \$ \\
+			r1: & E \to E \ \text{'+'} \ \underline{int} \\
+			r2: & E \to \underline{int} \\
+		\end{matrix*}\]
+	We have an \keyword{LR(1) Parse Table}:
+	\begin{center}
+		\begin{tabular}{c | c c c | c}
+			\multirow{2}{*}{\textbf{State}} & \multicolumn{3}{c |}{\textbf{Action}} & \textbf{GOTO}              \\
+			                                & $\underline{int}$                     & '+'           & $\$$ & $E$ \\
+			\hline
+			0                               & s2                                    &               &      & g1  \\
+			1                               &                                       & s3            & a    &     \\
+			2                               &                                       & r2            & r2   &     \\
+			3                               & s4                                    &               &      &     \\
+			4                               &                                       & r1            & r1   &     \\
+		\end{tabular}
+	\end{center}
+	\centerimage{width=0.7\textwidth}{lr parsing tokens example}
+}
+
+
+\sidenote{End of Input}{
+	For \keyword{LR} parsers, an end of input symbol $\$$ rule is always required.
+	\[E' \to E \ \$\]
+}
+
+
+\subsection*{\keyword{LR(0)} Parsers}
+\termdef{LR(0) Items}{
+	Instances of the rules of the grammar with $\bullet$ (representing the current position of the parser) in some position on the right hand side of the rule.
+	\[X \to \underbrace{AB\dots}_\text{Has been matched} \bullet \underbrace{\dots YZ}_\text{To be matched}\]
+	\begin{center}
+		\begin{tabular}{c p{0.6\textwidth}}
+			$X \to \bullet ABC$ & \keyword{Initial Item} (has not yet matched any part of the rule) \\
+			$X \to  A \bullet BC$                                                                   \\
+			$X \to  AB  \bullet C$                                                                  \\
+			$X \to ABC \bullet$ & \keyword{Complete Item} (Has matched the whole rule)              \\
+		\end{tabular}
+	\end{center}
+	We can use the \keyword{LR(0) items} as states in our \keyword{NFA} as they track thr progress of the parser through a rule.
+	\\
+	\\ We can create transitions between \keyword{LR(0) Items}:
+	\[\underbrace{(X \to  A \bullet BC)}_\text{current state} \overbrace{\to_B}^\text{If encountering a $B$} \underbrace{(X \to  AB  \bullet C)}_\text{new state}\]
+	If $B$ is a non-terminal, for each rule $B \to \bullet D$ we add a $\epsilon$ transition (no token needed to match):
+	\[(X \to A \bullet BC) \to_\epsilon (B \to \bullet D)\]
+}
+\termdef{LR(0) Parsing Table}{
+	The parsing table describes the rules to apply, and states to move to when a given item is encountered.
+	\\
+	\\ It is generated from a \keyword{DFA} using the rules:
+	\begin{center}
+		\begin{tabular}{l l}
+			Terminal translation $X \to_T Y$                 & Add $P[X,T] = sY$ (shift $Y$, we cannot reduce yet)  \\
+			Non-terminal translation $X \to_N Y$             & Add $P[X,N] = gY$ (Goto $Y$)                         \\
+			State $X$ containing item $R' \to \dots \bullet$ & Add $P[X, \$] = a$ (accept) (end of input)           \\
+			State $X$ containing item $R \to \dots \bullet$  & Add $P[X,T] = rN$ (reduce) (use rule $rN$ to reduce) \\
+		\end{tabular}
+	\end{center}
+	\begin{center}
+		\begin{tabular}{c | c c c | c}
+			\multirow{2}{*}{\textbf{State}} & \multicolumn{3}{c |}{\textbf{Action}} & \textbf{GOTO}              \\
+			                                & $\underline{int}$                     & '+'           & $\$$ & $E$ \\
+			\hline
+			0                               & s3                                    &               &      &     \\
+			1                               &                                       & s4            & a    &     \\
+			2                               & r1                                    & r1            & r1   &     \\
+			3                               & r3                                    & r3            & r3   &     \\
+			\vdots                          &                                                                    \\
+		\end{tabular}
+	\end{center}
+	\compitem{
+		\item
+	}
+}
+
+To create an \keyword{LR(0)} parser the steps are:
+\compenum{
+	\item To generate an \keyword{LR(0)} parser the context free grammar is converted into \keyword{LR(0) items}.
+	\item The items are used as states in an \keyword{NFA}, with $\epsilon$ transitions for non-terminals.
+	\item The \keyword{NFA} is converted to a \keyword{DFA}.
+	\item Generate a \keyword{parsing table} from the \keyword{DFA}
+}
+
+\example{Basic \keyword{LR(0)} Example}{
+	For a language allowing only addition expressions.
+	\begin{center}
+		\begin{tabular}{l l}
+			\textbf{Grammar}                     & \textbf{LR(0) Items}         \\
+			\hline
+			$E' \to E \ \$$                      & $\begin{matrix*}[l]
+					E' \to \bullet E \text{  (Initial Item, the $\$$ is implied)}\\
+					E' \to E \bullet \\
+				\end{matrix*}$ \\
+			\hline
+			$E \to E \text{'+'} \underline{int}$ & $\begin{matrix*}[l]
+					E \to \bullet E \text{'+'} \underline{int} \text{  (Initial Item)}\\
+					E \to E  \bullet  \text{'+'} \underline{int} \\
+					E \to E \text{'+'} \bullet  \underline{int} \\
+					E \to E \text{'+'} \underline{int} \bullet \text{  (Complete Item)}\\
+				\end{matrix*}$ \\
+			\hline
+			$E \to \underline{int}$              & $\begin{matrix*}[l]
+					E \to \bullet \underline{int} \text{  (Initial Item)}\\
+					E \to \underline{int} \bullet \text{  (Complete Item)}\\
+				\end{matrix*}$
+		\end{tabular}
+	\end{center}
+	\centerimage{width=0.7\textwidth}{lr parsing nfa example}
+	\begin{center}
+		\begin{tabular}{c | c c c | c}
+			\multirow{2}{*}{\textbf{State}} & \multicolumn{3}{c |}{\textbf{Action}} & \textbf{GOTO}              \\
+			                                & $\underline{int}$                     & '+'           & $\$$ & $E$ \\
+			\hline
+			0                               & s3                                    &               &      & g2  \\
+			1                               &                                       & s4            & a    &     \\
+			2                               & r1                                    & r1            & r1   &     \\
+			3                               & r3                                    & r3            & r3   &     \\
+			\vdots                          &                                                                    \\
+		\end{tabular}
+	\end{center}
+}
+
+\subsection*{LR(1) Parsers}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=d0683a04-2922-4409-a1cf-ae0b01697744}
+\sidenote{Notation}{
+	\begin{center}
+		\begin{tabular}{l l}
+			$\to^*$          & Zero or more derivations.                        \\
+			$\to^+$          & One or more derivations.                         \\
+			$A \to \epsilon$ & Non-terminal $A$ is \keyword{nullable}.          \\
+			$A \to AB | BC$  & $AB$ and $BC$ are \keyword{alternatives} of $A$. \\
+		\end{tabular}
+	\end{center}
+}
+
+\termdef{First Set}{
+	The \keyword{first set} for a sequence of rules (non-terminals) and tokens (terminals) $\alpha$ is the set of all tokens that could start a derivation $\alpha$.
+	\[\text{first}(\alpha) = \{t:\alpha \to^* t\beta\} \cup [ \begin{cases}
+				\{\epsilon\} & \text{if  } \alpha \to* \epsilon \\
+				\{\}         & otherwise
+			\end{cases}]\]
+	\compitem{
+		\item For a token $T$ the $\text{first}(T) = \{T\}$
+		\item $\text{first}(\epsilon) = \{\epsilon\}$
+	}
+	We can construct \keyword{first set} from the rule by going through each alternative. In each alternative we iterate through each terminal/non-terminal $B$, if $\epsilon \in \text{first}(B)$ then we include $\text{first}(B) \setminus \{\epsilon\}$ in the \keyword{first set} and move on to the next in the sequence.
+	\begin{center}
+		\begin{minipage}{0.98\textwidth}
+			\codelist{Python}{first set.py}
+		\end{minipage}
+	\end{center}
+}
+\termdef{Follow Set}{
+	The follow set for a non-terminal rule is the set of all tokens (terminals) that could immediately follow, and $\$$ if the end of the input could follow.
+	\[\text{Follow Set}(A) = \{t:S \to^+ \alpha A t \beta\} \cup \begin{cases}
+			\{\$\} & \text{if  } S \to* \alpha A \\
+			\{\}   & otherwise
+		\end{cases}\]
+	Hence we must check each rule which contains the non-terminal.
+	\[\text{Given rule  } B \to C \ A \ D \text{  we have  } \text{follow}(A) = \text{first}(D) \setminus \{\epsilon\} \cup \begin{cases}
+			\text{follow}(B) & \text{if  } D \to^* \epsilon \\
+			\{\}             & otherwise                    \\
+		\end{cases}\]
+	\compitem{
+		\item $C$ can be empty here, since it is at the start of the rule, it has no bearing on the \keyword{follow set}.
+		\item If $A$ can end the input, we include $\$$ in the \keyword{follow set}.
+	}
+}
+\termdef{LR(1) Items}{
+	An \keyword{LR(1) Item} is a pair:
+	\[[\text{LR(0) item}, \ \text{lookahead token  } t]\]
+	Hence given an \keyword{LR(1) item}
+	\[[X \to A \ \bullet B \ C, \ t]\]
+	\compitem{
+		\item $A$ is on top of the stack.
+		\item We only want to recognise $B$ if it is followed by a string derivable from $Ct$.
+		\item $B$ is followed by $Ct$ if the current token $\in \text{first}(Ct)$.
+	}
+}
+\subsubsection*{NFA Transitions}
+Given a state $[X \to A \ \bullet \ B \ C, \ t]$ we add the transition:
+\[[X \to A \ \bullet \ B \ C, \ t] \to_B [X \to A \ B \ \bullet \ C, \ t]\]
+If $B$ is a rule/non-terminal then for every rule of form $B \to D$ we add an $\epsilon$ transition and a new state for every token $u$ in $\text{first}(Ct)$ (Add a transition iff $B$ derivable from $Ct$).
+\[[X \to A \ \bullet \ B \ C, \ t] \to_\epsilon [B \to \bullet \ D, \ u]\]
+We also need an initial item for the rule $[X' \to \bullet \ X, \$]$ (start of text, has end of input token $\$$).
+
+\termdef{LR(1) Parsing Table}{
+	Our parsing table can now contain several different rules per row (same state, different current token).
+	\\
+	\\ We only perform reduction of a rule $[A \to A \ \bullet, \ t]$ when the current token is $t$.
+}
+
+\example{Basic LR(1) Grammar}{
+	\begin{center}
+		\begin{tabular}{l l l}
+			\textbf{Grammar}                        & \textbf{Expanded}            \\
+			\hline
+			$S \to \underline{id} | V \text{'='} E$ &
+			$\begin{matrix*}[l]
+					S' \to S \ \$ \\
+					r1: S \to \underline{id} \\
+					r2: S \to V \text{'='} E \\
+				\end{matrix*}$                                           \\
+			\hline
+			$V \to \underline{id}$                  & $r3: V \to \underline{id}$   \\
+			\hline
+			$E \to V | \underline{int}$             & $\begin{matrix*}[l]
+					r4: E \to V \\
+					r5: E \to \underline{int} \\
+				\end{matrix*}$ \\
+		\end{tabular}
+	\end{center}
+	\centerimage{width=0.9\textwidth}{LR(1) grammar nfa}
+	\begin{center}
+		\begin{tabular}{c | c c c c | c c c}
+			\multirow{2}{*}{\textbf{State}} & \multicolumn{4}{c |}{\textbf{Action}} & \multicolumn{3}{c}{\textbf{GOTO}}                                \\
+			                                & $\underline{id}$                      & $\underline{int}$                 & '=' & $\$$ & $E$ & $V$ & $S$ \\
+			\hline
+			0                               & s2                                    &                                   &     &      &     & g3  & g1  \\
+			1                               &                                       &                                   &     & a    &     &     &     \\
+			2                               &                                       &                                   & r3  & r1   &     &     &     \\
+			3                               &                                       &                                   & s4  &      &     &     &     \\
+			4                               &                                       & s8                                & s6  &      &     & g5  & g7  \\
+			5                               &                                       &                                   &     & r2   &     &     &     \\
+			6                               &                                       &                                   &     & r5   &     &     &     \\
+			7                               &                                       &                                   &     & r4   &     &     &     \\
+			8                               &                                       &                                   &     & r3   &     &     &     \\
+		\end{tabular}
+	\end{center}
+}
+
+\section*{LALR(1) Parsers}
+\termdef{LALR(1) Items}{
+	\keyword{LALR(1)} parsers are similar to \keyword{LR(1)} parsers, however \keyword{LR(1)} states that have the same \keyword{LR(0) items} and only differ in the lookahead token are merged. This reduces the memory usage of \keyword{LALR(1) Parsers}.
+	\[\text{e.g LR(1) items }\begin{matrix*}[l]
+			[R \to A \ B \ \bullet \ C , t_0] \\
+			[R \to A \ B \ \bullet \ C , t_1] \\
+			\vdots \\
+			[R \to A \ B \ \bullet \ C , t_n] \\
+		\end{matrix*} \text{  become LALR(1) Item  } [R \to A \ B \ \bullet \ C, \{t_0, t_1, \dots, t_n\}]\]
+	Due to this merging, some reductions can occur before an error is detected, which would've been immediately detected by an \keyword{LR(1)} parser.
+	\[\text{Grammar  }\begin{matrix*}[l]
+			A \to \text{'('} \ A \ \text{')'} \\
+			A \to + \\
+		\end{matrix*} \text{  given input string  } "+)"\]
+	With \keyword{LR(1)} as soon as we get to $+$ and shift it, we immediately have an error.
+	\\
+	\\ However for \keyword{LALR(1)} as we would two states $A \to \text{'+'} \bullet, \$$ and $A \to \text{'+'} \bullet, \text{')'}$ merged, we would detect the error after reaching the $\text{')'}$.
+}
+\example{LALR(1) Items}{
+	\centerimage{width=0.8\textwidth}{lr to lalr merge}
+}
+
+
+
+\section*{Conflicts and Ambiguity}
+\termdef{Ambiguous Grammars}{
+	Grammars for which more than one parse tree can be created for some input.
+}
+Ambiguous grammars cannot be \keyword{LR(k)} as during parsing it will reach a state where it cannot decide wether to shift or reduce.
+\\
+\\ Ambiguity can be resolved two ways:
+\compenum{
+	\item Rewrite the grammar to remove ambiguity.
+	\item Augment grammar with additional rules (e.g associativity or precedence)
+}
+For \keyword{LR} parser generators shifting is given priority, when a shoft-reduce confligt occurs, a warning is typically given.
+\termdef{Shift-Reduce Conflict}{
+	Caused by an ambiguity where the parser cannot decide if to reduce the tokens to the LHS of a rule, of continue to shift another token.
+	\\
+	\\ For example the grammar below would cause a \keyword{shift-reduce conflict}.
+	\[\begin{matrix}
+			Expr \to \underline{Num} & \text{  and  } & Expr \to \underline{Num} \ \text{'+'} \ \underline{Num} \\
+		\end{matrix}\]
+}
+\example{Shift-Reduce Conflict}{
+	Given the grammar:
+	\[\begin{matrix*}[l]
+			S \to \text{'if'} \ E \ \text{'then'} \ S \ \text{'else'} \ S \\
+			S \to \text{'if'} \ E \ \text{'then'} \ S \\
+			S \to \underline{id} \\
+		\end{matrix*}\]
+	We can generate \keyword{LR(1) items}:
+	\[\begin{matrix*}[l]
+			[S \to \text{'if'} \ E \ \text{'then'} \ S \ \bullet , \text{'else'}] \\
+			[S \to \text{'if'} \ E \ \text{'then'} \ S \ \bullet \ \text{'else'} \ S, \underline{any}] \\
+		\end{matrix*}\]
+	Given some input \textit{"if a then if b then c else d"} we can parse:
+	\begin{center}
+		\begin{tabular}{c c}
+			\textbf{Shift}                                                                              & \textbf{reduce}                                                                                             \\
+			$\text{\textit{if a then}} \underbrace{\text{\textit{if b then c else d}}}_\text{inner if}$ & $\text{\textit{if a then}} \underbrace{\text{\textit{if b then c}}}_\text{inner if} \text{\textit{else d}}$ \\
+		\end{tabular}
+	\end{center}
+	We can resolve this using a modified grammar:
+	\[\begin{matrix*}[l]
+			S \to MatchedS \\
+			MatchedS \to \text{'if'} \ E \ \text{'then'} \ MatchedS \ \text{'else'} \ MatchedS \\
+			MatchedS \to other \\
+			\\
+			S \to UnMatchedS \\
+			UnMatchedS \to \text{'if'} \ E \ \text{'then'} \ S \\
+			UnMatchedS \to \text{'if'} \ E \ \text{'then'} \ MatchedS \ \text{'else'} \ UnMatchedS \\
+		\end{matrix*}\]
+	This grammar ensures only matched statements can come before the 'else' in an if statement, hence the ambiguity is resolved.
+}
+\termdef{Reduce-Reduce Conflict}{
+	Caused by two rules having the same RHS. Cannot determine which rule should be applied.
+	\\
+	\\ For example the following grammar has a \keyword{reduce-reduce conflict}.
+	\[\begin{matrix}
+			Expr \to \underline{id} & \text{  and  } & Var \to \underline{id} \\
+		\end{matrix}\]
+	A common disambiguation rule added for LR parser generators is to prioritise the earliest rule from the grammar source.
+}
+\example{Conflict with Precedence}{
+	For example the grammar:
+	\[\begin{matrix*}[l]
+			Expr \to Expr \ \text{'+'} \ Expr \ | \ Expr \ \text{'-'} \ Expr \ | \ Expr \ \text{'*'} \ Expr \ | \ \text{'('} \ Expr \ \text{')'} \ | \ \underline{int} \\
+		\end{matrix*}\]
+	Hence if given a source \textit{"3 + 2 * 5"} we have a conflict
+	\[(3 + 2) * 5 \text{  or  } 3 + (2 * 5)\]
+	Hence we can diambiguate by using several rules.
+	\[\begin{matrix*}[l]
+			Expr \to Expr \ \text{'+'} \ Term \ | \ Term \\
+			Term \to Term \ \text{'*'} \ Factor | \ Factor \\
+			Factor \to \text{'('} \ expr \ \text{')'} \ | \ \underline{int} \\
+		\end{matrix*}\]
+}
+
+\section*{Parse Tree}
+A parse tree is produced by the parser. It is broadly similar to the AST, but can contain much redundant information associated with the grammar.
+\compitem{
+	\item Leaf nodes built on a shift operations
+	\item Non-Leaf nodes created on a reduce.
+}
+To produce the AST we can either build it in a pass over the completed parse tree, or associate AST construction code with rules in the grammar to build the AST during parsing.
+\end{document}

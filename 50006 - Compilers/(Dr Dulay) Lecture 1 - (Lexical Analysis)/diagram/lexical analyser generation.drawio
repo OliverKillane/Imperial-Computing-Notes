@@ -1,0 +1,48 @@
+<mxfile host="65bd71144e">
+    <diagram id="xSq-CRriVQfyTcaYoRaE" name="Page-1">
+        <mxGraphModel dx="1264" dy="1415" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="4" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=30;endArrow=open;endFill=0;endSize=20;strokeColor=#000000;" edge="1" parent="1" source="2" target="3">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="Regular Expressions" style="rounded=1;whiteSpace=wrap;html=1;fontSize=30;fillColor=#a20025;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="20" y="20" width="300" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=30;endArrow=open;endFill=0;endSize=20;strokeColor=#000000;" edge="1" parent="1" source="3" target="7">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="170" y="340" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="3" value="Non-Deterministic Finite State Automata&lt;br&gt;(NFA)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=30;fillColor=#e51400;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="20" y="170" width="300" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=30;endArrow=open;endFill=0;endSize=20;strokeColor=#000000;" edge="1" parent="1" source="7" target="8">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="Deterministic Finite State Automata&lt;br&gt;(DFA)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=30;fillColor=#fa6800;fontColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="20" y="400" width="300" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=30;endArrow=open;endFill=0;endSize=20;strokeColor=#000000;" edge="1" parent="1" source="8" target="9">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="Minimum State DFA" style="rounded=1;whiteSpace=wrap;html=1;fontSize=30;fillColor=#f0a30a;fontColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="20" y="570" width="300" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="Transition Table and GetToken function" style="rounded=1;whiteSpace=wrap;html=1;fontSize=30;fillColor=#e3c800;fontColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="20" y="680" width="300" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="Thompson's Construction" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="170" y="90" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="Subset Construction" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="170" y="310" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="(Optimisation)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="325" y="565" width="200" height="70" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

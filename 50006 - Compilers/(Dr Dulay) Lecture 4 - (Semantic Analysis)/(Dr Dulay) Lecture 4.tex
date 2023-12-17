@@ -1,0 +1,169 @@
+\documentclass{report}
+    \title{50006 - Compilers - (Dr Dulay) Lecture 4}
+    \author{Oliver Killane}
+    \date{10/04/22}
+\input{../50006 common.tex}
+\begin{document}
+\maketitle
+
+\section*{Semantic Analysis Overview}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=b19b451a-a210-4ada-af47-ae0b016f79c5}
+\termdef{Semantic Analysis/Context Analysis}{
+	Compiler phase which checks (statically at compile time) if the program is
+	semantically valid within the rules of the language. It also provides information
+	for the next phases (code generation) such as creating symbol tables of identifiers and their types.
+	\centerimage{width=0.6\textwidth}{semantic analyser}
+	Some languages perform very few checks (e.g Python is highly dynamic, e.g types checked at runtime), to many (e.g Rust - among the most extreme) .
+	\\
+	\\ \keyword{Semantic analysers} can be generated from \keyword{attribute grammars} (which associate semantic rules with AST node types), however they are typically hand-written.
+}
+\subsection*{Typical Semantic Checks}
+\subsubsection*{variable Declaration}
+\[<Type> = <Id>\]
+\compitem{
+	\bullpara{Check the type is in scope (the type is declared)}{
+		\\ e.g $someclass = somevar$ the $someclass$ must be defined, if imported
+		from another module/file further checks for qualified names, overloading
+		etc must be done.
+	}
+	\bullpara{Check a declaration of the type is valid}{
+		\\ The language may prevent some declarations, e.g $void \ a;$, or where the type is an abstract class.
+		\\
+		\\ Furthermore some langagues place constraints on the order of declarations (e.g forward declaration in C).
+	}
+	\bullpara{Check the idenfitier in the current scope}{
+		\\ If the language does not allow variable shadowing (renaming in inner scopes).
+	}
+	\bullpara{and more\dots}{}
+}
+\subsubsection*{Assignment}
+\[<Id> = <Expr>\]
+\compitem{
+	\bullpara{Check the identifier is valid}{
+		\\ Includes checking the scope to ensure it has been declared, as well as rules on variable types (e.g parameters).
+	}
+	\bullpara{Check the expression}{
+		\\ The inner expression must be semantically analysed using rules for expressions.
+	}
+	\bullpara{Check the types}{
+		\\ Given the expression is valid, it will have a type (or range of possible types). The semantic analyser must check it can coalesce this type into that of the assignment.
+		\\
+		\\ It may also need to check the ranges, e.g assigning a constant larger than $255$ to an unsigned byte-size type (e.g $u8$ in Rust or $unsigned \ char$ in C).
+	}
+}
+\subsubsection*{Array Declaration}
+\[<Type> \ <Id>[<Size>]\dots\]
+\compitem{
+	\bullpara{Check the declared Type is valid}{
+		\\ Normal checks for if the type is valid, declared/in-scope. It may not be valid to create arrays of a given type (e.g $void array[3]$ is invalid, though $void* array$ is valid in C)
+	}
+	\bullpara{Check the size is valid}{
+		\\ Type check the size expression, potentially only allowing constants (e.g for stack allocated arrays a size may be required).
+	}
+	\bullpara{Checking for scoping}{
+		\\ Check for rules including variable shadowing, just as with declarations.
+	}
+	\bullpara{Array Size Warnings}{
+		\\ Some array sizes may be too large (e.g large stack allocated arrays risking stack overflow in a recursive function), so a warning may need to be created.
+	}
+}
+\subsubsection*{Array Element Assignment}
+\[<Id>[<Index>]\dots = <Expr>\]
+\compitem{
+	\bullpara{Variable assignment scope checks}{
+		\\ To check if the variable identifier is in scope.
+	}
+	\bullpara{Index and Type Check}{
+		\\ We must check that the idenfifer's type allows it to be indexable (either it is an array or potentially implements some interface allowing indexing).
+		\\
+		\\ The type of the assigned expression must match the de-indexed type of the variable (e.g $int \ a[][]; a[3] = \{1,2,3\}$ is correct as $a[i]$ is an integer array).
+	}
+	\bullpara{Bounds Checks}{
+		\\ For each index we may need to check bounds (e.g index is within the bounds)
+	}
+}
+\subsubsection*{Function Declarations}
+\[<Ret \ Type> \ <Name>(<Param \ Type> \ <Param \ Id>, \dots) \{\dots\}\]
+\compitem{
+	\bullpara{Checking types of return and the parameters}{
+		\\ Normal variable declaration checking.
+	}
+	\bullpara{Checking the function name declared}{
+		\\ The language may allow for function overloading, or defining functions in nested scopes (modules).
+	}
+	\bullpara{Checking scoping rules}{
+		\\ Some languages may have rules for parameter scopes, for example in WACC the parameters exist in a scope enclosing the function body.
+	}
+	\bullpara{Checking for returns}{
+		\\ Some languages require the return type of the body to be correct (and have no incorrect implicit returns - i.e path through function can end without a return).
+	}
+}
+\subsubsection*{Function Call}
+\[<Fun \ Name>(<Expr>,\dots)\]
+\compitem{
+	\bullpara{Checking arguments are parameter compatible}{
+		\\ Check the expressions provided are valid expressions, and if so that they can be matched with the type of the parameters.
+	}
+	\bullpara{Checking the Return Type}{
+		\\ The expression will evaluate to the type of the function call. Hence if there is no return type (e.g returns $void$ in C) this must be considered (e.g would be fine in a call statement, but not as part of an integer expression).
+	}
+}
+\subsection*{Type Checking in Languages}
+Type systems highly vary between languages:
+\compitem{
+	\bullpara{Static vs Dynamic Typing}{If types are checked at compile time, vs at runtime.}
+	\bullpara{Strong Vs Weak Typing}{If types can be cast and coerced easily.
+		\\ For example Python is dynamically and strongly typed, so when type checking occurs (at runtime) types must be explicity converted.
+		\\
+		\\ However C is statically weak, meaning types are checked at compile time, but can be easily cast and converted (e.g cast any pointer type to any other pointer type)
+	}
+	\bullpara{Type Inference}{
+		\\ Some languages can use values provided, functions used, return types etc to infer the type of a variable at compile time without it being explicitly stated.
+		\\
+		\\ An example of this is Rust which has one of the most powerful such systems.
+	}
+	\bullpara{Function Overloading}{ Multiple different functions with the same name in the same scope.
+		\\ If function signatures differ, the compiler can determine which function to use in calls.
+		\\
+		\\ In statically typed languages this is simpler (as types are known), some dynamically typed languages also support this.
+		\\ Python allows overloading, but the number of arguments must differ (as the type system is not yet powerful enoguh to distinguish between identical signatures).
+		\\
+		\\ Despite its powerful type system, Rust avoids this (a language design choice) as overloading is considered unhelpful \& to potentially make code more difficult to discipher by programmers.
+	}
+	\bullpara{Polymorphic Typing}{ Some languages allow for types to be based on interfaces, parent classes, etc. Another form is generics.}
+	\bullpara{Assignment-Compatability and Type-Equivalence}{Differs between languages, rules concering how types are matched, and what types can be matched}
+	\bullpara{Type Coercion/casting}{Some languages allow implicit casting (e.g C) while others require explicit (e.g Rust, Python).}
+	\bullpara{Primitive Sizes}{Basic data types such as integers, floats are implemented differently between languages.
+		\\ For example some languages allow for arbitrary size integers as a language feature (e.g Python). This has negative performance implications, so high performance languiages such as Rust and C use fixed size integers (as represented in the architectures they compile to).
+	}
+}
+\section*{Symbol Tables}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=3f188367-aff4-4d8b-a5e5-ae0b0170d625}
+\termdef{Symbol Table/Identifier Table}{
+	Rather than store semantic information for identifiers in AST nodes (which would require
+	lengthly lookup during code generation) a structure is used to identify identifies with semantic
+	information.
+	\compitem{
+		\item For scoping a tree of symbol tables can be used. Alternatively a flat symbol table can be generated with identifiers being translated to some non-shadowed form (no name conflicts).
+		\item In many languages identifiers are declared before use. This allows a single pass to build the symbol table.
+		\item Map data structures are used for the tables to reduce the time required for identifier lookup.
+	}
+}
+\subsection*{Example Symbol Table Implementation}
+\centerimage{width=0.9\textwidth}{symbol table}
+\centerimage{width=0.9\textwidth}{identifier}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=416a813a-9fb6-4c23-b094-ae0b017412ec}
+We can embed pointers the identifier objects inside the AST also.
+\\
+\\ When checking types, we can use ad-hoc rules for coercion (e.g can assign an $int$ to a $double$). We may also want to use the class hierarchy (if no match, check if any super classes can match)
+\example{Basic Package}{
+	\begin{center}
+		\begin{minipage}{0.9\textwidth}
+			\codelist{Java}{example.java}
+		\end{minipage}
+	\end{center}
+	\centerimage{width=\textwidth}{example symboltable}
+}
+We can then put our basic types, standard types, functions etc (default includes) in the top level symbol table.
+
+\end{document}

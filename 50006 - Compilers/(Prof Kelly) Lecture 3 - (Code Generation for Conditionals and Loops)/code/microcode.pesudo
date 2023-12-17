@@ -1,0 +1,35 @@
+ADD / MINUS / MUL / DIV /:
+    T := store[SP]
+    SP := SP + 4
+    T := store[SP] [+=*/] T
+    store[SP] := T
+
+PUSHIMM:
+    SP := SP - 4
+    store[SP] := operand(IR)
+
+PUSHABS:
+    T := store[operand(IR)]
+    SP := SP - 4
+    store[SP] := T
+
+POP:
+    T := store[SP]
+    SP := SP + 4
+    store[operand(IR)] := T
+
+COMPEQ:
+    T:= store[SP]
+    SP := SP + 4
+    T := store[SP] - T
+    store[SP] = T=0 ? 1 : 0
+
+JTRUE:
+    T := store[SP]
+    SP := SP + 4
+    PC := T=1 ? operand(IR) : PC
+
+JFALSE:
+    T := store[SP]
+    SP := SP + 4
+    PC := T=0 ? operand(IR) : PC

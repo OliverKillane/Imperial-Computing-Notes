@@ -1,0 +1,60 @@
+\documentclass{report}
+    \title{50006 - Compilers - (Prof Kelly) Lecture 3}
+    \author{Oliver Killane}
+    \date{10/01/22}
+\input{../50006 common.tex}
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=9e39f043-07bf-41bc-97ea-ae1401000fb5}
+
+\section*{Simple Programming Language}
+The grammar is expressed as:
+\begin{center}
+	\begin{tabular}{r l}
+		$stat \to$  & $ident$ ':=' $exp$ $|$ $stat$ ';' $stat$ $|$ 'for' $ident$ 'from' $exp$ 'to' $exp$ 'do' $stat$ 'od \\
+		$exp \to$   & $exp$ $binop$ $exp$ $|$ $unop$ $exp$ $|$ $ident$ $|$ $num$                                         \\
+		$binop \to$ & '+' $|$ '-' $|$ '*' $|$ '/' $|$                                                                    \\
+		$unop \to$  & '-'                                                                                                \\
+	\end{tabular}
+\end{center}
+
+And abstract syntax tree as:
+\codelines{Haskell}{1}{21}{stack compiler.hs}
+
+\section*{Target Stack Machine}
+\centerimage{width=0.8\textwidth}{stack machine.png}
+Assembly instructions (Some are directives/pesudoinstructions):
+\codelines{Haskell}{23}{34}{stack compiler.hs}
+
+Pesudocode for execution behaviour:
+\codelist{Python}{microcode.pesudo}
+
+\begin{minipage}[t]{0.4\textwidth}
+	\centerline{Typical Assembly}
+	\codelist{Python}{assembly.pesudo}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.4\textwidth}
+	\centerline{Compiler Code Generated}
+	\codelist{Haskell}{code gen rep.hs}
+\end{minipage}
+The define directive (and assembly label) are directives to make the linker/assembler convert jumps to the label into jumps to the memory address of the instruction immediately after the label.
+
+\section*{Translation (Naive Implementation)}
+\codelist{haskell}{stack compiler.hs}
+
+\section*{Intermediate Representations}
+\compitem {
+	\bullpara{Abstract Syntax Tree}{ Usually the first intermediate representation.
+		Can include statements, operations and expressions in a uniform way (simple data structure)
+		\\ Useful for sophisticated instruction selections and register allocation.
+	}
+	\bullpara{Flattened Control Flow Graph}{ Represents assembler-level code
+		\\ Order of opeerations defines control flow, useful for loop-invariant code motion.
+	}
+	\bullpara{Dependency Based Graphs}{ More complex, used by most modern compilers.
+		\\ Used for optimisations, can create 'static single assignment' graphs to deal with dependencies on mutable data.
+	}
+}
+
+\end{document}

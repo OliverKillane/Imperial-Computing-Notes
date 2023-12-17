@@ -1,0 +1,180 @@
+\documentclass{report}
+    \title{50006 - Compilers - (Prof Kelly) Lecture 6}
+    \author{Oliver Killane}
+    \date{07/02/22}
+\input{../50006 common.tex}
+\begin{document}
+\maketitle
+
+\section*{Introduction to Optimisation}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=934102e1-731a-48cd-8716-ae14010121f7}
+
+\sidenote{GCC -O}{
+	\begin{itemize}
+		\bullpara{Without Optimisations}{
+			\\ Program is slower, however easier to debug as generated code represents a simple translation.
+		}
+		\bullpara{With Optimisation}{
+			\\Various optimisations such as loop hoisting (moving loop invariant
+			code out of the loop), constant propagation, inlining and smart
+			register allocation make the program execute more quickly, but at the cost of the debugger.
+			\\
+			\\ Debuggers now much less useful as statements are reordered
+			or completely changed from the source, \& degugger tools such
+			as setting variable values, jumping to lines and breakpoints will
+			often not have the intended effect.
+		}
+	\end{itemize}
+}
+
+\example{Copying Arrays}{
+	When copying an array of values the compiler can optimise in several
+	areas (index calculations, highly optimised copying from libraries such
+	as \fun{memcpy}) including in the most advanced case using vectorised
+	instructions which can use a single instruction on multiply sections
+	of data in an array (SIMD).
+	\\
+	\\ An example of this is \href{https://web.archive.org/web/20190923225625/http://nadeausoftware.com/articles/2012/05/c_c_tip_how_copy_memory_quickly}{here}:
+	\begin{center}
+		\begin{minipage}[t]{0.8\textwidth}
+			\codelist{C}{array copying example.c}
+		\end{minipage}
+	\end{center}
+	\centerimage{width=0.8\textwidth}{memory copy no optimisation.png}
+	\centerimage{width=0.8\textwidth}{memory copy with optimisation.png}
+}
+
+\termdef{High Level Optimisation}{
+	Using high-level information encoded in the program (types, function analysis).
+	\example{Function Inlining}{
+		Replace the call site with a copy of the body of the function.
+		\compitem{
+			\item Avoids call/return overhead.
+			\item Creates further oportunities to optimise (e.g part of function result not used, or removal of call allowing for better register allocation).
+			\item Can require static analysis (e.g call to a virtual or overloaded function requires information about types)
+		}
+	}
+}
+\termdef{Low-Level Optimisations}{
+	Using low-level information (instruction types, the ISA, the order of instructions in the IR, etc) to optimise the output.
+	\\
+	\\ Note that we can loose information from high level representations as we get lower level.
+	\example{Instruction Scheduling}{
+		In pipelined architectures instruction order can impact the speed of processing, (e.g instructions immediately after a conditional branch may be waiting after a pipeline stall).
+		\compitem{
+			\item Re-Order instructions to better allow parallel processing.
+			\item Requires some dependency analysis (e.g switching order of storing to an array - check indexes, do $A[i]$ and $A[j]$ refer to the same location in a given context).
+		}
+	}
+}
+
+\subsection*{The spectrum of Optimisations}
+\termdef{Peephole Optimisation}{
+	Scan through the assembly in order, looking for obvious cases to optimise.
+	\compitem{
+		\item Can catch some of the worst cases (e.g store follwed by load of the same location).
+		\item Very easy to implement (at smallest just consider two adjacent instructions).
+		\item \textit{Phase ordering problem} in what order should the optimisations be applied to get the best result?
+	}
+}
+\centerimage{width=0.8\textwidth}{optimisation spectrum.png}
+\begin{center}
+	\begin{tabular}{l | p{0.3\textwidth}  | p{0.5\textwidth}}
+		\textbf{Local}           & Optimisation on the level of basic blocks (single entry adn exit points) (e.g expressions) & Runs quickly and easy to validate.                                                                           \\
+		\hline
+		\textbf{Global}          & Optimisation on the scale of a whole procedure                                             & Can have worse than $O(n)$ (Linear) complexity given $n$ represents instructions, basic blocks or variables. \\
+		\hline
+		\textbf{Intraprocedural} & Optimisation over the whole program                                                        & Rare and hard to avoid excessive compile times.                                                              \\
+	\end{tabular}
+\end{center}
+
+\subsection*{Loop Optimisations}
+\compitem{
+	\bullpara{Loop Invariant Code Motion}{
+		\\ An instruction is loop-invariant if its operands (inputs) only arrive from outside the loop (moving it out of the loop does not change the semantics).
+		\\
+		\\ Hence the loop iteration has no effect on the value, so we can move this computation from within the loop (being redundantly run with the same inputs many times) to the loop pre-header (compute value just before loop and then use).
+		\\
+		\\ More generally \keyword{strength reduction} is replacing a compelx operation, with a smaller simpler one.
+		\codelines{C}{3}{7}{loop optimisations.c}
+		\codelines{C}{9}{13}{loop optimisations.c}
+	}
+	\bullpara{Strength Reduction}{
+		\\ An \keyword{induction variable} is one which increases/decreases by a \keyword{loop invariant} amount each loop iteration.
+		\\
+		\\ Once we detect \keyword{induction variables} we can use less costly instructions to compute their value.
+		\codelines{C}{16}{20}{loop optimisations.c}
+		\codelines{C}{22}{25}{loop optimisations.c}
+		Or a far, far more complex example:
+		\codelines{C}{28}{35}{loop optimisations.c}
+		\codelines{C}{37}{42}{loop optimisations.c}
+	}
+	\bullpara{Control Variable Selection}{
+		\\ Replace the loop control variable with one of the induction variables that is used. The exit condition for the loop must be changed to work with the variable chosen.
+		\codelines{C}{45}{48}{loop optimisations.c}
+		\codelines{C}{50}{54}{loop optimisations.c}
+	}
+	\bullpara{Dead Code Elimination}{
+		\\ Code that does not produce a used result can be eliminated.
+		\\
+		\\ many other optimisations result in dead code (e.g inlining a function where not all the function's returned values or optional arguments are used.)
+	}
+}
+\section*{Intermediate Representation}
+An \keyword{intermediate representation} (\keyword{IR}) of the program used in code synthesis and optimisation.
+\compitem{
+	\item Must represent all primitive operations needed for execution.
+	\item Be easy to analyse and manipulate.
+	\item Independent of the target instruction set (allowing for many different ISAs to be targeted by backends using the \keyword{IR}).
+	\item Uses temporary variables to store intermediate values to allow for some optimisations and register assignment (e.g via graph colouring).
+	\item Still an area of discussion \& active research, many different approaches including multiple IRs for different stages are used.
+}
+\termdef{Lowering Representation}{
+	Taking high-level features and converting them into lower-level representations.
+	\\
+	\\ For example taking arrays and converting them into pointer arithmetic/address calculation.
+	\\
+	\\ When lowering you loose high-level information (e.g that values are part of an array), but can optimise the lower level representation (optimise address calculations).
+}
+Optimising Compiler synthesis can be described as several stages of analysis, optimisation and lowering of \keyword{IR}.
+\centerimage{width=\textwidth}{code synthesis.png}
+
+\section*{Data Flow Analysis for Live Ranges}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=f0eeffac-0530-4a40-a072-ae1401013f55}
+A live range is the range of instructions for which a temporary value must be maintained.
+\\
+\\ A live range starts at a definition, and ends when either the variable is used, or immediately if the value is never used.
+\subsection*{Control Flow Graph}
+We can generate a graph of simple \keyword{IR} (ideally 3 code) instructions in the program:
+\centerimage{width=0.7\textwidth}{CFG Node.png}
+
+
+\subsection*{Live Range Definitions}
+\centerimage{width=0.8\textwidth}{point definition.png}
+\compitem{
+	\item A \keyword{point} is any location between adjacent nodes.
+	\item A path is a sequence of points traversing through the control flow graph.
+	\item A variable can be \textit{live} at a point if it may be used along some path that goes through the point.
+}
+\centerimage{width=0.8\textwidth}{live in and out.png}
+\compitem{
+	\bullpara{Live Out}{Live immediately after the node if it is live before any successors.
+		\[LiveOut(n) = \bigcup_{s \in succ(n)} LiveIn(s)\]}
+	\bullpara{Live In}{If it is live after the node (unless overwritten by the node) or it is used by the node.
+		\[LiveIn(n) = uses(n) \cup (LiveOut(n) - defines(n))\]
+	}
+}
+
+\subsection*{Iterative Method to get Live Ranges}
+\codelist{Python}{cfg iteration.py}
+Once the iteration stops, the assignments will hold as predicates, meaning the definitions for $LiveIn$ and $LiveOut$ will be true.
+\\
+\\ Given there are limited nodes, and the size of the $LiveIn$ and $LiveOut$ can only increase, we know it will terminate.
+
+\subsection*{Improvements to the Iterative Method}
+To reduce required iterations it is best to update the nodes from last $\to$ first, as generally the program will be connected to go from first instruction to last (cycles can exist which affects this). As the definitions are dependent on successor nodes.
+\\
+\\ Hence we consider it a \textit{backwards analysis}.
+\\
+\\ The time complexity is dependent on the number of instructions and temporaries/registers.
+\end{document}

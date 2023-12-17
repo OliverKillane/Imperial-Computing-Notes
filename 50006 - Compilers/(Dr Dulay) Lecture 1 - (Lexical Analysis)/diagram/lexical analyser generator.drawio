@@ -1,0 +1,58 @@
+<mxfile host="65bd71144e">
+    <diagram id="MtsAzpzqjtwBkxcgq824" name="Page-1">
+        <mxGraphModel dx="1264" dy="2515" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="3" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=30;endArrow=open;endFill=0;endSize=20;" edge="1" parent="1" source="4" target="7">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="Lexical Analyser&lt;br&gt;(tokenizer/scanner)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=30;fillColor=#D80073;fontColor=#ffffff;strokeColor=#3700CC;gradientColor=#001DBC;gradientDirection=west;" vertex="1" parent="1">
+                    <mxGeometry x="299.38" y="20" width="310" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=30;endArrow=open;endFill=0;endSize=20;" edge="1" parent="1" source="6" target="4">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="Characters" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontColor=#001DBC;" vertex="1" parent="1">
+                    <mxGeometry x="69.38" y="55" width="150" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="Tokens" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontColor=#D80073;" vertex="1" parent="1">
+                    <mxGeometry x="689.38" y="55" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontSize=30;endArrow=open;endFill=0;endSize=20;" edge="1" parent="1" source="9" target="4">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="Regular Expressions" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="364.38" y="160" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="(based on formal description of input language)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="320.01" y="230" width="268.75" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="(Of input language)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="10" y="80" width="268.75" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="(Used for semantic analysis, building AST)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="609.38" y="85" width="249.37" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="Lexical Analyser Generator" style="rounded=1;whiteSpace=wrap;html=1;fontSize=30;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#006EAF;gradientDirection=radial;" vertex="1" parent="1">
+                    <mxGeometry x="329.08" y="-130" width="250.62" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=30;endArrow=open;endFill=0;endSize=20;" edge="1" parent="1" source="13" target="4">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="619.3800000000001" y="80" as="sourcePoint"/>
+                        <mxPoint x="699.3800000000001" y="80" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="15" value="Regular Expressions" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="100" y="-110" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=30;endArrow=open;endFill=0;endSize=20;" edge="1" parent="1" source="15" target="13">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="229.3800000000001" y="80" as="sourcePoint"/>
+                        <mxPoint x="309.3800000000001" y="80" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

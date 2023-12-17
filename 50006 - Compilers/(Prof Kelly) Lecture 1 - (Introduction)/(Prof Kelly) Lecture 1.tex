@@ -1,0 +1,210 @@
+\documentclass{report}
+    \title{50006 - Compilers - (Prof Kelly) Lecture 1}
+    \author{Oliver Killane}
+    \date{05/01/22}
+\input{../50006 common.tex}
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=fe733829-d36e-4b7f-89d6-ae1400ff2570}
+
+\section*{Course Introduction}
+\subsection*{Lecturers}
+\compitem{
+	\bullpara{Paul Kelly}{
+		\compitem {
+			\item Introduction to syntax analysis \& toy compiler
+			\item Code Generation
+			\item Generating better code using registers
+			\item Register Allocation
+			\item Optimisation and data flow analysis
+			\item Loop optimisations
+		}
+	}
+	\bullpara{Naranker Dulay}{
+		\compitem {
+			\item Lexical Analysis (characters to tokens)
+			\item LR (Bottom-up) parsers (tokens to AST)
+			\item LL (top-down parsing)
+			\item Semantic Analysis, checking program validity
+			\item Runtime organisation (memory)
+		}
+	}
+}
+
+\subsection*{Materials}
+\compitem{
+	\item \href{https://scientia.doc.ic.ac.uk/2122/modules/50006/resources}{Scientia}
+	\item Course Textbook
+	\item Course Webpages for \href{http://www.doc.ic.ac.uk/~phjk/Compilers}{Paul Kelly} and \href{http://www.doc.ic.ac.uk/~nd/compilers}{Naranker Dulay}
+}
+
+Recommended Textbooks:
+\begin{itemize}
+	\bullpara{The Dragon Book: 'Compilers: Principles, Techniques and Tools'}{
+		\\ The definitive book on compilers. Called the dragon book due to its front illustration (allusion to taming the dragon of compiler complexity).
+		\\
+		\\ Has all required information and lots more (very thick book). \href{https://www.amazon.co.uk/Compilers-Principles-Techniques-Alfred-Aho-dp-0321486811/dp/0321486811/ref=dp_ob_title_bk}{(Amazon link)}
+	}
+	\bullpara{'Modern Compiler Implementation in Java'}{
+		\\ Details a java compiler implementation, with reasoning behind design choiced. \href{https://www.amazon.co.uk/Modern-Compiler-Implementation-Andrew-Appel/dp/052182060X}{(Amazon link)}
+	}
+	\bullpara{Most Recommended: 'Engineering a Compiler'}{
+		\\ Most closely follows course \& well reviewed. \href{https://www.amazon.co.uk/Engineering-Compiler-Keith-Cooper/dp/012088478X}{(Amazon link)}
+	}
+\end{itemize}
+
+\section*{Compilers Introduction}
+A particular class of program called \keyword{language processors}. Compilers can be:
+\compitem{
+	\bullpara{Processes}{programs written in some language.}
+	\bullpara{Writes}{programs in some language.}
+	\bullpara{Translates}{programs from one language to an equivalent program in another. (e.g from hier to lower level language)}
+}
+A tool to enable programs written using high-level concepts to be translated into a low-level implementation.
+\centerimage{width=0.8\textwidth}{compiler.png}
+\compitem{
+	\item Typically from a high level language to a lower level one.
+	\item Error messages ensure source program can be fixed easily when failing to compile.
+	\item Can compiler from \& to a high-level language (e.g compile to C, or between languages)
+	\item Analyse the source program to provide the programmer useful information.
+}
+\subsection*{Basic Compiler Structure}
+\centerimage{width=\textwidth}{compiler structure.png}
+
+\begin{itemize}
+	\bullpara{Input}{Take program written in some language.}
+	\bullpara{Analysis} {
+		\\ Create an internal representation (IR) of the source which encodes its meaning (semantics).
+		\\
+		\\ This often starts with a tree (abstract syntax tree), but graphs may be used to represent control flow.
+		\compitem{
+			\bullpara{Lexical Analysis}{ \\ Tokenization, converting text to a series of tokens representing keywords, identifiers, etc.}
+			\bullpara{Syntax Analysis}{ \\ Analysis of the nested structure of a program (e.g if-else within if-else within loop block).}
+			\bullpara{Semantic Analysis}{ \\ Analysing the meaning of a program such as type checking, determining overloading (e.g is $+$ between variables correct \& what action (e.g add integers, or concantenate strings)). }
+		}
+	}
+	\bullpara{Synthesis} {
+		\\ Use the IR to create the program in the target language (retaining the same meaning/semantics).
+		\\
+		\\ The IR may be analysed and transformed to provide extra information to the programmer (e.g warnings) as well as to optimise (e.g inlining, loop hoisting, loop unrolling, removing dead code).
+		\compitem {
+			\bullpara{Intermediate Code Generation}{ \\ Encodes more information, and is used in sphisticated compilers for optimisation. For example determinign loop invariant code (code that can be hoisted out of the loop \& only be evaluated once).}
+			\bullpara{Optimisation}{ \\ Improving code performance without altering its meaning. }
+		}
+	}
+	\bullpara{Output} {Output the target program. (e.g x86 assembly or Java bytecode)}
+\end{itemize}
+
+
+\subsection*{Symbol Table}
+Contains information on all declared identifiers, and is used to check its use (e.g type checking) and generate code for access.
+\compitem{
+	\item Name
+	\item Type of identifier (function, class, variable, constant)
+	\item Size (Memory to reserve \& where (e.g stack, data segment, heap))
+}
+
+\begin{minipage}[t]{0.45\textwidth}
+	\centerline{Code}
+	\codelist{C}{C code.c}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+	\centerline{GCC symbol table}
+	\lstinputlisting[basicstyle=\tiny]{C code symbol table.txt}
+\end{minipage}
+
+\sidenote{GCC Symbol Table}{
+	Simply compile, and then use \fun{nm} on the resulting binary to get a basic representation of GCC's symbol table (that is included with the executable).
+}
+
+The symbol table is used in different ways through different phases of the compiler:
+\centerimage{width=0.8\textwidth}{compiler phases.png}
+\begin{minipage}[t]{0.45\textwidth}
+	\centerline{Code}
+	\codelist{C}{basic example.c}
+	\sidenote{Boilerplate}{
+		Not lots of boilerplate assembly is ommited, if you try this locally you will see this.
+	}
+\end{minipage}
+\begin{minipage}[t]{0.1\textwidth}
+	\huge
+	\[\Rightarrow\]
+\end{minipage}
+\begin{minipage}[t]{0.45\textwidth}
+	\centerline{Assembly}
+	\codelist{{[x86masm]Assembler}}{basic example.s}
+	\sidenote{GodBolt}{
+		The \href{https://godbolt.org/}{compiler explorer} is a great tool for generating \& exploring assembly generated by compilers.
+	}
+\end{minipage}
+\section*{Compiler Phases}
+We can show the phases of the compiler through an example. Converting \keyword{C} code into \keyword{AT\&T/GAS} assembly.
+\[int_{space}a;_{newline}int_{space}b;_{newline} \ _{newline}void_{space}text\_fun(void)_{space}\{_{newline}a_{space}=_{space}b+42;_{newline}\}\]
+[INTtok,
+\\ IDENTtok(pointer to 'a' entry in symbol table),
+\\ SEMICOLONtok,
+\\ INTtok,
+\\ IDENTtok(pointer to 'b' entry in symbol table),
+\\ SEMICOLONtok,
+\\ VOIDtok,
+\\ IDENTtok(pointer to 'test\_fun' entry in symbol table),
+\\ LBRACKETtok,
+\\ VOIDtok,
+\\ RBRACKETtok,
+\\ LCURLYBRACKETtok,
+\\ IDENTtok(pointer to 'a' entry in symbol table),
+\\ EQtok,
+\\ IDENTtok(pointer to 'b' entry in symbol table),
+\\ PLUStok,
+\\ CONSTINTtok(123),
+\\ SEMICOLONtok,
+\\ RCURLYBRACKETtok]
+
+
+\subsection*{Lexical Analysis}
+Also known as tokenization. The input sequence of characters is tokenized and any new identifiers added to the symbol table during tokenization.
+\\
+\\ Tokens to identifiers include pointers to their corresponding entry in the symbol table.
+
+
+\subsection*{Syntax Analysis}
+Also known as parsing. Using a grammatical structure to generate an \keyword{Abstract Syntax Tree} from the sequence of tokens provided by the previous stage.
+\compenum {
+	\item Ensure the structure is correct, report an error otherwise.
+	\item Build \keyword{Abstract Syntax Tree} from tokens to represent program.
+}
+The grammar of the language can be expressed in a notation such as \keyword{Backus-Naur Form}. This is much the same as the definitions used for the simple while language in \keyword{Models of Computation}.
+\\
+\\ A rudimentary example could be:
+\begin{center}
+	\begin{tabular}{r c l}
+		$Cond$ & ::= & $'true' \ | \ 'false' \ | \ Expr == Expr \ | \ Expr < Expr \ | \ Cond \& Cond \ | \ \neg Cond \dots$                            \\
+		$Expr$ & ::= & $Var \ | \ Const \ | \ Expr + Expr \ | \ Expr \times Expr \dots$                                                                \\
+		$Stat$ & ::= & $x :=Expr \ | \ 'if' \ Cond \ 'then' \ Stat \ 'else' \ Stat \ | \ Stat; \ Stat \ | \ 'skip' \ | \ 'while' \ Cond \ 'do' \ Stat$ \\
+	\end{tabular}
+\end{center}
+The \keyword{Abstract Syntax Tree} is implemented as a tree of linked objects. It must be designed to be efficient to construct \& contain all require information for subsequent stages.
+\\
+\\ The \keyword{Abstract Syntax Tree} for the basic C program would be something like:
+\centerimage{width=\textwidth}{basic example ast.png}
+
+\section*{Domain Specific Languages}
+Many programming languages are \keyword{domain specific}, meaning they are designed for a specific use.
+\compitem{
+	\bullpara{Latex}{Creating documents}
+	\bullpara{Markdown}{Simple text files with image, font support (e.g readmes)}
+	\bullpara{YAML \& TOML}{Configuration files}
+	\bullpara{Verilog}{Digital Circuit Design}
+	\bullpara{R}{Statistics}
+	\bullpara{Simulink}{Dynamic System Modelling}
+	\bullpara{Yacc}{(Yet another compiler-compiler) parser generator language}
+}
+There are also many language processors that are not compilers:
+\compitem{
+	\bullpara{FindBugs}{Finds bugs in java code}
+	\bullpara{Pylint}{Linter for python}
+	\bullpara{Valgrind}{Detecting bugs \& memory leaks}
+}
+
+\end{document}

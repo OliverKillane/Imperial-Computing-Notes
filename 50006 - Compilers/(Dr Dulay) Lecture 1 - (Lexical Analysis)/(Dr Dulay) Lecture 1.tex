@@ -1,0 +1,176 @@
+\documentclass{report}
+    \title{50006 - Compilers - (Dr Dulay) Lecture 1}
+    \author{Oliver Killane}
+    \date{09/01/22}
+\input{../50006 common.tex}
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=b13de4b4-7dca-4f4d-a22c-ae0b0164d324}
+
+\section*{Lexical Analysis}
+Transforming a stream of characters into a stream of tokens, based on the formal description of the tokens of the input language.
+\centerimage{width=0.8\textwidth}{lexical analyser.png}
+
+\subsection*{Identifier Tokens}
+Lexical analyser needs to identify keywords quickly, so often fast string lookup is achieved using a perfect hash function (hash with no possible collisions).
+\compitem{
+	\bullpara{Keyword Identifiers}{
+		\\ Have special meaning in a programming language and are normnally represented by their own token.
+		\\ e.g 'class' $\to$ CLASS, 'package' $\to$ PACKAGE, 'while' $\to$ WHILE, etc.
+	}
+	\bullpara{Non-Keyword Identifiers}{
+		\\ Programmer defined identifiers, such as variable names. Typically a generic token is used that uses the provided string name.
+		\\ e.g 'var1' $\to$ IDENT("var1")
+	}
+}
+
+\subsection*{Literal Tokens}
+Literals (constant values embedded into the input program)
+\compitem{
+	\bullpara{Unsigned Integers}{
+		\\ Represented as a literal token for integers, containing the value used. Tokenizer needs to account for negative integers, as well as varying integer sizes (e.g larger than typical default of 4 bytes) to prevent overflow and correctly assign the value from the input program.
+		\\ e.g '123' $\to$ INTEGER(123), '1e400' $\to$ BIGINTEGER(1e400), '0x11' $\to$ INTEGER(17), etc.
+	}
+	\bullpara{Unsigned Reals}{
+		\\ Represented by a literal token for floating-point values, which containg the value. Tokenizer must take into account large and negative floats.
+		\\ e.g '17.003' $\to$ FLOAT(17.003)
+	}
+	\bullpara{Strings}{
+		\\ Represented by string tokens containing the string (much like non-keyword identifiers). Tokeinzer Needs to account for input language characters are encoding (e.g unicode, ascii etc), as well as escape characters (backslash)
+		\\ e.g '"hello, world!"' $\to$ STRING("hello, world!")
+	}
+}
+
+\subsection*{Other Tokens}
+\compitem{
+	\bullpara{Operators}{
+		\\ Usually one or two characters, with their own token. e.g $+,-,*,/,::,<=$}
+	\bullpara{Whitespace}{
+		\\ Normally removed unless inside a string literal. Some information may be included as metadata for later stages of the compiler (e.g for nice error handling). Normally needed to separate identifiers ('pub mod' $\to$ [PUBLIC, MODULE] but 'pubmod' $\to$ IDENT("pubmod"))}
+	\bullpara{Comments}{
+		\\ Normally Removed, have no effect on program logic.}
+	\bullpara{Pre-processing directives \& Macros}{
+		\\ Most languages remove/process before lexical analysis either by an external tool or an earlier stage of the compiler (e.g pre-processor). One exception to this is \keyword{Rust's} macros system, which allows macros to process tokens and is incredibly powerful as a result.
+	}
+}
+
+\subsection*{Regular Expressions}
+Expressions to match strings, cannot be recursive.
+\begin{center}
+	\begin{tabular}{l l l}
+		$a$                           & Match symbol                              & $x$ matches 'x' only.                                               \\
+		$\text{\textbackslash}symbol$ & Escape regex char                         & $\text{\textbackslash}($ matches '(' only.                          \\
+		$\epsilon$                    & Match empty string.                       & $\epsilon$ matches '' only.                                         \\
+		$R_1R_2$                      & Match adjacent.                           & $ab89$ matches 'ab89' only.                                         \\
+		$R_1|R_2$                     & Alternation (or), match either regex      & $abc|1$ matches 'abc' and '1'.                                      \\
+		$(R)$                         & Group regexes together                    & $(a|b)c$ matches 'ac' and 'bc'.                                     \\
+		$R+$                          & One or more repetitions of expression $R$ & $(a|b|j)+$ matches all non-empty strings of a,b \& j (e.g 'abbjab') \\
+		$R*$                          & Zero or more repetitions                  & $R*$ is equivalent to $(R+)|\epsilon$                               \\
+	\end{tabular}
+\end{center}
+Precedence (highest $\to$ lowest) grouping, repetition, concatenation, alternation.
+\\
+\\ The following can be derived from the previous rules.
+\begin{center}
+	\begin{tabular}{l l l}
+		$R?$          & Optional, zero or one occurence                         & $a?$ matches '' and 'a'.                                                               \\
+		$.$           & wildcard, match any character                           & $.*$ matches every possible string.                                                    \\
+		$[abcd]$      & Character Set, match any character in the set           & $[abc]$ matches 'a', 'b' and 'c'.                                                      \\
+		$[0-9]$       & Match characters in range                               & $[a-zA-Z]$ matches all single alphabet character strings (capitalised also) (e.g 'S'). \\
+		$[\land abc]$ & Match all characters except those in the character set. & $[^0-9]*$ matches all strings with no numbers.                                         \\
+	\end{tabular}
+\end{center}
+
+These expressions can be used in production rules:
+\begin{center}
+	\begin{tabular}{l c l}
+		$Digit$      & $\to$ & $[0-9]$                         \\
+		$Int$        & $\to$ & $Digit +$                       \\
+		$Signedint$  & $\to$ & $(+|-)? Int$                    \\
+		$Keyword$    & $\to$ & $'if' \ | \ 'while' \ | \ 'do'$ \\
+		$Letter$     & $\to$ & $[a-zA-Z]$                      \\
+		$Identifier$ & $\to$ & $Letter (Letter | Digit) *$     \\
+	\end{tabular}
+\end{center}
+\subsection*{Disambiguation Rules}
+When more than one expression matches, choose the longest matching character sequence. Otherwise assume regular expression rules are ordered (textual precedence, earlier rule takes precedence).
+\[\begin{matrix}
+		Keyword \to while \ | \ if \ | \ do & \text{ and } & Identifier \to Letter (Letter | Digit) * \\
+	\end{matrix}\]
+'whileactive' matches $Identifier$ and $Keyword$, however $Identifier$ matches all of the string (longer) so is chosen.
+
+\subsection*{Lexical Analyser Implementation}
+\compitem{
+	\bullpara{Manually Implement} {
+		\\ Relatively easy to write from scratch, however can become very difficult to change to change rules for tokens, and many rules implemented in an ad-hoc fashion.
+	}
+	\bullpara{Lexical Analyser Generators}{
+		\\ For example \keyword{Logos} which take programmer defined token structures \& functions to consume matches specified by regular expressions. They generate a tokenizer convert inputs into the defined tokens.
+		\\
+		\\ An example is included in the \file{code} directory of this lecture.
+		\centerimage{width=0.8\textwidth}{lexical analyser generator}
+		\centerimage{width=0.4\textwidth}{lexical analyser generation.png}
+	}
+}
+
+\subsection*{Finite Automata}
+Also called finite state machines.
+\compitem{
+	\item Arrows denote treansitions between states.
+	\item Start state has an unlabelled transition to it.
+	\item Accepting states are double circles.
+	\item Technically each non-accepting state should have a transition for every symbol (potentially to an error state), however these are ommitted from the diagram for conciseness.
+	\item Will stop when no transition can be made (as a result matches the longest string possible to a state).
+}
+\centerimage{width=\textwidth}{finite state machine.png}
+
+\subsection*{Regular Expressions to Nondeterministic Finite Automata}
+Thompson's construction is used to translate, it uses $\epsilon$ transitions to stick NFAs together.
+\centerimage{width=\textwidth}{thompsons.png}
+
+\subsection*{Subset Construction}
+\compitem {
+	\item NFA traversal requires backtracking (for a state, input must try every branch for that input).
+	\item Backtracking is slow.
+	\item DFA traversal is faster (no backtracking) so compilers convert to DFA by removing all $\epsilon$ transitions instances of multiple paths for an input.
+	\item DFAs often require more memory than NFAs (up to $2^n$ states for an $n$ state NFA) so some application such as regex searches in some editors use them.
+}
+Subset Construction eliminates $\epsilon$ transitions, converts to a DFA. States of DFA are subsets of states in the NFA, hence the name.
+\begin{center}
+	\begin{tabular}{c | c | c}
+		    & \textbf{Space}   & \textbf{Time}                \\
+		\hline
+		NFA & $O(len \ R)$     & $O(len \ R \times len \ X)*$ \\
+		DFA & $O(2^{len \ R})$ & $O(len \ X)$                 \\
+	\end{tabular}
+\end{center}
+It is very rare for the space of the DFA to be an issue with compilers, so they are always used for the increased speed.
+\subsubsection*{$\epsilon$ Closures}
+\begin{center}
+	\begin{tabular}{l l}
+		\textbf{$\epsilon$-Closure}($s$)               & Set of all states that can be reached through only $\epsilon$ transitions (including itself). \\
+		\textbf{$\epsilon$-Closure}($s_1, \dots, s_n$) & union of the closures for $s_1, \dots, s_n$.                                                  \\
+	\end{tabular}
+\end{center}
+\centerimage{width=0.6\textwidth}{epsilon closure.png}
+\begin{center}
+	\begin{tabular}{r l}
+		$\epsilon$-Closure(0) $=$ & $\{0,1,2,3,4\}$ \\
+		$\epsilon$-Closure(1) $=$ & $\{1,2,3,4\}$   \\
+		$\epsilon$-Closure(2) $=$ & $\{2\}$         \\
+		$\epsilon$-Closure(3) $=$ & $\{3\}$         \\
+		$\epsilon$-Closure(4) $=$ & $\{2,4\}$       \\
+		$\epsilon$-Closure(5) $=$ & $\{5\}$         \\
+	\end{tabular}
+\end{center}
+
+\subsubsection*{Generating Subset Construction}
+\compenum{
+	\item Start at NFA start state.
+	\item Get the $\epsilon$-Closure (all states the machine could possibly be in)
+	\item For each possible transition (not including erroneous) create a transition to the possible states (e.g if in the current $\epsilon$-Closure 'a' goes to states $7$ and $10$, then 'a' should now transition to state $\{7,10\}$).
+	\item COntinue step 2 for the states transitions have been created to.
+}
+A good example walkthrough can be found \href{https://youtu.be/jMxuL4Xzi_A}{here}.
+\centerimage{width=0.6\textwidth}{epsilon closure DNF.png}
+\end{document}

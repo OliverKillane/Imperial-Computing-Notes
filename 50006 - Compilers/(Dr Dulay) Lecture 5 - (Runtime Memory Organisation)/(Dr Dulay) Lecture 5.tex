@@ -1,0 +1,290 @@
+\documentclass{report}
+    \title{50006 - Compilers - (Dr Dulay) Lecture 5}
+    \author{Oliver Killane}
+    \date{14/04/22}
+\input{../50006 common.tex}
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=b410457f-af50-4612-83e7-ae0b017ed609}
+
+\section*{Classic Approach to Compilers}
+\centerimage{width=0.9\textwidth}{compiler approach}
+
+\section*{Data Representation}
+\termdef{Primitive Types}{
+	The most basic types, supported by the architecture the compiler targets.
+	\begin{center}
+		\begin{tabular}{l l l}
+			\textbf{Type}    & \textbf{Bytes} & \textbf{Representation}         \\
+			Boolean          & 1              & $0$ for false and $1$ for true. \\
+			Integer          & 1,2,4,8        & Typically 2s-complement.        \\
+			Unsigned Integer & 1,2,4,8        & Basic unsigned binary.          \\
+			Float/Real       & 4,8,16         & IEEE Floating Point.            \\
+			Char             & 1,2            & For ascii (byte) and unicode.   \\
+		\end{tabular}
+	\end{center}
+	\compitem{
+		\item Compilers may align types for more optimal memory access, sometimes this is enforced by the target architecture.
+		\item Some languages support pointer types (e.g C), however this makes type checking difficult (consider pointer arithmetic).
+		As a result more modern language use type-checkable object references.
+	}
+}
+\termdef{Alignment}{
+	Typically some address is considered $n$-byte aligned when it is a multiple of $n$ bytes.
+	\compitem{
+		\item Often data is aligned by the size of data the processor can load in a single instruction. This is done to ensure loading some data requires the minimal number of memory accesses.
+		\item Some architectures enforce alignment for this reason, particularly for the stack.
+		\item When aligned to a multiple of two $2^k$, the first $k$ bits of the address will be zero. For example alignment of pages in memory allow for page table entries to use the bits that will always be zero (due to alignment) to be used for other information (e.g reference, supervisor, read/write)
+	}
+}
+\termdef{Structs/Records}{
+	Data types consisting of groups of fields/members of other types.
+	\compitem{
+		\item Fileds typically allocated in a contiguous block of memory.
+		\item Alignment often used to space fields.
+		\item Some languages order fields by their position in code (e.g C) while others can reorder and optimise.
+		\item Tuples are effectively anonymous structs.
+	}
+	If no padding/alignment is used, and the struct/record is kept in order as expressed by the source code (e.g typical of C):
+	\[\begin{split}
+			Record &= (Field_1, Field_2, \dots, Field_n) \\
+			Size(Record) &= Size(Field_1) + Size(Field_2) + \dots + Size(Field_n) \\
+			Address(Field_k) &= StartAddress(Record) + Size(Field_1) + \dots + Size(Field_{k-1}) \\
+		\end{split}\]
+}
+\sidenote{Struct Representation}{
+	As previously mentioned some languages reorder and optimise structs/records.
+	\\
+	\\ Rust not only does this, but allows the programmer to specify different representation schemes through macros. (\href{https://doc.rust-lang.org/nomicon/other-reprs.html}{See Rust alternative representations.})
+}
+
+\termdef{Arrays}{
+	A contiguous section of memory populated by $n$ variables (elements) of the same type.
+	\compitem{
+		\item Can have elements aligned
+		\item Some languages associated arrays with auxiliary data (e.g length for bounds checking).
+	}
+	A basic array implementation (elements not aligned/padded):
+	\[\begin{split}
+			Array[Type] &= Element[Type]_1,  \dots, Element[Type]_n \text{  (Indexed as $0$ to $n-1$)}\\
+			Size(Array) &= Size(Type) \times n \\
+			Address(Element_k) &= StartAddress(Array) + k \times Size(Type) \\
+		\end{split}\]
+}
+
+\termdef{Objects}{
+	Implemented as a reference to a record, but with a pointer to a \keyword{method lookup table}(\keyword{MLT}) for that class (needs to consider inheritance).
+	\compitem{
+		\item When calling a method of an object, traverse to the object's \keyword{MLT}. Then jump to the method, having placed the first argument as a pointer to the object.
+		\item Access fields just like a struct.
+		\item The indirection required for accessing values, calling methods adds overhead.
+	}
+	\halfsplit{
+		\centerimage{width=\textwidth}{object}
+	}{
+		\codelist{Java}{object example.java}
+	}
+}
+
+\subsection*{Class Inheritance}
+For single inheritance we include the parent's fields and methods in the struct and \keyword{MLT}.
+\\ \halfsplit{
+	\centerimage{width=\textwidth}{class inheritance}
+}{
+	\codelist{Java}{object inheritance example.java}
+}
+\compitem{
+	\item Pointers in the \keyword{MLT} go to the method (potentially a method also pointed to by the parent if no overriden)
+	\item New added methods are in the \keyword{MLT}
+	\item We chain the child/subclass's \keyword{MLT} to the parent/superclass' so that we can check for types (e.g is this an $instanceof$ another class, a child etc) at runtime using the \keyword{MLT}. We could also have used type descriptors or other implementations.
+	\item We preserve the layout of the parent/super class in the child (only appending methods and fields).
+}
+
+\subsection*{Dynamic Binding}
+As we only append fields and entries to the \keyword{MLT} when inheriting, it is possible to set a variable of type parent class to a value of type child class.
+\\
+\\ In the example below, we can see that a new field is added in $B$, (the inherited $A.n$ is still available). The \keyword{MLT} of the $B$ class contains the overriden $get$ function.
+\codelist{Java}{OOPExample.java}
+
+\section*{Program Address Space}
+\centerimage{width=0.9\textwidth}{program address space}
+Typically programs divide their address space into several segments (each potentially multiple pages large).
+\compitem{
+	\item By placing static data, code and stack space in different pages (in different segments/parts of the address space) they can have different permissions (e.g code is read-execute only, stack cannot be executed, etc)
+	\item Global variables can be placed in a fixed location in the static area.
+	\item Constants, \keyword{MLT}s and other global data can be kept in the static area.
+	\item Local variables are stored on the stack in the stack frame of the function they are local to. They are allocated for the duration of the call.
+	\item The stack can also contain arguments sent to the function, as well as information such as the address of the object (for methods) and slots for temporarily storing registers.
+	\item Some architectures such as IA32 have a special register for the start address of the current stack frame (in IA32 it is the EBP register).
+}
+
+\subsection*{Heap Management}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=ac699db7-9188-41b8-84e7-ae0b017fedab}
+We can heap allocate variables (heap variables, also called dynamic variables). Here they can remain for any period of time, and be referenced from anywhere within the program (unlike local variables which are bound to a given function).
+\\
+\\ Heap variables must be allocated (e.g by $new$ in java, or $malloc$ in C/C++)
+\\
+\\ Programming languages manage memory in 4 different ways:
+\begin{center}
+	\begin{tabular}{l l p{0.7\textwidth}}
+		Explicit           & C, ASM            & Programmer determines when memory is freed, and how it is accessed. This is difficult, but allows for very fast code as the programmer can highly optimize their memory usage. \\
+		\hline
+		Garbage Collection & Java, Haskell, Go & The compiler adds code to check what objects are no longer in use, and to free them. This is done at runtime and has considerable overhead.                                    \\
+	\end{tabular}
+\end{center}
+\sidenote{Rust Superiority}{
+	Rust's main memory management tool is Lifetimes (though it does use smart pointers with reference counting, and allow for explicit memory management also).
+	\\
+	\\ All references are qualified with information on mutability, and where the reference will be valid. The compiler uses these to ensure memory safety and insert required frees at compile time.
+	\\
+	\\ This makes the compiler more complex, but is safer than a GC (fewer bugs, will refuse to compile unsafe code (e.g with data races)), with performance almost identical to explicit memory management.
+}
+
+\subsection*{Explicit Heap Allocation}
+We maintain a structure containing the free blocks and information associated with each block. Here we will consider a simple linked list.
+\compitem{
+	\item Maintaining several lists for different sizes can reduce the search time.
+	\item Should allocate blocks just large enough.
+	\item For extensible arrays (vectors, mutable strings) we should allocate with the expectation that more memory will be used (allocate more than currently required).
+	\item Some architectures require alignment of values, this must be considered. Requirements aside, as previously mentioned not-aligning can reduce performance.
+	\item Heap allocation is worse for locality (e.g than the stack) and hence can potentially have worse cache locality, affecting performance.
+}
+\centerimage{width=\textwidth}{free list}
+\codelist{Python}{explicit heap allocation.py}
+
+\subsection*{Garbage Collection}
+\termdef{Garbage Collector}{
+	A part of the language's runtime that ensures heap allocated variables are properly de-allocated when they are no longer used. Many different \keyword{GC} algorithms are employed by many different languages.
+	\\
+	\\ \keyword{GC}s have several requirements:
+	\compitem{
+		\bullpara{Correctness}{
+			The \keyword{GC} must never collect (de-allocate) live data (in use).
+		}
+		\bullpara{Performance}{
+			Must be fast \& have low memory overhead to reduce the impact on program performance.
+		}
+		\bullpara{Compiler Supported}{
+			In order to function the compiler needs to provide the garbage collector information for:
+			\compitem{
+				\item Which variables point to the heap.
+				\item The pointers contained in each block (e.g an object contains a reference to an object).
+			}
+			The compiler can either provide this data directly (type description data for objects), or generate special subroutines for the \keyword{GC} to call.
+		}
+	}
+	Garbage collectors can be run as \keyword{1-shot} (pause the program, run the \keyword{GC} and then resume), \keyword{on-the-fly} (as the program is run) or concurrent (runs on a different thread).
+}
+\termdef{Heap Compaction}{
+	After \keyword{GC} de-allocates many blocks, the heap may be fragmented (lots of small free blocks). Hence much memory may not be free, but it may not be possible to allocate for an object as there is no block large enough.
+	\centerimage{width=0.9\textwidth}{compaction}
+}
+\termdef{Reference-Counting Garbage Collector}{
+	The block's management/housekeeping information contains a \keyword{reference count}. When a reference is made to an object, the reference count of the block containing it is increased, when that reference is removed, this is decreased.
+	\\
+	\\ When the reference count is decremented to zero, we know to free the block.
+	\compitem{
+		\item Simple and efficient (garbage collection done as the program runs)
+		\item Requires the compiler to generate the code to correctly track references.
+		\item In reference cycles (e.g A references B which references A, even when no-one references them (they should both be collected) they keep eachother alive) blocks may be kept live indefinitely, the \keyword{GC} needs to avoid this.
+	}
+	\begin{center}
+		\begin{minipage}{0.9\textwidth}
+			\codelist{Python}{reference counting.py}
+		\end{minipage}
+	\end{center}
+}
+\termdef{Mark-Sweep Garbage Collector}{
+	Pause the program, and collect all blocks that are not pointed to (potentially indirectly) by a non-heap value (e.g local or static variable).
+	\\
+	\\ This will find all dead blocks/garbage (unlike a \keyword{reference counting GC}) however it has considerable overhead. Each block's maintenance/housekeeping information must also contain space for a mark bit.
+	\compitem{
+		\bullpara{Mark}{
+			For all stack variables, if they point to the heap then recursively traverse, marking each block they point to as live.
+		}
+		\bullpara{Sweep}{
+			Go through each block, if it is not marked as live, then collect and deallocate it.
+		}
+	}
+	\centerimage{width=0.9\textwidth}{mark and sweep}
+}
+\termdef{Pointer-Reversal Marking}{
+	Recursive traversal of pointers requires a potentially large amount of stack space (e.g going through a linked list of throusands of elements).
+	\\
+	\\ A garbage collector needs to work when memory is low. Hence we can use \keyword{Pointer-Reversal Marking} to store the pointers to return to (previous in traversal) in place.
+	\compenum{
+		\item When visiting a block, we select a pointer from within the block. We then set that pointer as the current, and place the address of the previous current pointer into it (hence now reversed).
+		\item We can then use the current pointer value to traverse to the next block, and continue.
+		\item When we find an already marked block, or no pointer in the block top traverse to, we can retreat back by using the pointer held in the location of the "current pointer" as this points back to the parent. We can set this
+		\item Note we need to store the number of marked children in the block's maintenance/housekeeping data.
+	}
+	By storing the previously visited in the pointer we are traversing through, we require no extra stack space.
+	\centerimage{width=0.9\textwidth}{reverse pointer}
+	\begin{center}
+		\begin{minipage}{0.9\textwidth}
+			\codelist{C}{reverse pointer.c}
+		\end{minipage}
+	\end{center}
+}
+\termdef{Two Space Garbage Collector}{
+	The heap is split into two, a \keyword{from-space} and a \keyword{two-space}. Blocks are allocated from the \keyword{from-space}. When there are no more free blocks, all live (reachable from a non-heap pointer) blocks are copied to the \keyword{to-space} and then the \keyword{to-space} becomes the \keyword{from-space} and vice-versa.
+	\compitem{
+		\item Fast, there are few complex pointer manipulations.
+		\item Automatically compacts memory when copying.
+		\item Can place linked blocks close together in memory when copying to allow for better cache locality.
+	}
+}
+\termdef{Generational Garbage Collector}{
+	The heap is split into several areas based on the age of blocks.
+	\compitem{
+		\item Allocate new blocks from the youngest, if full, move the oldest young blocks to an older area.
+		\item \keyword{GC} is used more frequently on the younger areas.
+		\item Can apply different \keyword{GC} techniques to the different areas.
+	}
+}
+\sidenote{Java 13}{
+	Java 13 has 5 different garbage collectors, you can read more about there \href{https://www.baeldung.com/jvm-garbage-collectors}{here}.
+	\compitem{
+		\item Serial
+		\item Parallel
+		\item Concurrent Mark-Sweep (CMS)
+		\item Garbage First (G1),
+		\item ZGC
+	}
+}
+
+\section*{Other Compiler Components}
+\termdef{Debugger}{
+	Useful tools for inspecting the behaviour of programs.
+	\compitem{
+		\item Program behaviour must be maintained when being debugged (execution time can change, but correctness must be consistent).
+		\item Debugging information (e.g function and variable names, source line mappings) may be embedded in the program.
+		\item Highly optimising compilers and debuggers are mostly incompatible (as a useful debugger can map behaviour back to source code, and no such relation exists once complex optimisations are done). Hence debuggers usually compile with optimisations off.
+	}
+	There are two main kinds of debuggers:
+	\compitem{
+		\bullpara{Interactive}{ e.g GDB
+			Allow users to inspect the state of the program, variables, functions, memory etc and to pause execution of the program.
+			\\
+			\\ For natively compiled (e.g Rust, C, Go) the architecture and OS must support breakpoints. For bytecode compiled (e.g Java) the interpreter supports this.
+		}
+		\bullpara{Post-Mortem / Core Dump}{ e.g Rust backtrace
+			Provides debugging information upon failure by doing a reverse lookup from the program counter.
+			\compitem{
+				\item Stack TraceBack shows the methods called, their local variables, arguments etc.
+				\item Contents of global and dynamic/heap variables.
+			}
+			This requires the debugger to work out where variables are stored (register, stack, heap) and to map them back to names from the source using debugging information embedded at compile time.
+		}
+	}
+}
+\termdef{Profilers}{
+	Provide performance information on a program.
+	\compitem{
+		\item Typically used once code is correct, algorithmically optimal and optimised by the compiler.
+		\item Can determine the time spent in functions, or how much of a program is spent is certain sections of code.
+	}
+	For example a profiler could interrupt execution periodically (some number of ms), identify the method being used, and increment a counter for it. Hence after profiling we can get a breakdown of the proportion of program time spent in each function.
+}
+
+\end{document}

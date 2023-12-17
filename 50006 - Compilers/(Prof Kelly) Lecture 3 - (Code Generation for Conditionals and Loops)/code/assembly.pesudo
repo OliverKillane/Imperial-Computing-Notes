@@ -1,0 +1,9 @@
+start:
+    PushAbs i
+    PushImm 1
+    Sub
+    Pop i
+    PushAbs i
+    PushImm 100
+    CompEq
+    JTrue start

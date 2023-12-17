@@ -1,0 +1,276 @@
+\documentclass{report}
+    \title{50006 - Compilers - (Prof Kelly) Lecture 5}
+    \author{Oliver Killane}
+    \date{12/01/22}
+\input{../50006 common.tex}
+
+\newcommand{\hot}[1]{\textcolor{red}{#1}}
+\newcommand{\old}[1]{\textcolor{blue}{#1}}
+
+\begin{document}
+\maketitle
+
+\section*{Register Usage}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=57ef818f-a465-476c-8532-ae140100b691}
+Register usage has several advantages:
+\compitem {
+	\item Registers are very fast to read from and write to.
+	\item Registers are multi-ported (two or more registers can be read per clock cycle).
+	\item Registers are specified by a small field of the instruction (leaves room for immediate operands and other data).
+	\item CPUs can optimise at runtime and use register accesses \& data dependencies to optimise instruction ordering among other techniques.
+}
+Hence we should attempt to use as few registers as efficiently as possible and keep as little as possible in the rest of the memory hierarchy.
+
+\subsection*{Order Does Matter!}
+Example below does not have immediate operand instructions.
+\[x + (3 + (y * 2))\]
+\begin{center}
+	\begin{tabular}{c l | l l l l}
+		  & \multirow{2}{*}{Instruction} & \multicolumn{4}{c}{Register}                                                   \\
+		  &                              & R3                           & R2        & R1              & R0                \\
+		\hline
+		0 & LoadAbs R0 "x"               &                              &           &                 & \hot{x}           \\
+		1 & LoadImm R1 3                 &                              &           & \hot{3}         & x                 \\
+		3 & LoadAbs R2 "y"               &                              & \hot{y}   & 3               & x                 \\
+		4 & LoadImm R3 2                 & \hot{2}                      & y         & 3               & x                 \\
+		5 & Mul R2 R3                    & \hot{2}                      & \hot{2*y} & 3               & x                 \\
+		6 & Add R1 R2                    & \old{2}                      & \hot{2*y} & \hot{3 + (2*y)} & x                 \\
+		7 & Add R0 R1                    & \old{2}                      & \old{2*y} & \hot{3 + (2*y)} & \hot{x+(3+(y*2))} \\
+	\end{tabular}
+\end{center}
+
+
+\[((y * 2) + 3) + x\]
+\begin{center}
+	\begin{tabular}{c l | l l l l}
+		  & \multirow{2}{*}{Instruction} & \multicolumn{2}{c}{Register}                          \\
+		  &                              & R1                           & R0                     \\
+		\hline
+		0 & LoadAbs R0 "y"               &                              & \hot{y}                \\
+		1 & LoadImm R1 2                 & \hot{2}                      & y                      \\
+		3 & Mul R0 R1                    & \hot{2}                      & \hot{2 * y}            \\
+		4 & LoadImm R1 3                 & \hot{3}                      & 2 * y                  \\
+		5 & Add R0 R1                    & \hot{3}                      & \hot{3 + (2 * y)}      \\
+		6 & LoadAbs R1 "x"               & \hot{x}                      & 3 + (2 * y)            \\
+		7 & Add R0 R1                    & \hot{x}                      & \hot{x +(3 + (2 * y))} \\
+	\end{tabular}
+\end{center}
+
+\subsection*{Subexpression Ordering Principle}
+Given an expression $E_1 \ op \ E_2$ always evaluate the subexpression that uses the most registers first. This is as while the second expression is evaluated we must also store the result of the first in a register. This is called \keyword{Sethi-Ullman Numbering}.
+\\
+\\ If $E_1$ evaluated first, registers needed is $max(E_1, E_2 + 1)$
+\\ If $E_2$ evaluated first, registers needed is $max(E_1 + 1, E_2)$
+\\
+\\ Given $n_A$ registers to evaluate $A$ and $n_B$ for $B$:
+\begin{center}
+	\begin{tabular}{l l l}
+		    & \textbf{Action}                          & \textbf{Registers} \\
+		\hline
+		(1) & Evaluate $A$                             & $n_A$              \\
+		(2) & Result of $A$ stored in a reg            & $1$                \\
+		(3) & Evaluate $B$ while storing result of $A$ & $n_B + 1$          \\
+		(4) & Result of $B$ stored in a reg            & $2$                \\
+		(5) & Operate on subexpression results         & $1$                \\
+	\end{tabular}
+\end{center}
+Hence we use a weight function to compute the number of registers required before translating the code.
+\codelines{Haskell}{54}{73}{register targeting.hs}
+
+Non commutative operations such as $-$ or $/$ need ordering to be maintained.
+\\
+\\ We can fix this by switching the order of registers for the operation (e.g $Div \ r1 \ r$) instead, however this breaks our invariant (that the higher number registers can be used) as when we run the expression using $r$ it can overwrite $r+1$.
+
+\subsection*{Register Targeting}
+We want specify which registers can be used, must be preserved.
+\\
+\\ Here we also include the immediate operations. One complex part of compiler design and optimization is that instruction selection effects register usage (\fun{weight} must take into account \fun{transExp}).
+\codelines{Haskell}{78}{110}{register targeting.hs}
+\subsection*{Effectiveness of Sethi-Ullman Numbering}
+\centerimage{width=0.8\textwidth}{weight tree.png}
+The worst case is a perfectly balanced tree.
+\compitem{
+	\item $k$ values
+	\item $\cfrac{k}{2} - 1$ operators
+	\item $\lceil \log_2 k \rceil$ registers required
+}
+Hence in the worst case $N$ registers can support $2^N$ terms.
+\\
+\\ In this restricted setting, though does not account for reused variables \& values and fails to put user variables in registers.
+\\
+\\ Was used in C compilers for many years, though optimising compilers commonly use more sophisticated techniques such as graph colouring in addition.
+
+\section*{Register Allocation for Function Calls}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=8a5d6fdd-0fd4-4be5-92e3-ae140100dc40}
+\[x + a * getValue(b + c, 3)\]
+\compitem {
+	\item Need to know where parameters are when passed (stack, registers)
+	\item Changing order of evaluation (can change result due to side effects)
+	\item Register Targeting (ensure arguments are computed in the right registers)
+	\item At point of call several registers may already be in use and can be different from different \keyword{call-sites}
+}
+
+\subsection*{Function Call Evaluation Order}
+\[f(a) + f(b) + f(c) \ \text{ or } g(f(a),f(b))\]
+\compitem{
+	\item In C++ the order is undefined, the compiler can choose any order, even if there are side-effects.
+	\item In Java order is left $\to$ right.
+}
+We must also consider register use, for example:
+\[(f(x) + 1) + (1 * (a + j))\]
+Which side of the $+$ should be evaluated first depends on the context (e.g registers that need to be saved at the call site, and registers used by the callee, calling convention).
+
+\subsection*{Calling a subroutine}
+\compitem {
+	\item Functions can be called from many different places (call sites).
+	\item Must go to the correct position in the program on return.
+	\item Address of next instruction is saved and stored.
+}
+\centerimage{width=0.7\textwidth}{subroutine.png}
+We care about the \keyword{feasible} paths:
+\begin{center}
+	\begin{tabular}{l l}
+		a,b,c,d,e,f,g & Feasible Path                                                                                \\
+		a,b,f,g       & A valid path in the graph, but not a feasible path (we understand how jumps \& returns work)
+	\end{tabular}
+\end{center}
+The \keyword{infeasable control flow graph problem} becomes a difficult issue with lots of call sites.
+
+\subsubsection*{Saving Registers}
+We must enforce a calling convention to ensure registers are not mangled (e.g non-argument or return registers are changed).
+\begin{center}
+	\begin{tabular}{l p{0.4\textwidth} p{0.4\textwidth}}
+		Caller Saved & Caller saved registers it is using to preserve them (callee cannot clobber). & Caller may save registers the callee does not use (redundant).    \\
+		\hline
+		Callee Saved & Callee saves the registers it needs to use.                                  & Callee saves registers that caller does not care use (redundant). \\
+	\end{tabular}
+\end{center}
+\centerimage{width=\textwidth}{caller vs callee saved.png}
+
+Another issue is \keyword{separate compilation}, we may want to compile a library, and link it later. Or use a shared library that is dynamically linked. Hence for caller saved there is no knowledge of callee register use, and if callee saved, it cannot know what registers callers are using.
+\\
+\\ Hence the compiler has to make a conservative assumption of the register usage, which inevitably results in redundant saves (two memory accesses required).
+\sidenote{Alternatives}{
+	There have been architectures that solve this problem by making register preservation decisions be done at runtime.
+	\\
+	\\ The \keyword{VAX} architecture's call instructions use a small bitmap to provided by the caller to determine which registers to automatically save to the stack. More modern systems (RISC and CISC) do not employ such schemes, and simply have a calling convention for binary interfaces that the compiler optimises around.
+	\\
+	\\ The VAX call instructions are explained on page 88 of \href{http://bitsavers.trailing-edge.com/pdf/dec/vax/archSpec/EY-3459E-DP_VAX_Architecture_Reference_Manual_1987.pdf}{this manual} (register save mask).
+}
+To solve this for a given architecture an \keyword{Application Binary Interface} is defined. This ensures linked libraries callers and callee's save the correct registers. Outside of interfaces the compiler can use any scheme it wants (not interacting with other binaries).
+\subsubsection*{Intel IA32 register saving convention}
+\begin{center}
+	\begin{tabular}{c c c | c c c | c | c}
+		\multicolumn{3}{c |}{Caller-Saved} & \multicolumn{3}{c |}{Callee-Saved} & Stack Pointer & Frame Pointer                                 \\
+		\%eax                              & \%edx                              & \%ecx         & \%ebx         & \%esi & \%edi & \%esp & \%ebp \\
+	\end{tabular}
+\end{center}
+There are many more rules for the stack frame layout, arguments on the stack and parameter passing (registers to use).
+\subsubsection*{ARM register saving convention}
+\begin{center}
+	\begin{tabular}{c c c l}
+		\multirow{4}{*}{Caller Saved} & r0     & a1 & Argument/Result/Scratch Register 1                \\
+		                              & r1     & a2 & Argument/Result/Scratch Register 2                \\
+		                              & r2     & a3 & Argument/Result/Scratch Register 3                \\
+		                              & r3     & a4 & Argument/Result/Scratch Register 4                \\
+		\hline
+		\multirow{5}{*}{Callee Saved} & r4     & v1 & Variable Register 1                               \\
+		                              & r5     & v2 & Variable Register 2                               \\
+		                              & r6     & v3 & Variable Register 3                               \\
+		                              & r7     & v4 & Variable Register 4                               \\
+		                              & r8     & v5 & Variable Register 5                               \\
+		\hline
+		Depends                       & r9     & v6 & Variable Register 6 or otherwise platform defined \\
+		\hline
+		\multirow{2}{*}{Callee Saved} & r10    & v7 & Variable Register 7                               \\
+		                              & r11    & v8 & Variable Register 8                               \\
+		\hline
+		                              & r12    & IP & Intra Procedure call scratch register             \\
+		\hline
+		Callee Saved                  & r13    & SP & Stack pointer                                     \\
+		\hline
+		                              & r14    & LR & Link Register (used for jump to location, return) \\
+		                              & r15    & PC & Program Counter                                   \\
+		\hline
+		Callee Saved                  & r16-31                                                          \\
+	\end{tabular}
+\end{center}
+\subsubsection*{MIPS32 register saving convention}
+\begin{center}
+	\begin{tabular}{c c c l}
+		                               & r0  & zero     & Constant register (0)                               \\
+		\hline
+		\multirow{15}{*}{Caller Saved} & r1  & at       & Temporary values in pesudo commands (e.g \fun{slt}) \\
+		                               & r2  & v0       & Expression evaluation and results of a function     \\
+		                               & r3  & v1       & Expression evaluation and results of a function     \\
+		                               & r4  & a0       & Argument 1                                          \\
+		                               & r5  & a1       & Argument 2                                          \\
+		                               & r6  & a2       & Argument 3                                          \\
+		                               & r7  & a3       & Argument 4                                          \\
+		                               & r8  & t0       & Temporary                                           \\
+		                               & r9  & t1       & Temporary                                           \\
+		                               & r10 & t2       & Temporary                                           \\
+		                               & r11 & t3       & Temporary                                           \\
+		                               & r12 & t4       & Temporary                                           \\
+		                               & r13 & t5       & Temporary                                           \\
+		                               & r14 & t6       & Temporary                                           \\
+		                               & r15 & t7       & Temporary                                           \\
+		\hline
+		\multirow{8}{*}{Callee Saved}  & r16 & s0       & Saved temporary                                     \\
+		                               & r17 & s1       & Saved temporary                                     \\
+		                               & r18 & s2       & Saved temporary                                     \\
+		                               & r19 & s3       & Saved temporary                                     \\
+		                               & r20 & s4       & Saved temporary                                     \\
+		                               & r21 & s5       & Saved temporary                                     \\
+		                               & r22 & s6       & Saved temporary                                     \\
+		                               & r23 & s7       & Saved temporary                                     \\
+		\hline
+		\multirow{2}{*}{Caller Saved}  & r24 & t8       & Temporary                                           \\
+		                               & r25 & t9       & Temporary                                           \\
+		\hline
+		                               & r26 & k0       & Reserved for OS kernel                              \\
+		                               & r27 & k1       & Reserved for OS kernel                              \\
+		                               & r28 & gp       & Pointer to global area                              \\
+		                               & r29 & sp       & Stack pointer                                       \\
+		                               & r30 & fp or s8 & Frame pointer                                       \\
+		                               & r31 & ra       & Return address (used by function call)              \\
+	\end{tabular}
+\end{center}
+
+\section*{Register Allocation By Graph Colouring}
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=5490eb07-4649-4f4c-ae0a-ae140100fc87}
+\sidenote{Moore's Law}{
+	An observation by \keyword{Intel} co-founder Gordon Moore that every two years the density of transistors in integrated circuits doubles.
+	\\
+	\\ This has been twisted into performance doubling every two years. Which has slowed significantly in the past two decades due to the limits
+	of physics and chip fabrication technology. As a result the benefit of developing far more advanced optimising compilers has increased dramatically.
+}
+
+\compitem {
+	\item The tree weighted translator simply traversed our expression's tree.
+	\item Context (e.g locations of variables in registers) were not used.
+	\item Repeated uses of a variable are not handled.
+	\item Exploitation of context of generated code separated straightforward from optimising compilers.
+}
+Optimising compilers will attempt to use register instructions (faster).
+\\
+\centerimage{width=\textwidth}{inference graph.png}
+\begin{enumerate}
+	\bullpara{Use simple traversal to generate intermediate code}{
+		\\ Temporary values are always saved in a named location. (e.g $t0\dots$). This way we can consider \textbf{all} values including intermediate ones.
+	}
+	\bullpara{Construct an Inference Graph}{
+		\\ each node is a temporary location, each edge connects simultaneously live locations.
+		\\
+		\\ Registers that need to simultaneously store values must be different colours (different registers).
+	}
+	\bullpara{Attempt To Colour Nodes}{
+	\\ If colouring is not possible \keyword{spilling occurs}.
+	\compenum{
+	\item Find an edge, to remove it either split the live range (e.g temporarily put to memory).
+	\item Redo the analysis to determine if the graph can now be coloured.
+	      }
+	      When choosing which values to spill it is important to consider how often a variable is used. e.g avoid spilling from innermost loop.
+	      }
+\end{enumerate}
+\end{document}
