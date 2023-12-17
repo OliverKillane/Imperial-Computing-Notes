@@ -1,0 +1,84 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 8}
+    \author{Oliver Killane}
+    \date{17/11/21}
+
+\input{../50001 common.tex}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=77a4fe23-79fb-4468-8f5c-add300eedc4d}
+
+\section*{Amortized Analysis}
+So far we have studied complexity of a single, isolated run of an algorithm. \keyword{Amortizsed Analysis} is about understanding cost in a wider context (e.g averaged over many calls to a routine).
+
+\section*{Dequeues}
+\sidenote{Dequeue}{
+	A Dequeue is a double ended queue. An abstract datatype that generalises a queue. Elements can be added or removed from either end.
+	\\
+	\\ Common associated funtions are:
+	\begin{center}
+		\begin{tabular}{l l}
+			\fun{snoc}  & Insert element at the back of the queue.  \\
+			\fun{cons}  & Insert element at the front of the queue. \\
+			\fun{eject} & Remove last element.                      \\
+			\fun{pop}   & remove fist element.                      \\
+			\fun{peek}  & Examine but do not remove first element.  \\
+		\end{tabular}
+	\end{center}
+	Dequeues are also called head-tail linked lists or symmetric lists.
+}
+we use a dequeue when we want to reduce the time taken to perform certain operations.
+\subsubsection*{List Operation Complexity}
+\centerimage{width=0.4\textwidth}{list anatomy.png}
+\begin{minipage}[t]{0.4\textwidth}
+	\begin{center}
+		\begin{tabular}{l l}
+			\fun{cons} & O(1) \\
+			\fun{head} & O(1) \\
+			\fun{tail} & O(1) \\
+		\end{tabular}
+	\end{center}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.4\textwidth}
+	\begin{center}
+		\begin{tabular}{l l}
+			\fun{snoc} & O(1) \\
+			\fun{last} & O(1) \\
+			\fun{init} & O(1) \\
+		\end{tabular}
+	\end{center}
+\end{minipage}
+\subsubsection*{Dequeue Structure}
+To achieve $O(1)$ complexity in the \fun{snoc}, \fun{init} and \fun{last} we use two lists.
+\centerimage{width=0.7\textwidth}{dequeue structure.png}
+One list starts contains the start of the list, and the other the end (reversed).
+\\
+\\ We keep two invariants for $Dequeue \ us \ sv$:
+\[null \ us \Rightarrow null \ sv \lor single \ sv\]
+\[null \ sv \Rightarrow null \ us \lor single \ us\]
+In other words, if one list is empty, the other can contain at most 1 element.
+\\
+\\ An example implementation in haskell is below:
+\codelist{Haskell}{dequeue declaration.hs}
+
+When considering the cost of \fun{tail} and \fun{init} we must consider that there are two possibilities:
+\begin{center}
+	\begin{tabular}{l l p{7cm}}
+		High Cost & $\begin{matrix}
+				init (Dequeue \ us \ [s]) \\
+				tail (Dequeue \ [u] \ sv) \\
+			\end{matrix}$
+		          & This operation is $O(n)$ complexity due to the \fun{spitAt} and \fun{reverse} operation done on half of a list.                                                                                       \\
+		Low Cost  & $\begin{matrix}
+				init (Dequeue \ us \ (s:sv)) \\
+				tail (Dequeue \ (u:us) \ sv) \\
+			\end{matrix}$                                                                                     & Low cost $O(1)$ operation as it requires only a pattern match on the first element. \\
+	\end{tabular}
+\end{center}
+As both of these operations rebalance the \keyword{Dequeue} to to be balanced (half the queue on each list), we these operations can have an amortized cost of $O(1)$.
+\\
+\\ We know this as the average cost is of order $O(1)$. The $O(n)$ cost is incurred every $n/2$ calls to \fun{tail}/\fun{init}.
+\centerimage{width=0.6\textwidth}{dequeue tail.png}
+\end{document}

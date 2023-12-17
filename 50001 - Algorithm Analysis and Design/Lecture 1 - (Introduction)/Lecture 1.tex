@@ -1,0 +1,71 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 1}
+    \author{Oliver Killane}
+    \date{12/11/21}
+
+\input{../50001 common.tex}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=d281ea45-d9df-4f23-8578-adbf00d38370}
+
+\section*{Introduction}
+An algorithm is a method of computing a result for a given problem, at its core in a systematic/mathematical means.
+\\
+\\ This course extensively uses haskell instead of pesudocode to express problems, though its lessons still apply to other languages.
+
+\section*{Fundamentals}
+\sidenote{Insertion Problem}{
+	Given an integer $x$ and a sorted list $ys$, produce a list containing $x:ys$ that is ordered.
+	\\
+	\\ Note that this can be solved by simply using $sort(x:ys)$ however this is considered wasteful as it does not exploit the fact that $ys$ is already sorted.
+}
+An example algorithm would be to traverse $ys$ until we find a suitable place for $x$
+\codelist{Haskell}{insert.hs}
+\subsubsection*{Call Steps}
+In order to determine the complexity of the function, we use a \keyword{cost model} and determine what steps must be taken.
+\\
+\\ For example for $insert \ 4 \ [1,3,6,7]$
+\\ \begin{steps}
+	\start{insert \ 4 \ [1,3,6,7]}
+	\step{1 : insert \ 4 \ [3,6,7]}{definition of $insert$}
+	\step{1 : 3 : insert \ 4 \ [6,7]}{definition of $insert$}
+	\step{1 : 3 : : 4 : [6,7]}{definition of $insert$}
+\end{steps}
+Hence this requires $3$ call steps.
+\\
+\\ We can use recurrence relations to get a generalised formula for the worst case (maximum number of calls):
+\[\begin{matrix}
+		T_{insert} 0 & = 1                   \\
+		T_{insert} 1 & = 1 + T_{insert}(n-1) \\
+	\end{matrix}\]
+We can solve the recurrence:
+\[\begin{matrix}
+		T_{insert} (n) & = 1 + T_{insert}(n-1)                 \\
+		T_{insert} (n) & = 1 + 1 + T_{insert}(n-2)             \\
+		T_{insert} (n) & = 1 + 1 + \dots + 1 + T_{insert}(n-n) \\
+		T_{insert} (n) & = n + T_{insert}(0)                   \\
+		T_{insert} (n) & = n + 1                               \\
+	\end{matrix}\]
+
+\subsubsection*{More complex algorithms}
+\codelist{Haskell}{isort.hs}
+\[\begin{matrix}
+		T_{isort} 0 & = 1                                    \\
+		T_{isort} n & = 1 + T_{insert}(n-1) + T_{isort}(n-1) \\
+	\end{matrix}\]
+Hence by using our previous formula for $insert$
+\[\begin{matrix}
+		T_{isort} n & = 1 + n + T_{isort}(n-1) \\
+	\end{matrix}\]
+And by recurrence:
+\[\begin{matrix}
+		T_{isort} (n) & = 1 + n + (1 + n - 1) + T_{isort}(n-2)                       \\
+		T_{isort} (n) & = 1 + n + (1 + n - 1) + (1 + n - 2) + \dots + T_{isort}(n-n) \\
+		T_{isort} (n) & = 1 + n + (1 + n - 1) + (1 + n - 2) + \dots + T_{isort}(0)   \\
+		T_{isort} (n) & = n + n + (n - 1) + (n - 2) + \dots + (n-n) + 1              \\
+		T_{isort} (n) & = 1 + n + \sum_{i = 0}^n{i}                                  \\
+		T_{isort} (n) & =  \sum_{i = 0}^{n+1}{i}                                     \\
+		T_{isort} (n) & =  \cfrac{(n+1)\times(n+1)}{2}                               \\
+	\end{matrix}\]
+\end{document}

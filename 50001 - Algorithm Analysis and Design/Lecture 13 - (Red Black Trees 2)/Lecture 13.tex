@@ -1,0 +1,21 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 13}
+    \author{Oliver Killane}
+    \date{22/11/21}
+
+\input{../50001 common.tex}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=ce3f2216-40e2-4203-9898-ade70160bbb1}
+
+\section*{Red Black Trees Continued}
+We have a pattern with inserting elements from an ordered list into the tree.
+\centerimage{width=\textwidth}{red black insert pattern.png}
+We can encode this as a special binary number system, using $1$ and $2$ such that the least significant bit is a the number of trees of $2^0$ nodes, and the nth is $2^n$.
+\centerimage{width=\textwidth}{red black counting pattern.png}
+We can increment this by:
+\codelist{Haskell}{treenary.hs}
+We can convert a list of digits back to a red black tree by:
+\codelist{Haskell}{to RBTree.hs}
+\end{document}

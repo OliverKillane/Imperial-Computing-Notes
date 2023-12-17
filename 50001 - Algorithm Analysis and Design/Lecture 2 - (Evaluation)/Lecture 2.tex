@@ -1,0 +1,139 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 2}
+    \author{Oliver Killane}
+    \date{12/11/21}
+
+\input{../50001 common.tex}
+
+\newcommand{\cond}[3]{\text{if } #1 \text{ then } #2 \text{ else } #3}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=c8abc020-d7c8-44ad-b1df-adc100991181}
+
+\section*{Evaluation \& Cost Models}
+\codelist{Haskell}{minimum.hs}
+When analysing the cost of \fun{minimum} we must consider how the function is evaluated.
+\\
+\\ For example we could shortcut the once \fun{isort} has determined the first element (the minimum) of the list.
+\\
+\sidenote{Cost Model}{
+	A model to determine the time taken to execute a program.
+	\\
+	\\ The model assigns cost to different operations (e.g comparisons, calls, memory reads/writes)
+	\\
+	\\ A very generalised cost model assigns cost based on the number of \keyword{reductions} required to evaluate a program.
+}
+
+\section*{Small While Language}
+We can define a small language of expressions as follows:
+\[e ::= x \ | \ k \ | \ f \ e_1 \dots e_n \ | \ \cond{e}{e_1}{e_2}\]
+where $k$ means constant and $x$ is the variable form.
+\\ Infix functions such as $+, -, \times$ are written normally, and are also expressions as they can be used in the form $(+) \ e_1 \ e_2$.
+\\
+\\ There are also several primitive constants: $True, False, 0, 1, 2, \dots$
+\\ List constants and operations are also primitive: $[], (:), null, head, tail$
+
+\section*{Evaluation Order}
+\begin{itemize}
+	\bullpara{Applicative Order}{ Strict evaluation
+		\\The leftmost, innermost reducible expression is evaluated first.
+		\\ e.g for $fst (3 \times 2, 1 + 2)$
+		\\ \begin{steps}
+			\start{fst (3 \times 2, 1 + 2)}
+			\step{ fst (6, 1 + 2)}{Definition of $\times$}
+			\step{fst (6, 3)}{ Definition of $+$}
+			\step{6}{Definition of $fst$}
+		\end{steps}
+	}
+	\bullpara{Normal Order}{ Lazy evaluation
+		\\ The leftmost outer reducible is evaluated first. Efectively evaluating the function before its arguments.
+		\\ e.g for $fst (0, 1 + 2)$
+		\\ \begin{steps}
+			\start{fst (3 \times 2, 1 + 2)}
+			\step{3 \times 2}{ Definition of $fst$}
+			\step{6}{ Definition of $\times$}
+		\end{steps}
+	}
+\end{itemize}
+For a given program, if \keyword{applicative} and \keyword{normal} terminate, then they produce the same value in normal form.
+\\
+\\ However there are some programs where \keyword{normal} evaluation terminates, but \keyword{applicative} will not.
+\begin{minipage}[t]{0.4\textwidth}
+	\centerline{\textbf{Applicative}}
+	\begin{steps}
+		\start{fst (0, \text{crazy nonesense})}
+		\step{CRASH!}{ By lack of definition for crazy nonesense}
+	\end{steps}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.4\textwidth}
+	\centerline{\textbf{Normal}}
+	\begin{steps}
+		\start{fst (0, \text{crazy nonesense})}
+		\step{0}{ Definition of $fst$}
+	\end{steps}
+\end{minipage}
+The program may by syntactically correct, but have an error such as zero-division which will not be evaluated and hence not result in improper termination under \keyword{normal} order.
+\begin{large} \[\text{Applicative Terminates} \Rightarrow \text{Normal Terminates}\] \end{large}
+
+\section*{Cost Model for Small While}
+We can evaluate a cost model for the small while language by creating a function $T$ to assign cost to expressions.
+\\\begin{tabular}{p{0.25\textwidth} p{0.35\textwidth} p{0.4\textwidth}}
+	\textbf{Type}          & \textbf{Function}                                                               & \textbf{Explanation}                                                                                                                \\
+	\hline
+	non-primitive function & $\begin{matrix}
+			f \ a_1 \ \dots \ a_n = e           \\
+			T(f) \ a_1 \ \dots \ a_n = T(e) + 1 \\
+		\end{matrix}$                                                     & Given we have already computed all argument, the cost of the function is the cost of the expression it produces, and a single call. \\
+	\hline
+	primitive function     & $T(f) \ x \dots \ x_n = 0$                                                      & Primitive functions are assumed to be free.                                                                                         \\
+	\hline
+	Variable               & $T(x) = 0$                                                                      & accessing variables is free.                                                                                                        \\
+	\hline
+	Application            & $T(f \ e_1 \ \dots \ e_n) = T(f) \ e_1 \ \dots \ e_n + T(e_1) + \dots + T(e_n)$ & When applying a function we must consider both its cost, and the cost of all argument expressions.                                  \\
+	\hline
+	Conditional            & $T(\cond{p}{e_1}{e_2}) = T(p) + \cond{p}{T(e_1)}{T(e_2)}$                       & Cost of condition and of the resulting expression.                                                                                  \\
+\end{tabular}
+
+\section*{Cost Model Example}
+Given the function:
+\[mul \ m \ n = \cond{m=0}{0}{n + mul \ (m-1) \ n}\]
+Evaluate $T(mul \ 3 \ 100)$
+\\
+\begin{proof}
+	\proofstep{1}{$mul \ 3 \ 100$}{}
+	\proofstep{2}{$T(\cond{3=0}{0}{100 + mul \ (3-1) \ 100}) + 1$}{By Rule for non-primitive functions}
+	\proofstep{3}{$T(3=0) + T(100 + mul \ (3-1) \ 100) + 1$}{By rule for conditionals}
+	\proofstep{4}{$0 + T(100 + mul \ (3-1) \ 100) + 1$}{By primitive functions}
+	\proofstep{5}{$T(+) (100 \ mul \ (3-1) \ 100) + T(100) + T(mul \ (3-1) \ 100) + 1$}{By application rule}
+	\proofstep{6}{$0 + T(100) + T(mul \ (3-1) \ 100) + 1$}{By rule for primitive functions}
+	\proofstep{7}{$0 + T(mul \ (3-1) \ 100) + 1$}{By rule for constants}
+	\proofstep{8}{$T(mul) \ (3-1) \ 100 + T(3 - 1) + T(100) + 1$}{By application rule}
+	\proofstep{9}{$T(mul) \ (3-1) \ 100 + T(-) 3 \ 1 + T(100) + 1$}{By application rule}
+	\proofstep{10}{$T(mul) \ 2 \ 100 + 1$}{By application rule}
+	\proofstep{11}{$T(\cond{2=0}{0}{100 + mul \ (2-1) \ 100}) + 1 + 1$}{By Rule for non-primitive functions}
+	\proofstep{12}{$T(2=0) + T(100 + mul \ (2-1) \ 100) + 2$}{By rule for conditionals}
+	\proofstep{13}{$0 + T(100 + mul \ (2-1) \ 100) + 2$}{By primitive functions}
+	\proofstep{14}{$T(+) (100 \ mul \ (2-1) \ 100) + T(100) + T(mul \ (2-1) \ 100) + 2$}{By application rule}
+	\proofstep{15}{$0 + T(100) + T(mul \ (2-1) \ 100) + 2$}{By rule for primitive functions}
+	\proofstep{16}{$0 + T(mul \ (2-1) \ 100) + 2$}{By rule for constants}
+	\proofstep{17}{$T(mul) \ (2-1) \ 100 + T(2 - 1) + T(100) + 2$}{By application rule}
+	\proofstep{18}{$T(mul) \ (2-1) \ 100 + T(-) 2 \ 1 + T(100) + 2$}{By application rule}
+	\proofstep{19}{$T(mul) \ 1 \ 100 + 2$}{By application rule}
+	\proofstep{20}{$T(\cond{1=0}{0}{100 + mul \ (1-1) \ 100}) + 2 + 1$}{By Rule for non-primitive functions}
+	\proofstep{21}{$T(2=0) + T(100 + mul \ (1-1) \ 100) + 3$}{By rule for conditionals}
+	\proofstep{22}{$0 + T(100 + mul \ (1-1) \ 100) + 3$}{By primitive functions}
+	\proofstep{23}{$T(+) (100 \ mul \ (1-1) \ 100) + T(100) + T(mul \ (1-1) \ 100) + 3$}{By application rule}
+	\proofstep{24}{$0 + T(100) + T(mul \ (1-1) \ 100) + 3$}{By rule for primitive functions}
+	\proofstep{25}{$0 + T(mul \ (1-1) \ 100) + 3$}{By rule for constants}
+	\proofstep{26}{$T(mul) \ (1-1) \ 100 + T(1 - 1) + T(100) + 3$}{By application rule}
+	\proofstep{27}{$T(mul) \ (1-1) \ 100 + T(-) 2 \ 1 + T(100) + 3$}{By application rule}
+	\proofstep{28}{$T(mul) \ 0 \ 100 + 3$}{By application rule}
+	\proofstep{29}{$T(\cond{0=0}{0}{100 + mul \ (1-1) \ 100}) + 3 + 1$}{By Rule for non-primitive functions}
+	\proofstep{30}{$T(0=0) + T(0) + 4$}{By rule for conditionals}
+	\proofstep{31}{$0 + T(0) + 4$}{By rule for primitive functions}
+	\proofstep{32}{$0 + 4$}{By rule for variables}
+	\proofstep{33}{$4$}{}
+\end{proof}
+\end{document}

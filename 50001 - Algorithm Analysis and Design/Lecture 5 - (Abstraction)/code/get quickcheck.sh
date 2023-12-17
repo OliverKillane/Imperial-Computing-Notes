@@ -1,0 +1,1 @@
+cabal install --lib QuickCheck

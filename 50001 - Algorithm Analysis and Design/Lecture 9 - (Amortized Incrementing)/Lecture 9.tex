@@ -1,0 +1,82 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 9}
+    \author{Oliver Killane}
+    \date{17/11/21}
+
+\input{../50001 common.tex}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=83376d33-8332-4d64-abce-add60165e432}
+\section*{Amortization}
+The complexity of \fun{tail} is an example of \keyword{Amortized analysis}, where operation's wider context are considered when calculating the complexity.
+\[xs_0 \overset{op_0}{\leadsto} xs_1 \overset{op_1}{\leadsto} xs_2 \overset{op_2}{\leadsto} xs_3 \overset{op_3}{\leadsto} \dots \overset{op_{n-1}}{\leadsto} xs_n\]
+We defined 3 parts:
+\begin{enumerate}
+	\bullpara{Cost Function}{
+		\\ $C_{op_i}(xs_i)$ determines the cost of operation $op_i$ on data $xs_i$. Estimating how many steps it takes for each operation to execute.
+	}
+	\bullpara{Amortized Cost Function}{
+		\\ $A_{op_i}(xs_i)$ for each operation $op_i$ on data $xs_i$.
+	}
+	\bullpara{Size Function}{
+		\\ $S(xs)$ that calculates the size of data $xs$
+	}
+\end{enumerate}
+We define these functions with the goal to show that:
+\[C_{op_i}(xs_i) \leq A_{op_i} (xs_i) + S(xs_i) - S(xs_{i+1})\]
+The cost of the operation is smaller than the amortized cost, plus the difference in size of the data structure before and after the operation.
+\\
+\\ Once this is shown, we can infer that:
+\[\sum^{n-1}_{i=0}C_{op_i}(xs_i) \leq \sum^{n-1}_{i=0}A_{op_i}(xs_i) + S(xs_0) - S(xs_n)\]
+Furthermore when $S(xs_0) = 0$ this implies:
+\[\sum^{n-1}_{i=0}C_{op_i}(xs_i) \leq \sum^{n-1}_{i=0}A_{op_i}(xs_i) - S(xs_n) \Rightarrow \sum^{n-1}_{i=0}C_{op_i}(xs_i) \leq \sum^{n-1}_{i=0}A_{op_i}(xs_i)\]
+This means the cost of the operations is less than the sum of the amortized costs.
+\\
+\\ For example, if $A_{op_i}(xs) = 1$ then the total cost will be bounded by $O(n)$.
+
+\subsubsection*{Tail example}
+\[\begin{matrix}
+		C_{cons}(xs) = 1 & C_{snoc}(xs) = 1 & C_{head}(xs) = 1 & C_{last}(xs) = 1 \\
+	\end{matrix}\]
+For tail we can do the following:
+\\ \begin{proof}
+	\proofstep{1}{$C_{tail}(Dequeue \ us \ sv) = length \ sv$}{Create a cost function of \fun{tail}.}
+	\proofstep{2}{$A_{op}(xs) = 2$}{Create an arbitrary cost function.}
+	\proofstep{3}{$S(Dequeue \ us \ sv) = |length \ us - length \ sv|$}{Create a size function for \keyword{dequeue}.}
+	\proofstep{4}{$Dequeue \ us \ sv \text{ where } length \ sv = k$}{Worst case where $us$ is a singleton}
+	\proofstep{5}{$\begin{matrix}
+				S(Dequeue \ us \ sv) = k - 1 \\
+				S(Dequeue \ us' \ sv') = 1   \\
+			\end{matrix}$}{Size of the next data structure can be at most $1$.}
+	\proofstep{6}{$C_{tail}(Dequeue \ us \ sv) = k$}{Calculate the worst case cost of \fun{tail}.}
+	\proofstep{7}{$k \leq 2 + (k-1) - 1 = k + 2$}{As this inequality holds, the time complexity of all $n$ instructions is $O(n)$.}
+\end{proof}
+As the time complexity of all $n$ instructions together is $O(n)$, the amortized cost of a single instruction is $O(1)$.
+
+\subsubsection*{About the size function}
+We want to balance the size function such that:
+\compitem{
+	\item The size function is $0$ to start with.
+	\item The size between operations is large enough to prove the inequality.
+}
+The size function is arbitrary, if you cannot choose a size function that satisfied the goal inequality, then you're probably making a mistake
+
+\subsubsection*{Peano Numbers}
+\codelist{Haskell}{peano.hs}
+This shows how similar operations of similarly structured data can be.
+
+\section*{Binary Numbers}
+\codelist{Haskell}{binary.hs}
+we can do amortized analysis on incr:
+\begin{proof}
+	\proofstep{1}{$C_{incr}(bs) = t + 1$ where $t = length \ (takeWhile \ (==I) \ bs)$}{Create a cost function.}
+	\proofstep{2}{$A_{incr}(bs) = 2$}{Create Amortized Cost}
+	\proofstep{3}{$S(bs) = length . filter \ (==I) \ \$ \ bs $}{Create size function.}
+	\proofstep{4}{Given $bs' = incr \ bs$ we show $C_{incr}(bs) \leq A_{incr}{bs} + S(bs) - S(bs')$}{Setup inequality}
+	\proofstep{5}{$t + 1 \leq 2 + S(bs) - (S(bs) - t + 1)$}{Subsitiute in inequality}
+	\proofstep{6}{$t + 1 \leq 1 + t$}{Hence inequality holds}
+	\proofstep{7}{$S(start) = 0$}{Start size is zero.}
+\end{proof}
+Hence The sum of $C$ is smaller than the sum of $A$, as this is over $n$ operations and $\sum A = 2n$, $C_{incr}(bs) \in O(1)$.
+\end{document}

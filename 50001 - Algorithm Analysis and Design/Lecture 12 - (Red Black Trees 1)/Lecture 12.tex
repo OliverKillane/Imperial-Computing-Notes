@@ -1,0 +1,41 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 12}
+    \author{Oliver Killane}
+    \date{18/11/21}
+
+\input{../50001 common.tex}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=abdb5a60-fd1c-44bb-afbe-ade100fb80eb}
+
+\section*{Red-Black Trees}
+\keyword{AVL trees} worked by storing an extra integer (height) to use in rebalancing, \keyword{red-black trees} use an extra bit to determine if a node is red or black.
+\\
+\\ In practice they are less balanced than \keyword{AVL trees} however the insertion is faster and the data structure is a little bit smaller.
+\codelist{Haskell}{red-black tree.hs}
+The structure relies on two invariances:
+\begin{enumerate}
+	\item Every Red node must have a Black parent node.
+	\item Every path from the root to leaf must have the same number of black nodes.
+\end{enumerate}
+\subsubsection*{Valid Red Black Trees}
+\centerimage{width=\textwidth}{red-black trees.png}
+\subsubsection*{Invalid Red Black Trees}
+\centerimage{width=\textwidth}{not red-black trees.png}
+We have an insert function that needs to rebalance the tree:
+\codelist{Haskell}{red-black insert.hs}
+\centerimage{width=\textwidth}{balance cases.png}
+
+\section*{Counting}
+We can exploit the analogy we used with counting and trees for \keyword{RALists} here, with a difference.
+\\
+\\ Imagine a counting system that lacks zeros. We can count to 10 as:
+\begin{center}
+	\begin{tabular}{l l l l l l l l l l l l l l l l l l}
+		Normal:  & 1 & 2 & \dots & 9 & 10 & \dots & 11 & 12 & \dots & 19 & 20 & \dots & 101 & 102 & \dots & 110 & 111 \\
+		Special: & 1 & 2 & \dots & 9 & X  & \dots & 11 & 12 & \dots & 19 & 1X & \dots & X1  & X2  & \dots & XX  & 111 \\
+	\end{tabular}
+\end{center}
+We can use this with the pattern of inserting elements into a red black tree (in order) to map red black trees to an incrementing number.
+\end{document}

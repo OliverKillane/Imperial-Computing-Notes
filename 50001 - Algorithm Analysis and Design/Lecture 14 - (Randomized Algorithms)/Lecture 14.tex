@@ -1,0 +1,62 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 14}
+    \author{Oliver Killane}
+    \date{28/11/21}
+\input{../50001 common.tex}
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=a562661f-da77-4d28-85a6-ade80168e6e5}
+
+\section*{Randomized Algorithms}
+An algorithm that uses random values to produce a result.
+\begin{center}
+	\begin{tabular}{l l l}
+		\textbf{Algorithm Type} & \textbf{Running time} & \textbf{Correct Result} \\
+		Monte Carlo             & Predicatable          & Unpredictably           \\
+		Las Vegas               & Unpredictable         & Predictably             \\
+	\end{tabular}
+\end{center}
+
+\section*{Random Generation}
+
+Functions are deterministic (always map same inputs to same outputs), this is known as \keyword{Leibniz's law} or the \keyword{Law of indiscernibles}:
+\[x = y \Rightarrow f x = f y\]
+We can exhibit pesudo random behaviour using an input that varies \begin{tabular}{l l}
+	explicitly & (e.g Random numbers through seeds) \\
+	implicitly & (e.g Microphone or camera noise)   \\
+\end{tabular}
+
+\subsection*{Inside IO Monad}
+We can use basic random through the IO monad like this:
+\codelist{Haskell}{simple random.hs}
+However using the \struct{IO monad} is too specific, we may want to use random numbers in other contexts.
+
+\subsection*{StdGen}
+In haskell we can use \struct{Stdgen}.
+\codelist{Haskell}{stdgen.hs}
+By passing the newly generated \struct{StdGen} we can generate new values based on the original seed.
+\centerimage{width=\textwidth}{random seeds.png}
+
+\subsection*{With Random Monad}
+Rather than passing \struct{StdGen} seeds through the program, we can use the \struct{MonadRandom} monad which internally uses this value.
+
+
+\section*{Randomized $\pi$}
+\centerimage{width=0.6\textwidth}{randomized pi.png}
+(Monte Carlo Algorithm - known number of samples, known running time per sample) To estimate $\pi$, find the proportion of randomly selected spots that are within the circle.
+\begin{center}
+	\begin{tabular}{l l}
+		Area of square        & $2 \times 2 = 4$       \\
+		Area of circle        & $\pi \times 1^2 = \pi$ \\
+		Probability in circle & $\cfrac{\pi}{4}$       \\
+	\end{tabular}
+\end{center}
+Once we have the proportion, we can multiply by 4 to get an estimate of $\pi$.
+\codelist{Haskell}{montePi.hs}
+
+\section*{Treaps}
+Simultaneously a \keyword{Tree} and a \keyword{Heap}. Stores values in order, while promoting higher priority nodes to the top of the tree.
+\centerimage{width=0.8\textwidth}{treap.png}
+\codelist{Haskell}{treap.hs}
+\centerimage{width=0.8\textwidth}{lnode and rnode.png}
+\end{document}

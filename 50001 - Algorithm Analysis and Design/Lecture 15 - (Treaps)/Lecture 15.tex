@@ -1,0 +1,23 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 15}
+    \author{Oliver Killane}
+    \date{29/11/21}
+\input{../50001 common.tex}
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=e7c5b433-e2eb-4762-9a09-adee01382a82}
+
+\section*{Randomized Treaps}
+By using a random value for priority when inserting values into the treap, we can ensure a high likelihood of balancing, without complex balancing being required.
+\\
+\\ We can use this to create a randomized quicksort.
+\codelist{Haskell}{randomized treap.hs}
+
+\section*{Randomized Binary Trees}
+We can balance a binary tree without using a treap, by inserting at the root (and rotating the tree to ensure it is ordered) with a certain probability.
+\codelist{Haskell}{Randomized Binary Tree.hs}
+For every insert we have chance $\cfrac{1}{n+1}$ of inserting at the root of the tree. Then this occurs, the contents are rotated to ensure the tree's ordering is maintained.
+\\
+\\ This means that there is a very high probability of balance being maintained, however correct results are only returned when distinct elements are inserted at most once.
+
+\end{document}

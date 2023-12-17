@@ -1,0 +1,67 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 3}
+    \author{Oliver Killane}
+    \date{12/11/21}
+
+\input{../50001 common.tex}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=5df30741-34e2-4e90-adcd-adc2013d7aaf}
+
+\section*{Asymptotics}
+\sidenote{L-Function}{
+	A \keyword{Logarithmico-exponential} function $f$ is:
+	\compitem{
+		\item real: $f \in X \to Y$ where $X,Y \subset \mathbb{R}$
+		\item positive: $\forall x \in X . [f(x) \leq 0]$
+		\item monotonic: $\forall x_1, x_2 \in X . [x_1 < x_2 \Leftrightarrow f(x_1) < f(x_2)]$ (positive monotonic) or  $\forall x_1, x_2 \in X . [x_1 < x_2 \Leftrightarrow f(x_1) > f(x_2)]$ (negative monotonic)
+		\item one valued: $\forall x\in X, y_1, y_2 \in Y . [f(x) = y_1 \land f(x) = y_2 \Rightarrow y_1 = y_2]$
+		\item on a real variable defined for all values greater than some definite value: $X \equiv \{x | x > \text{definite limit} \land x \in \mathbb{R}\}$
+	}
+
+	\keyword{L-Functions} are continuous, of constant sign and as $n \to \infty$ the value $f(n)$ tends to $0, \infty$ or some other positive definite limit.
+	\\
+	\\ Functions that aren't \keyword{L-Functions} are called \keyword{Wild Functions}.
+}
+
+In asymptotics we use \keyword{L-Functions} to describe the growth of time used by algorithms as the size of the input to an algorithm grows.
+\\
+\\ Common functions are shown below:
+\centerimage{width=\textwidth}{L-Function plots.png}
+
+\section*{Du Bois-Reymond Theorem}
+Defines inequalities for the rate of increase of functions.
+\\
+\\ Where $lim = \lim_{n \to \infty}{\cfrac{f(n)}{g(n)}}$
+\begin{proof}
+	\proofstep{$<$}{$f \prec g \Leftrightarrow lim = 0$}{$g$ grows much faster than $f$}
+	\proofstep{$\leq$}{$f \preccurlyeq g \Leftrightarrow lim <  \infty$}{$g$ grows much faster than $f$ or some multiple of $f$}
+	\proofstep{$=$}{$f \asymp g \Leftrightarrow 0 < lim < \infty$}{$g(n)$ grows towards some constant times $f(n)$}
+	\proofstep{$\geq$}{$f \succcurlyeq  g \Leftrightarrow lim > 0$}{$f$ grows much faster than $g$ or some multiple of $g$}
+	\proofstep{$>$}{$f \succ g \Leftrightarrow lim = \infty$}{$f$ grows much faster than $g$}
+\end{proof}
+These operators form a trichotomy such that one of the below will always hold:
+\[\begin{matrix}
+		f \prec g & f \asymp g & f \succ g
+	\end{matrix}\]
+Further the operators $\succ$ and $\prec$ are converse:
+\[f \succ g \Leftrightarrow g \prec f\]
+And transitive:
+\[\begin{matrix}
+		f \prec g \land g \prec h \Rightarrow f \prec h                      \\
+		f \preccurlyeq g \land g \preccurlyeq h \Rightarrow f \preccurlyeq h \\
+	\end{matrix}\]
+We can place the common \keyword{L-Functions} in order:
+\[1 \prec \log{n} \prec \sqrt{n} \prec n \prec n \log{n} \prec n^2 \prec n^3 \prec n! \prec n^n\]
+
+\section*{Bachman-Landau Notation}
+\[\begin{matrix}
+		\text{Comparison with Bois-Reymond}                  & \text{Set definition}                                                                               \\
+		f \in o(g(n)) \Leftrightarrow f \prec g              & o(g(n)) = \{f | \forall \delta > 0. \exists n_0 > 0.\forall n > n_0 [f(n) < \delta g(n)]\}          \\
+		f \in O(g(n)) \Leftrightarrow f \preccurlyeq g       & O(g(n)) = \{f | \exists \delta > 0. \exists n_0 > 0.\forall n > n_0 [f(n) \leq \delta g(n)]\}       \\
+		f \in \Theta (g(n)) \Leftrightarrow f \asymp g       & \Theta (g(n)) = O(g(n)) \cap \Omega(g(n))                                                           \\
+		f \in \Omega (g(n)) \Leftrightarrow f \succcurlyeq g & \Omega (g(n)) = \{f | \exists \delta > 0. \exists n_0 > 0.\forall n > n_0 [f(n) \geq \delta g(n)]\} \\
+		f \in \omega (g(n)) \Leftrightarrow f \succ g        & \omega (g(n)) = \{f | \forall \delta > 0. \exists n_0 > 0.\forall n > n_0 [f(n) > \delta g(n)]\}    \\
+	\end{matrix}\]
+\end{document}

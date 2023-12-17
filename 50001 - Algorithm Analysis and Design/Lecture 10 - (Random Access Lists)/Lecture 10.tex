@@ -1,0 +1,37 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 10}
+    \author{Oliver Killane}
+    \date{18/11/21}
+
+\input{../50001 common.tex}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=62e2dbd5-4fba-4758-b2a6-addb016ec088}
+
+\section*{List lookup}
+\codelist{Haskell}{list lookup.hs}
+As you ca  see \fun{!!} costs $O(n)$ as it may traverse the entire list.
+\\
+\\ If we want this access to be faster, we can use trees:
+\codelist{Haskell}{list tree.hs}
+This costs $O(\log n)$ as each recursive call acts on half of the remaining list.
+\\
+\\ However we have difficulty with insertion:
+\begin{center}
+	\begin{tabular}{l l l}
+		Insert Quickly & $n : t = node (Leaf n) t$               & Effectively becomes a linked list, $\log n$ search time ruined. \\
+		Insert Slowly  & Rebalance tree (e.g \keyword{AVL} tree) & Complex and no longer $O(1)$ insert.                            \\
+	\end{tabular}
+\end{center}
+
+\section*{Random Access Lists}
+A list containing elements that are either nothing, or a perfect tree with size the same as $2^{index}$.
+\centerimage{width=\textwidth}{RAList.png}
+The empty tree can be represented by a $Tip$ value (from the notes), or using type $Maybe(Tree)$ (from the lecture) where $Tree \ a = Leaf \ x \ | \ Node \ n \ l \ r$.
+\\
+\\ When we add to a tree, we add to the first element of the \struct{RAList}, if the invariant is breached (no longer perfect tree of size $2^0$) it can be combined with the next list over (if empty, place, else combine and repeat).
+\\
+\\ This way while the worst case insert is $O(n)$, our amortized complexity is $O(1)$ much as with increment.
+\codelist{Haskell}{RAList.hs}
+\end{document}

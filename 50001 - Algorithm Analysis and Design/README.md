@@ -27,3 +27,5 @@ The module syllabus includes:
 [Dr Nicolas Wu](https://zenzike.com/)
 
 [Back to main notes](../README.md)
+
+TODO: add extra credit for Yelun

@@ -1,0 +1,21 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 17}
+    \author{Oliver Killane}
+    \date{18/12/21}
+\input{../50001 common.tex}
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=78ea6bc7-9ac6-47ae-8bc9-adf8008866b4}
+
+\section*{Mutable Nub}
+This can be useful for the \fun{nub} function (removes duplicates from a list) by using a bucket based hashmap of items from the list to determine duplication.
+\codelist{Haskell}{nub.hs}
+
+\section*{Quicksort}
+We can also implement quicksort, which can be done in place in an array
+(saved memory and time as accesses are constant time).
+\\
+\\ By using mutable data structures we can swap elements when reordering by reading and writing from the array.
+\codelist{Haskell}{quicksort.hs}
+
+\end{document}

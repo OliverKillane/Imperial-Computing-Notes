@@ -1,0 +1,66 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 7}
+    \author{Oliver Killane}
+    \date{13/11/21}
+
+\input{../50001 common.tex}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=6348fa64-2119-481e-b96b-adcf00dfa196}
+
+\section*{Dynamic Programming}
+A technique to efficiently calculate solutions to certain recursive problems.
+\begin{enumerate}
+	\item Describe an inefficient recursive algorithm.
+	\item Reduce inefficiency by storing intermediate shared results.
+\end{enumerate}
+
+\section*{Fibonacci Sequence}
+\subsubsection*{Fully Recursive}
+\codelist{Haskell}{recursive fib.hs}
+\begin{tabular}{l l}
+	$T_{fib}(0)$ & $= 1$                               \\
+	$T_{fib}(1)$ & $= 1$                               \\
+	$T_{fib}(n)$ & $= 1 + T_{fib}(n-2) + T_{fib}(n-1)$ \\
+\end{tabular}
+\\ The complexity of this algorithm is $T_{fib}(n) \in O(2^n)$.
+\subsubsection*{Saving Intermediate Results}
+We can use a helper function which takes the remaining number of additions, and the two previous values.
+\codelist{Haskell}{more parameter fib.hs}
+\begin{tabular}{l l}
+	$T_{fib}(0)$ & $= 1$                \\
+	$T_{fib}(1)$ & $= 1$                \\
+	$T_{fib}(n)$ & $= 1 + T_{fib}(n-1)$ \\
+\end{tabular}
+\\The complexity of this algorithm is $T_{fib}(n) \in O(n)$.
+\\
+\\ This way every value is calculated only once for each call. However values are not saved between calls.
+\subsubsection*{Memoisation}
+\codelist{Haskell}{memoising fib.hs}
+This creates a large list, we must only index on the list to get the value.
+By using an array we can reduce the time taken to get to the $n$th element.
+\subsubsection*{Array Based Memoisation}
+\codelist{Haskell}{memoisation functions.hs}
+Hence we can make our algorithm:
+\codelist{Haskell}{array memoised fib.hs}
+Here we can do constant time lookups for values in the table. If a value is not present, it is lazily evaluated using other elements in the table.
+\\
+\\ In this way we only calculate each fibonacci number once, and only when we need it. Further it is saved for any subsequent calls to fib.
+
+\section*{Edit-Distance}
+The \keyword{Edit-Distance} Problem is concered with calculating the \keyword{Levenshtein} distance between two strings.
+\sidenote{Levenshtein Distance}{
+	The number of insertions, deletions \& updates required to convert one string into another.
+	\[toil \to_{+1} oil \to_{+1} il \to_{+1} ill\]
+}
+
+\codelist{Haskell}{dist recursive.hs}
+This problem becomes of order $O(3^n)$ as it recurs 3 ways for each call.
+\\
+\\ We can reuse results for two substrings through memoisation, first we make a new recursive version that uses the index we are checking in each string:
+\codelist{Haskell}{dist indexed.hs}
+We can then use \fun{tabulate} to create a memoised version.
+\codelist{Haskell}{dist memoised.hs}
+As there are at most $m \times n$ entires in the table, and each are calculated at most once, and the lookup time is constant (using arrays), the complexity is $O(mn)$.
+\end{document}

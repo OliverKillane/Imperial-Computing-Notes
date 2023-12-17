@@ -1,0 +1,39 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 5}
+    \author{Oliver Killane}
+    \date{12/11/21}
+
+\input{../50001 common.tex}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=7cfe76ce-2e38-465f-a1d0-adc800b8a764}
+
+\section*{DLists Continued\dots}
+\subsubsection*{Monoids (again)}
+A \keyword{monoid} is a triple $(M, \diamond, \epsilon)$ where $\diamond$ is associative and of type $M \to M \to M$, and $x \diamond \epsilon \equiv x$.
+\codelist{Haskell}{monoid.hs}
+A haskell typeclass can then be instantiated for many other data types. For example the \keyword{monoid} $(\mathbb{Z}, +, 0)$ (note that we cannot enforce \keyword{monoid} properties through haskell, unlike languages such as \keyword{agda}).
+\codelist{Haskell}{integer monoid.hs}
+Likewise we can abstract Lists to a class (which we can instantiate for DLists).
+
+\subsubsection*{List Class}
+\codelist{Haskell}{list class.hs}
+$[a]$ is out abstract list type, and $list a$ is our concrete type.
+\\
+\\ It is critical to ensure that $toList \ \bullet \ fromList \equiv id$
+\\ But in general $fromList \ \bullet \ toList \not\equiv id$ (this is as the internal representation may change
+and much information about the internal representaion cannot be preserved by toList, for example an unbalanced tree
+changed to a list maybe be balanced when converted back to a tree).
+\\
+\\ We also included $normalise \ :: \ fromList \ \bullet \ toList$ as a useful tool to reset the internal structure (for example to rebalanced the tree representation of a list)
+
+\section*{Haskell Implementation}
+To prevent conflicts due to Prelude functions already being defined we can use:
+\codelist{Haskell}{import prelude.hs}
+To help ensure correctness we can use \keyword{Quickcheck} to check properties
+\codelist{Bash}{get quickcheck.sh}
+Then can use quickcheck to define properties we want to test:
+\codelist{Haskell}{use quickcheck.hs}
+\codelist{Bash}{run quickcheck.sh}
+\end{document}

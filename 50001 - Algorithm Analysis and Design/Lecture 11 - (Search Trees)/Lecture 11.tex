@@ -1,0 +1,68 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 11}
+    \author{Oliver Killane}
+    \date{18/11/21}
+
+\input{../50001 common.tex}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=678e8f17-9eb3-4469-96d0-adde00d597c2}
+
+\section*{Equality}
+\codelist{Haskell}{equality.hs}
+Eq is the typeclass for equality, any instance of this class should ensure the equality satisfied the laws:
+\begin{center}
+	\begin{tabular}{r l}
+		reflexivity  & $x == x$                                 \\
+		transitivity & $x == y \land y == z \Rightarrow x == z$ \\
+		symmetry     & $x == y \Rightarrow y == x$              \\
+	\end{tabular}
+\end{center}
+We also expect the idescernability of identicals (Leibniz Law):
+\[x == y \Rightarrow f \ x == f \ y\]
+For a set-like interface we have a member function:
+\codelist{Haskell}{member.hs}
+If we assume only that Eq holds, the complexity is $O(n)$ as we must potentially check all members of the set. To get around this, we use ordering.
+
+\section*{Orderings}
+The Ord typeclass allows us to check for inequalities:
+\codelist{Haskell}{order.hs}
+We must try to ensure certain properties hold, for example for to have a partial order we require:
+\begin{center}
+	\begin{tabular}{r l}
+		reflexivity  & $x \leq x$                                     \\
+		transitivity & $x \leq y \land y \leq z \Rightarrow x \leq z$ \\
+		antisymmetry & $x \leq y \land y \leq x \Rightarrow x == y$   \\
+	\end{tabular}
+\end{center}
+There are also total orders (all elements in the set are ordered compared to all others), for which we add the constraint:
+\begin{center}
+	\begin{tabular}{r l}
+		connexity & $x \leq y \lor y \leq x$ \\
+	\end{tabular}
+\end{center}
+
+\section*{Ordered Sets}
+\codelist{Haskell}{ordset.hs}
+We can implement this class for Trees:
+\codelist{Haskell}{search tree.hs}
+However the worst case here is still $O(n)$ as we do not balance the tree as more members are inserted. If the members are added in order, the tree devolves to a linked list.
+\\
+\\ We need a way to create a tree that self balances.
+
+\section*{Binary Search Trees (AVL Trees)}
+\codelist{Haskell}{avl tree.hs}
+When inserting into the tree we must keep the tree balanced such that no subtree's left is more than one higher than its' right.
+\codelist{Haskell}{avl tree insert.hs}
+We must rebalance the tree after insertion, this must consider the following cases:
+\centerimage{width=\textwidth}{htree balanced.png}
+When the tree's balanced invariant has been broken, we must follow these cases:
+\centerimage{width=\textwidth}{htree rotate right.png}
+\codelist{Haskell}{avl rotate right.hs}
+When the right subtree's right subtree is higher:
+\centerimage{width=\textwidth}{htree rotate left.png}
+\codelist{Haskell}{avl rotate left.hs}
+We can use rotate left and rotate right to for the two cases where the right subtree is 2 or more higher than the left.
+\codelist{Haskell}{avl balance.hs}
+\end{document}

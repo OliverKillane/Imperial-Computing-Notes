@@ -1,0 +1,99 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 4}
+    \author{Oliver Killane}
+    \date{12/11/21}
+
+\input{../50001 common.tex}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=8ddef027-50cb-4256-9115-adc50139006e}
+
+\section*{Lists}
+\codelist{Haskell}{list.hs}
+\centerimage{width=0.6\textwidth}{list anatomy.png}
+Lists in \keyword{Haskell} are a persistent data structure, meaning that when operations are applied to lists the original list is maintained (not mutated).
+
+\subsubsection*{Append}
+We can append lists, by traversing over the first list, copying values (this ensures both argument lists are preserved).
+\codelist{Haskell}{append.hs}
+\centerimage{width=\textwidth}{list structure.png}
+As the entire first list must be traversed, the cost of $xs ++ ys$ is $T_{(++)}(n) \in O(n)$ where $n = length \ xs$
+
+\subsubsection*{Foldr}
+\codelist{Haskell}{foldr.hs}
+\centerimage{width=0.8\textwidth}{foldr.png}
+As you can see, $foldr \ (:) \ [] \equiv id$.
+\\ Foldr can also be expressed through bracketing
+\[foldr \ f \ k \ [x_1, x_2, \dots, x_n] \equiv f \ x_1 \ (f \ x_2 \ ( \dots (f \ x_n \ k) \dots))\]
+
+\sidenote{Associativity}{
+	\keyword{Associativity} determines how operations are grouped in the absence of brackets.
+	\[\begin{matrix}
+			a \spadesuit b \spadesuit c     & \text{unbracketed statement}            \\
+			((a) \spadesuit b) \spadesuit c & \spadesuit \text{ is left associative}  \\
+			a \spadesuit (b \spadesuit (c)) & \spadesuit \text{ is right associative} \\
+		\end{matrix}\]
+	If $\spadesuit$ is associative, then the right \& left associative versions are equivalent.
+}
+\fun{foldr} applies functions in a right-associative scheme.
+
+\subsubsection*{Foldl}
+\codelist{Haskell}{foldl.hs}
+\centerimage{width=0.8\textwidth}{foldl.png}
+As you can see $foldl \ (snoc) \ [] \equiv id$.
+\\ Foldl can be expressed through bracketing
+\[foldl \ f \ k \ [x_1, x_2, \dots, x_n] \equiv f \ (\dots (f \ (f \ k \ x_1) x_2) \dots x_n)\]
+
+\section*{Monoids}
+Consider the case when for some $\bigstar $ and $\epsilon$: $foldr \ \bigstar \ \epsilon \equiv foldl \ \bigstar \ \epsilon$.
+For this to be possible for $\bigstar \ :: \ a \to a \to a$ and $\epsilon \ :: \ a$.
+\begin{center}
+	\begin{tabular}{r l}
+		$\bigstar$ must be associative & $x \ \bigstar \ (y \ \bigstar \ z) \equiv (x \ \bigstar \ y) \ \bigstar z$ \\
+		$\epsilon$ must have no effect & $\epsilon \ \bigstar \ n = n$                                              \\
+	\end{tabular}
+\end{center}
+These properties for a \keyword{monoid} $(a, \bigstar, \epsilon)$.
+\\ Other example include:
+\[\begin{matrix}
+		(lists, ++, [])     & (\mathbb{N}, +, 0)        & (\mathbb{N}, \times, 1)    & (bool, \land, true)                \\
+		(bool, \lor, false) & (\mathbb{R}, max, \infty) & (\mathbb{R}, min, -\infty) & (Universal \ set, \cup, \emptyset) \\
+	\end{matrix}\]
+We can also find monoids of functions:
+\[(a \to a, (.), id)\]
+as $(id \ . \ g) x \equiv id (g \ x)$ and $((f \ . \ g) \ . h) x = f(g(h \ x))$
+
+\section*{Concat}
+We can easily define concat recursively as:
+\codelist{Haskell}{concat.hs}
+We can also notice that $([[a]], (++), [])$ is a monoid, so we can use \fun{foldr} or \fun{foldl}
+\\\begin{minipage}[t]{0.45\textwidth}
+	\codelist{Haskell}{concatr.hs}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+	\codelist{Haskell}{concatl.hs}
+\end{minipage}
+as \fun{(++)} makes a copy of the first argument (to ensure persistent data), if we apply is in a left associative bracketing scheme we will have to make larger \& larger copies.
+\[( \dots (((( [ \ ] \text{++}_{0} \  xs_1) \text{++}_{m} \ xs_2) \text{++}_{2m} \ xs_3) \text{++}_{3m}  \ xs_4 \dots) \text{++}_{mn} \ xs_n\]
+Hence where $n = length \ xss$ and $m = length \ xs_1 = length \ xs_2 = \dots = length \ xs_n$.
+\[\begin{matrix}
+		T_{concatl}(m,n) \in O(n^2m) \\
+		T_{concatr}(m,n) \in O(nm)   \\
+	\end{matrix}\]
+
+\section*{DLists}
+Instead of storing a list, we store a composition of functions that build up a list.
+
+\[ \begin{matrix}
+		xs_1 \text{++} xs_2 \text{++} xs_3 \text{++} \dots \text{++} xs_n                                                 \\
+		\Downarrow                                                                                                        \\
+		f \ xs_1 \bullet f \ xs_2 \bullet f \ xs_3 \bullet \dots \bullet f \ xs_n                                         \\
+		\Downarrow                                                                                                        \\
+		(xs_1 \ \text{++}) \bullet (xs_2 \ \text{++}) \bullet (xs_3 \ \text{++}) \bullet \dots \bullet (xs_n \ \text{++}) \\
+	\end{matrix}\]
+We can then apply this function on the empty list $[ \ ]$ to get the resulting list.
+\codelist{haskell}{DList.hs}
+We can form a \keyword{monoid} of ($DList$,++,$DList \ id$).
+\end{document}

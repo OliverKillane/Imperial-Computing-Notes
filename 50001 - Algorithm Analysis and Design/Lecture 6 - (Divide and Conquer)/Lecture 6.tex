@@ -1,0 +1,72 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 6}
+    \author{Oliver Killane}
+    \date{12/11/21}
+
+\input{../50001 common.tex}
+
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=0cc4b21b-9502-4919-8602-adcc00d14ece}
+
+\section*{Divide \& Conquer}
+\begin{enumerate}
+	\item Divide a problem into subproblems
+	\item Divide and conquer subproblems into subsolutions
+	\item Conquer subsolutions into a solution
+\end{enumerate}
+\centerimage{width=0.35\textwidth}{divide and conquer.png}
+
+\section*{Merge Sort}
+\codelist{Haskell}{merge sort.hs}
+\fun{SplitAt} divides, and \fun{merge} Conquers. We can calculate the time complexity for the recurrence relations below (based on recursive structure of \fun{msort}):
+\\ \begin{tabular}{l l }
+	$T_{msort}(0) $ & $= 1 $                                                                                                      \\
+	$T_{msort}(1) $ & $= 1 $                                                                                                      \\
+	$T_{msort}(n) $ & $= T_{length}(n) + T_{splitAt}(\cfrac{n}{2}) + T_{merge}(\cfrac{n}{2}) + 2 \times T_{msort}(\cfrac{n}{2}) $ \\
+\end{tabular}
+
+We can simplify the complexity of \fun{msort}
+\\ \begin{tabular}{l l }
+	$T_{msort}(n) $ & $= T_{length}(n) + T_{splitAt}(\cfrac{n}{2}) + T_{merge}(\cfrac{n}{2}) + 2 \times T_{msort}(\cfrac{n}{2}) $ \\
+	                & $= n + \cfrac{n}{2} + \cfrac{n}{2} + \cfrac{n}{2} + 2\times T_{msort}(\cfrac{n}{2})$                        \\
+	                & $= \cfrac{5}{2} \times n + 2\times T_{msort}(\cfrac{n}{2})$                                                 \\
+\end{tabular}
+\sidenote{Master Theorem}{
+	For an algorithm $algo$ such that:
+	\[T_{algo}(n) = a \times T_{algo}(\cfrac{n}{b}) + f(n) + \text{base cases}\]
+	The work at recursion level $\log_bn$ is $\Theta(a^{\log_bn})$
+	To calculate the order of the time complexity:
+	\begin{enumerate}
+		\item Get the recurrence relation in the form above.
+		\item Get the critical exponent $E$ by formula: $E = \log_ba = \cfrac{\log a}{\log b}$.
+		\item Given $f(n) = n^c$ we can express the work as a geometric sum $\sum_{i=0}^{\log n}ar^i$ where $r = \cfrac{a}{b^c}$.
+	\end{enumerate}
+	\[r > 1 \Leftrightarrow a > b^c \Leftrightarrow \log_b a > c \Leftrightarrow E > c\]
+	\[\begin{matrix}
+			E < c & T_{algo}(n) \in \Theta(f(n))                                            \\
+			E = c & T_{algo}(n) \in \Theta(f(n)\log_bn) = \Theta(f(n) \log n)               \\
+			E > c & T_{algo}(n) \in \Theta(a^{\log_bn}) = \Theta(n^{\log_ba}) = \Theta(n^E) \\
+		\end{matrix}\]
+}
+By master theorem we can easily see $T_{msort}(n) \in \Theta(n \log n)$.
+We can also calculate it using a graph:
+\centerimage{width=0.4\textwidth}{mergesort.png}
+
+\section*{Quicksort}
+\codelist{Haskell}{quick sort.hs}
+Note for simplicity, we assume the lists are split into equal parts.
+\\ \begin{tabular}{l l }
+	$T_{qsort}(0) $ & $= 1$                                                                            \\
+	$T_{qsort}(1) $ & $= 1$                                                                            \\
+	$T_{qsort}(n) $ & $= T_{partition}(n-1) + T_{++}(\cfrac{n}{2}) + 2 \times T_{qsort}(\cfrac{n}{2})$ \\
+\end{tabular}
+\\In the worst case, the partition splits $xs$ into $(xs, [])$, we have complexity:
+\\ \begin{tabular}{l l }
+	$T_{qsort}(n) $ & $= T_{partition}(n-1) + T_{++}(n-1) + T_{qsort}(0) + T_{qsort}(n-1)$ \\
+	                & $= 2(n-1) + n + 1 + T_{qsort}(n-1)$                                  \\
+\end{tabular}
+\centerimage{width=0.4\textwidth}{quicksort.png}
+We can once again use master theorem, or a diagram such as below to see the complexity:
+Hence in the worst case $T_{qsort}(n) \in O(n^2)$ (same as insertion sort).
+\end{document}

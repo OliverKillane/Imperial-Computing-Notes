@@ -1,0 +1,34 @@
+\documentclass{report}
+    \title{50001 - Algorithm Analysis and Design - Lecture 16}
+    \author{Oliver Killane}
+    \date{18/12/21}
+\input{../50001 common.tex}
+\begin{document}
+\maketitle
+\lectlink{https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=940579d0-4ab4-41d0-a3a9-adf8008866f0}
+
+\section*{Mutable Algorithms}
+We can use \struct{STRef} \var{s} \var{a} to hold a mutable reference to
+\var{a} that can be created, read and modified.
+\codelist{Haskell}{st.hs}
+
+We can use this to create a mutable version of fibonacci.
+\codelist{Haskell}{fib.hs}
+
+\section*{Mutable Datastructures}
+\subsection*{Array}
+\codelist{Haskell}{array.hs}
+Each operation is assumed to take constant time.
+\\
+\\ For example, an algorithm to find the smallest natural number not in a list.
+\codelist{Haskell}{minfree.hs}
+
+\subsection*{Hash}
+\codelist{Haskell}{hash.hs}
+A hash generates an integer from some data. Typically range restricted
+(e.g hashmap can hold a finite number of entries), and the hash function
+should be designed to reduce collisions (two distinct data having the same hash).
+\\
+\\ Below is an example of a bucket based hash map, using linked list buckets.
+\centerimage{width=0.6\textwidth}{hash diagram.png}
+\end{document}
