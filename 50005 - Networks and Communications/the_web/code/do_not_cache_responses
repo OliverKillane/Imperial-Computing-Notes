@@ -1,0 +1,7 @@
+<!-- Cache for at most 100 seconds, then revalidate -->
+HTTP/1.1 200 OK
+Cache-Control: max-age=100, must-revalidate
+
+<!-- Do not cache -->
+HTTP/1.1 200 OK
+Cache-Control: no-cache

@@ -1,0 +1,30 @@
+<mxfile host="65bd71144e">
+    <diagram id="zZzYB0VdjZVMeNt5wdW9" name="Page-1">
+        <mxGraphModel dx="781" dy="1041" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="8" value="Request over&lt;br&gt;&lt;br&gt;Secure Channel" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=15;endArrow=open;endFill=0;endSize=18;labelBackgroundColor=none;" edge="1" parent="1" source="2" target="6">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="2" value="Principal" style="rounded=1;whiteSpace=wrap;html=1;fontSize=30;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry y="65" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="" style="rounded=1;whiteSpace=wrap;html=1;fontSize=30;fillColor=#d80073;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="320" y="30" width="290" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="Resource" style="rounded=1;whiteSpace=wrap;html=1;fontSize=30;fillColor=#008a00;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="410" y="40" width="190" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="Guard" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="320" y="80" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="(User)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;" vertex="1" parent="1">
+                    <mxGeometry x="50" y="125" width="60" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

@@ -1,0 +1,7 @@
+GET /this/2122/are/of/site.html HTTP/1.1
+Host: www.mywebsite.ic.ac.uk
+Cache-Control: no-cache
+
+GET /this/2122/are/of/site.html HTTP/1.1
+Host: www.mywebsite.ic.ac.uk
+Cache-Control: max-age=30

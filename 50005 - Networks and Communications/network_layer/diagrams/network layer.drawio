@@ -1,0 +1,159 @@
+<mxfile host="65bd71144e">
+    <diagram id="sROnH_nJY-yjZXPDCePR" name="Page-1">
+        <mxGraphModel dx="943" dy="2363" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="Payload" style="rounded=0;whiteSpace=wrap;html=1;fontSize=26;fillColor=#f0a30a;fontColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="165" y="-160" width="280" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="Layer 4&lt;br style=&quot;font-size: 18px&quot;&gt;&lt;b&gt;Header&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;fontSize=18;fillColor=#fa6800;fontColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="90" y="-135" width="100" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="Payload" style="rounded=0;whiteSpace=wrap;html=1;fontSize=26;fillColor=#f0a30a;fontColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="295" y="295" width="180" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="Payload" style="rounded=0;whiteSpace=wrap;html=1;fontSize=26;fillColor=#f0a30a;fontColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="560" y="295" width="110" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="Layer 4&lt;br style=&quot;font-size: 18px&quot;&gt;&lt;b&gt;Header&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;fontSize=18;fillColor=#fa6800;fontColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="220" y="320" width="100" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="Layer 3&lt;br&gt;&lt;b&gt;Header&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;fontSize=18;fillColor=#e51400;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="170" y="320" width="100" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="Layer 3&lt;br&gt;&lt;b&gt;Header&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;fontSize=18;fillColor=#e51400;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="490" y="320" width="100" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="" style="endArrow=open;html=1;fontSize=18;endFill=0;endSize=20;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="340" y="185" as="sourcePoint"/>
+                        <mxPoint x="340" y="285" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="340" y="185"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="15" value="" style="endArrow=open;html=1;fontSize=18;endFill=0;endSize=20;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="340" y="185" as="sourcePoint"/>
+                        <mxPoint x="590" y="285" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="340" y="245"/>
+                            <mxPoint x="590" y="245"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="16" value="Network Layer (3)" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
+                    <mxGeometry x="90" y="330" width="95" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="Transport Layer (4)" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
+                    <mxGeometry x="10" y="-125" width="95" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="Fragmentation (IPv4)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
+                    <mxGeometry x="370" y="215" width="185" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="(e.g TCP Segment with header)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
+                    <mxGeometry x="450" y="-125" width="160" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="Layer 4&lt;br style=&quot;font-size: 18px&quot;&gt;&lt;b&gt;Header&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;fontSize=18;fillColor=#fa6800;fontColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="170" y="520" width="100" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="Layer 3&lt;br&gt;&lt;b&gt;Header&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;fontSize=18;fillColor=#e51400;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="120" y="520" width="100" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;flipH=1;fontSize=18;rotation=90;" vertex="1" parent="1">
+                    <mxGeometry x="325" y="430" width="20" height="370" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="IP Datagram/Packet" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
+                    <mxGeometry x="237.5" y="625" width="195" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" value="Network Layer (3)" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="530" width="95" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="Payload" style="rounded=0;whiteSpace=wrap;html=1;fontSize=26;fillColor=#f0a30a;fontColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="245" y="495" width="280" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="Layer 4&lt;br style=&quot;font-size: 18px&quot;&gt;&lt;b&gt;Header&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;fontSize=18;fillColor=#fa6800;fontColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="170" y="97.5" width="100" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="Layer 3&lt;br&gt;&lt;b&gt;Header&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;fontSize=18;fillColor=#e51400;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="120" y="97.5" width="100" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;flipH=1;fontSize=18;rotation=-90;" vertex="1" parent="1">
+                    <mxGeometry x="325" y="-135" width="20" height="370" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" value="IP Datagram/Packet" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
+                    <mxGeometry x="237.5" y="15" width="195" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="35" value="Network Layer (3)" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="107.5" width="95" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="36" value="Payload" style="rounded=0;whiteSpace=wrap;html=1;fontSize=26;fillColor=#f0a30a;fontColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="245" y="72.5" width="280" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="37" value="Payload" style="rounded=0;whiteSpace=wrap;html=1;fontSize=26;fillColor=#f0a30a;fontColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="165" y="685" width="280" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="38" value="Layer 4&lt;br style=&quot;font-size: 18px&quot;&gt;&lt;b&gt;Header&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;fontSize=18;fillColor=#fa6800;fontColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="90" y="710" width="100" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="39" value="Transport Layer (4)" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
+                    <mxGeometry x="10" y="720" width="95" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="40" value="(e.g TCP Segment with header)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
+                    <mxGeometry x="450" y="720" width="160" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="42" value="" style="endArrow=open;html=1;fontSize=18;endFill=0;endSize=20;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="340" y="400" as="sourcePoint"/>
+                        <mxPoint x="340" y="480" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="340" y="430"/>
+                            <mxPoint x="340" y="430"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="43" value="" style="endArrow=open;html=1;fontSize=18;endFill=0;endSize=20;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="600" y="410" as="sourcePoint"/>
+                        <mxPoint x="340" y="480" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="600" y="430"/>
+                            <mxPoint x="340" y="430"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="44" value="Recombined at Destination (IPv4)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
+                    <mxGeometry x="360" y="440" width="185" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="45" value="" style="endArrow=open;html=1;fontSize=18;endFill=0;endSize=20;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="295" y="-50" as="sourcePoint"/>
+                        <mxPoint x="295" y="10" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="295" y="-20"/>
+                            <mxPoint x="295" y="-20"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="46" value="" style="endArrow=open;html=1;fontSize=18;endFill=0;endSize=20;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="237.5" y="625" as="sourcePoint"/>
+                        <mxPoint x="237.67000000000002" y="675" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="237.67000000000002" y="645"/>
+                            <mxPoint x="237.67000000000002" y="645"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="47" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;fontSize=26;fontColor=#FFFFFF;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="30" y="63" width="20" height="547" as="geometry"/>
+                </mxCell>
+                <mxCell id="48" value="Transmitted over Network" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;rotation=-90;" vertex="1" parent="1">
+                    <mxGeometry x="-100" y="321.5" width="230" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

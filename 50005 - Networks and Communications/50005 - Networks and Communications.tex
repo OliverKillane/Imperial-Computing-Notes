@@ -1,0 +1,53 @@
+\documentclass{report}
+\title{50005 - Networks and Communications}
+\author{Oliver Killane}
+\date{18/01/22}
+
+\usepackage[a4paper, total={7in, 10in}]{geometry}
+\input{../common/common.tex}
+
+
+% For some nice syntax highlighting
+\newcommand{\fun}[1]{\textcolor{blue}{\textbf{#1}}}
+\newcommand{\file}[1]{\textcolor{green}{\textbf{#1}}}
+\newcommand{\struct}[1]{\textcolor{orange}{\textbf{#1}}}
+\newcommand{\var}[1]{\textcolor{purple}{\textbf{#1}}}
+\newcommand{\const}[1]{\textcolor{red}{\textbf{#1}}}
+
+% Legacy commands, left in for easier porting of notes
+\newcommand{\bullpara}[2]{\item \textbf{#1} \ #2}
+\newcommand{\keyword}[1]{\textbf{#1}}
+\newcommand{\termdef}[2]{\begin{definitionbox}{#1}#2\end{definitionbox}}
+\newcommand{\example}[2]{\begin{examplebox}{#1} #2 \end{examplebox}}
+\newcommand{\sidenote}[2]{\begin{sidenotebox}{#1} #2 \end{sidenotebox}}
+\newcommand{\compitem}[1]{\begin{itemize} \setlength\itemsep{0em} #1 \end{itemize}}
+\newcommand{\compenum}[1]{\begin{enumerate} \setlength\itemsep{0em} #1 \end{enumerate}}
+\newcommand{\codelist}[2]{\inputminted{#1}{#2}}
+
+\begin{document}
+\include{titlepage/titlepage}
+
+\tableofcontents
+\newpage
+
+\addchapter{introduction}
+
+\addchapter{basic_concepts_and_osi}
+
+\addchapter{the_web}
+
+\addchapter{transport_layer}
+
+\addchapter{network_security}
+
+\addchapter{network_layer}
+
+\addchapter{data_link_layer}
+
+\addchapter{physical_layer}
+
+\addchapter{the_future}
+
+\addchapter{credit}
+
+\end{document}

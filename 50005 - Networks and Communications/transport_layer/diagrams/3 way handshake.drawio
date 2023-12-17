@@ -1,0 +1,69 @@
+<mxfile host="65bd71144e">
+    <diagram id="dXnMJxyzwM7e8gGDezW1" name="Page-1">
+        <mxGraphModel dx="781" dy="2141" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#3700CC;fillColor=#6a00ff;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="95" y="40" width="40" height="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#3700CC;fillColor=#6a00ff;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="545" y="40" width="40" height="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="Client" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=40;" parent="1" vertex="1">
+                    <mxGeometry x="85" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="Server" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=40;" parent="1" vertex="1">
+                    <mxGeometry x="535" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" style="html=1;fontSize=12;endArrow=open;endFill=0;endSize=20;entryX=0;entryY=0.25;entryDx=0;entryDy=0;elbow=vertical;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="41" edge="1" target="45">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="450" y="108.04761904761904" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="6" value="SYN = true | Seq Num = Client_ISN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;fontColor=#000000;strokeColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="230" y="150" width="210" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="40" value="Closed" style="rounded=1;whiteSpace=wrap;html=1;fontSize=18;strokeColor=#000000;fillColor=#e51400;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="50" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="41" value="syn-sent" style="rounded=1;whiteSpace=wrap;html=1;fontSize=18;strokeColor=#000000;fillColor=#fa6800;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="130" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="42" value="established" style="rounded=1;whiteSpace=wrap;html=1;fontSize=18;strokeColor=#000000;fillColor=#008a00;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="260" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="43" value="Closed" style="rounded=1;whiteSpace=wrap;html=1;fontSize=18;strokeColor=#000000;fillColor=#e51400;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="510" y="50" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="44" value="listen" style="rounded=1;whiteSpace=wrap;html=1;fontSize=18;strokeColor=#000000;fillColor=#fa6800;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="510" y="100" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="45" value="syn-received" style="rounded=1;whiteSpace=wrap;html=1;fontSize=18;strokeColor=#000000;fillColor=#fa6800;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="510" y="190" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="46" value="established" style="rounded=1;whiteSpace=wrap;html=1;fontSize=18;strokeColor=#000000;fillColor=#008a00;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="510" y="320" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="48" style="html=1;fontSize=12;endArrow=open;endFill=0;endSize=20;entryX=1;entryY=0.25;entryDx=0;entryDy=0;elbow=vertical;exitX=0;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="45" target="42">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="555" y="207.5" as="targetPoint"/>
+                        <mxPoint x="520" y="230" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="47" value="SYN = true | ACK = true &lt;br&gt;Seq Num = Server_ISN&amp;nbsp;|&amp;nbsp; Acknowledge = Client_ISN&amp;nbsp;+ 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;fontColor=#000000;strokeColor=#000000;gradientColor=#008A00;gradientDirection=west;" vertex="1" parent="1">
+                    <mxGeometry x="230" y="210" width="230" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="52" style="html=1;fontSize=12;endArrow=open;endFill=0;endSize=20;entryX=0;entryY=0.5;entryDx=0;entryDy=0;elbow=vertical;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="42" target="46">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="125.00000000000011" y="285" as="targetPoint"/>
+                        <mxPoint x="150" y="320" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="53" value="ACK = true | Seq Num = Client_ISN + 1 Acknowledge = Server_ISN&amp;nbsp;+ 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;fontColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="230" y="290" width="210" height="40" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

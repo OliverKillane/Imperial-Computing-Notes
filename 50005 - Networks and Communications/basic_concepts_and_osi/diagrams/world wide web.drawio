@@ -1,0 +1,43 @@
+<mxfile host="65bd71144e">
+    <diagram id="nmac82fc1uMjFz-vWk6l" name="Page-1">
+        <mxGraphModel dx="1135" dy="1122" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="4" style="edgeStyle=none;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;endArrow=open;endFill=0;endSize=30;" edge="1" parent="1" source="2" target="3">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="Web Browser" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;verticalAlign=top;fillColor=#1ba1e2;fontColor=#000000;strokeColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="80" y="60" width="130" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" style="edgeStyle=none;html=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;endArrow=open;endFill=0;endSize=30;" edge="1" parent="1" source="3" target="2">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="Web Server" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;verticalAlign=top;strokeColor=#000000;fillColor=#60a917;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="550" y="60" width="130" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="Sends requests" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="80" y="90" width="130" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="Receives, processes and displays responses" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="80" y="180" width="130" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="Receives Request" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="550" y="90" width="130" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="Does some processing" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="550" y="128" width="130" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="Sends response (e.g html to be displayed as a webpage)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="550" y="180" width="130" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="GET / HTTP/1.1&lt;br&gt;Host: www.examplewebserver.com" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="230" y="70" width="240" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="HTTP/1.1. 200 (OK)&lt;br&gt;&amp;lt;!Doctype html&amp;gt;&lt;br&gt;&amp;lt;html&amp;gt; &amp;lt;head&amp;gt; Header &amp;lt;/head&amp;gt;&lt;br&gt;&amp;lt;body&amp;gt; This is text &amp;lt;/body&amp;gt;&lt;br&gt;&amp;lt;/html&amp;gt;" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="305" y="230" width="240" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

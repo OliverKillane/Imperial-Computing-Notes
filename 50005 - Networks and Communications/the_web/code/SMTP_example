@@ -1,0 +1,14 @@
+HELO example.com
+MAIL FROM: sender@example.com
+RCPT TO: reciever@otherdomain.com
+DATA
+FROM: Example Sender <sender@example.com>
+To: Example Receiver <reciever@otherdomain.com>
+Subject: This is an example!
+
+Hello World!
+
+From Sender
+
+.
+QUIT

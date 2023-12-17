@@ -1,0 +1,64 @@
+<mxfile host="65bd71144e">
+    <diagram id="lS7GZD7kIGKa9KMwiDvu" name="Page-1">
+        <mxGraphModel dx="659" dy="930" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="&lt;font color=&quot;#990000&quot;&gt;HELO&lt;/font&gt; example.com" style="text;whiteSpace=wrap;html=1;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="110" width="130" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="&lt;font color=&quot;#990000&quot;&gt;MAIL FROM:&lt;/font&gt; sender@example.com" style="text;whiteSpace=wrap;html=1;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="140" width="220" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="&lt;font color=&quot;#990000&quot;&gt;RCPT TO:&lt;/font&gt; reciever@otherdomain.com" style="text;whiteSpace=wrap;html=1;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="170" width="230" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="&lt;font color=&quot;#990000&quot;&gt;DATA&lt;/font&gt;" style="text;whiteSpace=wrap;html=1;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="200" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="&lt;font color=&quot;#990000&quot;&gt;FROM:&lt;/font&gt; Example Sender " style="text;whiteSpace=wrap;html=1;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="230" width="160" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="&lt;font color=&quot;#990000&quot;&gt;To:&lt;/font&gt; Example Receiver " style="text;whiteSpace=wrap;html=1;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="260" width="140" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="&lt;font color=&quot;#990000&quot;&gt;Subject:&lt;/font&gt; This is an example!" style="text;whiteSpace=wrap;html=1;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="290" width="180" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="Hello World!" style="text;whiteSpace=wrap;html=1;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="350" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="From Sender" style="text;whiteSpace=wrap;html=1;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="380" width="100" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="." style="text;whiteSpace=wrap;html=1;fontSize=13;fontColor=#990000;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="140" y="420" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="&lt;font color=&quot;#990000&quot;&gt;QUIT&lt;/font&gt;" style="text;whiteSpace=wrap;html=1;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="450" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;flipH=1;rotation=-180;" vertex="1" parent="1">
+                    <mxGeometry x="120" y="110" width="20" height="210" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;flipH=1;rotation=-180;" vertex="1" parent="1">
+                    <mxGeometry x="120" y="350" width="20" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="Headers" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="200" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="Content" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="360" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="empty line" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="30" y="320" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="dot ends content" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="10" y="420" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="exit email" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="10" y="450" width="110" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

@@ -7,6 +7,7 @@ It is designed as an improvement in quality over the [second year repo](https://
 ## The Notes...
 - [50003 - Algorithm Analysis and Design](50001%20-%20Algorithm%20Analysis%20and%20Design)
 - [50003 - Models of Computation](50003%20-%20Models%20of%20Computation)
+- [50005 - Networks and Communications](50005%20-%20Networks%20and%20Communications)
 - [50008 - Probability and Statistics](50008%20-%20Probability%20and%20Statistics)
 - [60001 - Advanced Computer Architecture](60001%20-%20Advanced%20Computer%20Architecture)
 - [60007 - Theory and Practice of Concurrent Programming](60007%20-%20Theory%20and%20Practice%20of%20Concurrent%20Programming)
