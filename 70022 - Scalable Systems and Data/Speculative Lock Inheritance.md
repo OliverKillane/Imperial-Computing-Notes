@@ -1,0 +1,2 @@
+## Definition
+After a transaction commits, rather than releasing its locks, another transaction can be selected to inherit, if that transaction uses the same locks, we have avoided the cost of unlocking and having another transaction acquire (contention on acquiring locks).

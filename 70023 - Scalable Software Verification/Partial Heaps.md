@@ -1,0 +1,2 @@
+## Definition
+By splitting the [[Heap]] from [[Hoare Logic]] into independently analysable [[Partial Heaps]] we can scale logic over individual allocations, and build up independent analyses of functions.

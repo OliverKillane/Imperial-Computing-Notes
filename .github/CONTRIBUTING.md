@@ -15,3 +15,6 @@ See the provided [container](../.devcontainer).
 ### Locally
 Please use the dockerfile and vscode features from the [container setup](../.devcontainer) as a guide.
 - @oliverkillane is using MikTex + vscode + wsl on Windows
+
+## On Obsidian...
+Make sure to add new directories for latex notes as ignored from [obsidian's userIgnoreFilters](../.obsidian/app.json)

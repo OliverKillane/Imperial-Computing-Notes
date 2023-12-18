@@ -1,0 +1,3 @@
+>**Rice's theorem** states that all non-trivial semantic properties of programs are [undecidable](https://en.wikipedia.org/wiki/Undecidable_problem "Undecidable problem"). A semantic property is one about the program's behaviour (for instance, does the program [terminate](https://en.wikipedia.org/wiki/Halting_problem "Halting problem") for all inputs), unlike a syntactic property (for instance, does the program contain an [if-then-else](https://en.wikipedia.org/wiki/If-then-else "If-then-else") statement). A property is _non-trivial_ if it is neither true for every program, nor false for every program.
+ 
+[[Decidablility]]

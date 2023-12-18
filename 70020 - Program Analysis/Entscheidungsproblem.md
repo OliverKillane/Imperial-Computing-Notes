@@ -1,0 +1,1 @@
+> In mathematics and computer science the _**Entscheidungsproblem**_ (Germanfor 'decision problem') is a challenge posed by David Hilbert and Wilhelm Ackermann in 1928. The problem asks for an algorithm that considers, as input, a statement and answers "yes" or "no" according to whether the statement is _universally valid_, i.e., valid in every structure satisfying the axioms.

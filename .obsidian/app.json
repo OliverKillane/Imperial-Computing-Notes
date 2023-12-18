@@ -1,0 +1,20 @@
+{
+  "userIgnoreFilters": [
+    "50001 - Algorithm Analysis and Design/",
+    "50003 - Models of Computation/",
+    "50005 - Networks and Communications/",
+    "50006 - Compilers/",
+    "50008 - Probability and Statistics/",
+    "60001 - Advanced Computer Architecture/",
+    "60007 - Theory and Practice of Concurrent Programming/",
+    "60008 - Custom Computing/",
+    "60009 - Distributed Algorithms/",
+    "60017 - System Performance Engineering/",
+    "60023 - Type Systems for Programming Languages/",
+    "60029 - Data Processing Systems/",
+    "common/",
+    "tools/",
+    "README",
+    "LICENCE"
+  ]
+}
