@@ -18,9 +18,11 @@ A collection of textbook-like revision books, and obsidian notes for a selection
 
 ### The Obsidian Notes...
 *Open the root of the repo as a vault*
+- [70004 - Advanced Computer Security](70004%20-%20Advanced%20Computer%20Security)
 - [70020 - Program Analysis](70020%20-%20Program%20analysis)
 - [70022 - Scalable Systems and Data](70022%20-%20Scalable%20Systems%20and%20Data)
 - [70023 - Scalable Software Verification](70023%20-%20Scalable%20Software%20Verification)
+- [70024 - Software Reliability](70024%20-%20Software%20Reliability)
 - [70025 - Software Engineering for Industry](70025%20-%20Software%20Engineering%20for%20Industry)
 
 ### [I want to contribute!](./.github/CONTRIBUTING.md)
