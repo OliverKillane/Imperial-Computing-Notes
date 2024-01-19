@@ -8,4 +8,3 @@ Covers the evolution of basic computer security principles.
 > - Earl Boebert
 ## Commentary
 - *Defence in depth* seems often overlooked (having multiple layers of defences in a system), having *Compromise recording* seems to be in this vein also.
-- 

@@ -24,5 +24,6 @@ A collection of textbook-like revision books, and obsidian notes for a selection
 - [70023 - Scalable Software Verification](70023%20-%20Scalable%20Software%20Verification)
 - [70024 - Software Reliability](70024%20-%20Software%20Reliability)
 - [70025 - Software Engineering for Industry](70025%20-%20Software%20Engineering%20for%20Industry)
+- [70046 - Advanced Digital Systems Design](70046%20-%20Advanced%20Digital%20Systems%20Design)
 
 ### [I want to contribute!](./.github/CONTRIBUTING.md)
