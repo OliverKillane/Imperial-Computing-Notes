@@ -1,0 +1,3 @@
+- Ripple carry
+- lookahead
+- 
