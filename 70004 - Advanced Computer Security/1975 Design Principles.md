@@ -3,7 +3,6 @@
 ## Description
 Covers the evolution of basic computer security principles.
 
-
 > In my view, a defender who doesn’t know how to attack is no defender at all. 
 > - Earl Boebert
 ## Commentary

@@ -3,4 +3,3 @@
 
 Data and message integrity, detecting and repairing errors.
 - Techniques include using Hashing & Checksums, or message authentication codes.
-- 
