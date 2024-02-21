@@ -7,3 +7,5 @@ For example:
 - Does a dynamic analysis (e.g. a [[Compiler Sanitizers]]) report an issue
 - Does an assertion fail (often causing a system crash)
 - Does the [[SUT]] behave correctly / output is valid?
+
+## Derived Test Oracles
