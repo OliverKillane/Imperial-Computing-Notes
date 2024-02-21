@@ -1,7 +1,7 @@
 ## Definition
 Analysis of behaviour collected from running programs.
 - Includes [[Fuzzing]], [[Compiler Sanitizers]] 
-- [[Symbolic Execution]]
+- [[70024 - Software Reliability/Symbolic Execution]]
 - alternative to [[Static Analysis]]
 
 | Advantage | Description |
