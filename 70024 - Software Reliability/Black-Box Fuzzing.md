@@ -5,3 +5,5 @@ The [[SUT]] is executed in an unmodified form (no sanitizers or coverage added).
 - [[SUT]] can run at full speed (optimized binary), enabling a higher rate of fuzzing
 ### Disadvantages
 - Feedback directed fuzzing can only make use of externally-visible [[SUT]] behaviour (cannot augment [[SUT]] with coverage)
+## Examples
+### [[CVE-2007-3944]]

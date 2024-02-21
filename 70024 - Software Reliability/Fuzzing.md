@@ -34,10 +34,9 @@ In 1990 the term *fuzzing*was introduced by a paper testing linux utilities with
 - The paper: [An empirical study of the reliability of UNIX utilities | Communications of the ACM](https://dl.acm.org/doi/10.1145/96267.96279)
 - Tested if random inputs could cause the utilities to crash.
 - This was a [[Generation-Based Fuzzer|generating]] [[Dumb Fuzzing|dumb]] fuzzer
-- 
-
-
 ## Example
 ### GLFuzz
 Generates OpenGL shader programs by mutation (transforms existing programs), but also can insert some  randomly generated code fragments (generation).
 ### [[American Fuzzy Lop (AFL)]]
+### [Peach Fuzzer](https://peachtech.gitlab.io/peach-fuzzer-community/)
+A [[Smart Fuzzing|smart fuzzer]] for [[Generation-Based Fuzzer|generation]] and [[Mutation-Based Fuzzer|mutation]] based fuzzing, including fuzzing access to network and files. Used mainly to find security related bugs.

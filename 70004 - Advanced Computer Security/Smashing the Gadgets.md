@@ -7,9 +7,9 @@ The restricted nature of the randomizations (for individual instructions, intra-
 ## Pros
 1. The restricted nature of the optimisations also excludes most that would affect performance (e.g. increasing the number of instructions, or modifying short to long `jmp`s due to reordering, ). The only potentially effectful transformation is the intra-basic-block instruction reordering, but even with this _*"in all cases, there was no observable difference"*_ in the runtime between original and randomized DLLs (share libraries). The paper does not detail how many randomised versions were used, for testing _*"multiple randomized versions"*_ were used (no further explanation).
 2. No debugging information is required, so binaries can be randomized without source available, without developer's involvement (to distribute extra debug/relocation information), and thus the tool can be immediately put to use.
-3. The paper bases the effectiveness of the limited transformations against ROP on the fragility of ROP code. If even one gadget in the chain is compromised, the entire ROP program is. Using randomization none of their provided test cases for Mona and [Q](https://edmcman.github.io/papers/usenix11.pdf) compiled ROP programs could successfully run.
-4. [[TODO]]
-5. [[TODO]]
+3. No debugging information is required, so optimised and stripped binaries can have their gadgets smashed, again not compromising on performance.
+4. The paper bases the effectiveness of the limited transformations against ROP on the fragility of ROP code. If even one gadget in the chain is compromised, the entire ROP program is. Using randomization none of their provided test cases for Mona and [Q](https://edmcman.github.io/papers/usenix11.pdf) compiled ROP programs could successfully run.
+5. The same techniques used (in place mutation) on IA32, can be applied similarly to other architectures (e.g. arm, powerpc), and across operating systems as there are no OS-specific address space layout requirements as with other techniques.
 ## Cons
 
 1. One of the key reasons behind their more restricted (no metamorphosis or inter-basic block reordering) is the lack of debug information available. This could be easily avoided by asking developers to distribute obfuscated binaries which still contain relocation information. Or even better to distribute the binary in a serialized version of this tool's internal format, to allow quick randomization for users.
