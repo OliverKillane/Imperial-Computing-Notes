@@ -1,5 +1,5 @@
 ## Definition
-A type of [[Symbolic Execution 1]],  that obtains a set of test cases that hit all possible branches in a program.
+A type of [[Symbolic Execution]],  that obtains a set of test cases that hit all possible branches in a program.
 1. Start with concrete input.
 2. run it, and collect path conditions.
 3. choose a given path condition, and negate it.

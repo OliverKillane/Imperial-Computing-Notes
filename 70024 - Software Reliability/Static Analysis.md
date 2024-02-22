@@ -14,6 +14,7 @@ Reasoning about behaviour of programs without executing them.
 | No test Cases | Analysis often does not provide easily applicable test cases for developers. |
 
 Imprecise (but faster) analyses can result in false positives.
+## [[Data Flow Analysis]]
 ## Examples
 ### Coverity ([[A Few Billion Lines of Code Later]])
 ### Theory of [[Program Analysis]]

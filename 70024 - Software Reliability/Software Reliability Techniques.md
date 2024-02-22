@@ -7,4 +7,4 @@
 ## Automated
 ### [[Fuzzing]]
 ### [[Static Analysis]]
-### [[Symbolic Execution 1]]
+### [[Symbolic Execution]]

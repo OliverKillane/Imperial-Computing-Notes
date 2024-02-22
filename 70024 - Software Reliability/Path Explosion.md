@@ -1,6 +1,6 @@
 ## Definition
 Real world programs contain many conditions resulting in a huge number of (often exponential in terms of conditions) paths.
-- When using [[Symbolic Execution 1]]to find bugs, we should prioritise the most important paths
+- When using [[Symbolic Execution]]to find bugs, we should prioritise the most important paths
 ## Solutions
 ### Search Heuristics
 
