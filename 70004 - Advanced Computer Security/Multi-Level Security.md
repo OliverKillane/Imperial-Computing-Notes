@@ -20,3 +20,4 @@ Encodes multiple users using category field:
 Used for managed profiles:
 - parental controls (restricted profile)
 - company managed profiles (work accounts, samsung KNOX)
+revmans

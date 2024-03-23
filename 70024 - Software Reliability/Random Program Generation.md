@@ -34,5 +34,5 @@ By being less conservative about [[Undefined Behaviour]] (and language semantics
 - Generating expressions that could contain [[Undefined Behaviour]]
 The weakened constraints are weighted (e.g. allow null ptr dereference in $\approx10\%$ of generated programs).
 
-A volation of a short circuiting rule for modulus/ `%`  was found, that required the removal of safe wrappers which included bracketing that disuaded the compiler from optimising incorrectly.
+A violation of a short circuiting rule for modulus/ `%`  was found, that required the removal of safe wrappers which included bracketing that dissuaded the compiler from optimising incorrectly.
 

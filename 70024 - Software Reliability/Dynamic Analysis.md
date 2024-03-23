@@ -4,10 +4,10 @@ Analysis of behaviour collected from running programs.
 - [[70024 - Software Reliability/Symbolic Execution]]
 - alternative to [[Static Analysis]]
 
-| Advantage | Description |
-| ---- | ---- |
-| Precise | No false positives - the behaviour observed **is** from the program's execution. |
-| Scalable | Can instrument software and deploy at scale (performance is proportional to regular execution). |
+| Advantage | Description                                                                                     |
+| --------- | ----------------------------------------------------------------------------------------------- |
+| Precise   | No false positives - the behaviour observed **is** from the program's execution.                |
+| Scalable  | Can instrument software and deploy at scale (performance is proportional to regular execution). |
 
 | Disadvantage | Description |
 | ---- | ---- |

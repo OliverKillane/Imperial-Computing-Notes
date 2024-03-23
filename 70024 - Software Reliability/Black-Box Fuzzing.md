@@ -1,4 +1,4 @@
-## Definition
+its ## Definition
 The [[SUT]] is executed in an unmodified form (no sanitizers or coverage added).
 ### Advantages
 - Can be applied to closed source [[SUT]]
